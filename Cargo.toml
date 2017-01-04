@@ -2,7 +2,15 @@
 name = "px8"
 version = "0.0.1"
 authors = ["hallucino <d@t0t0.fr>"]
+description = "Open source fantasy console in Rust"
+documentation = "Fantasy Console with support of Python/Lua for the cartridge"
+homepage = "https://github.com/Gigoteur/PX8"
+repository = "https://github.com/Gigoteur/PX8"
+readme = "README.md"
+keywords = ["rust", "console", "python", "lua", "fantasy", "8bits"]
+license = "MIT"
 
+exclude = [ ".idea/*" ]
 
 [dependencies]
 time = "*"
