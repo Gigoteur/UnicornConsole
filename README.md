@@ -14,6 +14,13 @@ It should work on all platform (Linux/OSX/Windows), and on tiny hardware like Ra
 
 The console is inspired from [Pico-8](http://www.lexaloffle.com/pico-8.php), so you can play Pico-8 cartridges (P8/P8.PNG).
 
+* Youtube Video
+
+[![PX8 SKI](https://img.youtube.com/vi/b-secxed-fk/0.jpg)]
+(https://youtu.be/b-secxed-fk "PX8 SKI")
+
+* Recorded GIF (the time for each frame is slow in the GIF)
+
 ![](http://i.imgur.com/T3yB1mh.gif)
 ![](http://i.imgur.com/Vosz9qf.gif)
 ![](http://i.imgur.com/9fbKRMn.gif)
