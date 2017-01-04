@@ -1,27 +1,5 @@
 [![Build Status](https://travis-ci.org/Gigoteur/PX8.svg?branch=master)](https://travis-ci.org/Gigoteur/PX8)
-        
-- [PX8](#px8)
-  * [Build](#build)
-  * [Run a cartridge](#run-a-cartridge)
-  * [Edition](#edition)
-  * [Keyboard Shortcut](#keyboard-shortcut)
-  * [Create a new cartridge](#create-a-new-cartridge)
-    + [Python](#python)
-    + [Lua](#lua)
-  * [Cartridge format](#cartridge-format)
-  * [API documentation](#api-documentation)
-  * [PX8 Format documentation](#px8-format-documentation)
-  * [Compatible API with Pico-8](#compatible-api-with-pico-8)
-    + [Audio](#audio)
-    + [Cart Data](#cart-data)
-    + [Graphics](#graphics)
-    + [Input](#input)
-    + [Map](#map)
-    + [Math](#math)
-    + [Memory](#memory)
-    + [Peek/Poke](#peek-poke)
-  * [Pico-8 compatibility](#pico-8-compatibility)
-  
+
 # PX8
 
 PX8 is an open source fantasy console (128x128 pixels) in Rust. The main features are:
@@ -40,6 +18,28 @@ The console is inspired from [Pico-8](http://www.lexaloffle.com/pico-8.php), so 
 ![](http://i.imgur.com/Vosz9qf.gif)
 ![](http://i.imgur.com/9fbKRMn.gif)
 
+- [PX8](#px8)
+  * [Build](#build)
+  * [Run a cartridge](#run-a-cartridge)
+  * [Edition](#edit-a-cartridge)
+  * [Keyboard Shortcut](#keyboard-shortcut)
+  * [Create a new cartridge](#create-a-new-cartridge)
+    + [Python](#python)
+    + [Lua](#lua)
+  * [Cartridge format](#cartridge-format)
+  * [API documentation](#api-documentation)
+  * [PX8 Format documentation](#px8-format-documentation)
+  * [Compatible API with Pico-8](#compatible-api-with-pico-8)
+    + [Audio](#audio)
+    + [Cart Data](#cart-data)
+    + [Graphics](#graphics)
+    + [Input](#input)
+    + [Map](#map)
+    + [Math](#math)
+    + [Memory](#memory)
+    + [Peek/Poke](#peek-poke)
+  * [Pico-8 compatibility](#pico-8-compatibility)
+  
 ## Build
 
 You could build PX8 with cargo directly, in release mode for example:
