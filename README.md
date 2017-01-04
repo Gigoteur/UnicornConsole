@@ -21,7 +21,7 @@ The console is inspired from [Pico-8](http://www.lexaloffle.com/pico-8.php), so 
 - [PX8](#px8)
   * [Build](#build)
   * [Run a cartridge](#run-a-cartridge)
-  * [Edition](#edit-a-cartridge)
+  * [Edit a cartridge](#edit-a-cartridge)
   * [Keyboard Shortcut](#keyboard-shortcut)
   * [Create a new cartridge](#create-a-new-cartridge)
     + [Python](#python)
