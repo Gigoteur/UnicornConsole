@@ -51,6 +51,32 @@ You can edit the cartridge by using the specific '-e' option:
  * F5: Save the current cartridge
  * F6: Switch between editor/play mode
 
+## Create a new cartridge
+
+PX8 could call 3 functions:
+  * _init : Called once on cartridge startup, mainly to initialize your variables
+  * _update: Called once per visible frame, mainly to get keyboard input for example
+  * _draw: Called once per visible frame, mainly to draw things on the screen :)
+
+### Python
+
+```
+def _init():
+  print("INIT")
+  
+def _update():
+  px8_print("UPDATE")
+  
+def _draw():
+  px8_print("DRAW")
+```
+
+### Lua
+
+```
+
+```
+
 ## Cartridge format
 
 Format | Read | Write
@@ -61,25 +87,77 @@ PX8 | :white_check_mark: | :white_check_mark:
 
 ## API documentation
 
+### Graphics
+
+#### rect
+
+#### rectfill
+
 ## PX8 Format documentation
 
-## Demos
+## Compatible API with Pico-8
 
-## Compatible API
+### Audio
 
 API | Python | Lua
 ------------ | ------------- | -------------
-rect | :white_check_mark: | :white_check_mark:
-rectfill | :white_check_mark: | :white_check_mark:
-circ | :white_check_mark: | :white_check_mark:
-circfill | :white_check_mark: | :white_check_mark:
-spr | :white_check_mark: | :white_check_mark:
-map | :white_check_mark: | :white_check_mark:
-rect | :white_check_mark: | :white_check_mark:
-rect | :white_check_mark: | :white_check_mark:
-rect | :white_check_mark: | :white_check_mark:
 sfx | :red_circle: | :red_circle:
 music | :red_circle: | :red_circle:
+
+### Cart Data
+
+### Graphics
+
+API | Python | Lua
+------------ | ------------- | -------------
+camera | :white_check_mark: | :white_check_mark:
+circ | :white_check_mark: | :white_check_mark:
+circfill | :white_check_mark: | :white_check_mark:
+clip | :red_circle: | :red_circle:
+cls | :white_check_mark: | :white_check_mark:
+color | :white_check_mark: | :white_check_mark:
+cursor | :red_circle: | :red_circle:
+fget | :red_circle: | :red_circle:
+flip | :red_circle: | :red_circle:
+fset | :red_circle: | :red_circle:
+line | :red_circle: | :white_check_mark:
+print | :white_check_mark: (px8_print) | :white_check_mark:
+pal | :white_check_mark: | :white_check_mark:
+palt | :white_check_mark: | :white_check_mark:
+pget | :white_check_mark: | :white_check_mark:
+print | :white_check_mark: | :white_check_mark:
+pset | :white_check_mark: | :white_check_mark:
+rect | :white_check_mark: | :white_check_mark:
+rectfill | :white_check_mark: | :white_check_mark:
+sget | :white_check_mark: | :white_check_mark:
+spr | :white_check_mark: | :white_check_mark:
+sspr | :white_check_mark: | :white_check_mark:
+
+### Input
+
+API | Python | Lua
+------------ | ------------- | -------------
+btn | :white_check_mark: | :white_check_mark:
+btnp | :white_check_mark: | :white_check_mark:
+
+### Map
+
+API | Python | Lua
+------------ | ------------- | -------------
+map | :white_check_mark: (spr_map) | :white_check_mark:
+mget | :red_circle: (spr_map) | :white_check_mark:
+mset | :red_circle: (spr_map) | :white_check_mark:
+
+### Math
+
+### Memory
+
+### Peek/Poke
+
+API | Python | Lua
+------------ | ------------- | -------------
+stat | :red_circle: | :white_check_mark:
+
 
 ## Pico-8 compatibility
 
@@ -90,9 +168,6 @@ Lua features | Compatibility
 Compound assignment operators | :white_check_mark:
 Single line shorthand for if then else operator | :red_circle:
 Not Equal To | :red_circle:
-
-Lua API | Compatibility
------------- | ------------- 
 
 GFX: :white_check_mark: 
 
