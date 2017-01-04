@@ -20,6 +20,119 @@ pub mod plugin {
     data sprites: Vec<Sprite>;
     data info: Arc<Mutex<Info>>;
 
+    // Audio
+
+    // Cart Data
+
+    // Graphics
+
+    def camera(&self, x: i32, y: i32) -> PyResult<i32> {
+        self.screen(py).lock().unwrap().camera(x, y);
+        Ok(0)
+    }
+
+    def circ(&self, x: i32, y: i32, r: i32, color: i32) -> PyResult<i32> {
+        self.screen(py).lock().unwrap().circ(x as u32, y as u32, r as u32, px8::Color::from_u8(color as u8));
+        Ok(0)
+    }
+
+    def circfill(&self, x: i32, y: i32, r: i32, color: i32) -> PyResult<i32> {
+        self.screen(py).lock().unwrap().circfill(x as u32, y as u32, r as u32, px8::Color::from_u8(color as u8));
+        Ok(0)
+    }
+
+    def cls(&self) -> PyResult<i32> {
+        self.screen(py).lock().unwrap().cls();
+        Ok(0)
+    }
+
+    def flip(&self) -> PyResult<i32> {
+        Ok(0)
+    }
+
+    def line(&self, x1: i32, y1: i32, x2: i32, y2: i32, color: i32) -> PyResult<i32> {
+        self.screen(py).lock().unwrap().line(x1 as u32, y1 as u32, x2 as u32, y2 as u32, px8::Color::from_u8(color as u8));
+        Ok(0)
+    }
+
+    def pal(&self, c0: i32, c1: i32) -> PyResult<i32> {
+        self.screen(py).lock().unwrap().pal(c0, c1);
+        Ok(0)
+    }
+
+    def palt(&self, c: i32, t: bool) -> PyResult<i32> {
+        self.screen(py).lock().unwrap().palt(c as u32, t);
+        Ok(0)
+    }
+
+    def pset(&self, x: i32, y: i32, color: i32) -> PyResult<i32> {
+        self.screen(py).lock().unwrap().pset(x as u32, y as u32, px8::Color::from_u8(color as u8));
+        Ok(0)
+    }
+
+    def print(&self, str: String, x: i32, y: i32, color: i32) -> PyResult<i32> {
+        self.screen(py).lock().unwrap().print(str, x as i32, y as i32, px8::Color::from_u8(color as u8));
+        Ok(0)
+    }
+
+    def pget(&self, x: i32, y: i32) -> PyResult<u8> {
+        let value = self.screen(py).lock().unwrap().pget(x as u32, y as u32);
+        Ok(value)
+    }
+
+    def rect(&self, x1: i32, y1: i32, x2: i32, y2: i32, color: i32) -> PyResult<i32> {
+        self.screen(py).lock().unwrap().rect(x1 as u32, y1 as u32, x2 as u32, y2 as u32, px8::Color::from_u8(color as u8));
+        Ok(0)
+    }
+
+    def rectfill(&self, x1: i32, y1: i32, x2: i32, y2: i32, color: i32) -> PyResult<i32> {
+        self.screen(py).lock().unwrap().rectfill(x1 as u32, y1 as u32, x2 as u32, y2 as u32, px8::Color::from_u8(color as u8));
+        Ok(0)
+    }
+
+    def sget(&self, x: i32, y: i32) -> PyResult<u8> {
+        Ok(self.screen(py).lock().unwrap().sget(x as u32, y as u32))
+    }
+
+    def spr(&self, n: i32, x: i32, y: i32, w: i32, h: i32, flip_x: bool, flip_y: bool) -> PyResult<i32> {
+        self.screen(py).lock().unwrap().spr(n as u32,
+                                                     x as u32,
+                                                     y as u32,
+                                                     w as u32,
+                                                     h as u32,
+                                                     flip_x,
+                                                     flip_y);
+
+        Ok(0)
+    }
+
+    def sset(&self, x: i32, y: i32, color: i32) -> PyResult<u8> {
+        self.screen(py).lock().unwrap().sset(x as u32, y as u32, px8::Color::from_u8(color as u8));
+        Ok(0)
+    }
+
+    def sspr(&self, sx: i32, sy: i32, sw: i32, sh: i32, dx: i32, dy: i32, dw: i32, dh: i32, flip_x: bool, flip_y: bool) -> PyResult<i32> {
+        self.screen(py).lock().unwrap().sspr(sx as u32,
+                                             sy as u32,
+                                             sw as u32,
+                                             sh as u32,
+                                             dx as u32,
+                                             dy as u32,
+                                             dw as u32,
+                                             dh as u32,
+                                             flip_x,
+                                             flip_y);
+        Ok(0)
+    }
+
+
+    def trigon(&self, x1: i32, y1: i32, x2: i32, y2: i32, x3: i32, y3: i32, color: i32) -> PyResult<i32> {
+        self.screen(py).lock().unwrap().trigon(x1 as u32, y1 as u32, x2 as u32, y2 as u32, x3 as u32, y3 as u32, px8::Color::from_u8(color as u8));
+        Ok(0)
+    }
+
+    // Input
+
     def btn(&self, x: i32, p: i32) -> PyResult<u8> {
         let value = self.players(py).lock().unwrap().get_value(p as u8, x as u8);
         Ok(value)
@@ -40,114 +153,11 @@ pub mod plugin {
         Ok(value)
     }
 
-    def flip(&self) -> PyResult<i32> {
-        Ok(0)
-    }
+    // Map
 
-    def cls(&self) -> PyResult<i32> {
-        self.screen(py).lock().unwrap().cls();
-        Ok(0)
-    }
+    // Math
 
-    def print(&self, str: String, x: i32, y: i32, color: i32) -> PyResult<i32> {
-        self.screen(py).lock().unwrap().print(str, x as i32, y as i32, px8::Color::from_u8(color as u8));
-        Ok(0)
-    }
-
-    def time(&self) -> PyResult<f64> {
-        Ok(self.info(py).lock().unwrap().elapsed_time)
-    }
-
-    def camera(&self, x: i32, y: i32) -> PyResult<i32> {
-        self.screen(py).lock().unwrap().camera(x, y);
-        Ok(0)
-    }
-
-    def palt(&self, c: i32, t: bool) -> PyResult<i32> {
-        self.screen(py).lock().unwrap().palt(c as u32, t);
-        Ok(0)
-    }
-
-    def pal(&self, c0: i32, c1: i32) -> PyResult<i32> {
-        self.screen(py).lock().unwrap().pal(c0, c1);
-        Ok(0)
-    }
-
-    def pset(&self, x: i32, y: i32, color: i32) -> PyResult<i32> {
-        self.screen(py).lock().unwrap().pset(x as u32, y as u32, px8::Color::from_u8(color as u8));
-        Ok(0)
-    }
-
-    def pget(&self, x: i32, y: i32) -> PyResult<u8> {
-        let value = self.screen(py).lock().unwrap().pget(x as u32, y as u32);
-        Ok(value)
-    }
-
-    def sget(&self, x: i32, y: i32) -> PyResult<u8> {
-        Ok(self.screen(py).lock().unwrap().sget(x as u32, y as u32))
-    }
-
-    def sset(&self, x: i32, y: i32, color: i32) -> PyResult<u8> {
-        self.screen(py).lock().unwrap().sset(x as u32, y as u32, px8::Color::from_u8(color as u8));
-        Ok(0)
-    }
-
-    def line(&self, x1: i32, y1: i32, x2: i32, y2: i32, color: i32) -> PyResult<i32> {
-        self.screen(py).lock().unwrap().line(x1 as u32, y1 as u32, x2 as u32, y2 as u32, px8::Color::from_u8(color as u8));
-        Ok(0)
-    }
-
-    def rect(&self, x1: i32, y1: i32, x2: i32, y2: i32, color: i32) -> PyResult<i32> {
-        self.screen(py).lock().unwrap().rect(x1 as u32, y1 as u32, x2 as u32, y2 as u32, px8::Color::from_u8(color as u8));
-        Ok(0)
-    }
-
-    def rectfill(&self, x1: i32, y1: i32, x2: i32, y2: i32, color: i32) -> PyResult<i32> {
-        self.screen(py).lock().unwrap().rectfill(x1 as u32, y1 as u32, x2 as u32, y2 as u32, px8::Color::from_u8(color as u8));
-        Ok(0)
-    }
-
-    def circ(&self, x: i32, y: i32, r: i32, color: i32) -> PyResult<i32> {
-        self.screen(py).lock().unwrap().circ(x as u32, y as u32, r as u32, px8::Color::from_u8(color as u8));
-        Ok(0)
-    }
-
-    def circfill(&self, x: i32, y: i32, r: i32, color: i32) -> PyResult<i32> {
-        self.screen(py).lock().unwrap().circfill(x as u32, y as u32, r as u32, px8::Color::from_u8(color as u8));
-        Ok(0)
-    }
-
-    def trigon(&self, x1: i32, y1: i32, x2: i32, y2: i32, x3: i32, y3: i32, color: i32) -> PyResult<i32> {
-        self.screen(py).lock().unwrap().trigon(x1 as u32, y1 as u32, x2 as u32, y2 as u32, x3 as u32, y3 as u32, px8::Color::from_u8(color as u8));
-        Ok(0)
-    }
-
-    def spr(&self, n: i32, x: i32, y: i32, w: i32, h: i32, flip_x: bool, flip_y: bool) -> PyResult<i32> {
-        self.screen(py).lock().unwrap().spr(n as u32,
-                                                     x as u32,
-                                                     y as u32,
-                                                     w as u32,
-                                                     h as u32,
-                                                     flip_x,
-                                                     flip_y);
-
-        Ok(0)
-    }
-
-    def sspr(&self, sx: i32, sy: i32, sw: i32, sh: i32, dx: i32, dy: i32, dw: i32, dh: i32, flip_x: bool, flip_y: bool) -> PyResult<i32> {
-        self.screen(py).lock().unwrap().sspr(sx as u32,
-                                             sy as u32,
-                                             sw as u32,
-                                             sh as u32,
-                                             dx as u32,
-                                             dy as u32,
-                                             dw as u32,
-                                             dh as u32,
-                                             flip_x,
-                                             flip_y);
-        Ok(0)
-    }
-
+    // Memory
 
     def spr_map(&self, cel_x: i32, cel_y: i32, sx: i32, sy: i32, cel_w: i32, cel_h: i32) -> PyResult<i32> {
         self.screen(py).lock().unwrap().map(cel_x as u32, cel_y as u32,
@@ -155,6 +165,13 @@ pub mod plugin {
                                             cel_w as u32, cel_h as u32);
 
         Ok(0)
+    }
+
+    // Peek/Poke
+
+    // Others
+    def time(&self) -> PyResult<f64> {
+        Ok(self.info(py).lock().unwrap().elapsed_time)
     }
 
     });
