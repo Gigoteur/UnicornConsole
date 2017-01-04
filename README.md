@@ -39,7 +39,8 @@ The console is inspired from [Pico-8](http://www.lexaloffle.com/pico-8.php), so 
     + [Memory](#memory)
     + [Peek/Poke](#peek-poke)
   * [Pico-8 compatibility](#pico-8-compatibility)
-  
+  * [Screenshots and Records](#screenshots-and-records)
+
 ## Build
 
 You could build PX8 with cargo directly, in release mode for example:
@@ -191,3 +192,7 @@ GFX: :white_check_mark:
 
 MUSIC: :red_circle:
 
+## Screenshots and Records
+
+![](http://i.imgur.com/1Cykf86.gif)
+![](http://i.imgur.com/ySLiMqp.gif)
