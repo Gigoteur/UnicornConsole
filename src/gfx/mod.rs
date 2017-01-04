@@ -817,9 +817,7 @@ impl Screen {
                 let idx_sprite = self.map[map_x as usize][map_y as usize];
 
                 let sprite = self.sprites[idx_sprite as usize].clone();
-
-                //info!("{:?} {:?} {:?}:{:?} -> {:?} [{:?}:{:?}]", idx_x, idx_y, (cel_y+idx_y), (cel_x+idx_x), idx_sprite, new_x, new_y);
-
+                
                 let mut index = 0;
                 for c in &sprite.data {
                     if self.transparency[*c as usize] == 0 {
@@ -921,7 +919,6 @@ impl Screen {
     }
 
     pub fn palt(&mut self, c: u32, t: bool) {
-        //info!("Transparency {:?} -> {:?}", c, t);
         self.transparency[c as usize] = t as u8;
     }
 }
