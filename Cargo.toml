@@ -1,0 +1,32 @@
+[package]
+name = "px8"
+version = "0.0.1"
+authors = ["hallucino <d@t0t0.fr>"]
+
+
+[dependencies]
+time = "*"
+regex = "*"
+png = "*"
+byteorder = "*"
+rand = "*"
+libc = "*"
+chan ="*"
+log = "*"
+env_logger = "*"
+rusttype = "*"
+getopts = "*"
+sdl2 = "*"
+nalgebra = "*"
+image = "*"
+gif = "*"
+cpython = { git = "https://github.com/dgrunwald/rust-cpython.git" }
+rustc-serialize = "*"
+chrono = "*"
+
+[dependencies.lua]
+git = "https://github.com/jcmoyer/rust-lua53"
+
+[dependencies.glium]
+version = "*"
+default-features = false
