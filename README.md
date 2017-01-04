@@ -87,11 +87,7 @@ PX8 | :white_check_mark: | :white_check_mark:
 
 ## API documentation
 
-### Graphics
-
-#### rect
-
-#### rectfill
+See [API](https://github.com/Gigoteur/PX8/wiki/API-Documentation)
 
 ## PX8 Format documentation
 
@@ -120,7 +116,7 @@ cursor | :red_circle: | :red_circle:
 fget | :red_circle: | :red_circle:
 flip | :red_circle: | :red_circle:
 fset | :red_circle: | :red_circle:
-line | :red_circle: | :white_check_mark:
+line | :white_check_mark: | :white_check_mark:
 print | :white_check_mark: (px8_print) | :white_check_mark:
 pal | :white_check_mark: | :white_check_mark:
 palt | :white_check_mark: | :white_check_mark:
@@ -145,8 +141,8 @@ btnp | :white_check_mark: | :white_check_mark:
 API | Python | Lua
 ------------ | ------------- | -------------
 map | :white_check_mark: (spr_map) | :white_check_mark:
-mget | :red_circle: (spr_map) | :white_check_mark:
-mset | :red_circle: (spr_map) | :white_check_mark:
+mget | :red_circle: | :white_check_mark:
+mset | :red_circle: | :white_check_mark:
 
 ### Math
 
