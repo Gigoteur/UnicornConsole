@@ -817,7 +817,7 @@ impl Screen {
                 let idx_sprite = self.map[map_x as usize][map_y as usize];
 
                 let sprite = self.sprites[idx_sprite as usize].clone();
-                
+
                 let mut index = 0;
                 for c in &sprite.data {
                     if self.transparency[*c as usize] == 0 {

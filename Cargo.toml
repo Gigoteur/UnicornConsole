@@ -10,7 +10,7 @@ readme = "README.md"
 keywords = ["rust", "console", "python", "lua", "fantasy", "8bits"]
 license = "MIT"
 
-exclude = [ ".idea/*" ]
+exclude = [ ".idea/*", ".travis.yml" ]
 
 [dependencies]
 time = "*"
