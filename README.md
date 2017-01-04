@@ -19,7 +19,9 @@ The console is inspired from [Pico-8](http://www.lexaloffle.com/pico-8.php), so 
 [![PX8 SKI](https://img.youtube.com/vi/b-secxed-fk/0.jpg)]
 (https://youtu.be/b-secxed-fk "PX8 SKI")
 
-* Recorded GIF (the time for each frame is slow in the GIF)
+* Recorded GIF 
+
+**The time for each frame is slow (10ms) in the GIF, and doesn't correspond to the speed of the game (see the previous videos on Youtube).**
 
 ![](http://i.imgur.com/T3yB1mh.gif)
 ![](http://i.imgur.com/Vosz9qf.gif)
