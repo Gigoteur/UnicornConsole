@@ -1,5 +1,27 @@
 [![Build Status](https://travis-ci.org/Gigoteur/PX8.svg?branch=master)](https://travis-ci.org/Gigoteur/PX8)
-
+        
+- [PX8](#px8)
+  * [Build](#build)
+  * [Run a cartridge](#run-a-cartridge)
+  * [Edition](#edition)
+  * [Keyboard Shortcut](#keyboard-shortcut)
+  * [Create a new cartridge](#create-a-new-cartridge)
+    + [Python](#python)
+    + [Lua](#lua)
+  * [Cartridge format](#cartridge-format)
+  * [API documentation](#api-documentation)
+  * [PX8 Format documentation](#px8-format-documentation)
+  * [Compatible API with Pico-8](#compatible-api-with-pico-8)
+    + [Audio](#audio)
+    + [Cart Data](#cart-data)
+    + [Graphics](#graphics)
+    + [Input](#input)
+    + [Map](#map)
+    + [Math](#math)
+    + [Memory](#memory)
+    + [Peek/Poke](#peek-poke)
+  * [Pico-8 compatibility](#pico-8-compatibility)
+  
 # PX8
 
 PX8 is an open source fantasy console (128x128 pixels) in Rust. The main features are:
@@ -36,7 +58,7 @@ You should be able to run it directly by providing the path of the cartridge:
 
 The '-s' option is the scale, so you can increase it, or in fullscreen by using '-f' option.
 
-## Edition
+## Edit a cartridge
 
 You can edit the cartridge by using the specific '-e' option:
 ```
@@ -148,7 +170,7 @@ mset | :red_circle: | :white_check_mark:
 
 ### Memory
 
-### Peek/Poke
+### Peek Poke
 
 API | Python | Lua
 ------------ | ------------- | -------------
