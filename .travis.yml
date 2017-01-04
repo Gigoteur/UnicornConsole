@@ -1,5 +1,7 @@
 language: rust
 
+sudo: required
+
 rust:
     - stable
     - beta 
@@ -8,6 +10,12 @@ rust:
 matrix:
   allow_failures:
     - rust: nightly
+
+install:
+  - export PYTHON_LIB=$(python -c "import sysconfig; print(sysconfig.get_config_var('LIBDIR'))")
+  - find $PYTHON_LIB
+  - export LIBRARY_PATH="$LIBRARY_PATH:$PYTHON_LIB"
+  - export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$PYTHON_LIB
 
 addons:
   apt:
