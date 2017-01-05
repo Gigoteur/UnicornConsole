@@ -206,14 +206,55 @@ mset | :red_circle: | :white_check_mark:
 
 ### Math
 
+API | Python | Lua
+------------ | ------------- | -------------
+rnd | :red_circle: | :white_check_mark:
+flr | :white_check_mark: (math.floor) | :white_check_mark:
+ceil | :white_check_mark: (math.ceil) | :white_check_mark:
+cos | :white_check_mark: | :white_check_mark:
+sin | :white_check_mark: | :white_check_mark:
+atan2 | :red_circle: | :white_check_mark:
+sqrt | :white_check_mark: (math.sqrt) | :white_check_mark:
+abs | :white_check_mark: (math.abs) | :white_check_mark:
+sgn | :white_check_mark: | :white_check_mark:
+band | :white_check_mark: | :white_check_mark:
+bor | :white_check_mark: | :white_check_mark:
+bxor | :white_check_mark: | :white_check_mark:
+bnot | :white_check_mark: | :white_check_mark:
+shl | :white_check_mark: | :white_check_mark:
+shr | :white_check_mark: | :white_check_mark:
+sub | :white_check_mark: | :white_check_mark:
+
 ### Memory
+
+API | Python | Lua
+------------ | ------------- | -------------
+cstore | :red_circle: | :red_circle:
+memcpy | :red_circle: | :red_circle:
+memset | :red_circle: | :red_circle:
+reload | :red_circle: | :red_circle:
 
 ### Peek Poke
 
 API | Python | Lua
 ------------ | ------------- | -------------
 stat | :red_circle: | :white_check_mark:
+peek | :red_circle: | :red_circle:
+poke | :red_circle: | :red_circle:
 
+
+## Specific Lua functions
+
+API  | Lua
+------------ | -------------
+add | :white_check_mark:
+del | :white_check_mark:
+min | :white_check_mark:
+max | :white_check_mark:
+mid | :white_check_mark:
+foreach | :white_check_mark:
+count | :white_check_mark:
+all | :white_check_mark:
 
 ## Pico-8 compatibility
 
