@@ -99,11 +99,25 @@ You can edit the cartridge by using the specific '-e' option:
 
 ## Keyboard Shortcut
 
- * F2: FPS debug
- * F3: Take a screenshot
- * F4: Take a video
- * F5: Save the current cartridge
- * F6: Switch between editor/play mode
+Player 1:
+  * cursors, Z,X / C,V / N,M
+
+Player 2:
+  * ESDF, LSHIFT,A / TAB,Q,E
+
+System shortcut:
+  * F2: FPS debug
+  * F3: Take a screenshot
+  * F4: Take a video
+  * F5: Save the current cartridge
+  * F6: Switch between editor/play mode
+
+### Game controller  / Joystick
+
+### Change shortcuts
+
+### Add player
+
 
 ## Create a new cartridge
 
