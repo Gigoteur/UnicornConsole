@@ -28,9 +28,9 @@ The console is inspired from [Pico-8](http://www.lexaloffle.com/pico-8.php), so 
 
 **The time for each frame is slow (10ms) in the GIF, and doesn't correspond to the speed of the game (see the previous videos on Youtube).**
 
-![](http://i.imgur.com/T3yB1mh.gif)
-![](http://i.imgur.com/Vosz9qf.gif)
-![](http://i.imgur.com/9fbKRMn.gif)
+![](http://i.imgur.com/GDC6WzW.gif)
+![](http://i.imgur.com/ZxNgWrt.gif)
+![](http://i.imgur.com/lFB2UPw.gif)
 
 - [PX8](#px8)
   * [Download](#download)
