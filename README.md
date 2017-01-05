@@ -2,12 +2,17 @@
 
 # PX8
 
-PX8 is an open source fantasy console (128x128 pixels) in Rust. The main features are:
+PX8 is an open source fantasy console (128x128 pixels) in Rust. It is still in development but the main features are:
+ * 128x128 pixels, 16 colours
  * Python 3 / Lua 5.X support for the cartridge
+ * Controls with dpad + 2 buttons (gamecontrolelr/joystick support)
+ * No limit size in the code !
+ * Unlimited sprites (8x8)
+ * Map support (128x32)
  * Edition of the cartridge data
  * PX8 format to use your favorite code editor
- * Screenshot (PNG)
- * Record video (GIF format)
+ * Screenshot (PNG) / Video recording (GIF)
+ * Pico-8 (P8/P8.PNG) cartridge format support
  * Mainly run @60 FPS
  
 It should work on all platform (Linux/OSX/Windows), and on tiny hardware like Raspberry Pi (with opengl enabled).
@@ -28,6 +33,7 @@ The console is inspired from [Pico-8](http://www.lexaloffle.com/pico-8.php), so 
 ![](http://i.imgur.com/9fbKRMn.gif)
 
 - [PX8](#px8)
+  * [Download](#download)
   * [Build](#build)
   * [Run a cartridge](#run-a-cartridge)
   * [Edit a cartridge](#edit-a-cartridge)
@@ -50,6 +56,22 @@ The console is inspired from [Pico-8](http://www.lexaloffle.com/pico-8.php), so 
   * [Pico-8 compatibility](#pico-8-compatibility)
   * [Screenshots and Records](#screenshots-and-records)
 
+## Download
+
+You can get directly the latest version via git:
+```
+git clone https://github.com/Gigoteur/PX8.git
+cd PX8
+```
+
+### Binaries
+
+Or you can get binaries for multiples platforms:
+  * Windows
+  * Linux
+  * Mac
+  * Raspberry Pi
+  
 ## Build
 
 You could build PX8 with cargo directly, in release mode for example:
@@ -133,6 +155,12 @@ sfx | :red_circle: | :red_circle:
 music | :red_circle: | :red_circle:
 
 ### Cart Data
+
+API | Python | Lua
+------------ | ------------- | -------------
+cartdata | :red_circle: | :red_circle:
+dget | :red_circle: | :red_circle:
+dset | :red_circle: | :red_circle:
 
 ### Graphics
 
