@@ -28,7 +28,7 @@ sdl2 = "*"
 nalgebra = "*"
 image = "*"
 gif = "*"
-cpython = { git = "https://github.com/dgrunwald/rust-cpython.git" }
+cpython = "*"
 rustc-serialize = "*"
 chrono = "*"
 
