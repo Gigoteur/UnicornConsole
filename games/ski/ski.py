@@ -305,8 +305,6 @@ def collides(a, b):
 def _update():
     global config, state, players, background, timer, trees, shakescreen, particles
 
-    print("SKI _UPDATE")
-
     timer += 1
     if state == 'splash':
         logo_update()
