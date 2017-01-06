@@ -257,7 +257,6 @@ impl SdlFrontend {
         self.start_time = time::now();
         self.times.reset();
 
-        self.run_cartridge("./sys/boot/boot.px8".to_string(), false);
         self.run_cartridge(filename, editor);
     }
 
@@ -491,7 +490,7 @@ impl SdlFrontend {
                     self.px8.update();
                 },
                 px8::PX8State::RUN => {
-                    if self.px8.call_end() {
+                    if self.px8.is_end() {
                         break 'main;
                     }
 

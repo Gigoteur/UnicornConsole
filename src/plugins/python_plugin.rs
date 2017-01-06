@@ -238,50 +238,68 @@ pub mod plugin {
             info!("RES INIT = {:?}", result);
         }
 
-        pub fn draw(&mut self) {
+        pub fn draw(&mut self) -> bool {
+            let mut return_draw_value = true;
+
             if self.loaded_code == false {
-                return;
+                return false;
             }
 
             debug!("CALL DRAW");
             let gil = Python::acquire_gil();
             let py = gil.python();
 
-            let result = py.run(r###"_draw()"###, None, Some(&self.mydict));
+            let result = py.eval(r###"_draw()"###, None, Some(&self.mydict));
+
             match result {
-                Err(v) => warn!("DRAW = {:?}", v),
-                _ => (),
+                Err(v) => {
+                    return_draw_value = false;
+                    warn!("DRAW = {:?}", v);
+                },
+                Ok(v) => {
+                    //return_draw_value = true;
+
+                },
             }
+
+            return return_draw_value;
         }
 
-        pub fn update(&mut self) {
+        pub fn update(&mut self) -> bool {
+            let mut return_update_value = true;
+
             if self.loaded_code == false {
-                return;
+                return false;
             }
 
             debug!("CALL UPDATE");
             let gil = Python::acquire_gil();
             let py = gil.python();
 
-            let result = py.run(r###"_update()"###, None, Some(&self.mydict));
+            let result = py.eval(r###"_update()"###, None, Some(&self.mydict));
+            debug!("RESULT {:?}", result);
+
             match result {
-                Err(v) => warn!("UPDATE = {:?}", v),
-                _ => (),
+                Err(v) => {
+                    return_update_value = false;
+                    warn!("UPDATE = {:?}", v);
+                },
+                Ok(v) => {
+                    match v.extract(py) {
+                        Ok(update_value) => {
+                            debug!("RES UPDATE = {:?}", update_value);
+                            return_update_value = update_value;
+                        }
+                        _ => (),
+                    }
+                },
             }
+
+            debug!("UPDATE = {:?}", return_update_value);
+
+            return return_update_value;
         }
 
-        pub fn end(&mut self) -> bool {
-            if self.loaded_code == false {
-                return true;
-            }
-
-            debug!("CALL END");
-            let gil = Python::acquire_gil();
-            let py = gil.python();
-
-            let result: bool = py.eval(r###"_end()"###, None, Some(&self.mydict)).unwrap().extract(py).unwrap();
-            return result;
-        }
 
         pub fn load_code(&mut self, data: String) {
             info!("LOAD CODE");

@@ -549,9 +549,9 @@ pub mod plugin {
             }
         }
 
-        pub fn draw(&mut self) {
+        pub fn draw(&mut self) -> bool {
             if self.loaded_code == false {
-                return;
+                return false;
             }
 
             let mut lua_state = self.lua_state.lock().unwrap();
@@ -561,26 +561,26 @@ pub mod plugin {
                 error!("DRAW = {:?}", value);
             }
 
+            return true;
         }
 
-        pub fn update(&mut self) {
+        pub fn update(&mut self) -> bool {
             if self.loaded_code == false {
-                return;
+                return false;
             }
 
             let mut lua_state = self.lua_state.lock().unwrap();
 
-          let value = lua_state.do_string("_update()");
-          if value != ThreadStatus::Ok {
-              let value = lua_state.do_string("_update60()");
-              if value != ThreadStatus::Ok {
-                  error!("UPDATE = {:?}", value);
-              }
-          }
-        }
+            let value = lua_state.do_string("_update()");
+            if value != ThreadStatus::Ok {
+                let value = lua_state.do_string("_update60()");
+                if value != ThreadStatus::Ok {
+                    error!("UPDATE = {:?}", value);
+                }
+            }
 
-        pub fn end(&mut self) -> bool {
-            return false;
+            return true;
+
         }
 
         pub fn load_code(&mut self, data: String) {

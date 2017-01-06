@@ -235,6 +235,8 @@ pub struct Px8New {
     pub init_time: f64,
     pub update_time: f64,
     pub record: Record,
+    pub draw_return: bool,
+    pub update_return: bool,
 }
 
 
@@ -256,11 +258,15 @@ impl Px8New {
             init_time: 0.0,
             update_time: 0.0,
             record: Record::new(),
+            draw_return: true,
+            update_return: true,
         }
     }
 
     pub fn init(&mut self) {
         self.screen.lock().unwrap().init();
+        self.update_return = true;
+        self.draw_return = true;
     }
 
     pub fn toggle_info_overlay(&mut self) {
@@ -279,6 +285,10 @@ impl Px8New {
         }
     }
 
+    pub fn is_end(&mut self) -> bool {
+        return !self.update_return;
+    }
+
     pub fn is_recording(&mut self) -> bool {
         return self.record.recording;
     }
@@ -294,7 +304,7 @@ impl Px8New {
     pub fn record(&mut self) {
         info!("Recording the frame");
 
-        if self.record.nb % 2 == 0 {
+        if self.record.nb % 4 == 0 {
             let mut buffer:Vec<u8> = Vec::new();
 
             let scale = 2;
@@ -311,6 +321,7 @@ impl Px8New {
             }
             self.record.images.append(&mut buffer);
         }
+
         self.record.nb += 1;
     }
 
@@ -658,8 +669,8 @@ impl Px8New {
         let current_time = time::now();
 
         match self.code_type {
-            Code::LUA       => self.lua_plugin.draw(),
-            Code::PYTHON    => self.python_plugin.draw(),
+            Code::LUA       => self.draw_return = self.lua_plugin.draw(),
+            Code::PYTHON    => self.draw_return = self.python_plugin.draw(),
             Code::UNKNOWN   => (),
         }
 
@@ -674,8 +685,8 @@ impl Px8New {
         let current_time = time::now();
 
         match self.code_type {
-            Code::LUA       => self.lua_plugin.update(),
-            Code::PYTHON    => self.python_plugin.update(),
+            Code::LUA       => self.update_return = self.lua_plugin.update(),
+            Code::PYTHON    => self.update_return = self.python_plugin.update(),
             Code::UNKNOWN   => (),
         }
 
@@ -686,13 +697,4 @@ impl Px8New {
         return elapsed_time;
     }
 
-    pub fn call_end(&mut self) -> bool {
-        match self.code_type {
-            Code::LUA       => return self.lua_plugin.end(),
-            Code::PYTHON    => return self.python_plugin.end(),
-            Code::UNKNOWN   => (),
-        }
-
-        false
-    }
 }

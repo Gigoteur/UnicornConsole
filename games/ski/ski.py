@@ -283,8 +283,7 @@ for i in range(0, 1):
 state = 'splash'
 
 def _init():
-    pass
-
+    print("SKI _INIT")
 
 def tween(current, dest, speed):
     fps = 60
@@ -305,6 +304,8 @@ def collides(a, b):
 
 def _update():
     global config, state, players, background, timer, trees, shakescreen, particles
+
+    print("SKI _UPDATE")
 
     timer += 1
     if state == 'splash':
@@ -344,7 +345,6 @@ def _update():
                 particles.add(tree.x + 4, tree.y + 4, tree.col, 10)
 
                 tree.y = -150
-
 
     if timer % 100 == 0:
             trees.append(Tree(config))
@@ -446,7 +446,3 @@ def _draw():
             tree.draw()
 
         px8_print(str(config.dist), 110, 5, 12)
-
-
-def _end():
-    return False
