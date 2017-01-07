@@ -36,6 +36,7 @@ The console is inspired from [Pico-8](http://www.lexaloffle.com/pico-8.php), so 
 
 - [PX8](#px8)
   * [Download](#download)
+  * [Requirements](#requirements)
   * [Build](#build)
   * [Run a cartridge](#run-a-cartridge)
   * [Edit a cartridge](#edit-a-cartridge)
