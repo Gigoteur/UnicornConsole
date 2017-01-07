@@ -73,7 +73,23 @@ Or you can get binaries for multiples platforms:
   * Linux
   * Mac
   * Raspberry Pi
-  
+
+## Requirements
+
+You will need multiple things:
+  * SDL2
+  * python3
+  * libreadline
+
+#### Linux
+
+Packages:
+  * libsdl2-dev
+  * libreadline-dev
+  * libpython3-dev
+
+#### OSX
+
 ## Build
 
 You could build PX8 with cargo directly, in release mode for example:
