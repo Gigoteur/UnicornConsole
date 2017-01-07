@@ -2,7 +2,9 @@
 
 # PX8
 
-PX8 is an open source fantasy console (128x128 pixels) in Rust. It is still in development but the main features are:
+PX8 is an open source fantasy console (128x128 pixels) in Rust, where the cartridge code could be in Python or Lua.
+
+It is still in development but the main features are:
  * 128x128 pixels, 16 colours
  * Python 3 / Lua 5.X support for the cartridge
  * Controls with dpad + 2 buttons (gamecontrolelr/joystick support)
