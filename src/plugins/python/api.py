@@ -9,23 +9,26 @@ import math
 def camera(x=-1, y=-1):
     global_obj.camera(x, y)
 
-def cls():
-    global_obj.cls()
-
 def circ(x, y, r, color=-1):
     global_obj.circ(math.floor(x), math.floor(y), math.floor(r), color)
 
 def circfill(x, y, r, color=-1):
     global_obj.circfill(math.floor(x), math.floor(y), math.floor(r), color)
 
+def cls():
+    global_obj.cls()
+
+def color(col):
+    global_obj.color(col)
+
 def line(x1, y1, x2, y2, color):
     global_obj.line(math.floor(x1), math.floor(y1), math.floor(x2), math.floor(y2), color)
 
-def palt(c, t):
-    global_obj.palt(math.floor(c), math.floor(t))
-
 def pal(c0 = -1, c1 = -1, p=0):
     global_obj.pal(math.floor(c0), math.floor(c1))
+
+def palt(c, t):
+    global_obj.palt(math.floor(c), math.floor(t))
 
 def pget(x, y):
     return global_obj.pget(math.floor(x), math.floor(y))
@@ -67,6 +70,7 @@ globals()["camera"] = camera
 globals()["circ"] = circ
 globals()["circfill"] = circfill
 globals()["cls"] = cls
+globals()["color"] = color
 globals()["line"] = line
 globals()["pal"] = pal
 globals()["palt"] = palt

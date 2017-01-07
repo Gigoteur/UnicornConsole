@@ -46,6 +46,11 @@ pub mod plugin {
         Ok(0)
     }
 
+    def color(&self, color:u8) -> PyResult<i32> {
+        self.screen(py).lock().unwrap().color(px8::Color::from_u8(color as u8));
+        Ok(0)
+    }
+
     def flip(&self) -> PyResult<i32> {
         Ok(0)
     }
@@ -55,13 +60,13 @@ pub mod plugin {
         Ok(0)
     }
 
-    def pal(&self, c0: i32, c1: i32) -> PyResult<i32> {
-        self.screen(py).lock().unwrap().pal(c0, c1);
+    def palt(&self, c: i32, t: bool) -> PyResult<i32> {
+        self.screen(py).lock().unwrap().palt(c as u32, t);
         Ok(0)
     }
 
-    def palt(&self, c: i32, t: bool) -> PyResult<i32> {
-        self.screen(py).lock().unwrap().palt(c as u32, t);
+    def pal(&self, c0: i32, c1: i32) -> PyResult<i32> {
+        self.screen(py).lock().unwrap().pal(c0, c1);
         Ok(0)
     }
 
@@ -198,7 +203,7 @@ pub mod plugin {
                     screen: Arc<Mutex<Screen>>,
                     sprites: Vec<Sprite>,
                     map: [[u32; 32]; gfx::SCREEN_WIDTH]) {
-            info!("Init PYTHON struct");
+            info!("INIT PYTHON plugin");
 
             let gil = Python::acquire_gil();
             let py = gil.python();
@@ -211,26 +216,31 @@ pub mod plugin {
                                                    info.clone()).unwrap();
             self.mydict.set_item(py, "obj", obj).unwrap();
 
-            let result = py.run(
-                r###"globals()["global_obj"] = obj;"###, None, Some(&self.mydict));
-            info!("RES = {:?}", result);
-
+            py.run(r###"globals()["global_obj"] = obj;"###, None, Some(&self.mydict));
 
             let mut f = File::open("./src/plugins/python/api.py").unwrap();
             let mut data = String::new();
             f.read_to_string(&mut data).unwrap();
 
             let result = py.run(&data, None, None);
-            info!("RES API = {:?}", result);
+            match result {
+                Err(v) => {
+                    panic!("FAILED TO LOAD PYTHON API = {:?}", v);
+                }
+                Ok(v) => {
+                    info!("SUCCESSFULLY LOAD PYTHON API = {:?}", v);
+                }
+            }
         }
 
 
         pub fn init(&mut self) {
+            info!("CALL INIT");
+
             if self.loaded_code == false {
                 return;
             }
 
-            info!("CALL INIT");
             let gil = Python::acquire_gil();
             let py = gil.python();
 
@@ -240,12 +250,12 @@ pub mod plugin {
 
         pub fn draw(&mut self) -> bool {
             let mut return_draw_value = true;
+            debug!("CALL DRAW");
 
             if self.loaded_code == false {
                 return false;
             }
 
-            debug!("CALL DRAW");
             let gil = Python::acquire_gil();
             let py = gil.python();
 
@@ -257,8 +267,12 @@ pub mod plugin {
                     warn!("DRAW = {:?}", v);
                 },
                 Ok(v) => {
-                    //return_draw_value = true;
-
+                    match v.extract(py) {
+                        Ok(draw_value) => {
+                            return_draw_value = draw_value;
+                        }
+                        _ => (),
+                    }
                 },
             }
 
@@ -267,17 +281,16 @@ pub mod plugin {
 
         pub fn update(&mut self) -> bool {
             let mut return_update_value = true;
+            debug!("CALL UPDATE");
 
             if self.loaded_code == false {
                 return false;
             }
 
-            debug!("CALL UPDATE");
             let gil = Python::acquire_gil();
             let py = gil.python();
 
             let result = py.eval(r###"_update()"###, None, Some(&self.mydict));
-            debug!("RESULT {:?}", result);
 
             match result {
                 Err(v) => {
@@ -287,15 +300,12 @@ pub mod plugin {
                 Ok(v) => {
                     match v.extract(py) {
                         Ok(update_value) => {
-                            debug!("RES UPDATE = {:?}", update_value);
                             return_update_value = update_value;
                         }
                         _ => (),
                     }
                 },
             }
-
-            debug!("UPDATE = {:?}", return_update_value);
 
             return return_update_value;
         }
@@ -308,7 +318,7 @@ pub mod plugin {
 
 
             let result = py.run(&data, None, None);
-            info!("RES CODE = {:?}", result);
+            debug!("RES CODE = {:?}", result);
 
             match result {
                 Ok(_) => self.loaded_code = true,

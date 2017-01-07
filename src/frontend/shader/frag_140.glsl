@@ -1,18 +1,3 @@
-// This file is part of Mooneye GB.
-// Copyright (C) 2014-2016 Joonas Javanainen <joonas.javanainen@gmail.com>
-//
-// Mooneye GB is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Mooneye GB is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Mooneye GB.  If not, see <http://www.gnu.org/licenses/>.
 #version 140
 
 uniform sampler2D tex;
@@ -26,23 +11,6 @@ out vec4 f_color;
 void main() {
   float color = texture(tex, v_tex_coords).x;
   int ccolor = int(color * 255.0 + 0.5);
-
-        // 0   0   0 black
-        // 32  51 123 dark_blue
-        // 126  37  83 dark_purple
-        // 0 144  61 dark_green
-        // 171  82  54 brown
-        // 52  54  53 dark_gray
-        // 194 195 199 light_gray
-        // 255 241 232 white
-        // 255   0  77 red
-        // 255 155   0 orange
-        // 255 231  39 yellow
-        // 0 226  50 green
-        // 41 173 255 blue
-        // 132 112 169 indigo
-        // 255 119 168 pink
-        // 255 214 197 peach
 
   // 0   0   0 black
   if (ccolor == 0) {
