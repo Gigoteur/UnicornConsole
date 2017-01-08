@@ -36,6 +36,7 @@ The console is inspired from [Pico-8](http://www.lexaloffle.com/pico-8.php), so 
 
 - [PX8](#px8)
   * [Download](#download)
+  * [Requirements](#requirements)
   * [Build](#build)
   * [Run a cartridge](#run-a-cartridge)
   * [Edit a cartridge](#edit-a-cartridge)
@@ -73,7 +74,23 @@ Or you can get binaries for multiples platforms:
   * Linux
   * Mac
   * Raspberry Pi
-  
+
+## Requirements
+
+You will need multiple things:
+  * SDL2
+  * python3
+  * libreadline
+
+#### Linux
+
+Packages:
+  * libsdl2-dev
+  * libreadline-dev
+  * libpython3-dev
+
+#### OSX
+
 ## Build
 
 You could build PX8 with cargo directly, in release mode for example:
