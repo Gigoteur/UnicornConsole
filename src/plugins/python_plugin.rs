@@ -218,7 +218,7 @@ pub mod plugin {
 
             py.run(r###"globals()["global_obj"] = obj;"###, None, Some(&self.mydict));
 
-            let mut f = File::open("./src/plugins/python/api.py").unwrap();
+            let mut f = File::open("./sys/config/api.py").unwrap();
             let mut data = String::new();
             f.read_to_string(&mut data).unwrap();
 
