@@ -36,6 +36,7 @@ The console is inspired from [Pico-8](http://www.lexaloffle.com/pico-8.php), so 
 
 - [PX8](#px8)
   * [Download](#download)
+    + [Binaries](#binaries)
   * [Requirements](#requirements)
   * [Build](#build)
   * [Run a cartridge](#run-a-cartridge)
@@ -69,11 +70,12 @@ cd PX8
 
 ### Binaries
 
-Or you can get binaries for multiples platforms:
-  * Windows
-  * Linux
-  * Mac
-  * Raspberry Pi
+Or you can get binaries for multiples platforms directly on [itch.io](https://hallucino.itch.io/px8):
+  * Raspberry Pi (available)
+  * Windows (Work in progress)
+  * Linux (Work in progress)
+  * Mac (Work in progress)
+
 
 ## Requirements
 
