@@ -89,6 +89,13 @@ Packages:
   * libreadline-dev
   * libpython3-dev
 
+##### Raspberry Pi
+
+Please enable the GL Driver (7 - Advanced Options -> Ac - GL Driver -> Yes) via:
+```
+sudo raspi-config
+```
+
 #### OSX
 
 ## Build
