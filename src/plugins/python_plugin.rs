@@ -1,4 +1,4 @@
-#[cfg(not(feature = "no_python_plugin"))]
+#[cfg(feature = "cpython")]
 pub mod plugin {
     use cpython::*;
 
@@ -328,7 +328,7 @@ pub mod plugin {
     }
 }
 
-#[cfg(feature = "no_python_plugin")]
+#[cfg(not(feature = "cpython"))]
 pub mod plugin {
     use std::sync::{Arc, Mutex};
 

@@ -1,3 +1,10 @@
+#[cfg(feature = "lua")]
+extern crate lua;
+
+#[cfg(feature = "cpython")]
+#[macro_use]
+extern crate cpython;
+
 extern crate sdl2;
 extern crate getopts;
 
@@ -9,21 +16,13 @@ extern crate glium;
 extern crate image;
 extern crate gif;
 
-#[cfg(not(feature = "no_lua_plugin"))]
-extern crate lua;
-
-#[cfg(not(feature = "no_python_plugin"))]
-#[macro_use]
-extern crate cpython;
-
-extern crate libc;
-
 extern crate regex;
 extern crate png;
 extern crate byteorder;
 extern crate rand;
 extern crate time;
 extern crate chrono;
+extern crate libc;
 
 extern crate rusttype;
 
