@@ -102,10 +102,10 @@ sudo raspi-config
 
 ## Build
 
-You could build PX8 with cargo directly, in release mode for example:
+You could build PX8 with cargo directly, in release mode for example, with the support of Python and Lua.
 
 ```
-cargo build --release 
+cargo build --features="cpython lua" --release 
 ```
 
 ## Run a cartridge
