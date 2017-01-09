@@ -4,16 +4,18 @@ extern crate getopts;
 extern crate nalgebra;
 
 #[macro_use]
-extern crate cpython;
-
-#[macro_use]
 extern crate glium;
-//extern crate glium_sdl2;
 
 extern crate image;
 extern crate gif;
 
+#[cfg(not(feature = "no_lua_plugin"))]
 extern crate lua;
+
+#[cfg(not(feature = "no_python_plugin"))]
+#[macro_use]
+extern crate cpython;
+
 extern crate libc;
 
 extern crate regex;

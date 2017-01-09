@@ -12,6 +12,12 @@ license = "MIT"
 
 exclude = [ ".idea/*", ".travis.yml" ]
 
+[features]
+# no features by default
+default = []
+no_lua_plugin = []
+no_python_plugin = []
+
 [dependencies]
 time = "0.1.35"
 regex = "0.2.1"

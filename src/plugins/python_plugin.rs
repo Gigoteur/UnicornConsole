@@ -1,4 +1,4 @@
-
+#[cfg(not(feature = "no_python_plugin"))]
 pub mod plugin {
     use cpython::*;
 
@@ -326,5 +326,41 @@ pub mod plugin {
             }
         }
     }
+}
 
+#[cfg(feature = "no_python_plugin")]
+pub mod plugin {
+    use std::sync::{Arc, Mutex};
+
+    use gfx::Sprite;
+    use config::Players;
+
+    use px8;
+    use px8::info::Info;
+
+    use gfx;
+    use gfx::{SCREEN_WIDTH, SCREEN_HEIGHT};
+    use gfx::Screen;
+
+    pub struct PythonPlugin {}
+
+    impl PythonPlugin {
+        pub fn new() -> PythonPlugin {
+            PythonPlugin {}
+        }
+
+
+        pub fn load(&mut self,
+                    players: Arc<Mutex<Players>>,
+                    info: Arc<Mutex<Info>>,
+                    screen: Arc<Mutex<Screen>>,
+                    sprites: Vec<Sprite>,
+                    map: [[u32; 32]; gfx::SCREEN_WIDTH]) {
+            panic!("PYTHON plugin disabled");
+        }
+        pub fn init(&mut self) {}
+        pub fn draw(&mut self) -> bool { return false; }
+        pub fn update(&mut self) -> bool { return false; }
+        pub fn load_code(&mut self, data: String) {}
+    }
 }

@@ -1,3 +1,4 @@
+#[cfg(not(feature = "no_lua_plugin"))]
 pub mod plugin {
     use chan;
     use chan::{Receiver, Sender};
@@ -1297,4 +1298,48 @@ pub mod plugin {
         ("dset", Some(PX8Lua::lua_dset)),
 
     ];
+}
+
+#[cfg(feature = "no_lua_plugin")]
+
+pub mod plugin {
+    use chan;
+    use chan::{Receiver, Sender};
+    use std::sync::{Arc, Mutex};
+
+    use gfx::Sprite;
+    use config::Players;
+
+    use px8;
+    use px8::info::Info;
+
+    use gfx::{SCREEN_WIDTH, SCREEN_HEIGHT};
+    use gfx::Screen;
+
+
+    pub struct LuaPlugin {
+    }
+
+    impl LuaPlugin {
+        pub fn new() -> LuaPlugin {
+            LuaPlugin {}
+        }
+
+        // Keep the compatibility
+
+        pub fn load(&mut self,
+                    tx_input: Sender<Vec<u8>>,
+                    rx_output: Receiver<Vec<u8>>,
+                    players: Arc<Mutex<Players>>,
+                    info: Arc<Mutex<Info>>,
+                    screen: Arc<Mutex<Screen>>,
+                    sprites: Vec<Sprite>,
+                    map: [[u32; 32]; SCREEN_WIDTH]) {
+            panic!("LUA plugin disabled");
+        }
+        pub fn load_code(&mut self, data: String) {}
+        pub fn init(&mut self) {}
+        pub fn draw(&mut self) -> bool { return false; }
+        pub fn update(&mut self) -> bool { return false; }
+    }
 }
