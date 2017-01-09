@@ -601,3 +601,8 @@ fn configure_gl_attr(gl_attr: &mut GLAttr) {
     gl_attr.set_context_profile(GLProfile::Core);
     gl_attr.set_context_flags().forward_compatible().set();
 }
+
+#[cfg(target_os = "emscripten")]
+fn configure_gl_attr(gl_attr: &mut GLAttr) {
+    info!("Init OPENGL for Emscripten");
+}
