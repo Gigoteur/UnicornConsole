@@ -237,7 +237,7 @@ pub mod plugin {
         pub fn init(&mut self) {
             info!("CALL INIT");
 
-            if self.loaded_code == false {
+            if ! self.loaded_code {
                 return;
             }
 
@@ -252,7 +252,7 @@ pub mod plugin {
             let mut return_draw_value = true;
             debug!("CALL DRAW");
 
-            if self.loaded_code == false {
+            if ! self.loaded_code {
                 return false;
             }
 
@@ -283,7 +283,7 @@ pub mod plugin {
             let mut return_update_value = true;
             debug!("CALL UPDATE");
 
-            if self.loaded_code == false {
+            if ! self.loaded_code {
                 return false;
             }
 

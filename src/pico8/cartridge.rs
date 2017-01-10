@@ -699,7 +699,7 @@ fn read_from_p8format<R: io::BufRead>(filename: String, buf: &mut R) -> Result<C
             new_section = true;
         }
 
-        if new_section == true {
+        if new_section {
             match sections.get_mut(&section_name) {
                 Some(vec_section2) => vec_section2.push(l),
                 _ => println!("Impossible to find section {:?}", section_name),
@@ -901,7 +901,7 @@ impl Cartridge {
                 new_section = true;
             }
 
-            if new_section == true {
+            if new_section {
                 match sections.get_mut(&section_name) {
                     Some(vec_section2) => vec_section2.push(l),
                     _ => println!("Impossible to find section {:?}", section_name),

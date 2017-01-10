@@ -522,7 +522,7 @@ impl Px8New {
 
         let mut data;
 
-        if self.cartridges[idx].edit == true {
+        if self.cartridges[idx].edit {
 
             // Reload the code for the px8 format
             match self.cartridges[idx].format {

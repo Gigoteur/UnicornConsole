@@ -108,7 +108,7 @@ impl Players {
 
     pub fn update(&mut self, elapsed: f64) {
         for (_, keys) in self.keys.iter_mut() {
-            if keys.left == true {
+            if keys.left {
                 match keys.frames.get(&PX8Key::Left) {
                     Some(&value) => {
                         if elapsed - value >= 0.01 {
@@ -121,7 +121,7 @@ impl Players {
                 }
             }
 
-            if keys.right == true {
+            if keys.right {
                 match keys.frames.get(&PX8Key::Right) {
                     Some(&value) => {
                         if elapsed - value >= 0.01 {
@@ -134,7 +134,7 @@ impl Players {
                 }
             }
 
-            if keys.up == true {
+            if keys.up {
                 match keys.frames.get(&PX8Key::Up) {
                     Some(&value) => {
                         if elapsed - value >= 0.01 {
@@ -147,7 +147,7 @@ impl Players {
                 }
             }
 
-            if keys.down == true {
+            if keys.down {
                 match keys.frames.get(&PX8Key::Down) {
                     Some(&value) => {
                         if elapsed - value >= 0.01 {
@@ -161,7 +161,7 @@ impl Players {
             }
 
 
-            if keys.o == true {
+            if keys.o {
                 match keys.frames.get(&PX8Key::O) {
                     Some(&value) => {
                         if elapsed - value >= 0.01 {
@@ -174,7 +174,7 @@ impl Players {
                 }
             }
 
-            if keys.x == true {
+            if keys.x {
                 match keys.frames.get(&PX8Key::X) {
                     Some(&value) => {
                         if elapsed - value >= 0.01 {
@@ -187,7 +187,7 @@ impl Players {
                 }
             }
 
-            if keys.pause == true {
+            if keys.pause {
                 match keys.frames.get(&PX8Key::Pause) {
                     Some(&value) => {
                         if elapsed - value >= 0.01 {
@@ -200,7 +200,7 @@ impl Players {
                 }
             }
 
-            if keys.enter == true {
+            if keys.enter {
                 match keys.frames.get(&PX8Key::Enter) {
                     Some(&value) => {
                         if elapsed - value >= 0.01 {
@@ -222,51 +222,51 @@ impl Players {
             Some(keys) => {
                 match key {
                     PX8Key::Right => {
-                        if keys.right == false {
+                        if ! keys.right {
                             keys.right_quick = true;
                         }
                         keys.right = true;
                     },
                     PX8Key::Left => {
-                        if keys.left == false {
+                        if ! keys.left {
                             keys.left_quick = true;
                         }
                         keys.left = true;
                     },
                     PX8Key::Up => {
-                        if keys.up == false {
+                        if ! keys.up {
                             keys.up_quick = true;
                         }
                         keys.up = true
                     },
                     PX8Key::Down => {
-                        if keys.down == false {
+                        if ! keys.down {
                             keys.down_quick = true;
                         }
                         keys.down = true;
                     },
                     PX8Key::O => {
-                        if keys.o == false {
+                        if ! keys.o {
                             keys.o_quick = true;
                         }
                         keys.o = true;
                     },
                     PX8Key::X => {
-                        if keys.x == false {
+                        if ! keys.x {
                             keys.x_quick = true;
                         }
 
                         keys.x = true;
                     },
                     PX8Key::Enter => {
-                        if keys.enter == false {
+                        if ! keys.enter {
                             keys.enter_quick = true;
                         }
 
                         keys.enter = true
                     },
                     PX8Key::Pause => {
-                        if keys.pause == false {
+                        if ! keys.pause {
                             keys.pause_quick = true;
                         }
 
@@ -274,7 +274,7 @@ impl Players {
                     }
                 }
 
-                if repeat == false {
+                if ! repeat {
                     keys.frames.insert(key, elapsed);
                 }
             },
@@ -346,48 +346,23 @@ impl Players {
         }
     }
 
-    pub fn get_value(&mut self, player: u8, index: u8) -> u8 {
-        let mut value = 0;
-
-        match self.keys.get_mut(&player) {
+    pub fn get_value(&self, player: u8, index: u8) -> u8 {
+        match self.keys.get(&player) {
             Some(keys) => {
-                if index == 0 {
-                    if keys.left {
-                        value = 1;
-                    }
-                } else if index == 1 {
-                    if keys.right {
-                        value = 1;
-                    }
-                } else if index == 2 {
-                    if keys.up {
-                        value = 1;
-                    }
-                } else if index == 3 {
-                    if keys.down {
-                        value = 1;
-                    }
-                } else if index == 4 {
-                    if keys.o {
-                        value = 1;
-                    }
-                } else if index == 5 {
-                    if keys.x {
-                        value = 1;
-                    }
-                } else if index == 6 {
-                    if keys.enter {
-                        value = 1;
-                    }
-                } else if index == 7 {
-                    if keys.pause {
-                        value = 1;
-                    }
+                match index {
+                    0 if keys.left => 1,
+                    1 if keys.right => 1,
+                    2 if keys.up => 1,
+                    3 if keys.down => 1,
+                    4 if keys.o => 1,
+                    5 if keys.x => 1,
+                    6 if keys.enter => 1,
+                    7 if keys.pause => 1,
+                    _ => 0
                 }
             },
-            None => ()
+            None => 0
         }
-        value
     }
 
 
