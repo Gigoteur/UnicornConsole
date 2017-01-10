@@ -222,51 +222,51 @@ impl Players {
             Some(keys) => {
                 match key {
                     PX8Key::Right => {
-                        if keys.right == false {
+                        if ! keys.right {
                             keys.right_quick = true;
                         }
                         keys.right = true;
                     },
                     PX8Key::Left => {
-                        if keys.left == false {
+                        if ! keys.left {
                             keys.left_quick = true;
                         }
                         keys.left = true;
                     },
                     PX8Key::Up => {
-                        if keys.up == false {
+                        if ! keys.up {
                             keys.up_quick = true;
                         }
                         keys.up = true
                     },
                     PX8Key::Down => {
-                        if keys.down == false {
+                        if ! keys.down {
                             keys.down_quick = true;
                         }
                         keys.down = true;
                     },
                     PX8Key::O => {
-                        if keys.o == false {
+                        if ! keys.o {
                             keys.o_quick = true;
                         }
                         keys.o = true;
                     },
                     PX8Key::X => {
-                        if keys.x == false {
+                        if ! keys.x {
                             keys.x_quick = true;
                         }
 
                         keys.x = true;
                     },
                     PX8Key::Enter => {
-                        if keys.enter == false {
+                        if ! keys.enter {
                             keys.enter_quick = true;
                         }
 
                         keys.enter = true
                     },
                     PX8Key::Pause => {
-                        if keys.pause == false {
+                        if ! keys.pause {
                             keys.pause_quick = true;
                         }
 
@@ -274,7 +274,7 @@ impl Players {
                     }
                 }
 
-                if repeat == false {
+                if ! repeat {
                     keys.frames.insert(key, elapsed);
                 }
             },
