@@ -7,7 +7,7 @@ documentation = "Fantasy Console with support of Python/Lua for the cartridge"
 homepage = "https://github.com/Gigoteur/PX8"
 repository = "https://github.com/Gigoteur/PX8"
 readme = "README.md"
-keywords = ["rust", "fantasy console", "python", "lua", "8bits"]
+keywords = ["rust", "console", "python", "lua", "8bits"]
 license = "MIT"
 
 exclude = [ ".idea/*", ".travis.yml" ]
