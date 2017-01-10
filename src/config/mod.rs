@@ -346,48 +346,23 @@ impl Players {
         }
     }
 
-    pub fn get_value(&mut self, player: u8, index: u8) -> u8 {
-        let mut value = 0;
-
-        match self.keys.get_mut(&player) {
+    pub fn get_value(&self, player: u8, index: u8) -> u8 {
+        match self.keys.get(&player) {
             Some(keys) => {
-                if index == 0 {
-                    if keys.left {
-                        value = 1;
-                    }
-                } else if index == 1 {
-                    if keys.right {
-                        value = 1;
-                    }
-                } else if index == 2 {
-                    if keys.up {
-                        value = 1;
-                    }
-                } else if index == 3 {
-                    if keys.down {
-                        value = 1;
-                    }
-                } else if index == 4 {
-                    if keys.o {
-                        value = 1;
-                    }
-                } else if index == 5 {
-                    if keys.x {
-                        value = 1;
-                    }
-                } else if index == 6 {
-                    if keys.enter {
-                        value = 1;
-                    }
-                } else if index == 7 {
-                    if keys.pause {
-                        value = 1;
-                    }
+                match index {
+                    0 if keys.left => 1,
+                    1 if keys.right => 1,
+                    2 if keys.up => 1,
+                    3 if keys.down => 1,
+                    4 if keys.o => 1,
+                    5 if keys.x => 1,
+                    6 if keys.enter => 1,
+                    7 if keys.pause => 1,
+                    _ => 0
                 }
             },
-            None => ()
+            None => 0
         }
-        value
     }
 
 
