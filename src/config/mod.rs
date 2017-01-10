@@ -108,7 +108,7 @@ impl Players {
 
     pub fn update(&mut self, elapsed: f64) {
         for (_, keys) in self.keys.iter_mut() {
-            if keys.left == true {
+            if keys.left {
                 match keys.frames.get(&PX8Key::Left) {
                     Some(&value) => {
                         if elapsed - value >= 0.01 {
@@ -121,7 +121,7 @@ impl Players {
                 }
             }
 
-            if keys.right == true {
+            if keys.right {
                 match keys.frames.get(&PX8Key::Right) {
                     Some(&value) => {
                         if elapsed - value >= 0.01 {
@@ -134,7 +134,7 @@ impl Players {
                 }
             }
 
-            if keys.up == true {
+            if keys.up {
                 match keys.frames.get(&PX8Key::Up) {
                     Some(&value) => {
                         if elapsed - value >= 0.01 {
@@ -147,7 +147,7 @@ impl Players {
                 }
             }
 
-            if keys.down == true {
+            if keys.down {
                 match keys.frames.get(&PX8Key::Down) {
                     Some(&value) => {
                         if elapsed - value >= 0.01 {
@@ -161,7 +161,7 @@ impl Players {
             }
 
 
-            if keys.o == true {
+            if keys.o {
                 match keys.frames.get(&PX8Key::O) {
                     Some(&value) => {
                         if elapsed - value >= 0.01 {
@@ -174,7 +174,7 @@ impl Players {
                 }
             }
 
-            if keys.x == true {
+            if keys.x {
                 match keys.frames.get(&PX8Key::X) {
                     Some(&value) => {
                         if elapsed - value >= 0.01 {
@@ -187,7 +187,7 @@ impl Players {
                 }
             }
 
-            if keys.pause == true {
+            if keys.pause {
                 match keys.frames.get(&PX8Key::Pause) {
                     Some(&value) => {
                         if elapsed - value >= 0.01 {
@@ -200,7 +200,7 @@ impl Players {
                 }
             }
 
-            if keys.enter == true {
+            if keys.enter {
                 match keys.frames.get(&PX8Key::Enter) {
                     Some(&value) => {
                         if elapsed - value >= 0.01 {
