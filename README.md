@@ -108,6 +108,16 @@ You could build PX8 with cargo directly, in release mode for example, with the s
 cargo build --features="cpython lua" --release 
 ```
 
+### With SDL
+
+If you want to use only the SDL renderer without opengl, you could use the sdl_renderer feature:
+
+```
+cargo build --features="sdl_renderer" --release 
+```
+
+### Emscripten
+
 ## Run a cartridge
 
 You should be able to run it directly by providing the path of the cartridge:
