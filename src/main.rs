@@ -30,7 +30,7 @@ extern crate chan;
 
 #[macro_use]
 extern crate log;
-extern crate env_logger;
+extern crate fern;
 
 extern crate rustc_serialize;
 
@@ -43,6 +43,7 @@ use getopts::Options;
 mod config;
 
 mod frontend;
+mod renderer;
 mod gfx;
 mod px8;
 mod pico8;
@@ -51,14 +52,24 @@ mod plugins;
 use gfx::Scale;
 use pico8::cartridge::Cartridge;
 
-
 fn print_usage(program: &str, opts: Options) {
     let brief = format!("Usage: {} FILE [options]", program);
     print!("{}", opts.usage(&brief));
 }
 
 fn main() {
-    env_logger::init().unwrap();
+    let logger_config = fern::DispatchConfig {
+        format: Box::new(|msg: &str, level: &log::LogLevel, _location: &log::LogLocation| {
+            format!("[{}][{}] {}", time::now().strftime("%Y-%m-%d][%H:%M:%S").unwrap(), level, msg)
+        }),
+        output: vec![fern::OutputConfig::stdout(), fern::OutputConfig::file("output.log")],
+        level: log::LogLevelFilter::Trace,
+    };
+
+    if let Err(e) = fern::init_global_logger(logger_config, log::LogLevelFilter::Info) {
+        panic!("Failed to initialize global logger: {}", e);
+    }
+
     let args: Vec<String> = env::args().collect();
     let program = args[0].clone();
 
@@ -83,7 +94,8 @@ fn main() {
     let input = if !matches.free.is_empty() {
         matches.free[0].clone()
     } else {
-        print_usage(&program, opts);
+        start_demo();
+        //print_usage(&program, opts);
         return;
     };
 
@@ -155,6 +167,16 @@ fn main() {
         start_px8(scale, fullscreen, input, matches.opt_present("e"));
     }
 }
+
+pub fn start_demo() {
+    let mut frontend = match frontend::SdlFrontend::init(Scale::Scale2x, false) {
+        Err(error) => panic!("{:?}", error),
+        Ok(frontend) => frontend
+    };
+
+    frontend.demo();
+}
+
 
 pub fn start_px8(scale: gfx::Scale, fullscreen: bool, filename: String, editor: bool) {
   let mut frontend = match frontend::SdlFrontend::init(scale, fullscreen) {

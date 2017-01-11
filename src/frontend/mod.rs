@@ -1,5 +1,3 @@
-pub mod glium_sdl2;
-pub mod renderer;
 use time;
 
 use sdl2;
@@ -9,14 +7,9 @@ use sdl2::EventPump;
 use sdl2::VideoSubsystem;
 use std::time::{Duration, Instant};
 use std::thread;
-use sdl2::video::gl_attr::GLAttr;
 use sdl2::event::{Event, WindowEvent};
 use sdl2::keyboard::Keycode;
 use sdl2::controller::{Axis, Button};
-
-use glium::{Api, GliumCreationError, Surface, SwapBuffersError, Version};
-use glium::backend::Facade;
-use self::glium_sdl2::{Display, DisplayBuild, GliumSdl2Error};
 
 use std::error::Error;
 use std::fmt;
@@ -28,6 +21,7 @@ use chrono::Local;
 use chan;
 use chan::{Receiver, Sender};
 
+use renderer;
 use px8;
 use config;
 use gfx::{fps, Scale};
@@ -95,16 +89,9 @@ pub enum FrontendError {
 
 pub type FrontendResult<T> = Result<T, FrontendError>;
 
-
 impl From<sdl2::IntegerOrSdlError> for FrontendError {
     fn from(e: sdl2::IntegerOrSdlError) -> FrontendError {
         FrontendError::Sdl(format!("{:?}", e))
-    }
-}
-
-impl From<GliumCreationError<GliumSdl2Error>> for FrontendError {
-    fn from(e: GliumCreationError<GliumSdl2Error>) -> FrontendError {
-        FrontendError::Renderer(format!("{:?}", e))
     }
 }
 
@@ -113,6 +100,22 @@ impl From<sdl2::video::WindowBuildError> for FrontendError {
         FrontendError::Renderer(format!("{:?}", e))
     }
 }
+
+impl From<String> for FrontendError {
+    fn from(e: String) -> FrontendError {
+        FrontendError::Other(e)
+    }
+}
+
+/*
+
+impl From<GliumCreationError<GliumSdl2Error>> for FrontendError {
+    fn from(e: GliumCreationError<GliumSdl2Error>) -> FrontendError {
+        FrontendError::Renderer(format!("{:?}", e))
+    }
+}
+
+
 
 impl From<SwapBuffersError> for FrontendError {
     fn from(e: SwapBuffersError) -> FrontendError {
@@ -147,6 +150,7 @@ impl fmt::Display for FrontendError {
         }
     }
 }
+*/
 
 pub struct Channels {
     tx_input: Sender<Vec<u8>>,
@@ -171,9 +175,7 @@ impl Channels {
 
 pub struct SdlFrontend {
     sdl: Sdl,
-    sdl_video: VideoSubsystem,
     event_pump: EventPump,
-    display: Display,
     renderer: renderer::renderer::Renderer,
     times: FrameTimes,
     px8: px8::Px8New,
@@ -195,52 +197,14 @@ impl SdlFrontend {
         info!("SDL2 event pump");
         let event_pump = try!(sdl.event_pump());
 
-        let display;
-        let renderer;
-
-        info!("SDL2 Video opengl [glium]");
-
-        configure_gl_attr(&mut sdl_video.gl_attr());
-
-        if fullscreen {
-            info!("SDL2 window fullscreen");
-
-            display = try!(sdl_video.window("PX8",
-                                            (px8::SCREEN_WIDTH * scale.factor()) as u32,
-                                            (px8::SCREEN_HEIGHT * scale.factor()) as u32)
-                .resizable()
-                .fullscreen()
-                .position_centered()
-                .build_glium());
-        } else {
-            info!("SDL2 window");
-
-            display = try!(sdl_video.window("PX8",
-                                            (px8::SCREEN_WIDTH * scale.factor()) as u32,
-                                            (px8::SCREEN_HEIGHT * scale.factor()) as u32)
-                .resizable()
-                .position_centered()
-                .build_glium());
-        }
-
-        info!("VERSION {:?}", *display.get_context().get_version());
-
-
-        info!("Initialized renderer with {}",
-                 match *display.get_opengl_version() {
-                     Version(Api::Gl, major, minor) => format!("OpenGL {}.{}", major, minor),
-                     Version(Api::GlEs, major, minor) => format!("OpenGL ES {}.{}", major, minor),
-                 });
-        renderer = try!(renderer::renderer::Renderer::new(&display));
+        let renderer = renderer::renderer::Renderer::new(sdl_video, fullscreen, scale).unwrap();
 
         // Disable mouse in the window
         sdl.mouse().show_cursor(true);
 
         Ok(SdlFrontend {
             sdl: sdl,
-            sdl_video: sdl_video,
             event_pump: event_pump,
-            display: display,
             renderer: renderer,
             times: FrameTimes::new(Duration::from_secs(1) / 60),
             px8: px8::Px8New::new(),
@@ -261,12 +225,7 @@ impl SdlFrontend {
     }
 
     pub fn blit(&mut self) {
-        self.renderer.update_pixels(&self.px8.screen.lock().unwrap().back_buffer);
-
-        let mut target = self.display.draw();
-        target.clear_color(0.0, 0.0, 0.0, 0.0);
-        self.renderer.draw(&mut target);
-        target.finish();
+        self.renderer.blit(&self.px8.screen.lock().unwrap().back_buffer);
 
         self.times.limit();
     }
@@ -303,7 +262,7 @@ impl SdlFrontend {
         let mut joysticks = Vec::new();
         let mut controllers = Vec::new();
 
-       // let mut controller = None;
+        // let mut controller = None;
 
         for id in 0..available {
             if game_controller_subsystem.is_game_controller(id) {
@@ -321,7 +280,6 @@ impl SdlFrontend {
                     },
                     Err(e) => info!("failed: {:?}", e),
                 }
-
             } else {
                 info!("{} is not a game controller", id);
             }
@@ -331,7 +289,7 @@ impl SdlFrontend {
 
         let available =
         match joystick_subsystem.num_joysticks() {
-            Ok(n)  => n,
+            Ok(n) => n,
             Err(e) => panic!("can't enumerate joysticks: {}", e),
         };
 
@@ -364,26 +322,24 @@ impl SdlFrontend {
             self.px8.fps = fps_counter.get_fps();
 
             let mouse_state = self.event_pump.mouse_state();
-            let (width, height) = self.renderer.get_dimensions(&self.display);
+            let (width, height) = self.renderer.get_dimensions();
 
             players_clone.lock().unwrap().set_mouse_x(mouse_state.x() / (width as i32 / px8::SCREEN_WIDTH as i32));
             players_clone.lock().unwrap().set_mouse_y(mouse_state.y() / (height as i32 / px8::SCREEN_HEIGHT as i32));
             players_clone.lock().unwrap().set_mouse_state(mouse_state);
 
             if mouse_state.left() {
-                info!("MOUSE X {:?} Y {:?}",
+                debug!("MOUSE X {:?} Y {:?}",
                       mouse_state.x() / (width as i32 / px8::SCREEN_WIDTH as i32),
                       mouse_state.y() / (height as i32 / px8::SCREEN_HEIGHT as i32));
             }
 
             for event in self.event_pump.poll_iter() {
-               // info!("EVENT {:?}", event);
-
                 match event {
                     Event::Quit { .. } => break 'main,
                     Event::KeyDown { keycode: Some(keycode), .. } if keycode == Keycode::Escape => break 'main,
                     Event::Window { win_event: WindowEvent::SizeChanged(_, _), .. } => {
-                        self.renderer.update_dimensions(&self.display);
+                        self.renderer.update_dimensions();
                     },
                     Event::KeyDown { keycode: Some(keycode), repeat, .. } => {
                         if let (Some(key), player) = map_keycode(keycode) {
@@ -458,20 +414,20 @@ impl SdlFrontend {
                         }
                     },
 
-                    Event::JoyAxisMotion{ which: id, axis_idx, value: val, .. } => {
+                    Event::JoyAxisMotion { which: id, axis_idx, value: val, .. } => {
                         info!("Joystick Axis Motion {:?} {:?} {:?}", id, axis_idx, val);
                     },
 
-                    Event::JoyButtonDown{ which: id, button_idx, .. } => {
+                    Event::JoyButtonDown { which: id, button_idx, .. } => {
                         info!("Joystick button DOWN {:?} {:?}", id, button_idx);
-                       // if let Some(key) = map_button(button) { players_clone.lock().unwrap().key_up(0, key) }
+                        // if let Some(key) = map_button(button) { players_clone.lock().unwrap().key_up(0, key) }
                     },
 
-                    Event::JoyButtonUp{ which: id, button_idx, .. } => {
+                    Event::JoyButtonUp { which: id, button_idx, .. } => {
                         info!("Joystick Button {:?} {:?} up", id, button_idx);
                     },
 
-                    Event::JoyHatMotion{ which: id, hat_idx, state, .. } => {
+                    Event::JoyHatMotion { which: id, hat_idx, state, .. } => {
                         info!("Joystick Hat {:?} {:?} moved to {:?}", id, hat_idx, state);
                     },
 
@@ -513,6 +469,36 @@ impl SdlFrontend {
             self.info.lock().unwrap().elapsed_time = elapsed_time;
 
             players_clone.lock().unwrap().update(elapsed_time);
+
+            self.blit();
+        }
+    }
+
+    pub fn demo(&mut self) {
+        let mut fps_counter = fps::FpsCounter::new();
+
+        self.start_time = time::now();
+        self.times.reset();
+
+        self.px8.init();
+
+        'main: loop {
+            let delta = self.times.update();
+
+            fps_counter.update(self.times.last_time);
+
+            self.px8.fps = fps_counter.get_fps();
+
+            for event in self.event_pump.poll_iter() {
+                // info!("EVENT {:?}", event);
+
+                match event {
+                    Event::Quit { .. } => break 'main,
+                    _ => (),
+                }
+            }
+
+            self.px8.update();
 
             self.blit();
         }
@@ -581,28 +567,4 @@ Axis::LeftY => match value {
 },
 _ => None
 }
-}
-
-#[cfg(target_os = "linux")]
-fn configure_gl_attr(gl_attr: &mut GLAttr) {
-    info!("Init OPENGL for Linux");
-}
-
-#[cfg(target_os = "windows")]
-fn configure_gl_attr(gl_attr: &mut GLAttr) {
-    info!("Init OPENGL for Windows");
-}
-
-#[cfg(target_os = "macos")]
-fn configure_gl_attr(gl_attr: &mut GLAttr) {
-    info!("Init OPENGL for OSX");
-
-    use sdl2::video::GLProfile;
-    gl_attr.set_context_profile(GLProfile::Core);
-    gl_attr.set_context_flags().forward_compatible().set();
-}
-
-#[cfg(target_os = "emscripten")]
-fn configure_gl_attr(gl_attr: &mut GLAttr) {
-    info!("Init OPENGL for Emscripten");
 }
