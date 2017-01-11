@@ -35,7 +35,7 @@ clean:
 .PHONY: clean
 
 serve: all
-	ruby -run -e httpd $(DOCS_DIR) -p $(DOCS_PORT)
+    python2.7 -m SimpleHTTPServer $(DOCS_PORT)
 
 FORCE:
 .PHONY: FORCE

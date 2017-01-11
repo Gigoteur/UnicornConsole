@@ -372,7 +372,7 @@ pub mod renderer {
             self.renderer.copy(&self.texture, None, None);
             self.renderer.present();
         }
-        
+
         pub fn update_dimensions(&mut self) {
         }
 

@@ -178,7 +178,6 @@ impl CartridgeLua {
                     break;
                 }
                 code.push(value as char);
-                //  println!("VALUE1 {:?} {:?}", value as char, idx);
                 idx += 2;
             }
 
@@ -189,7 +188,6 @@ impl CartridgeLua {
 
             let mut lines = code_str.lines();
             for line in lines {
-                //  info!("{:?}", line);
                 vec_code.push(line.to_string());
             }
         }
@@ -225,12 +223,10 @@ impl CartridgeLua {
                 if x == 0x0 {
                     let value = (*code_raw.get(idx + 2 + 1).unwrap() << 4) | (*code_raw.get(idx + 2).unwrap());
                     code.push(value as char);
-                    //      println!("VALUE1 {:?}", value as char);
                     idx += 2;
                 } else if x <= 0x3b {
                     let value = *map_converter.get(x as usize).unwrap() as char;
                     code.push(value);
-                    //    println!("VALUE2 {:?}", value);
                 } else {
                     let code1: usize = x as usize;
                     let code2: usize = (*code_raw.get(idx + 2 + 1).unwrap() << 4) as usize | (*code_raw.get(idx + 2).unwrap()) as usize;
@@ -244,23 +240,16 @@ impl CartridgeLua {
 
                     let mut u: Vec<char> = Vec::new();
                     let mut idx2 = code.len() - byte_ago;
-                    //   println!("{:?} {:?} {:?}", idx2, code, code.len());
 
                     while idx2 < code.len() - byte_ago + size {
-                        // println!("IDX2 {:?}", idx2);
                         u.push(*code.get(idx2).unwrap());
                         idx2 += 1;
                     }
-                    //let u: Vec<_> = code_raw.drain(idx-byte_ago..idx-byte_ago+size).collect();
-
-                    //    println!("{:?}", u);
 
                     for n in &u {
                         code.push(*n);
                     }
                 }
-
-                //debug!("{:?}", code);
 
                 idx += 2;
             }
@@ -271,11 +260,8 @@ impl CartridgeLua {
 
             code_str = code.into_iter().collect();
 
-            // println!("{:?}", code_str);
-
             let mut lines = code_str.lines();
             for line in lines {
-                //  info!("{:?}", line);
                 vec_code.push(line.to_string());
             }
         }
@@ -398,7 +384,6 @@ impl CartridgeGFX {
         let mut v = Vec::new();
 
         for line in lines {
-            // println!("{:?} -> {:?}", line, line.len());
             if line.len() > 128 {
                 continue;
             }
@@ -408,8 +393,6 @@ impl CartridgeGFX {
                 v.push((*c as char).to_digit(16).unwrap());
             }
         }
-
-        println!("{:?}", v.len());
 
         let mut sprites: Vec<Sprite> = Vec::new();
 
@@ -428,21 +411,14 @@ impl CartridgeGFX {
                 }
             }
 
-            // println!("Extract sprite {:?} {:?} {:?}", idx, g_off, idx % 16);
-
             for y in 0..8 {
                 for x in 0..8 {
-                    //                    let index = g_off + idx * 8 + y * 128 + x;
                     let offset = g_off + y * 128 + x;
 
-                    //   print!("{:?} = {:?}, ", offset, v[offset]);
                     data[idx_vec] = v[offset] as u8;
                     idx_vec += 1;
                 }
-                //      println!("");
             }
-            //  println!("");
-
 
             sprites.push(Sprite::new(data));
         }
@@ -469,21 +445,14 @@ impl CartridgeGFX {
                 }
             }
 
-            // println!("Extract sprite {:?} {:?} {:?}", idx, g_off, idx % 16);
-
             for y in 0..8 {
                 for x in 0..8 {
-                    //                    let index = g_off + idx * 8 + y * 128 + x;
                     let offset = g_off + y * 128 + x;
 
-                    //   print!("{:?} = {:?}, ", offset, v[offset]);
                     data[idx_vec] = v[offset] as u8;
                     idx_vec += 1;
                 }
-                //      println!("");
             }
-            //  println!("");
-
 
             sprites.push(Sprite::new(data));
         }
@@ -687,9 +656,8 @@ fn read_from_p8format<R: io::BufRead>(filename: String, buf: &mut R) -> Result<C
 
     for line in buf.lines() {
         let l = line.unwrap();
-        println!("{:?}", l);
         if re_delim_section.is_match(l.as_str()) {
-            println!("NEW SECTION {:?}", l);
+            debug!("NEW SECTION {:?}", l);
             section_name = l.clone();
 
             let mut vec_section = Vec::new();
@@ -702,13 +670,13 @@ fn read_from_p8format<R: io::BufRead>(filename: String, buf: &mut R) -> Result<C
         if new_section {
             match sections.get_mut(&section_name) {
                 Some(vec_section2) => vec_section2.push(l),
-                _ => println!("Impossible to find section {:?}", section_name),
+                _ => debug!("Impossible to find section {:?}", section_name),
             }
         }
     }
 
     for (section_name, section) in &sections {
-        println!("{}: \"{}\"", section_name, section.len());
+        debug!("{}: \"{}\"", section_name, section.len());
     }
 
     let mut cartridge_gfx;
@@ -758,22 +726,17 @@ impl Cartridge {
     pub fn from_png_file(filename: String) -> Result<Cartridge, Error> {
         let decoder = png::Decoder::new(File::open(filename.clone()).unwrap());
         let (info, mut reader) = decoder.read_info().unwrap();
-        println!("{:?} {:?}", info.width, info.height);
 
         let mut buf = vec![0; info.buffer_size()];
         let mut picodata = Vec::new();
 
         reader.next_frame(&mut buf).unwrap();
 
-        println!("{:?}", buf.len());
-
         let mut row_i = 0;
         let mut row = 0;
         while row < buf.len() {
             for col_i in 0..info.width {
                 let g_idx: u32 = row as u32;
-                //                row[col_i * attrs['planes'] + 2] & 3)
-                // picodata.insert(row_i * width + col_i)
 
                 let mut r: u8 = *buf.get((g_idx + col_i * 4 + 0) as usize).unwrap() as u8;
                 let mut g: u8 = *buf.get((g_idx + col_i * 4 + 1) as usize).unwrap() as u8;
@@ -792,11 +755,6 @@ impl Cartridge {
 
                 picodata.push(lo);
                 picodata.push(hi);
-                /*println!("{:?} -> {:?} {:?} [{:?}]",
-                         g_idx + col_i,
-                         lo,
-                         hi,
-                         picodata.len());*/
             }
 
             row_i += 1;
@@ -814,7 +772,7 @@ impl Cartridge {
         }
 
         let mut version = *picodata.get(0x8000 * 2).unwrap();
-        println!("VERSION {:?}", version);
+        debug!("VERSION {:?}", version);
 
         let mut code_data = Vec::new();
         for i in 0x4300 * 2..0x8000 * 2 {
@@ -889,9 +847,8 @@ impl Cartridge {
 
         for line in buf_reader.lines() {
             let l = line.unwrap();
-            println!("{:?}", l);
             if re_delim_section.is_match(l.as_str()) {
-                println!("NEW SECTION {:?}", l);
+                debug!("NEW SECTION {:?}", l);
                 section_name = l.clone();
 
                 let mut vec_section = Vec::new();
@@ -904,13 +861,13 @@ impl Cartridge {
             if new_section {
                 match sections.get_mut(&section_name) {
                     Some(vec_section2) => vec_section2.push(l),
-                    _ => println!("Impossible to find section {:?}", section_name),
+                    _ => debug!("Impossible to find section {:?}", section_name),
                 }
             }
         }
 
         for (section_name, section) in &sections {
-            println!("{}: \"{}\"", section_name, section.len());
+            debug!("{}: \"{}\"", section_name, section.len());
         }
 
         let mut cartridge_gfx;

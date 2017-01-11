@@ -137,6 +137,7 @@ pub struct SdlFrontend {
     info: Arc<Mutex<px8::info::Info>>,
     channels: Channels,
     start_time: time::Tm,
+    elapsed_time: f64,
     delta: Duration,
     scale: Scale,
 }
@@ -167,6 +168,7 @@ impl SdlFrontend {
             info: Arc::new(Mutex::new(px8::info::Info::new())),
             channels: Channels::new(),
             start_time: time::now(),
+            elapsed_time: 0.,
             delta: Duration::from_secs(0),
             scale: scale,
         })
@@ -182,7 +184,6 @@ impl SdlFrontend {
 
     pub fn blit(&mut self) {
         self.renderer.blit(&self.px8.screen.lock().unwrap().back_buffer);
-
         self.times.limit();
     }
 
@@ -218,8 +219,6 @@ impl SdlFrontend {
         let mut joysticks = Vec::new();
         let mut controllers = Vec::new();
 
-        // let mut controller = None;
-
         for id in 0..available {
             if game_controller_subsystem.is_game_controller(id) {
                 println!("Attempting to open controller {}", id);
@@ -234,7 +233,7 @@ impl SdlFrontend {
                         controllers.push(Some(c));
                         break;
                     },
-                    Err(e) => info!("failed: {:?}", e),
+                    Err(e) => error!("failed: {:?}", e),
                 }
             } else {
                 info!("{} is not a game controller", id);
@@ -256,19 +255,17 @@ impl SdlFrontend {
         for id in 0..available {
             match joystick_subsystem.open(id) {
                 Ok(c) => {
-                    println!("Success: opened \"{}\"", c.name());
+                    info!("Success: opened \"{}\"", c.name());
 
                     joysticks.push(Some(c));
                 },
-                Err(e) => println!("failed: {:?}", e),
+                Err(e) => error!("failed: {:?}", e),
             }
         }
 
 
         // Call the init of the cartridge
         self.px8.init_time = self.px8.call_init() * 1000.0;
-
-        let mut elapsed_time = 0.;
 
         'main: loop {
             let delta = self.times.update();
@@ -299,7 +296,7 @@ impl SdlFrontend {
                     },
                     Event::KeyDown { keycode: Some(keycode), repeat, .. } => {
                         if let (Some(key), player) = map_keycode(keycode) {
-                            players_clone.lock().unwrap().key_down(player, key, repeat, elapsed_time);
+                            players_clone.lock().unwrap().key_down(player, key, repeat, self.elapsed_time);
                         }
 
                         if keycode == Keycode::F2 {
@@ -341,7 +338,7 @@ impl SdlFrontend {
 
                     Event::ControllerButtonDown { which: id, button, .. } => {
                         info!("Controller button Down {:?} {:?}", id, button);
-                        if let Some(key) = map_button(button) { players_clone.lock().unwrap().key_down(0, key, false, elapsed_time) }
+                        if let Some(key) = map_button(button) { players_clone.lock().unwrap().key_down(0, key, false, self.elapsed_time) }
                     },
 
                     Event::ControllerButtonUp { which: id, button, .. } => {
@@ -362,7 +359,7 @@ impl SdlFrontend {
                                 players_clone.lock().unwrap().key_direc_ver_up(0);
                             } else {
                                 if state {
-                                    players_clone.lock().unwrap().key_down(0, key, false, elapsed_time)
+                                    players_clone.lock().unwrap().key_down(0, key, false, self.elapsed_time)
                                 } else {
                                     players_clone.lock().unwrap().key_up(0, key)
                                 }
@@ -417,19 +414,55 @@ impl SdlFrontend {
                 }
             }
 
-            let new_time = time::now();
-            let diff_time = new_time - self.start_time;
-            let nanoseconds = (diff_time.num_nanoseconds().unwrap() as f64) - (diff_time.num_seconds() * 1000000000) as f64;
-            elapsed_time = diff_time.num_seconds() as f64 + nanoseconds / 1000000000.0;
-
-            self.info.lock().unwrap().elapsed_time = elapsed_time;
-
-            players_clone.lock().unwrap().update(elapsed_time);
-
+            self.update_time(players_clone.clone());
             self.blit();
         }
     }
 
+    pub fn update_time(&mut self, players: Arc<Mutex<config::Players>>) {
+        let new_time = time::now();
+        let diff_time = new_time - self.start_time;
+        let nanoseconds = (diff_time.num_nanoseconds().unwrap() as f64) - (diff_time.num_seconds() * 1000000000) as f64;
+
+        let elapsed_time = diff_time.num_seconds() as f64 + nanoseconds / 1000000000.0;
+
+        self.info.lock().unwrap().elapsed_time = elapsed_time;
+
+        players.lock().unwrap().update(elapsed_time);
+    }
+
+    #[cfg(target_os = "emscripten")]
+    pub fn demo(&mut self) {
+        let mut fps_counter = fps::FpsCounter::new();
+
+        self.start_time = time::now();
+        self.times.reset();
+
+        self.px8.init();
+
+        emscripten_loop::set_main_loop_callback(|| {
+            let delta = self.times.update();
+
+            fps_counter.update(self.times.last_time);
+
+            self.px8.fps = fps_counter.get_fps();
+
+            for event in self.event_pump.poll_iter() {
+                // info!("EVENT {:?}", event);
+
+                match event {
+                   // Event::Quit { .. } => break 'main,
+                    _ => (),
+                }
+            }
+
+            self.px8.update();
+
+            self.blit();
+        });
+    }
+
+    #[cfg(not(target_os = "emscripten"))]
     pub fn demo(&mut self) {
         let mut fps_counter = fps::FpsCounter::new();
 
@@ -446,8 +479,6 @@ impl SdlFrontend {
             self.px8.fps = fps_counter.get_fps();
 
             for event in self.event_pump.poll_iter() {
-                // info!("EVENT {:?}", event);
-
                 match event {
                     Event::Quit { .. } => break 'main,
                     _ => (),
@@ -457,6 +488,37 @@ impl SdlFrontend {
             self.px8.update();
 
             self.blit();
+        }
+    }
+}
+
+#[cfg(target_os = "emscripten")]
+pub mod emscripten_loop {
+    use std::cell::RefCell;
+    use std::ptr::null_mut;
+    use std::os::raw::{c_int, c_void};
+
+    #[allow(non_camel_case_types)]
+    type em_callback_func = unsafe extern fn();
+
+    extern {
+        fn emscripten_set_main_loop(func: em_callback_func, fps: c_int, simulate_infinite_loop: c_int);
+    }
+
+    thread_local!(static MAIN_LOOP_CALLBACK: RefCell<*mut c_void> = RefCell::new(null_mut()));
+
+    pub fn set_main_loop_callback<F>(callback: F) where F: FnMut() {
+        MAIN_LOOP_CALLBACK.with(|log| {
+            *log.borrow_mut() = &callback as *const _ as *mut c_void;
+        });
+
+        unsafe { emscripten_set_main_loop(wrapper::<F>, 0, 1); }
+
+        unsafe extern "C" fn wrapper<F>() where F: FnMut() {
+            MAIN_LOOP_CALLBACK.with(|z| {
+                let closure = *z.borrow_mut() as *mut F;
+                (*closure)();
+            });
         }
     }
 }
