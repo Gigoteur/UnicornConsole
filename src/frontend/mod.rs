@@ -107,51 +107,6 @@ impl From<String> for FrontendError {
     }
 }
 
-/*
-
-impl From<GliumCreationError<GliumSdl2Error>> for FrontendError {
-    fn from(e: GliumCreationError<GliumSdl2Error>) -> FrontendError {
-        FrontendError::Renderer(format!("{:?}", e))
-    }
-}
-
-
-
-impl From<SwapBuffersError> for FrontendError {
-    fn from(e: SwapBuffersError) -> FrontendError {
-        FrontendError::Renderer(format!("{:?}", e))
-    }
-}
-
-impl From<String> for FrontendError {
-    fn from(e: String) -> FrontendError {
-        FrontendError::Other(e)
-    }
-}
-
-impl Error for FrontendError {
-    fn description(&self) -> &str {
-        use self::FrontendError::*;
-        match *self {
-            Sdl(ref msg) |
-            Renderer(ref msg) |
-            Other(ref msg) => msg,
-        }
-    }
-}
-
-impl fmt::Display for FrontendError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        use self::FrontendError::*;
-        match *self {
-            Sdl(ref msg) |
-            Renderer(ref msg) |
-            Other(ref msg) => f.write_str(msg),
-        }
-    }
-}
-*/
-
 pub struct Channels {
     tx_input: Sender<Vec<u8>>,
     rx_input: Receiver<Vec<u8>>,
@@ -188,15 +143,16 @@ pub struct SdlFrontend {
 
 impl SdlFrontend {
     pub fn init(scale: Scale, fullscreen: bool) -> FrontendResult<SdlFrontend> {
-        info!("SDL2 init");
+        info!("Frontend: SDL2 init");
         let sdl = try!(sdl2::init());
 
-        info!("SDL2 Video init");
+        info!("Frontend: SDL2 Video init");
         let sdl_video = try!(sdl.video());
 
-        info!("SDL2 event pump");
+        info!("Frontend: SDL2 event pump");
         let event_pump = try!(sdl.event_pump());
 
+        info!("Frontend: creating renderer");
         let renderer = renderer::renderer::Renderer::new(sdl_video, fullscreen, scale).unwrap();
 
         // Disable mouse in the window

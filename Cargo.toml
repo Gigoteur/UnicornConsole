@@ -14,6 +14,7 @@ exclude = [ ".idea/*", ".travis.yml" ]
 
 [features]
 default = []
+sdl_renderer = []
 
 [dependencies]
 time = "0.1.35"
