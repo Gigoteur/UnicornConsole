@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/Gigoteur/PX8.svg?branch=master)](https://travis-ci.org/Gigoteur/PX8)
+[![](http://meritbadge.herokuapp.com/px8)](https://crates.io/crates/px8)
 
 # PX8
 
