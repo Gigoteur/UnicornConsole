@@ -536,7 +536,7 @@ pub mod plugin {
         }
 
         pub fn init(&mut self) {
-            if self.loaded_code == false {
+            if ! self.loaded_code {
                 return;
             }
 
@@ -551,7 +551,7 @@ pub mod plugin {
         }
 
         pub fn draw(&mut self) -> bool {
-            if self.loaded_code == false {
+            if ! self.loaded_code {
                 return false;
             }
 
@@ -566,7 +566,7 @@ pub mod plugin {
         }
 
         pub fn update(&mut self) -> bool {
-            if self.loaded_code == false {
+            if ! self.loaded_code {
                 return false;
             }
 

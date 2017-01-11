@@ -353,7 +353,7 @@ impl SdlFrontend {
                             self.px8.screenshot("screenshot-".to_string() + &dt.format("%Y-%m-%d-%H-%M-%S.png").to_string());
                         } else if keycode == Keycode::F4 {
                             let record_screen = self.px8.is_recording();
-                            if record_screen == false {
+                            if ! record_screen {
                                 let dt = Local::now();
                                 self.px8.start_record("record-".to_string() + &dt.format("%Y-%m-%d-%H-%M-%S.gif").to_string());
                             } else {
