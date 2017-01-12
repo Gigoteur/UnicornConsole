@@ -1,5 +1,3 @@
-pub mod fps;
-
 use std::fmt;
 
 use px8;

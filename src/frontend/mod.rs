@@ -1,3 +1,5 @@
+pub mod fps;
+
 use time;
 
 use sdl2;
@@ -24,7 +26,7 @@ use chan::{Receiver, Sender};
 use renderer;
 use px8;
 use config;
-use gfx::{fps, Scale};
+use gfx::{Scale};
 
 struct FrameTimes {
     frame_duration: Duration,
