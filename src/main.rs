@@ -5,6 +5,9 @@ extern crate lua;
 #[macro_use]
 extern crate cpython;
 
+#[cfg(feature = "dyon")]
+extern crate dyon;
+
 extern crate sdl2;
 extern crate getopts;
 
@@ -94,8 +97,7 @@ fn main() {
     let input = if !matches.free.is_empty() {
         matches.free[0].clone()
     } else {
-        start_demo();
-        //print_usage(&program, opts);
+        print_usage(&program, opts);
         return;
     };
 
@@ -167,16 +169,6 @@ fn main() {
         start_px8(scale, fullscreen, input, matches.opt_present("e"));
     }
 }
-
-pub fn start_demo() {
-    let mut frontend = match frontend::SdlFrontend::init(Scale::Scale2x, false) {
-        Err(error) => panic!("{:?}", error),
-        Ok(frontend) => frontend
-    };
-
-    frontend.demo();
-}
-
 
 pub fn start_px8(scale: gfx::Scale, fullscreen: bool, filename: String, editor: bool) {
   let mut frontend = match frontend::SdlFrontend::init(scale, fullscreen) {

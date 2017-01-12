@@ -1301,7 +1301,6 @@ pub mod plugin {
 }
 
 #[cfg(not(feature = "lua"))]
-
 pub mod plugin {
     use chan;
     use chan::{Receiver, Sender};

@@ -31,5 +31,9 @@ addons:
       - python3
 
 script:
-  - cargo build --features="cpython lua" --verbose
-  - cargo test --features="cpython lua" --verbose
+  - cargo build --verbose
+  - cargo test --verbose
+  - cargo build --features="cpython lua dyon" --verbose
+  - cargo test --features="cpython lua dyon" --verbose
+  - cargo build --features="sdl_renderer" --verbose
+  - cargo test --features="sdl_renderer" --verbose
