@@ -1,4 +1,5 @@
 pub mod fps;
+pub mod frametime;
 
 use time;
 
@@ -8,7 +9,6 @@ use sdl2::Sdl;
 use sdl2::EventPump;
 use sdl2::VideoSubsystem;
 use std::time::{Duration, Instant};
-use std::thread;
 use sdl2::event::{Event, WindowEvent};
 
 use std::error::Error;
@@ -29,43 +29,7 @@ use config;
 use config::keys::{PX8Key, map_axis, map_button, map_keycode};
 use gfx::{Scale};
 
-struct FrameTimes {
-    frame_duration: Duration,
-    last_time: Instant,
-    target_time: Instant,
-}
 
-impl FrameTimes {
-    pub fn new(frame_duration: Duration) -> FrameTimes {
-        let now = Instant::now();
-        FrameTimes {
-            frame_duration: frame_duration,
-            last_time: now,
-            target_time: now + frame_duration,
-        }
-    }
-
-    pub fn reset(&mut self) {
-        let now = Instant::now();
-        self.last_time = now;
-        self.target_time = now + self.frame_duration;
-    }
-
-    pub fn update(&mut self) -> Duration {
-        let now = Instant::now();
-        let delta = now - self.last_time;
-        self.last_time = now;
-        self.target_time += self.frame_duration;
-        delta
-    }
-
-    pub fn limit(&self) {
-        let now = Instant::now();
-        if now < self.target_time {
-            thread::sleep(self.target_time - now);
-        }
-    }
-}
 
 #[derive(Clone, Debug)]
 pub enum FrontendError {
@@ -119,7 +83,7 @@ pub struct Frontend {
     sdl: Sdl,
     event_pump: EventPump,
     renderer: renderer::renderer::Renderer,
-    times: FrameTimes,
+    times: frametime::FrameTimes,
     px8: px8::Px8New,
     info: Arc<Mutex<px8::info::Info>>,
     channels: Channels,
@@ -151,7 +115,7 @@ impl Frontend {
             sdl: sdl,
             event_pump: event_pump,
             renderer: renderer,
-            times: FrameTimes::new(Duration::from_secs(1) / 60),
+            times: frametime::FrameTimes::new(Duration::from_secs(1) / 60),
             px8: px8::Px8New::new(),
             info: Arc::new(Mutex::new(px8::info::Info::new())),
             channels: Channels::new(),
@@ -273,7 +237,7 @@ impl Frontend {
         'main: loop {
             let delta = self.times.update();
 
-            self.fps_counter.update(self.times.last_time);
+            self.fps_counter.update(self.times.get_last_time());
 
             self.px8.fps = self.fps_counter.get_fps();
 
