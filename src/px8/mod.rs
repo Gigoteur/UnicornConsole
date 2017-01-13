@@ -515,8 +515,7 @@ impl Px8New {
         return Code::UNKNOWN;
     }
 
-    pub fn switch_code(&mut self,
-                     filename: String) {
+    pub fn switch_code(&mut self) {
 
         let idx = self.current_cartridge;
 

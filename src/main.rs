@@ -171,7 +171,7 @@ fn main() {
 }
 
 pub fn start_px8(scale: gfx::Scale, fullscreen: bool, filename: String, editor: bool) {
-  let mut frontend = match frontend::SdlFrontend::init(scale, fullscreen) {
+  let mut frontend = match frontend::Frontend::init(scale, fullscreen) {
     Err(error) => panic!("{:?}", error),
     Ok(frontend) => frontend
   };

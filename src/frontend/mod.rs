@@ -10,14 +10,14 @@ use sdl2::VideoSubsystem;
 use std::time::{Duration, Instant};
 use std::thread;
 use sdl2::event::{Event, WindowEvent};
-use sdl2::keyboard::Keycode;
-use sdl2::controller::{Axis, Button};
 
 use std::error::Error;
-use std::fmt;
 use std::path::Path;
 
 use chrono::Local;
+
+use sdl2::controller::{Axis, Button};
+use sdl2::keyboard::Keycode;
 
 #[macro_use]
 use chan;
@@ -26,6 +26,7 @@ use chan::{Receiver, Sender};
 use renderer;
 use px8;
 use config;
+use config::keys::{PX8Key, map_axis, map_button, map_keycode};
 use gfx::{Scale};
 
 struct FrameTimes {
@@ -63,22 +64,6 @@ impl FrameTimes {
         if now < self.target_time {
             thread::sleep(self.target_time - now);
         }
-    }
-}
-
-#[derive(Eq, PartialEq, Hash)]
-pub enum PX8Key {
-    Right, Left, Up, Down, O, X, Pause, Enter
-}
-
-impl fmt::Debug for PX8Key {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        use self::PX8Key::*;
-
-        write!(f, "{}", match *self {
-            Right => "RIGHT", Left => "LEFT", Up => "UP", Down => "DOWN", O => "O", X => "X", Pause => "Pause", Enter => "Enter"
-        })
-
     }
 }
 
@@ -130,7 +115,7 @@ impl Channels {
     }
 }
 
-pub struct SdlFrontend {
+pub struct Frontend {
     sdl: Sdl,
     event_pump: EventPump,
     renderer: renderer::renderer::Renderer,
@@ -142,10 +127,11 @@ pub struct SdlFrontend {
     elapsed_time: f64,
     delta: Duration,
     scale: Scale,
+    fps_counter: fps::FpsCounter,
 }
 
-impl SdlFrontend {
-    pub fn init(scale: Scale, fullscreen: bool) -> FrontendResult<SdlFrontend> {
+impl Frontend {
+    pub fn init(scale: Scale, fullscreen: bool) -> FrontendResult<Frontend> {
         info!("Frontend: SDL2 init");
         let sdl = try!(sdl2::init());
 
@@ -161,7 +147,7 @@ impl SdlFrontend {
         // Disable mouse in the window
         sdl.mouse().show_cursor(true);
 
-        Ok(SdlFrontend {
+        Ok(Frontend {
             sdl: sdl,
             event_pump: event_pump,
             renderer: renderer,
@@ -173,15 +159,27 @@ impl SdlFrontend {
             elapsed_time: 0.,
             delta: Duration::from_secs(0),
             scale: scale,
+            fps_counter : fps::FpsCounter::new(),
         })
     }
 
     pub fn main(&mut self, filename: String, editor: bool) {
-
         self.start_time = time::now();
         self.times.reset();
 
         self.run_cartridge(filename, editor);
+    }
+
+    pub fn update_time(&mut self, players: Arc<Mutex<config::Players>>) {
+        let new_time = time::now();
+        let diff_time = new_time - self.start_time;
+        let nanoseconds = (diff_time.num_nanoseconds().unwrap() as f64) - (diff_time.num_seconds() * 1000000000) as f64;
+
+        let elapsed_time = diff_time.num_seconds() as f64 + nanoseconds / 1000000000.0;
+
+        self.info.lock().unwrap().elapsed_time = elapsed_time;
+
+        players.lock().unwrap().update(elapsed_time);
     }
 
     pub fn blit(&mut self) {
@@ -190,8 +188,6 @@ impl SdlFrontend {
     }
 
     pub fn run_cartridge(&mut self, filename: String, editor: bool) {
-        let mut fps_counter = fps::FpsCounter::new();
-
         let players_input = Arc::new(Mutex::new(config::Players::new()));
         let players_clone = players_input.clone();
 
@@ -269,19 +265,24 @@ impl SdlFrontend {
         // Call the init of the cartridge
         self.px8.init_time = self.px8.call_init() * 1000.0;
 
+        self.handle_event(editor, players_clone);
+    }
+
+    #[cfg(not(target_os = "emscripten"))]
+    fn handle_event(&mut self, editor: bool, players: Arc<Mutex<config::Players>>) {
         'main: loop {
             let delta = self.times.update();
 
-            fps_counter.update(self.times.last_time);
+            self.fps_counter.update(self.times.last_time);
 
-            self.px8.fps = fps_counter.get_fps();
+            self.px8.fps = self.fps_counter.get_fps();
 
             let mouse_state = self.event_pump.mouse_state();
             let (width, height) = self.renderer.get_dimensions();
 
-            players_clone.lock().unwrap().set_mouse_x(mouse_state.x() / (width as i32 / px8::SCREEN_WIDTH as i32));
-            players_clone.lock().unwrap().set_mouse_y(mouse_state.y() / (height as i32 / px8::SCREEN_HEIGHT as i32));
-            players_clone.lock().unwrap().set_mouse_state(mouse_state);
+            players.lock().unwrap().set_mouse_x(mouse_state.x() / (width as i32 / px8::SCREEN_WIDTH as i32));
+            players.lock().unwrap().set_mouse_y(mouse_state.y() / (height as i32 / px8::SCREEN_HEIGHT as i32));
+            players.lock().unwrap().set_mouse_state(mouse_state);
 
             if mouse_state.left() {
                 debug!("MOUSE X {:?} Y {:?}",
@@ -298,7 +299,7 @@ impl SdlFrontend {
                     },
                     Event::KeyDown { keycode: Some(keycode), repeat, .. } => {
                         if let (Some(key), player) = map_keycode(keycode) {
-                            players_clone.lock().unwrap().key_down(player, key, repeat, self.elapsed_time);
+                            players.lock().unwrap().key_down(player, key, repeat, self.elapsed_time);
                         }
 
                         if keycode == Keycode::F2 {
@@ -320,18 +321,18 @@ impl SdlFrontend {
                                 self.px8.save_current_cartridge(dt.format("%Y-%m-%d-%H-%M-%S").to_string());
                             }
                         } else if keycode == Keycode::F6 && editor {
-                            self.px8.switch_code(filename.clone());
+                            self.px8.switch_code();
                             // Call the init of the new code
                             self.px8.init_time = self.px8.call_init() * 1000.0;
                         }
 
-                        let pause = players_clone.lock().unwrap().get_value_quick(0, 7) == 1;
+                        let pause = players.lock().unwrap().get_value_quick(0, 7) == 1;
                         if pause {
                             self.px8.pause();
                         }
                     },
                     Event::KeyUp { keycode: Some(keycode), .. } => {
-                        if let (Some(key), player) = map_keycode(keycode) { players_clone.lock().unwrap().key_up(player, key) }
+                        if let (Some(key), player) = map_keycode(keycode) { players.lock().unwrap().key_up(player, key) }
                     },
 
                     Event::ControllerDeviceAdded { which: id, .. } => {
@@ -340,12 +341,12 @@ impl SdlFrontend {
 
                     Event::ControllerButtonDown { which: id, button, .. } => {
                         info!("Controller button Down {:?} {:?}", id, button);
-                        if let Some(key) = map_button(button) { players_clone.lock().unwrap().key_down(0, key, false, self.elapsed_time) }
+                        if let Some(key) = map_button(button) { players.lock().unwrap().key_down(0, key, false, self.elapsed_time) }
                     },
 
                     Event::ControllerButtonUp { which: id, button, .. } => {
                         info!("Controller button UP {:?} {:?}", id, button);
-                        if let Some(key) = map_button(button) { players_clone.lock().unwrap().key_up(0, key) }
+                        if let Some(key) = map_button(button) { players.lock().unwrap().key_up(0, key) }
                     },
 
                     Event::ControllerAxisMotion { which: id, axis, value, .. } => {
@@ -356,14 +357,14 @@ impl SdlFrontend {
 
 
                             if axis == Axis::LeftX && value == 128 {
-                                players_clone.lock().unwrap().key_direc_hor_up(0);
+                                players.lock().unwrap().key_direc_hor_up(0);
                             } else if axis == Axis::LeftY && value == -129 {
-                                players_clone.lock().unwrap().key_direc_ver_up(0);
+                                players.lock().unwrap().key_direc_ver_up(0);
                             } else {
                                 if state {
-                                    players_clone.lock().unwrap().key_down(0, key, false, self.elapsed_time)
+                                    players.lock().unwrap().key_down(0, key, false, self.elapsed_time)
                                 } else {
-                                    players_clone.lock().unwrap().key_up(0, key)
+                                    players.lock().unwrap().key_up(0, key)
                                 }
                             }
                         }
@@ -392,9 +393,9 @@ impl SdlFrontend {
 
             match self.px8.state {
                 px8::PX8State::PAUSE => {
-                    let up = players_clone.lock().unwrap().get_value_quick(0, 2) == 1;
-                    let down = players_clone.lock().unwrap().get_value_quick(0, 3) == 1;
-                    let enter = players_clone.lock().unwrap().get_value_quick(0, 6) == 1;
+                    let up = players.lock().unwrap().get_value_quick(0, 2) == 1;
+                    let down = players.lock().unwrap().get_value_quick(0, 3) == 1;
+                    let enter = players.lock().unwrap().get_value_quick(0, 6) == 1;
 
                     self.px8.update_pause(enter, up, down);
 
@@ -416,32 +417,13 @@ impl SdlFrontend {
                 }
             }
 
-            self.update_time(players_clone.clone());
+            self.update_time(players.clone());
             self.blit();
         }
     }
 
-    pub fn update_time(&mut self, players: Arc<Mutex<config::Players>>) {
-        let new_time = time::now();
-        let diff_time = new_time - self.start_time;
-        let nanoseconds = (diff_time.num_nanoseconds().unwrap() as f64) - (diff_time.num_seconds() * 1000000000) as f64;
-
-        let elapsed_time = diff_time.num_seconds() as f64 + nanoseconds / 1000000000.0;
-
-        self.info.lock().unwrap().elapsed_time = elapsed_time;
-
-        players.lock().unwrap().update(elapsed_time);
-    }
-
     #[cfg(target_os = "emscripten")]
-    pub fn demo(&mut self) {
-        let mut fps_counter = fps::FpsCounter::new();
-
-        self.start_time = time::now();
-        self.times.reset();
-
-        self.px8.init();
-
+    fn handle_event(&mut self, editor: bool, players: Arc<Mutex<config::Players>>) {
         emscripten_loop::set_main_loop_callback(|| {
             let delta = self.times.update();
 
@@ -453,7 +435,7 @@ impl SdlFrontend {
                 // info!("EVENT {:?}", event);
 
                 match event {
-                   // Event::Quit { .. } => break 'main,
+                    // Event::Quit { .. } => break 'main,
                     _ => (),
                 }
             }
@@ -462,35 +444,6 @@ impl SdlFrontend {
 
             self.blit();
         });
-    }
-
-    #[cfg(not(target_os = "emscripten"))]
-    pub fn demo(&mut self) {
-        let mut fps_counter = fps::FpsCounter::new();
-
-        self.start_time = time::now();
-        self.times.reset();
-
-        self.px8.init();
-
-        'main: loop {
-            let delta = self.times.update();
-
-            fps_counter.update(self.times.last_time);
-
-            self.px8.fps = fps_counter.get_fps();
-
-            for event in self.event_pump.poll_iter() {
-                match event {
-                    Event::Quit { .. } => break 'main,
-                    _ => (),
-                }
-            }
-
-            self.px8.update();
-
-            self.blit();
-        }
     }
 }
 
@@ -523,68 +476,4 @@ pub mod emscripten_loop {
             });
         }
     }
-}
-
-fn map_button(button: Button) -> Option<PX8Key> {
-    match button {
-        Button::DPadRight => Some(PX8Key::Right),
-        Button::DPadLeft => Some(PX8Key::Left),
-        Button::DPadUp => Some(PX8Key::Up),
-        Button::DPadDown => Some(PX8Key::Down),
-        Button::A => Some(PX8Key::O),
-        Button::B => Some(PX8Key::X),
-        _ => None
-    }
-}
-
-fn map_keycode(key: Keycode) -> (Option<PX8Key>, u8) {
-    match key {
-        Keycode::Right => (Some(PX8Key::Right), 0),
-        Keycode::Left => (Some(PX8Key::Left), 0),
-        Keycode::Up => (Some(PX8Key::Up), 0),
-        Keycode::Down => (Some(PX8Key::Down), 0),
-        Keycode::Z => (Some(PX8Key::O), 0),
-        Keycode::C => (Some(PX8Key::O), 0),
-        Keycode::N => (Some(PX8Key::O), 0),
-        Keycode::X => (Some(PX8Key::X), 0),
-        Keycode::V => (Some(PX8Key::X), 0),
-        Keycode::M => (Some(PX8Key::X), 0),
-
-        Keycode::F => (Some(PX8Key::Right), 1),
-        Keycode::S => (Some(PX8Key::Left), 1),
-        Keycode::E => (Some(PX8Key::Up), 1),
-        Keycode::D => (Some(PX8Key::Down), 1),
-
-        Keycode::LShift => (Some(PX8Key::O), 1),
-        Keycode::Tab => (Some(PX8Key::O), 1),
-
-        Keycode::A => (Some(PX8Key::X), 1),
-        Keycode::Q => (Some(PX8Key::X), 1),
-
-        Keycode::P => (Some(PX8Key::Pause), 0),
-        Keycode::KpEnter => (Some(PX8Key::Enter), 0),
-
-        _ => (None, 0)
-    }
-}
-
-fn map_axis(axis: Axis, value: i16) -> Option<(PX8Key, bool)> {
-match axis {
-Axis::LeftX => match value {
-    -32768...-16384 => Some((PX8Key::Left, true)),
-    -16383...-1 => Some((PX8Key::Left, false)),
-    0...16383 => Some((PX8Key::Right, false)),
-    16384...32767 => Some((PX8Key::Right, true)),
-    _ => None
-},
-
-Axis::LeftY => match value {
-    -32768...-16384 => Some((PX8Key::Up, true)),
-    -16383...-1 => Some((PX8Key::Up, false)),
-    0...16383 => Some((PX8Key::Down, false)),
-    16384...32767 => Some((PX8Key::Down, true)),
-    _ => None
-},
-_ => None
-}
 }
