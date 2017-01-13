@@ -1,5 +1,5 @@
 pub mod fps;
-pub mod frametime;
+pub mod frametimes;
 
 use time;
 
@@ -83,7 +83,7 @@ pub struct Frontend {
     sdl: Sdl,
     event_pump: EventPump,
     renderer: renderer::renderer::Renderer,
-    times: frametime::FrameTimes,
+    times: frametimes::FrameTimes,
     px8: px8::Px8New,
     info: Arc<Mutex<px8::info::Info>>,
     channels: Channels,
@@ -115,7 +115,7 @@ impl Frontend {
             sdl: sdl,
             event_pump: event_pump,
             renderer: renderer,
-            times: frametime::FrameTimes::new(Duration::from_secs(1) / 60),
+            times: frametimes::FrameTimes::new(Duration::from_secs(1) / 60),
             px8: px8::Px8New::new(),
             info: Arc::new(Mutex::new(px8::info::Info::new())),
             channels: Channels::new(),
