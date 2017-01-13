@@ -391,9 +391,9 @@ impl Frontend {
         emscripten_loop::set_main_loop_callback(|| {
             let delta = self.times.update();
 
-            fps_counter.update(self.times.last_time);
+            self.fps_counter.update(self.times.get_last_time());
 
-            self.px8.fps = fps_counter.get_fps();
+            self.px8.fps = self.fps_counter.get_fps();
 
             for event in self.event_pump.poll_iter() {
                 // info!("EVENT {:?}", event);

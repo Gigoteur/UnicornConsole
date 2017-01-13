@@ -410,7 +410,7 @@ impl Screen {
     pub fn print(&mut self, string: String, x: i32, y: i32, col: px8::Color) {
         let mut x = x as u32;
         let y = y as u32;
-
+        
         let mut col = col;
         if col == px8::Color::UNKNOWN {
             col = self.color;
@@ -427,16 +427,21 @@ impl Screen {
             }
 
             let mut idx = 1;
+            let mut idx_1 = 0;
+
             for i in 0..32 {
-               if (data[idx] & (0x1 << i)) != 0 {
+               if (data[idx] & (0x1 << idx_1)) != 0 {
                     self.pset(x, y + i % 8, col)
                 }
+
+                idx_1 += 1;
 
                 if i % 8 == 7 {
                     x = x + 1;
                 }
                 if i == 15 {
                     idx = 0;
+                    idx_1 = 0;
                 }
             }
         }
