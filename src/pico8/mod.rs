@@ -1,5 +1,3 @@
-pub mod cartridge;
-
 pub mod pico8 {
   use gfx::Sprite;
 

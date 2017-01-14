@@ -34,7 +34,7 @@ use config::Players;
 use self::info::Info;
 use gfx;
 use gfx::{Screen, Sprite};
-use pico8::cartridge::{Cartridge, CartridgeFormat};
+use cartridge::{Cartridge, CartridgeFormat};
 
 
 pub const SCREEN_WIDTH: usize = 128;

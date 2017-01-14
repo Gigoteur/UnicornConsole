@@ -410,7 +410,7 @@ impl Screen {
     pub fn print(&mut self, string: String, x: i32, y: i32, col: px8::Color) {
         let mut x = x as u32;
         let y = y as u32;
-        
+
         let mut col = col;
         if col == px8::Color::UNKNOWN {
             col = self.color;

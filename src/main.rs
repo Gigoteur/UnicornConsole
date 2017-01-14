@@ -51,9 +51,10 @@ mod gfx;
 mod px8;
 mod pico8;
 mod plugins;
+mod cartridge;
 
 use gfx::Scale;
-use pico8::cartridge::Cartridge;
+use cartridge::Cartridge;
 
 fn print_usage(program: &str, opts: Options) {
     let brief = format!("Usage: {} FILE [options]", program);
