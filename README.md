@@ -9,6 +9,7 @@ It is still in development but the main features are:
  * 128x128 pixels, 16 colours
  * Python 3 / Lua 5.X support for the cartridge
  * Controls with dpad + 2 buttons (gamecontroller/joystick support)
+ * Desktop/Mobile (Emscripten) support
  * No limit size in the code !
  * Unlimited sprites (8x8)
  * Map support (128x32)
@@ -18,7 +19,7 @@ It is still in development but the main features are:
  * Pico-8 (P8/P8.PNG) cartridge format support
  * Mainly run @60 FPS
  
-It should work on all platform (Linux/OSX/Windows), and on tiny hardware like Raspberry Pi (with opengl enabled).
+It should work on all platform (Linux/OSX/Windows) and in the browser (Emscripten), and on tiny hardware like Raspberry Pi (with opengl enabled for example).
 
 The console is inspired from [Pico-8](http://www.lexaloffle.com/pico-8.php), so you can play Pico-8 cartridges (P8/P8.PNG).
 
