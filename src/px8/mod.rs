@@ -503,6 +503,47 @@ impl Px8New {
         self.load_plugin(idx, tx_input, rx_output, players, info, editor);
     }
 
+    pub fn load_cartridge_raw(&mut self,
+                              filename: String,
+                              data: Vec<u8>,
+                              tx_input: Sender<Vec<u8>>,
+                              rx_output: Receiver<Vec<u8>>,
+                              players: Arc<Mutex<Players>>,
+                              info: Arc<Mutex<Info>>,
+                              editor: bool) {
+
+        let idx = self.cartridges.len();
+
+        info!("IDX CARTRIDGE {:?}", idx);
+
+        if filename.contains(".png") {
+            match Cartridge::from_png_raw(filename.clone(), data) {
+                Ok(c) => self.cartridges.push(c),
+                Err(e) => panic!("Impossible to load the png cartridge"),
+            }
+        } else if filename.contains(".p8") {
+            match Cartridge::from_p8_raw(filename.clone(), data) {
+                Ok(c) => self.cartridges.push(c),
+                Err(e) => panic!("Impossible to load the p8 cartridge"),
+            }
+        } else if filename.contains(".py") {
+            match Cartridge::from_p8_raw(filename.clone(), data) {
+                Ok(c) => self.cartridges.push(c),
+                Err(e) => panic!("Impossible to load the p8 cartridge"),
+            }
+        } else {
+            panic!("Unknown file");
+        }
+
+
+        self.current_cartridge = idx;
+
+        self.screen.lock().unwrap().set_sprites(self.cartridges[idx].gfx.sprites.clone());
+        self.screen.lock().unwrap().set_map(self.cartridges[idx].map.map);
+
+        self.load_plugin(idx, tx_input, rx_output, players, info, editor);
+    }
+
     pub fn _get_code_type(&mut self, idx: usize) -> Code {
         if self.cartridges[idx].code.get_name() == "lua" {
             return Code::LUA;

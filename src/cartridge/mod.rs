@@ -4,6 +4,7 @@ use std::io::Cursor;
 use std::io;
 use std::io::BufRead;
 use std::io::Read;
+
 use std::convert;
 use std::fmt;
 use std::cell::RefCell;
@@ -20,8 +21,6 @@ use regex::Regex;
 
 use png;
 
-use chan;
-use chan::{Receiver, Sender};
 use std::sync::{Arc, Mutex};
 
 use gfx;
@@ -638,6 +637,85 @@ impl convert::From<io::Error> for Error {
     }
 }
 
+fn read_from_pngformat<R: io::BufRead>(filename: String, buf: &mut R) -> Result<Cartridge, Error> {
+    let decoder = png::Decoder::new(buf);
+    let (info, mut reader) = decoder.read_info().unwrap();
+
+    let mut buf = vec![0; info.buffer_size()];
+    let mut picodata = Vec::new();
+
+    reader.next_frame(&mut buf).unwrap();
+
+    let mut row_i = 0;
+    let mut row = 0;
+    while row < buf.len() {
+        for col_i in 0..info.width {
+            let g_idx: u32 = row as u32;
+
+            let mut r: u8 = *buf.get((g_idx + col_i * 4 + 0) as usize).unwrap() as u8;
+            let mut g: u8 = *buf.get((g_idx + col_i * 4 + 1) as usize).unwrap() as u8;
+            let mut b: u8 = *buf.get((g_idx + col_i * 4 + 2) as usize).unwrap() as u8;
+            let mut a: u8 = *buf.get((g_idx + col_i * 4 + 3) as usize).unwrap() as u8;
+
+            r = r & 3;
+            g = g & 3;
+            b = b & 3;
+            a = a & 3;
+
+            let mut v = b | (g << 2) | (r << 4) | (a << 6);
+            let mut lo = v & 0x0f;
+            let mut hi = v >> 4;
+            ;
+
+            picodata.push(lo);
+            picodata.push(hi);
+        }
+
+        row_i += 1;
+        row = row + 640;
+    }
+
+    let mut gfx_data = Vec::new();
+    for i in 0..0x2000 * 2 {
+        gfx_data.push(*picodata.get(i).unwrap());
+    }
+
+    let mut map_data = Vec::new();
+    for i in 0x2000 * 2..0x3000 * 2 {
+        map_data.push(*picodata.get(i).unwrap());
+    }
+
+    let mut version = *picodata.get(0x8000 * 2).unwrap();
+    debug!("VERSION {:?}", version);
+
+    let mut code_data = Vec::new();
+    for i in 0x4300 * 2..0x8000 * 2 {
+        code_data.push(*picodata.get(i).unwrap());
+    }
+
+    let mut music_data = Vec::new();
+    for i in 0x3100 * 2..0x3200 * 2 {
+        music_data.push(*picodata.get(i).unwrap());
+    }
+
+    let mut cartridge_gfx = CartridgeGFX::new_from_bytes(gfx_data);
+    let mut cartridge_code = CartridgeCode::new_from_bytes("lua".to_string(), &mut code_data, version);
+    let mut cartridge_map = CartridgeMap::new_from_bytes(map_data);
+    let mut cartridge_music = CartridgeMusic::new_from_bytes(music_data);
+
+    Ok(Cartridge {
+        filename: filename.clone(),
+        data_filename: "".to_string(),
+        header: "".to_string(),
+        version: "".to_string(),
+        gfx: cartridge_gfx,
+        code: cartridge_code,
+        map: cartridge_map,
+        music: cartridge_music,
+        format: CartridgeFormat::PngFormat,
+        edit: false,
+    })
+}
 
 fn read_from_p8format<R: io::BufRead>(filename: String, buf: &mut R) -> Result<Cartridge, Error> {
     let mut header = String::new();
@@ -723,92 +801,29 @@ fn read_from_p8format<R: io::BufRead>(filename: String, buf: &mut R) -> Result<C
 }
 
 impl Cartridge {
+    pub fn from_png_raw(filename: String, data: Vec<u8>) -> Result<Cartridge, Error> {
+        let mut buf_reader = Cursor::new(data);
+        let mut cartridge = try!(read_from_pngformat(filename.clone(), &mut buf_reader));
+        Ok(cartridge)
+    }
+
     pub fn from_png_file(filename: String) -> Result<Cartridge, Error> {
-        let decoder = png::Decoder::new(File::open(filename.clone()).unwrap());
-        let (info, mut reader) = decoder.read_info().unwrap();
+        let f = try!(File::open(filename.clone()));
+        let mut buf_reader = BufReader::new(f);
+        let mut cartridge = try!(read_from_pngformat(filename.clone(), &mut buf_reader));
+        Ok(cartridge)
+    }
 
-        let mut buf = vec![0; info.buffer_size()];
-        let mut picodata = Vec::new();
-
-        reader.next_frame(&mut buf).unwrap();
-
-        let mut row_i = 0;
-        let mut row = 0;
-        while row < buf.len() {
-            for col_i in 0..info.width {
-                let g_idx: u32 = row as u32;
-
-                let mut r: u8 = *buf.get((g_idx + col_i * 4 + 0) as usize).unwrap() as u8;
-                let mut g: u8 = *buf.get((g_idx + col_i * 4 + 1) as usize).unwrap() as u8;
-                let mut b: u8 = *buf.get((g_idx + col_i * 4 + 2) as usize).unwrap() as u8;
-                let mut a: u8 = *buf.get((g_idx + col_i * 4 + 3) as usize).unwrap() as u8;
-
-                r = r & 3;
-                g = g & 3;
-                b = b & 3;
-                a = a & 3;
-
-                let mut v = b | (g << 2) | (r << 4) | (a << 6);
-                let mut lo = v & 0x0f;
-                let mut hi = v >> 4;
-                ;
-
-                picodata.push(lo);
-                picodata.push(hi);
-            }
-
-            row_i += 1;
-            row = row + 640;
-        }
-
-        let mut gfx_data = Vec::new();
-        for i in 0..0x2000 * 2 {
-            gfx_data.push(*picodata.get(i).unwrap());
-        }
-
-        let mut map_data = Vec::new();
-        for i in 0x2000 * 2..0x3000 * 2 {
-            map_data.push(*picodata.get(i).unwrap());
-        }
-
-        let mut version = *picodata.get(0x8000 * 2).unwrap();
-        debug!("VERSION {:?}", version);
-
-        let mut code_data = Vec::new();
-        for i in 0x4300 * 2..0x8000 * 2 {
-            code_data.push(*picodata.get(i).unwrap());
-        }
-
-        let mut music_data = Vec::new();
-        for i in 0x3100 * 2..0x3200 * 2 {
-            music_data.push(*picodata.get(i).unwrap());
-        }
-
-        let mut cartridge_gfx = CartridgeGFX::new_from_bytes(gfx_data);
-        let mut cartridge_code = CartridgeCode::new_from_bytes("lua".to_string(), &mut code_data, version);
-        let mut cartridge_map = CartridgeMap::new_from_bytes(map_data);
-        let mut cartridge_music = CartridgeMusic::new_from_bytes(music_data);
-
-        Ok(Cartridge {
-            filename: filename.clone(),
-            data_filename: "".to_string(),
-            header: "".to_string(),
-            version: "".to_string(),
-            gfx: cartridge_gfx,
-            code: cartridge_code,
-            map: cartridge_map,
-            music: cartridge_music,
-            format: CartridgeFormat::PngFormat,
-            edit: false,
-        })
+    pub fn from_p8_raw(filename: String, data: Vec<u8>) -> Result<Cartridge, Error> {
+        let mut buf_reader = Cursor::new(data);
+        let mut cartridge = try!(read_from_p8format(filename.clone(), &mut buf_reader));
+        Ok(cartridge)
     }
 
     pub fn from_p8_file(filename: String) -> Result<Cartridge, Error> {
         let f = try!(File::open(filename.clone()));
         let mut buf_reader = BufReader::new(f);
-
         let mut cartridge = try!(read_from_p8format(filename.clone(), &mut buf_reader));
-
         Ok(cartridge)
     }
 
