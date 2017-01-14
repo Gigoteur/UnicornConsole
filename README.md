@@ -119,6 +119,9 @@ cargo build --features="sdl_renderer" --release
 
 ### Emscripten
 
+You can see example of PX8 + Emscripten in the demos [repository](https://github.com/Gigoteur/PX8Demos/tree/master/emscripten/). You could also see live example from your browser:
+  * [Hello World](https://hallucino.github.io/demos/hello.html)
+
 ## Run a cartridge
 
 You should be able to run it directly by providing the path of the cartridge:
