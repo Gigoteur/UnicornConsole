@@ -139,11 +139,11 @@ impl Frontend {
         let diff_time = new_time - self.start_time;
         let nanoseconds = (diff_time.num_nanoseconds().unwrap() as f64) - (diff_time.num_seconds() * 1000000000) as f64;
 
-        let elapsed_time = diff_time.num_seconds() as f64 + nanoseconds / 1000000000.0;
+        self.elapsed_time = diff_time.num_seconds() as f64 + nanoseconds / 1000000000.0;
 
-        self.info.lock().unwrap().elapsed_time = elapsed_time;
+        self.info.lock().unwrap().elapsed_time = self.elapsed_time;
 
-        players.lock().unwrap().update(elapsed_time);
+        players.lock().unwrap().update(self.elapsed_time);
     }
 
     pub fn blit(&mut self) {
