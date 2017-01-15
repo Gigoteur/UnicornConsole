@@ -7,7 +7,7 @@ PX8 is an open source fantasy console (128x128 pixels) in Rust, where the cartri
 
 It is still in development but the main features are:
  * 128x128 pixels, 16 colours
- * Python 3 / Lua 5.X support for the cartridge
+ * Python 3 / Lua 5.X support for the cartridge (no tokens limit)
  * Controls with dpad + 2 buttons (gamecontroller/joystick support)
  * Desktop/Mobile (Emscripten) support
  * No limit size in the code !
@@ -127,6 +127,7 @@ After that you need to use the sdl_renderer feature to have a working example in
 You can see example of PX8 + Emscripten in the demos [repository](https://github.com/Gigoteur/PX8Demos/tree/master/emscripten/). You could also see live example from your browser:
   * Hello World [[Source Code]](https://github.com/Gigoteur/PX8Demos/tree/master/emscripten/Hello) [[Live Demo]](https://hallucino.github.io/demos/hello.html)
   * Lua Cartridge [[Source Code]](https://github.com/Gigoteur/PX8Demos/tree/master/emscripten/LuaCartridge) [[Live Demo]](https://hallucino.github.io/demos/lua_cartridge.html)
+  * Cast [[Source Code]](https://github.com/Gigoteur/PX8Demos/tree/master/emscripten/Cast) [[Live Demo]](https://hallucino.github.io/demos/cast.html)
 
 ## Run a cartridge
 
