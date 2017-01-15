@@ -7,18 +7,18 @@ PX8 is an open source fantasy console (128x128 pixels) in Rust, where the cartri
 
 It is still in development but the main features are:
  * 128x128 pixels, 16 colours
- * Python 3 / Lua 5.X support for the cartridge
+ * Python 3 / Lua 5.X support for the cartridge (no tokens limit)
  * Controls with dpad + 2 buttons (gamecontroller/joystick support)
- * No limit size in the code !
+ * Desktop/Mobile (Emscripten) support
  * Unlimited sprites (8x8)
  * Map support (128x32)
  * Edition of the cartridge data
- * PX8 format to use your favorite code editor
+ * PX8 format to be able to use your favorite code editor
  * Screenshot (PNG) / Video recording (GIF)
  * Pico-8 (P8/P8.PNG) cartridge format support
  * Mainly run @60 FPS
  
-It should work on all platform (Linux/OSX/Windows), and on tiny hardware like Raspberry Pi (with opengl enabled).
+It should work on all platform (Linux/OSX/Windows), in the browser (via Emscripten), and on tiny hardware like Raspberry Pi.
 
 The console is inspired from [Pico-8](http://www.lexaloffle.com/pico-8.php), so you can play Pico-8 cartridges (P8/P8.PNG).
 
@@ -124,7 +124,9 @@ You must follow the following [guide](https://users.rust-lang.org/t/compiling-to
 After that you need to use the sdl_renderer feature to have a working example in the browser.
 
 You can see example of PX8 + Emscripten in the demos [repository](https://github.com/Gigoteur/PX8Demos/tree/master/emscripten/). You could also see live example from your browser:
-  * [Hello World](https://hallucino.github.io/demos/hello.html)
+  * Hello World [[Source Code]](https://github.com/Gigoteur/PX8Demos/tree/master/emscripten/Hello) [[Live Demo]](https://hallucino.github.io/demos/hello.html)
+  * Lua Cartridge [[Source Code]](https://github.com/Gigoteur/PX8Demos/tree/master/emscripten/LuaCartridge) [[Live Demo]](https://hallucino.github.io/demos/lua_cartridge.html)
+  * Cast [[Source Code]](https://github.com/Gigoteur/PX8Demos/tree/master/emscripten/Cast) [[Live Demo]](https://hallucino.github.io/demos/cast.html)
 
 ## Run a cartridge
 
