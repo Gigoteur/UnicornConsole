@@ -71,10 +71,6 @@ space.add(static_lines)
 
 ch = space.add_collision_handler(0, 0)
 
-
-def _end():
-    return False
-
 def _init():
     global ticks_to_next_ball
     cls()

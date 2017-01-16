@@ -82,10 +82,6 @@ ticks_to_next_ball = 3
 ch = space.add_collision_handler(0, 0)
 ch.post_solve = draw_collision
 
-
-def _end():
-    return False
-
 def _init():
     global ticks_to_next_ball
     cls()

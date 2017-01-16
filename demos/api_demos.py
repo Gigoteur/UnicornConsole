@@ -1,107 +1,117 @@
-pico-8 / python cartridge // http://www.pico-8.com
-version 5
+px8 / python cartridge
+version 1
 __python__
 
-import sys
-sys.path.append("/usr/local/lib/python3.5/site-packages/pymunk-5.1.0-py3.5-macosx-10.11-x86_64.egg/")
-
 import random
-import pymunk
-from pymunk import Vec2d, SpaceDebugDrawOptions
 
-class DrawOptions(SpaceDebugDrawOptions):
+class Rect(object):
     def __init__(self):
-        super(DrawOptions, self).__init__()
+        self.T = 0
 
-    def draw_circle(self, pos, angle, radius, outline_color, fill_color):
-        print("DRAW CIRCLE", pos)
-        p = to_px8(pos)
+    def init(self):
+        cls()
 
-        #pygame.draw.circle(self.surface, fill_color, p, int(radius), 0)
-        circ(p[0], p[1], int(radius), random.randint(1, 16))
+    def update(self):
+        self.T += 1
 
-    def draw_segment(self, a, b, color):
-        print("DRAW SEGMENT")
-
-    def draw_fat_segment(self, a, b, radius, outline_color, fill_color):
-        print("DRAW FAT SEGMENT", a, b, radius, outline_color, fill_color)
-        p1 = to_px8(a)
-        p2 = to_px8(b)
-
-        line(p1[0], p1[1], p2[0], p2[1], 1)
-
-def to_px8(p):
-    """Convenience method to convert pymunk coordinates to px8
-    """
-    return int(p[0]), 128 - int(p[1])
-
-def add_ball():
-    global space, balls
-
-    mass = random.randint(5, 20)
-    radius = random.randint(1, 5)
-    inertia = pymunk.moment_for_circle(mass, 0, radius, (0,0))
-    body = pymunk.Body(mass, inertia)
-    body.position = random.randint(10,120), random.randint(100, 118)
-    shape = pymunk.Circle(body, radius, (0,0))
-    shape.elasticity = 0.95
-    shape.friction = 0.9
-    space.add(body, shape)
-    balls.append(shape)
-
-space = pymunk.Space()
-space.gravity = (0.0, -90.0)
-draw_options = DrawOptions()
-
-balls = []
+    def draw(self):
+        cls()
+        rect(20, 20, 60, 60, 1)
+        rectfill(64, 64, 128, 128, 2)
 
 
-def CreateSegment(static_body, x1, y1, x2, y2):
-    return pymunk.Segment(static_body, (x1, 128 - y1), (x2, 128 - y2), 0.0)
+class Circ(object):
+    def __init__(self):
+        self.T = 0
 
-### walls
-static_body = space.static_body
-static_lines = [CreateSegment(static_body, 20.0, 100.0, 100.0, 120.0),
-                CreateSegment(static_body, 100.0, 120.0, 100.0, 80.0)
-                ]
-for static_line in static_lines:
-    static_line.elasticity = 0.95
-    static_line.friction = 0.9
-space.add(static_lines)
+    def init(self):
+        cls()
 
-ticks_to_next_ball = 30
+    def update(self):
+        self.T += 1
+
+    def draw(self):
+        cls()
+        circ(20, 20, 10, 3)
+        circfill(40, 40, 4, 2)
+
+class Spr(object):
+    def __init__(self):
+        self.T = 0
+
+    def init(self):
+        cls()
+
+    def update(self):
+        self.T += 1
+
+    def draw(self):
+        spr(1, random.randint(0, 100), random.randint(0, 100))
+
+class SSpr(object):
+    def __init__(self):
+        self.T = 0
+
+    def init(self):
+        cls()
+
+    def update(self):
+        self.T += 1
+
+    def draw(self):
+        cls()
+
+        sspr(8, 0, 8, 8, 8, 8, 8, 8)
+        sspr(8, 0, 8, 8, 8, 16, 8, 8, flip_x=True)
+        sspr(8, 0, 8, 8, 8, 24, 8, 8, flip_y=True)
+
+        sspr(8, 0, 8, 8, 64, 8, 16, 16)
+        sspr(8, 0, 8, 8, 64, 24, 16, 16, flip_x=True)
+        sspr(8, 0, 8, 8, 64, 40, 16, 16, flip_y=True)
+
+        sspr(8, 0, 8, 8, 0, 64, 64, 64)
+
+idx_demo = 0
+demos = [
+    ["rect", [Rect()]],
+    ["circ", [Circ()]],
+    ["spr", [Spr()]],
+    ["sspr", [SSpr()]],
+
+]
+
+def _end():
+    return False
 
 def _init():
+    global demos
     cls()
 
 def _update():
-    pass
+    global idx_demo, demos
 
+    if btnp(0):
+        idx_demo =  (idx_demo-1) % len(demos)
+        pal()
+        for demo in demos[idx_demo][1]:
+            demo.init()
 
+    if btnp(1):
+        idx_demo =  (idx_demo+1) % len(demos)
+        pal()
+        for demo in demos[idx_demo][1]:
+            demo.init()
+
+    for demo in demos[idx_demo][1]:
+        demo.update()
 
 def _draw():
-    print("DRAW")
-    global draw_options, ticks_to_next_ball, space, balls
+    global idx_demo, demos
 
-    cls()
+    for demo in demos[idx_demo][1]:
+        demo.draw()
 
-    ticks_to_next_ball -= 1
-    if ticks_to_next_ball >= 0:
-        add_ball()
-
-    balls_to_remove = []
-    for ball in balls:
-        if ball.body.position.x <= 0 or ball.body.position.x >= 128: balls_to_remove.append(ball)
-
-    for ball in balls_to_remove:
-        space.remove(ball, ball.body)
-        balls.remove(ball)
-
-    space.debug_draw(draw_options)
-
-    dt = 1.0/60.0
-    for x in range(1):
-        space.step(dt)
+    px8_print("Demos " + demos[idx_demo][0], 0, 120, 2)
 
 __gfx__
 10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000

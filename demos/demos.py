@@ -76,7 +76,7 @@ idx_demo = 0
 demos = [
     ["Hello", [HelloWorld()]],
     ["Demo1", [Starfield()]],
-    ["Drippy", [Drippy()]]
+    ["Drippy", [Drippy()]],
 ]
 
 def _end():
@@ -85,7 +85,6 @@ def _end():
 def _init():
     global demos
     cls()
-    #trigon(64, 64, 80, 40, 100, 100, 15)
 
 def _update():
     global idx_demo, demos
