@@ -1,6 +1,7 @@
 pub mod info;
 pub mod packet;
 pub mod cartdata;
+pub mod emscripten;
 
 use std;
 use std::collections::HashMap;

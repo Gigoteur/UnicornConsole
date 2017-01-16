@@ -29,7 +29,7 @@ use config;
 use config::keys::{PX8Key, map_axis, map_button, map_keycode};
 use gfx::{Scale};
 
-
+use px8::emscripten::{emscripten};
 
 #[derive(Clone, Debug)]
 pub enum FrontendError {
@@ -388,56 +388,129 @@ impl Frontend {
 
     #[cfg(target_os = "emscripten")]
     fn handle_event(&mut self, editor: bool, players: Arc<Mutex<config::Players>>) {
-        emscripten_loop::set_main_loop_callback(|| {
+        emscripten::set_main_loop_callback(|| {
             let delta = self.times.update();
 
             self.fps_counter.update(self.times.get_last_time());
 
             self.px8.fps = self.fps_counter.get_fps();
 
-            for event in self.event_pump.poll_iter() {
-                // info!("EVENT {:?}", event);
+            let mouse_state = self.event_pump.mouse_state();
+            let (width, height) = self.renderer.get_dimensions();
 
+            players.lock().unwrap().set_mouse_x(mouse_state.x() / (width as i32 / px8::SCREEN_WIDTH as i32));
+            players.lock().unwrap().set_mouse_y(mouse_state.y() / (height as i32 / px8::SCREEN_HEIGHT as i32));
+            players.lock().unwrap().set_mouse_state(mouse_state);
+
+            if mouse_state.left() {
+                debug!("MOUSE X {:?} Y {:?}",
+                       mouse_state.x() / (width as i32 / px8::SCREEN_WIDTH as i32),
+                       mouse_state.y() / (height as i32 / px8::SCREEN_HEIGHT as i32));
+            }
+
+            for event in self.event_pump.poll_iter() {
                 match event {
-                    // Event::Quit { .. } => break 'main,
+                    Event::Window { win_event: WindowEvent::SizeChanged(_, _), .. } => {
+                        self.renderer.update_dimensions();
+                    },
+                    Event::KeyDown { keycode: Some(keycode), repeat, .. } => {
+                        if let (Some(key), player) = map_keycode(keycode) {
+                            players.lock().unwrap().key_down(player, key, repeat, self.elapsed_time);
+                        }
+
+                        if keycode == Keycode::F2 {
+                            self.px8.toggle_info_overlay();
+                        }
+
+                        let pause = players.lock().unwrap().get_value_quick(0, 7) == 1;
+                        if pause {
+                            self.px8.pause();
+                        }
+                    },
+                    Event::KeyUp { keycode: Some(keycode), .. } => {
+                        if let (Some(key), player) = map_keycode(keycode) { players.lock().unwrap().key_up(player, key) }
+                    },
+
+                    Event::ControllerDeviceAdded { which: id, .. } => {
+                        info!("New Controller detected {:?}", id);
+                    },
+
+                    Event::ControllerButtonDown { which: id, button, .. } => {
+                        info!("Controller button Down {:?} {:?}", id, button);
+                        if let Some(key) = map_button(button) { players.lock().unwrap().key_down(0, key, false, self.elapsed_time) }
+                    },
+
+                    Event::ControllerButtonUp { which: id, button, .. } => {
+                        info!("Controller button UP {:?} {:?}", id, button);
+                        if let Some(key) = map_button(button) { players.lock().unwrap().key_up(0, key) }
+                    },
+
+                    Event::ControllerAxisMotion { which: id, axis, value, .. } => {
+                        info!("Controller Axis Motion {:?} {:?} {:?}", id, axis, value);
+
+                        if let Some((key, state)) = map_axis(axis, value) {
+                            info!("Key {:?} State {:?}", key, state);
+
+
+                            if axis == Axis::LeftX && value == 128 {
+                                players.lock().unwrap().key_direc_hor_up(0);
+                            } else if axis == Axis::LeftY && value == -129 {
+                                players.lock().unwrap().key_direc_ver_up(0);
+                            } else {
+                                if state {
+                                    players.lock().unwrap().key_down(0, key, false, self.elapsed_time)
+                                } else {
+                                    players.lock().unwrap().key_up(0, key)
+                                }
+                            }
+                        }
+                    },
+
+                    Event::JoyAxisMotion { which: id, axis_idx, value: val, .. } => {
+                        info!("Joystick Axis Motion {:?} {:?} {:?}", id, axis_idx, val);
+                    },
+
+                    Event::JoyButtonDown { which: id, button_idx, .. } => {
+                        info!("Joystick button DOWN {:?} {:?}", id, button_idx);
+                        // if let Some(key) = map_button(button) { players_clone.lock().unwrap().key_up(0, key) }
+                    },
+
+                    Event::JoyButtonUp { which: id, button_idx, .. } => {
+                        info!("Joystick Button {:?} {:?} up", id, button_idx);
+                    },
+
+                    Event::JoyHatMotion { which: id, hat_idx, state, .. } => {
+                        info!("Joystick Hat {:?} {:?} moved to {:?}", id, hat_idx, state);
+                    },
+
                     _ => (),
                 }
             }
 
-            self.px8.update();
+            match self.px8.state {
+                px8::PX8State::PAUSE => {
+                    let up = players.lock().unwrap().get_value_quick(0, 2) == 1;
+                    let down = players.lock().unwrap().get_value_quick(0, 3) == 1;
+                    let enter = players.lock().unwrap().get_value_quick(0, 6) == 1;
 
+                    self.px8.update_pause(enter, up, down);
+
+                    self.px8.update();
+                },
+                px8::PX8State::RUN => {
+                    self.px8.update_time = self.px8.call_update() * 1000.0;
+                    self.px8.draw_time = self.px8.call_draw() * 1000.0;
+
+                    self.px8.update();
+
+                    if self.px8.is_recording() {
+                        self.px8.record();
+                    }
+                }
+            }
+
+            self.update_time(players.clone());
             self.blit();
         });
-    }
-}
-
-#[cfg(target_os = "emscripten")]
-pub mod emscripten_loop {
-    use std::cell::RefCell;
-    use std::ptr::null_mut;
-    use std::os::raw::{c_int, c_void};
-
-    #[allow(non_camel_case_types)]
-    type em_callback_func = unsafe extern fn();
-
-    extern {
-        fn emscripten_set_main_loop(func: em_callback_func, fps: c_int, simulate_infinite_loop: c_int);
-    }
-
-    thread_local!(static MAIN_LOOP_CALLBACK: RefCell<*mut c_void> = RefCell::new(null_mut()));
-
-    pub fn set_main_loop_callback<F>(callback: F) where F: FnMut() {
-        MAIN_LOOP_CALLBACK.with(|log| {
-            *log.borrow_mut() = &callback as *const _ as *mut c_void;
-        });
-
-        unsafe { emscripten_set_main_loop(wrapper::<F>, 0, 1); }
-
-        unsafe extern "C" fn wrapper<F>() where F: FnMut() {
-            MAIN_LOOP_CALLBACK.with(|z| {
-                let closure = *z.borrow_mut() as *mut F;
-                (*closure)();
-            });
-        }
     }
 }

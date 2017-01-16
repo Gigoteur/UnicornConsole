@@ -3,15 +3,15 @@ buildtype = release
 PROJECT = px8
 TARGET = asmjs-unknown-emscripten
 
-DOCS_DIR = docs
+DOCS_DIR = html
 DOCS_PORT = 8080
 
 JS_FILE = $(PROJECT).js
 
 CARGO_OUTDIR = target/$(TARGET)/$(buildtype)
 
-CARGO_OPTION = --target $(TARGET) --verbose
-EMCC_OPTION = -s USE_SDL=2
+CARGO_OPTION = --target $(TARGET) -vv  --features "sdl_renderer lua"
+EMCC_OPTION = -s USE_SDL=2 --embed-file games
 
 ifeq ($(buildtype),release)
 CARGO_OPTION += --release
@@ -33,9 +33,6 @@ clean:
 	cargo clean
 	$(RM) $(DOCS_DIR)/*.js $(DOCS_DIR)/*.js.mem
 .PHONY: clean
-
-serve: all
-    python2.7 -m SimpleHTTPServer $(DOCS_PORT)
 
 FORCE:
 .PHONY: FORCE
