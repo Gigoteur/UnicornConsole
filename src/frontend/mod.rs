@@ -29,6 +29,7 @@ use config;
 use config::keys::{PX8Key, map_axis, map_button, map_keycode};
 use gfx::{Scale};
 
+#[cfg(target_os = "emscripten")]
 use px8::emscripten::{emscripten};
 
 #[derive(Clone, Debug)]
