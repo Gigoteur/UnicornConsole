@@ -22,14 +22,11 @@ It should work on all platform (Linux/OSX/Windows), in the browser (via Emscript
 
 The console is inspired from [Pico-8](http://www.lexaloffle.com/pico-8.php), so you can play Pico-8 cartridges (P8/P8.PNG).
 
-* Youtube Video
-
-[![PX8 SKI](https://img.youtube.com/vi/b-secxed-fk/0.jpg)]
-(https://youtu.be/b-secxed-fk "PX8 SKI")
+![PX8 SKI](https://j.gifs.com/k5gVw5.gif)
 
 * Recorded GIF 
 
-**The time for each frame is slow (10ms) in the GIF, and doesn't correspond to the speed of the game (see the previous videos on Youtube).**
+**The time for each frame is slow (10ms) in the GIF, and doesn't correspond to the speed of the game.**
 
 ![](http://i.imgur.com/GDC6WzW.gif)
 ![](http://i.imgur.com/ZxNgWrt.gif)
