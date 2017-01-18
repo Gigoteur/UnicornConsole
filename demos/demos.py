@@ -4,6 +4,31 @@ __python__
 
 import random
 
+class Button(object):
+    def __init__(self, x, y, w, h, color, text):
+        self.x1 = x
+        self.y1 = y
+        self.x2 = x+w
+        self.y2 = y+h
+        self.color = color
+        self.text = text
+        self.clicked = False
+
+    def draw(self):
+        rectfill(self.x1, self.y1, self.x2, self.y2, self.color)
+        px8_print(self.text, self.x1+1, self.y1+1, 2)
+
+    def update(self, x, y):
+        self.clicked = False
+        if x >= self.x1 and x <= self.x2:
+            if y >= self.y1 and y <= self.y2:
+                print("CLICKED")
+                self.clicked = True
+
+    def is_click(self):
+        return self.clicked
+
+
 class HelloWorld(object):
     def __init__(self):
         self.T = 0
@@ -27,19 +52,119 @@ class HelloWorld(object):
                 pal(7, col)
                 spr(16+i, 8+i*8+x, y)
 
-class Starfield(object):
+class Vortex(object):
     def __init__(self):
-        pass
+        self.t=0
+        self.freq=0.007
+        self.turn=0.003
+        self.r=0
+        self.col=[9,12,2,8]
+        self.high=10
+        self.arms=15
+        self.wave=50
+
+    def reset(self):
+        for i in range(1, 4):
+            self.col[i]=rnd(15)+1
+
+        self.high=rnd(20)+10
+        self.wave=50+rnd(150)
+        self.freq=(rnd(2)-1)/200
+        self.turn=(rnd(2)-1)/300
 
     def init(self):
         cls()
 
     def update(self):
-        pass
+        if (btn (0)):
+            self.turn = self.turn + 0.0005
+        if (btn (1)):
+            self.turn = self.turn - 0.0005
+
+        if (btn (2)):
+            if self.freq < 0.03:
+                self.freq = self.freq + 0.001
+
+        if (btn (3)):
+            if self.freq > -0.03:
+                self.freq = self.freq - 0.001
+
+        if (btnp (4)):
+            self.reset()
+            self.arms = flr(rnd(20))+3
+
+        if (btnp (5)):
+            self.reset()
+            self.arms = rnd(20)
+
 
     def draw(self):
-        pass
+        cls()
+        self.t = self.t - self.freq
+        self.r = self.r + self.turn
+        for i in range(1, 1500):
+            z=(i/self.arms)
+            pset(cos(z+self.r)*z+64,
+                 sin(z+self.r)*z/2+cos(z/self.wave+self.t)*self.high+64,
+                 (self.col[(flr(i/100)%4)]))
 
+class Sphere(object):
+    def __init__(self):
+        self.t=0
+        self.turn=0
+        self.rot=0.1
+        self.col=[0, 0, 0, 0, 0]
+        self.arms=0.08
+        self.pts=1000
+        self.offset=0
+
+    def reset(self, r):
+        for i in range(0, 5):
+            self.col[i]=rnd(15)+1
+        self.arms=rnd(20)
+        if r == 1:
+            self.arms=flr(self.arms)+2
+        self.offset=rnd(self.pts*4)-self.pts*2
+        self.turn=(rnd(2)-1)/200
+
+    def init(self):
+        self.reset(1)
+        cls()
+
+    def update(self):
+        if btn(0):
+            self.turn = self.turn + 0.001
+
+        if btn(1):
+            self.turn = self.turn - 0.001
+
+        if btn(2):
+            self.rot = self.rot + 0.01
+
+        if btn(3):
+            self.rot = self.rot - 0.01
+
+        if btnp(5):
+            self.reset(1)
+
+        if btnp(4):
+            self.reset(2)
+
+    def draw(self):
+        cls()
+        self.t = self.t + self.turn
+        self.t = self.t % 1
+        self.rot = self.rot % 1
+
+        for i in range(0, self.pts):
+            j=i/self.arms
+            r=sin(i/self.offset)*50
+            x=cos(j+self.t)
+            y=sin(j+self.t)      *sin(self.rot)
+            z=cos(i/self.offset) *cos(self.rot)*50
+
+            pset(x*r+64,y*r+64+z,
+                 (self.col[(flr(i/100)%4)+1]))
 
 class Drippy(object):
     def __init__(self):
@@ -75,40 +200,61 @@ class Drippy(object):
 idx_demo = 0
 demos = [
     ["Hello", [HelloWorld()]],
-    ["Demo1", [Starfield()]],
+    ["Sphere", [Sphere()]],
+    ["Vortex", [Vortex()]],
     ["Drippy", [Drippy()]],
 ]
 
-def _end():
-    return False
+buttons = []
+buttons.append(Button(110, 110, 16, 8, 9, "next"))
 
 def _init():
-    global demos
+    global demos, idx_demo
     cls()
 
-def _update():
+    for demo in demos[idx_demo][1]:
+        demo.init()
+
+def prev_demo():
     global idx_demo, demos
 
-    if btnp(0):
-        idx_demo =  (idx_demo-1) % len(demos)
-        pal()
-        for demo in demos[idx_demo][1]:
-            demo.init()
+    idx_demo =  (idx_demo-1) % len(demos)
+    pal()
+    for demo in demos[idx_demo][1]:
+        demo.init()
 
-    if btnp(1):
-        idx_demo =  (idx_demo+1) % len(demos)
-        pal()
-        for demo in demos[idx_demo][1]:
-            demo.init()
+def next_demo():
+    global idx_demo, demos
+
+    idx_demo =  (idx_demo+1) % len(demos)
+    pal()
+    for demo in demos[idx_demo][1]:
+        demo.init()
+
+def _update():
+    global idx_demo, demos, buttons
+
+    _mouse_state = mouse_state()
+    if _mouse_state == 1:
+        _mouse_x = mouse_x()
+        _mouse_y = mouse_y()
+
+        for button in buttons:
+            button.update(_mouse_x, _mouse_y)
+            if button.is_click():
+                next_demo()
 
     for demo in demos[idx_demo][1]:
         demo.update()
 
 def _draw():
-    global idx_demo, demos
+    global idx_demo, demos, buttons
 
     for demo in demos[idx_demo][1]:
         demo.draw()
+
+    for button in buttons:
+        button.draw()
 
     px8_print("Demos " + demos[idx_demo][0], 0, 120, 2)
 

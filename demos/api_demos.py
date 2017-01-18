@@ -4,6 +4,15 @@ __python__
 
 import random
 
+def random_color():
+    return random.randint(1, 16)
+
+def random_radius():
+    return random.randint(3, 10)
+
+def random_coord():
+    return random.randint(0, 128)
+
 class Rect(object):
     def __init__(self):
         self.T = 0
@@ -15,9 +24,10 @@ class Rect(object):
         self.T += 1
 
     def draw(self):
-        cls()
-        rect(20, 20, 60, 60, 1)
-        rectfill(64, 64, 128, 128, 2)
+        if self.T % 20 == 1:
+            cls()
+            rect(random_coord(), random_coord(), random_coord(), random_coord(), random_color())
+            rectfill(random_coord(), random_coord(), random_coord(), random_coord(), random_color())
 
 
 class Circ(object):
@@ -31,9 +41,43 @@ class Circ(object):
         self.T += 1
 
     def draw(self):
+        if self.T % 20 == 1:
+            cls()
+            circ(random_coord(), random_coord(), random_radius(), random_color())
+            circ(random_coord(), random_coord(), random_radius(), random_color())
+            circfill(random_coord(), random_coord(), random_radius(), random_color())
+
+
+class Trigon(object):
+    def __init__(self):
+        self.T = 0
+
+    def init(self):
         cls()
-        circ(20, 20, 10, 3)
-        circfill(40, 40, 4, 2)
+
+    def update(self):
+        self.T += 1
+
+    def draw(self):
+        if self.T % 20 == 1:
+            cls()
+            trigon(random_coord(), random_coord(), random_coord(), random_coord(), random_coord(), random_coord(), random_color())
+
+class Line(object):
+    def __init__(self):
+        self.T = 0
+
+    def init(self):
+        cls()
+
+    def update(self):
+        self.T += 1
+
+    def draw(self):
+        if self.T % 20 == 1:
+            cls()
+            line(random_coord(), random_coord(), random_coord(), random_coord(), random_color())
+
 
 class Spr(object):
     def __init__(self):
@@ -47,6 +91,7 @@ class Spr(object):
 
     def draw(self):
         spr(1, random.randint(0, 100), random.randint(0, 100))
+
 
 class SSpr(object):
     def __init__(self):
@@ -75,6 +120,8 @@ idx_demo = 0
 demos = [
     ["rect", [Rect()]],
     ["circ", [Circ()]],
+    ["trigon", [Trigon()]],
+    ["line", [Line()]],
     ["spr", [Spr()]],
     ["sspr", [SSpr()]],
 

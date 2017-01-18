@@ -118,15 +118,22 @@ def spr_map(cel_x, cel_y, sx, sy, cel_w, cel_h):
 globals()["spr_map"] = spr_map
 
 # Math
-
 def cos(x):
     return math.cos((x or 0)*(math.pi*2))
 
 def sin(x):
     return math.sin(-(x or 0)*(math.pi*2))
 
+def flr(x):
+    return math.floor(x)
+
+def rnd(x):
+    return random.random() * x
+
 globals()["cos"] = cos
 globals()["sin"] = sin
+globals()["flr"] = flr
+globals()["rnd"] = rnd
 
 # Memory
 

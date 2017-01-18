@@ -624,7 +624,7 @@ pub struct Cartridge {
     pub edit: bool,
 }
 
-static SECTION_DELIM_RE: &'static str = r"^__(\w+)__$";
+pub static SECTION_DELIM_RE: &'static str = r"^__(\w+)__$";
 
 pub enum Error {
     Err(String),
