@@ -267,8 +267,8 @@ mset | :red_circle: | :white_check_mark:
 
 API | Python | Lua
 ------------ | ------------- | -------------
-rnd | :white_check_mark: (random.randint) | :white_check_mark:
-flr | :white_check_mark: (math.floor) | :white_check_mark:
+rnd | :white_check_mark: | :white_check_mark:
+flr | :white_check_mark: | :white_check_mark:
 ceil | :white_check_mark: (math.ceil) | :white_check_mark:
 cos | :white_check_mark: | :white_check_mark:
 sin | :white_check_mark: | :white_check_mark:
