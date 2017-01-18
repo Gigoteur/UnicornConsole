@@ -133,7 +133,19 @@ You should be able to run it directly by providing the path of the cartridge:
 ./target/release/px8 -s 4 ./games/ski/ski.px8
 ```
 
-The '-s' option is the scale, so you can increase it, or in fullscreen by using '-f' option.
+The '-s' option is the scale, so you can increase it (2/4/8/10), or in fullscreen by using '-f' option.
+
+### Demos
+
+You could run the API demos:
+```
+./target/release/px8 -s 4 ./demos/api_demos.py 
+```
+
+or some fancy demos:
+```
+./target/release/px8 -s 4 ./demos/demos.py
+```
 
 ## Edit a cartridge
 
