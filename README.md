@@ -23,7 +23,7 @@ It should work on all platform (Linux/OSX/Windows), in the browser (via Emscript
 The console is inspired from [Pico-8](http://www.lexaloffle.com/pico-8.php), so you can play Pico-8 cartridges (P8/P8.PNG).
 
 ![](https://j.gifs.com/0gMZ87.gif)
-![](https://j.gifs.com/zmAO6r.gif)
+![](https://j.gifs.com/xGyM1n.gif)
 ![](https://j.gifs.com/vgw08V.gif)
 ![](https://j.gifs.com/k5gVw5.gif)
 
