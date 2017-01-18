@@ -22,7 +22,10 @@ It should work on all platform (Linux/OSX/Windows), in the browser (via Emscript
 
 The console is inspired from [Pico-8](http://www.lexaloffle.com/pico-8.php), so you can play Pico-8 cartridges (P8/P8.PNG).
 
-![PX8 SKI](https://j.gifs.com/k5gVw5.gif)
+![](https://j.gifs.com/0gMZ87.gif)
+![](https://j.gifs.com/xGyM1n.gif)
+![](https://j.gifs.com/vgw08V.gif)
+![](https://j.gifs.com/k5gVw5.gif)
 
 * Recorded GIF 
 
@@ -133,7 +136,19 @@ You should be able to run it directly by providing the path of the cartridge:
 ./target/release/px8 -s 4 ./games/ski/ski.px8
 ```
 
-The '-s' option is the scale, so you can increase it, or in fullscreen by using '-f' option.
+The '-s' option is the scale, so you can increase it (2/4/8/10), or in fullscreen by using '-f' option.
+
+### Demos
+
+You could run the API demos:
+```
+./target/release/px8 -s 4 ./demos/api_demos.py 
+```
+
+or some fancy demos:
+```
+./target/release/px8 -s 4 ./demos/demos.py
+```
 
 ## Edit a cartridge
 
@@ -267,8 +282,8 @@ mset | :red_circle: | :white_check_mark:
 
 API | Python | Lua
 ------------ | ------------- | -------------
-rnd | :white_check_mark: (random.randint) | :white_check_mark:
-flr | :white_check_mark: (math.floor) | :white_check_mark:
+rnd | :white_check_mark: | :white_check_mark:
+flr | :white_check_mark: | :white_check_mark:
 ceil | :white_check_mark: (math.ceil) | :white_check_mark:
 cos | :white_check_mark: | :white_check_mark:
 sin | :white_check_mark: | :white_check_mark:
