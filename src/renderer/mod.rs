@@ -338,7 +338,7 @@ pub mod renderer {
             if fullscreen {
                 window = window_builder.fullscreen().build().unwrap();
             } else {
-                window = window_builder.position_centered().build().unwrap();
+                window = window_builder.resizable().position_centered().build().unwrap();
             }
 
             info!("[SDL] Creating renderer");
