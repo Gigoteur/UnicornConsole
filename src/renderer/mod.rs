@@ -333,7 +333,13 @@ pub mod renderer {
             let mut window_builder = sdl_video.window("PX8",
                                                       (px8::SCREEN_WIDTH as usize * scale.factor()) as u32,
                                                       (px8::SCREEN_HEIGHT as usize * scale.factor()) as u32);
-            let window = window_builder.position_centered().build().unwrap();
+
+            let window;
+            if fullscreen {
+                window = window_builder.fullscreen().build().unwrap();
+            } else {
+                window = window_builder.position_centered().build().unwrap();
+            }
 
             info!("[SDL] Creating renderer");
             let mut renderer = window.renderer().accelerated().present_vsync().build().unwrap();
