@@ -181,16 +181,21 @@ System shortcut:
 
 ## Create a new cartridge
 
-PX8 could call 3 functions:
+PX8 will call 3 functions:
   * _init : Called once on cartridge startup, mainly to initialize your variables
   * _update: Called once per visible frame, mainly to get keyboard input for example
   * _draw: Called once per visible frame, mainly to draw things on the screen :)
 
+After that you can use the API to draw whatever you want !
+
 ### Python
+
+You can create a classical Python program, all you need is to define the previous functions (_init, _update, _draw), and you can import any packages.
+
 
 ```
 def _init():
-  print("INIT")
+  px8_print("INIT")
   
 def _update():
   px8_print("UPDATE")
@@ -202,7 +207,17 @@ def _draw():
 ### Lua
 
 ```
+function _init()
+  print("INIT")
+end
 
+function _update()
+  print("UPDATE")
+end
+
+function _draw()
+  print("DRAW")
+end
 ```
 
 ## Cartridge format
@@ -344,11 +359,12 @@ GFX: :white_check_mark:
 
 MUSIC: :red_circle:
 
-## Screenshots and Records
 
-### With a physical engine
+## Use a physical engine
 
-PX8 + Python + [Pymunk](http://www.pymunk.org/en/latest/)
+It is simple with Python support to use for example the [Pymunk](http://www.pymunk.org/en/latest/) physical engine.
+
+Please check the example in the [demos](https://github.com/Gigoteur/PX8/tree/master/demos/pymunk) directory.
 
 ![](http://i.imgur.com/1Cykf86.gif)
 ![](http://i.imgur.com/ySLiMqp.gif)
