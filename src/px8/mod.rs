@@ -102,21 +102,21 @@ impl Color {
         use self::Color::*;
         match value {
             Black => RGB{r:0, g:0, b:0}, // 0   0   0 black
-            DarkBlue => RGB{r:32, g:51, b:123}, // 32  51 123 dark_blue
+            DarkBlue => RGB{r:29, g:43, b:83}, // 29 43 83 dark_blue
             DarkPurple => RGB{r:126, g:37, b:83}, // 126  37  83 dark_purple
-            DarkGreen => RGB{r:0, g:144, b:61}, // 0 144  61 dark_green
+            DarkGreen => RGB{r:0, g:135, b:81}, // 0 144  61 dark_green
             Brown => RGB{r:171, g:82, b:54}, // 171  82  54 brown
-            DarkGray => RGB{r:52, g:54, b:53}, // 52  54  53 dark_gray
+            DarkGray => RGB{r:95, g:87, b:79}, // 95  87  79 dark_gray
             LightGray => RGB{r:194, g:195, b:199}, // 194 195 199 light_gray
             White => RGB{r:255, g:241, b:232}, // 255 241 232 white
             Red => RGB{r:255, g:0, b:77}, // 255   0  77 red
-            Orange => RGB{r:255, g:155, b:0}, // 255 155   0 orange
-            Yellow => RGB{r:255, g:231, b:39}, // 255 231  39 yellow
-            Green => RGB{r:0, g:226, b:50}, // 0 226  50 green
+            Orange => RGB{r:255, g:163, b:0}, // 255 163 0 orange
+            Yellow => RGB{r:255, g:236, b:39}, // 255 236 39 yellow
+            Green => RGB{r:0, g:228, b:54}, // 0 228 54 green
             Blue => RGB{r:41, g:173, b:255}, // 41 173 255 blue
-            Indigo => RGB{r:132, g:112, b:169}, // 132 112 169 indigo
+            Indigo => RGB{r:132, g:118, b:156}, // 132 118 156 indigo
             Pink => RGB{r:255, g:119, b:168}, // 255 119 168 pink
-            Peach => RGB{r:255, g:214, b:197}, // 255 214 197 peach
+            Peach => RGB{r:255, g:204, b:170}, // 255 214 197 peach
             _ => RGB{r:0, g:0, b:0},
         }
     }
@@ -125,21 +125,21 @@ impl Color {
         use self::Color::*;
         match value {
             Black => 0, // 0   0   0 black
-            DarkBlue => 1, // 32  51 123 dark_blue
+            DarkBlue => 1, // 29 43 83  dark_blue
             DarkPurple => 2, // 126  37  83 dark_purple
             DarkGreen => 3, // 0 144  61 dark_green
             Brown => 4, // 171  82  54 brown
-            DarkGray => 5, // 52  54  53 dark_gray
+            DarkGray => 5, // 95  87  79 dark_gray
             LightGray => 6, // 194 195 199 light_gray
             White => 7, // 255 241 232 white
             Red => 8, // 255   0  77 red
-            Orange => 9, // 255 155   0 orange
-            Yellow => 10, // 255 231  39 yellow
-            Green => 11, // 0 226  50 green
+            Orange => 9, // 255 163 0 orange
+            Yellow => 10, // 255 236  39 yellow
+            Green => 11, // 0 228 54 green
             Blue => 12, // 41 173 255 blue
-            Indigo => 13, // 132 112 169 indigo
+            Indigo => 13, // 132 118 156 indigo
             Pink => 14, // 255 119 168 pink
-            Peach => 15, // 255 214 197 peach
+            Peach => 15, // 255 204 170 peach
             _ => 16,
         }
     }

@@ -116,6 +116,29 @@ class SSpr(object):
 
         sspr(8, 0, 8, 8, 0, 64, 64, 64)
 
+
+class Camera(object):
+    def __init__(self):
+        self.T = 0
+
+    def init(self):
+        cls()
+
+    def update(self):
+        self.T += 1
+
+    def draw(self):
+        cls()
+
+        circfill(20, 20, 10, 1)
+
+        camera(-2, 2)
+
+        circfill(20, 20, 10, 7)
+
+        camera()
+
+
 idx_demo = 0
 demos = [
     ["rect", [Rect()]],
@@ -124,7 +147,7 @@ demos = [
     ["line", [Line()]],
     ["spr", [Spr()]],
     ["sspr", [SSpr()]],
-
+    ["camera", [Camera()]],
 ]
 
 def _end():

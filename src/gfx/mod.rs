@@ -295,7 +295,26 @@ impl Screen {
 
     pub fn init(&mut self) {
         self._reset_colors();
-        self.palt(0, true);
+        self._reset_transparency();
+    }
+
+    pub fn _reset_transparency(&mut self) {
+        self.transparency[0] = 1;
+        self.transparency[1] = 0;
+        self.transparency[2] = 0;
+        self.transparency[3] = 0;
+        self.transparency[4] = 0;
+        self.transparency[5] = 0;
+        self.transparency[6] = 0;
+        self.transparency[7] = 0;
+        self.transparency[8] = 0;
+        self.transparency[9] = 0;
+        self.transparency[10] = 0;
+        self.transparency[11] = 0;
+        self.transparency[12] = 0;
+        self.transparency[13] = 0;
+        self.transparency[14] = 0;
+        self.transparency[15] = 0;
     }
 
     pub fn _reset_colors(&mut self) {
@@ -921,7 +940,11 @@ impl Screen {
         }
     }
 
-    pub fn palt(&mut self, c: u32, t: bool) {
-        self.transparency[c as usize] = t as u8;
+    pub fn palt(&mut self, c: i32, t: bool) {
+        if c == -1 {
+            self._reset_transparency();
+        } else {
+            self.transparency[c as usize] = t as u8;
+        }
     }
 }

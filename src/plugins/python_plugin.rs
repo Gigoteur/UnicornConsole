@@ -61,7 +61,7 @@ pub mod plugin {
     }
 
     def palt(&self, c: i32, t: bool) -> PyResult<i32> {
-        self.screen(py).lock().unwrap().palt(c as u32, t);
+        self.screen(py).lock().unwrap().palt(c, t);
         Ok(0)
     }
 

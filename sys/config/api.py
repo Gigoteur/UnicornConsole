@@ -21,14 +21,14 @@ def cls():
 def color(col):
     global_obj.color(col)
 
-def line(x1, y1, x2, y2, color):
+def line(x1, y1, x2, y2, color=-1):
     global_obj.line(math.floor(x1), math.floor(y1), math.floor(x2), math.floor(y2), color)
 
 def pal(c0 = -1, c1 = -1, p=0):
     global_obj.pal(math.floor(c0), math.floor(c1))
 
-def palt(c, t):
-    global_obj.palt(math.floor(c), math.floor(t))
+def palt(c = -1, t = False):
+    global_obj.palt(math.floor(c), t)
 
 def pget(x, y):
     return global_obj.pget(math.floor(x), math.floor(y))
@@ -39,10 +39,10 @@ def pset(x, y, color):
 def px8_print(str, x=-1, y=-1, col=-1):
     return global_obj.print(str, x, y, col)
 
-def rect(x1, y1, x2, y2, color):
+def rect(x1, y1, x2, y2, color=-1):
     global_obj.rect(math.floor(x1), math.floor(y1), math.floor(x2), math.floor(y2), color)
 
-def rectfill(x1, y1, x2, y2, color):
+def rectfill(x1, y1, x2, y2, color=-1):
     global_obj.rectfill(math.floor(x1), math.floor(y1), math.floor(x2), math.floor(y2), color)
 
 def sget(x, y):

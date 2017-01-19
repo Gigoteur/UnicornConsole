@@ -849,7 +849,7 @@ pub mod plugin {
                 data.screen.clone()
             });
 
-            screen.lock().unwrap().palt(c as u32, t == 1);
+            screen.lock().unwrap().palt(c as i32, t == 1);
 
             1
         }
