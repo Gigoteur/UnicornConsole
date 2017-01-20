@@ -741,20 +741,12 @@ pub mod plugin {
             let y1 = state.check_integer(5);
             let col = state.check_integer(6);
 
-            if x0 < 0 || y0 < 0 || x1 < 0 || y1 < 0 {
-                return 1;
-            }
-
-            if x0 as usize >= SCREEN_HEIGHT || y0 as usize >= SCREEN_WIDTH || x1 as usize >= SCREEN_HEIGHT || y1 as usize >= SCREEN_WIDTH {
-                return 1;
-            }
-
             let screen = state.with_extra(|extra| {
                 let data = extra.as_ref().unwrap().downcast_ref::<ExtraData>().unwrap();
                 data.screen.clone()
             });
 
-            screen.lock().unwrap().rect(x0 as u32, y0 as u32, x1 as u32, y1 as u32, px8::Color::from_u8(col as u8));
+            screen.lock().unwrap().rect(x0 as i32, y0 as i32, x1 as i32, y1 as i32, px8::Color::from_u8(col as u8));
 
             1
         }
@@ -773,19 +765,11 @@ pub mod plugin {
 
             debug!("LUA RECTFILL x0:{:?} y0:{:?} x1:{:?} y1:{:?} col:{:?}", x0, y0, x1, y1, col);
 
-            if x0 < 0 || y0 < 0 || x1 < 0 || y1 < 0 {
-                return 1;
-            }
-
-            if x0 as usize >= SCREEN_HEIGHT || y0 as usize >= SCREEN_WIDTH || x1 as usize >= SCREEN_HEIGHT || y1 as usize >= SCREEN_WIDTH {
-                return 1;
-            }
-
             let screen = state.with_extra(|extra| {
                 let data = extra.as_ref().unwrap().downcast_ref::<ExtraData>().unwrap();
                 data.screen.clone()
             });
-            screen.lock().unwrap().rectfill(x0 as u32, y0 as u32, x1 as u32, y1 as u32, px8::Color::from_u8(col as u8));
+            screen.lock().unwrap().rectfill(x0 as i32, y0 as i32, x1 as i32, y1 as i32, px8::Color::from_u8(col as u8));
 
             1
         }
@@ -806,7 +790,7 @@ pub mod plugin {
                 data.screen.clone()
             });
 
-            screen.lock().unwrap().circ(x as u32, y as u32, r as u32, px8::Color::from_u8(col as u8));
+            screen.lock().unwrap().circ(x as i32, y as i32, r as i32, px8::Color::from_u8(col as u8));
 
             1
         }
@@ -829,7 +813,7 @@ pub mod plugin {
                 data.screen.clone()
             });
 
-            screen.lock().unwrap().circfill(x as u32, y as u32, r as u32, px8::Color::from_u8(col as u8));
+            screen.lock().unwrap().circfill(x as i32, y as i32, r as i32, px8::Color::from_u8(col as u8));
 
             1
         }
@@ -984,14 +968,6 @@ pub mod plugin {
                 col = 0;
             }
 
-            if x0 < 0 || y0 < 0 || x1 < 0 || y1 < 0 {
-                return 1;
-            }
-
-            if x0 as usize >= SCREEN_HEIGHT || y0 as usize >= SCREEN_WIDTH || x1 as usize >= SCREEN_HEIGHT || y1 as usize >= SCREEN_WIDTH {
-                return 1;
-            }
-
             debug!("LUA LINE x0 {:?} y0 {:?} x1 {:?} y1 {:?} col {:?}", x0, y0, x1, y1, col);
 
 
@@ -1004,7 +980,7 @@ pub mod plugin {
                 col = 16;
             }
 
-            screen.lock().unwrap().line(x0 as u32, y0 as u32, x1 as u32, y1 as u32, px8::Color::from_u8(col as u8));
+            screen.lock().unwrap().line(x0 as i32, y0 as i32, x1 as i32, y1 as i32, px8::Color::from_u8(col as u8));
 
             1
         }

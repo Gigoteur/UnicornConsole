@@ -32,12 +32,12 @@ pub mod plugin {
     }
 
     def circ(&self, x: i32, y: i32, r: i32, color: i32) -> PyResult<i32> {
-        self.screen(py).lock().unwrap().circ(x as u32, y as u32, r as u32, px8::Color::from_u8(color as u8));
+        self.screen(py).lock().unwrap().circ(x, y, r, px8::Color::from_u8(color as u8));
         Ok(0)
     }
 
     def circfill(&self, x: i32, y: i32, r: i32, color: i32) -> PyResult<i32> {
-        self.screen(py).lock().unwrap().circfill(x as u32, y as u32, r as u32, px8::Color::from_u8(color as u8));
+        self.screen(py).lock().unwrap().circfill(x, y, r, px8::Color::from_u8(color as u8));
         Ok(0)
     }
 
@@ -56,7 +56,7 @@ pub mod plugin {
     }
 
     def line(&self, x1: i32, y1: i32, x2: i32, y2: i32, color: i32) -> PyResult<i32> {
-        self.screen(py).lock().unwrap().line(x1 as u32, y1 as u32, x2 as u32, y2 as u32, px8::Color::from_u8(color as u8));
+        self.screen(py).lock().unwrap().line(x1, y1, x2, y2, px8::Color::from_u8(color as u8));
         Ok(0)
     }
 
@@ -86,12 +86,12 @@ pub mod plugin {
     }
 
     def rect(&self, x1: i32, y1: i32, x2: i32, y2: i32, color: i32) -> PyResult<i32> {
-        self.screen(py).lock().unwrap().rect(x1 as u32, y1 as u32, x2 as u32, y2 as u32, px8::Color::from_u8(color as u8));
+        self.screen(py).lock().unwrap().rect(x1, y1, x2, y2, px8::Color::from_u8(color as u8));
         Ok(0)
     }
 
     def rectfill(&self, x1: i32, y1: i32, x2: i32, y2: i32, color: i32) -> PyResult<i32> {
-        self.screen(py).lock().unwrap().rectfill(x1 as u32, y1 as u32, x2 as u32, y2 as u32, px8::Color::from_u8(color as u8));
+        self.screen(py).lock().unwrap().rectfill(x1, y1, x2, y2, px8::Color::from_u8(color as u8));
         Ok(0)
     }
 
@@ -132,7 +132,7 @@ pub mod plugin {
 
 
     def trigon(&self, x1: i32, y1: i32, x2: i32, y2: i32, x3: i32, y3: i32, color: i32) -> PyResult<i32> {
-        self.screen(py).lock().unwrap().trigon(x1 as u32, y1 as u32, x2 as u32, y2 as u32, x3 as u32, y3 as u32, px8::Color::from_u8(color as u8));
+        self.screen(py).lock().unwrap().trigon(x1, y1, x2, y2, x3, y3, px8::Color::from_u8(color as u8));
         Ok(0)
     }
 

@@ -466,12 +466,7 @@ impl Screen {
         }
     }
 
-    pub fn line(&mut self, x0: u32, y0: u32, x1: u32, y1: u32, col: px8::Color) {
-        let x0: i32 = x0 as i32;
-        let x1: i32 = x1 as i32;
-        let y0: i32 = y0 as i32;
-        let y1: i32 = y1 as i32;
-
+    pub fn line(&mut self, x0: i32, y0: i32, x1: i32, y1: i32, col: px8::Color) {
         let mut col = col;
         if col == px8::Color::UNKNOWN {
             col = self.color;
@@ -505,18 +500,18 @@ impl Screen {
         }
     }
 
-    pub fn hline(&mut self, x1: u32, x2: u32, y: u32, col: px8::Color) {
+    pub fn hline(&mut self, x1: i32, x2: i32, y: i32, col: px8::Color) {
         self.line(x1, y, x2, y, col);
     }
 
-    pub fn rect(&mut self, x0: u32, y0: u32, x1: u32, y1: u32, col: px8::Color) {
+    pub fn rect(&mut self, x0: i32, y0: i32, x1: i32, y1: i32, col: px8::Color) {
         self.line(x0, y0, x0, y1, col);
         self.line(x0, y0, x1, y0, col);
         self.line(x0, y1, x1, y1, col);
         self.line(x1, y0, x1, y1, col);
     }
 
-    pub fn rectfill(&mut self, x0: u32, y0: u32, x1: u32, y1: u32, col: px8::Color) {
+    pub fn rectfill(&mut self, x0: i32, y0: i32, x1: i32, y1: i32, col: px8::Color) {
         self.line(x0, y0, x0, y1, col);
         self.line(x0, y0, x1, y0, col);
         self.line(x0, y1, x1, y1, col);
@@ -528,15 +523,15 @@ impl Screen {
         }
     }
 
-    pub fn square(&mut self, x0: u32, y0: u32, h: u32, col: px8::Color) {
+    pub fn square(&mut self, x0: i32, y0: i32, h: i32, col: px8::Color) {
         self.rect(x0, y0, x0+h, y0+h, col);
     }
 
-    pub fn squarefill(&mut self, x0: u32, y0: u32, h: u32, col: px8::Color) {
+    pub fn squarefill(&mut self, x0: i32, y0: i32, h: i32, col: px8::Color) {
         self.rectfill(x0, y0, x0+h, y0+h, col);
     }
 
-    pub fn circ(&mut self, x: u32, y: u32, r: u32, col: px8::Color) {
+    pub fn circ(&mut self, x: i32, y: i32, r: i32, col: px8::Color) {
         if r <= 0 {
             return;
         }
@@ -545,9 +540,6 @@ impl Screen {
         if col == px8::Color::UNKNOWN {
             col = self.color;
         }
-
-        let x = x as i32;
-        let y = y as i32;
 
         let mut h: i32;
         let mut i: i32;
@@ -625,7 +617,7 @@ impl Screen {
         }
     }
 
-    pub fn circfill(&mut self, x: u32, y: u32, r: u32, col: px8::Color) {
+    pub fn circfill(&mut self, x: i32, y: i32, r: i32, col: px8::Color) {
         if r <= 0 {
             return;
         }
@@ -634,9 +626,6 @@ impl Screen {
         if col == px8::Color::UNKNOWN {
             col = self.color;
         }
-
-        let x = x as i32;
-        let y = y as i32;
 
         let mut h: i32;
         let mut i: i32;
@@ -672,10 +661,10 @@ impl Screen {
                 xmj = x - j;
                 xpj = x + j;
                 if i > 0 {
-                    self.hline(xmj as u32, xpj as u32, (y + i) as u32, col);
-                    self.hline(xmj as u32, xpj as u32, (y - i) as u32, col);
+                    self.hline(xmj, xpj, (y + i), col);
+                    self.hline(xmj, xpj, (y - i), col);
                 } else {
-                    self.hline(xmj as u32, xpj as u32, y as u32, col);
+                    self.hline(xmj, xpj, y, col);
                 }
                 oi = i;
             }
@@ -683,10 +672,10 @@ impl Screen {
                 xmk = x - k;
                 xpk = x + k;
                 if h > 0 {
-                    self.hline(xmk as u32, xpk as u32, (y + h) as u32, col);
-                    self.hline(xmk as u32, xpk as u32, (y - h) as u32, col);
+                    self.hline(xmk, xpk, (y + h), col);
+                    self.hline(xmk, xpk, (y - h), col);
                 } else {
-                    self.hline(xmk as u32, xpk as u32, y as u32, col);
+                    self.hline(xmk, xpk, y, col);
                 }
                 oh = h;
             }
@@ -702,7 +691,7 @@ impl Screen {
         }
     }
 
-    pub fn trigon(&mut self, x1: u32, y1: u32, x2: u32, y2: u32, x3: u32, y3: u32, col: px8::Color) {
+    pub fn trigon(&mut self, x1: i32, y1: i32, x2: i32, y2: i32, x3: i32, y3: i32, col: px8::Color) {
         let mut vx = Vec::new();
         let mut vy = Vec::new();
 
@@ -718,7 +707,7 @@ impl Screen {
     }
 
 
-    pub fn polygon(&mut self, vx: Vec<u32>, vy: Vec<u32>, col: px8::Color) {
+    pub fn polygon(&mut self, vx: Vec<i32>, vy: Vec<i32>, col: px8::Color) {
         if vx.len() < 3 || vy.len() < 3 {
             return;
         }
@@ -730,12 +719,6 @@ impl Screen {
         let mut idx = 0;
 
         while idx < vx.len() - 1 {
-/*            self.line(*vx.get(idx).unwrap(),
-                      *vy.get(idx).unwrap(),
-                      *vx.get(idx+1).unwrap(),
-                      *vy.get(idx+1).unwrap(),
-                      col);*/
-
             self.line(vx[idx],
                       vy[idx],
                       vx[idx+1],
