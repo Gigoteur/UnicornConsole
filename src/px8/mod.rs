@@ -116,7 +116,7 @@ impl Color {
             Blue => RGB{r:41, g:173, b:255}, // 41 173 255 blue
             Indigo => RGB{r:132, g:118, b:156}, // 132 118 156 indigo
             Pink => RGB{r:255, g:119, b:168}, // 255 119 168 pink
-            Peach => RGB{r:255, g:204, b:170}, // 255 214 197 peach
+            Peach => RGB{r:255, g:204, b:170}, // 255 204 170 peach
             _ => RGB{r:0, g:0, b:0},
         }
     }
