@@ -354,7 +354,7 @@ impl Screen {
         self.map = map;
     }
 
-    pub fn putpixel_(&mut self, x: usize, y: usize, col: px8::Color) {
+    pub fn putpixel_(&mut self, x: i32, y: i32, col: px8::Color) {
         //debug!("PUTPIXEL x:{:?} y:{:?} -> {:?}", x, y, col);
 
         let x = (x as i32 - self.camera.x) as usize;
@@ -374,7 +374,7 @@ impl Screen {
         self.color = col;
     }
 
-    pub fn putpixel(&mut self, x: usize, y: usize, col: px8::Color) {
+    pub fn putpixel(&mut self, x: i32, y: i32, col: px8::Color) {
         return self.putpixel_(x, y, col);
     }
 
@@ -392,13 +392,13 @@ impl Screen {
     }
 
 
-    pub fn pset(&mut self, x: u32, y: u32, col: px8::Color) {
+    pub fn pset(&mut self, x: i32, y: i32, col: px8::Color) {
         let mut col = col;
         if col == px8::Color::UNKNOWN {
             col = self.color;
         }
 
-        self.putpixel_(x as usize, y as usize, col);
+        self.putpixel_(x, y, col);
     }
 
     pub fn sget(&mut self, x: u32, y: u32) -> u8 {
@@ -421,14 +421,14 @@ impl Screen {
     pub fn cls(&mut self) {
         for x in 0..SCREEN_WIDTH {
             for y in 0..SCREEN_HEIGHT {
-                self.putpixel(x, y, px8::Color::Black);
+                self.putpixel(x as i32, y as i32, px8::Color::Black);
             }
         }
     }
 
     pub fn print(&mut self, string: String, x: i32, y: i32, col: px8::Color) {
-        let mut x = x as u32;
-        let y = y as u32;
+        let mut x = x;
+        let y = y;
 
         let mut col = col;
         if col == px8::Color::UNKNOWN {
@@ -483,7 +483,7 @@ impl Screen {
         let mut err: i32 = dx + dy; /* error value e_xy */
 
         loop {
-            self.putpixel(x0 as usize, y0 as usize, col);
+            self.putpixel(x0, y0, col);
             if x0 == x1 && y0 == y1 {
                 break;
             }
@@ -580,13 +580,13 @@ impl Screen {
                 if i > 0 {
                     ypi = y + i;
                     ymi = y - i;
-                    self.putpixel(xmj as usize, ypi as usize, col);
-                    self.putpixel(xpj as usize, ypi as usize, col);
-                    self.putpixel(xmj as usize, ymi as usize, col);
-                    self.putpixel(xpj as usize, ymi as usize, col);
+                    self.putpixel(xmj, ypi, col);
+                    self.putpixel(xpj, ypi, col);
+                    self.putpixel(xmj, ymi, col);
+                    self.putpixel(xpj, ymi, col);
                 } else {
-                    self.putpixel(xmj as usize, y as usize, col);
-                    self.putpixel(xpj as usize, y as usize, col);
+                    self.putpixel(xmj, y, col);
+                    self.putpixel(xpj, y, col);
                 }
 
 
@@ -596,13 +596,13 @@ impl Screen {
                 if h > 0 {
                     yph = y + h;
                     ymh = y - h;
-                    self.putpixel(xmk as usize, yph as usize, col);
-                    self.putpixel(xpk as usize, yph as usize, col);
-                    self.putpixel(xmk as usize, ymh as usize, col);
-                    self.putpixel(xpk as usize, ymh as usize, col);
+                    self.putpixel(xmk, yph, col);
+                    self.putpixel(xpk, yph, col);
+                    self.putpixel(xmk, ymh, col);
+                    self.putpixel(xpk, ymh, col);
                 } else {
-                    self.putpixel(xmk as usize, y as usize, col);
-                    self.putpixel(xpk as usize, y as usize, col);
+                    self.putpixel(xmk, y, col);
+                    self.putpixel(xpk, y, col);
                 }
                 oh = h;
             }
@@ -737,7 +737,7 @@ impl Screen {
 
     }
 
-    pub fn spr(&mut self, n: u32, x: u32, y: u32, w: u32, h: u32, flip_x: bool, flip_y: bool) {
+    pub fn spr(&mut self, n: u32, x: i32, y: i32, w: u32, h: u32, flip_x: bool, flip_y: bool) {
         let sprites_number = w * h;
 
         debug!("PRINT SPRITE = {:?} x:{:?} y:{:?} n:{:?} w:{:?} h:{:?} flip_x:{:?} flip_y:{:?}", sprites_number, x, y, n, w, h, flip_x, flip_y);
@@ -764,7 +764,7 @@ impl Screen {
             let mut index = 0;
             for c in &sprite.data {
                 if self.transparency[*c as usize] == 0 {
-                    self.putpixel_(new_x as usize, new_y as usize, px8::Color::from_u8(*c));
+                    self.putpixel_(new_x, new_y, px8::Color::from_u8(*c));
                 }
 
                 index = index + 1;
@@ -788,9 +788,9 @@ impl Screen {
         }
     }
 
-    pub fn map(&mut self, cel_x: u32, cel_y: u32, sx: u32, sy: u32, cel_w: u32, cel_h: u32) {
-        let mut idx_x = 0;
-        let mut idx_y = 0;
+    pub fn map(&mut self, cel_x: u32, cel_y: u32, sx: i32, sy: i32, cel_w: u32, cel_h: u32) {
+        let mut idx_x: i32 = 0;
+        let mut idx_y: i32 = 0;
 
         let mut cel_w = cel_w;
         if cel_w > 128 {
@@ -804,9 +804,9 @@ impl Screen {
 
         debug!("cel_x {:?} cel_y {:?} sx {:?} sy {:?} cel_w {:?} cel_h {:?}", cel_x, cel_y, sx, sy, cel_w, cel_h);
 
-        while idx_y < cel_h {
+        while idx_y < cel_h as i32 {
             idx_x = 0;
-            while idx_x < cel_w {
+            while idx_x < cel_w as i32 {
                 let orig_x = sx + 8 * idx_x;
 
                 let mut new_x = orig_x;
@@ -816,8 +816,8 @@ impl Screen {
                     break
                 }
 
-                let mut map_x = (cel_x + idx_x) as i32;
-                let mut map_y = (cel_y + idx_y) as i32;
+                let mut map_x = cel_x as i32 + idx_x;
+                let mut map_y = cel_y as i32 + idx_y;
 
                 let idx_sprite = self.map[map_x as usize][map_y as usize];
 
@@ -826,7 +826,7 @@ impl Screen {
                 let mut index = 0;
                 for c in &sprite.data {
                     if self.transparency[*c as usize] == 0 {
-                        self.putpixel_(new_x as usize, new_y as usize, px8::Color::from_u8(*c));
+                        self.putpixel_(new_x, new_y, px8::Color::from_u8(*c));
                     }
 
                     index = index + 1;
@@ -846,7 +846,7 @@ impl Screen {
         }
     }
 
-    pub fn sspr(&mut self, sx: u32, sy: u32, sw: u32, sh: u32, dx: u32, dy: u32, dw: u32, dh: u32, flip_x: bool, flip_y: bool) {
+    pub fn sspr(&mut self, sx: u32, sy: u32, sw: u32, sh: u32, dx: i32, dy: i32, dw: u32, dh: u32, flip_x: bool, flip_y: bool) {
         let mut v = Vec::new();
 
         for x in sx..sx+sw {
@@ -908,7 +908,7 @@ impl Screen {
                 idx += 1;
                 if d != 0 {
                     if self.transparency[d as usize] == 0 {
-                        self.putpixel_((i + dx) as usize, (j + dy) as usize, px8::Color::from_u8(d));
+                        self.putpixel_(i as i32 + dx, j as i32 + dy, px8::Color::from_u8(d));
                     }
                 }
             }

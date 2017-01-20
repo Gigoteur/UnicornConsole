@@ -71,7 +71,7 @@ pub mod plugin {
     }
 
     def pset(&self, x: i32, y: i32, color: i32) -> PyResult<i32> {
-        self.screen(py).lock().unwrap().pset(x as u32, y as u32, px8::Color::from_u8(color as u8));
+        self.screen(py).lock().unwrap().pset(x, y, px8::Color::from_u8(color as u8));
         Ok(0)
     }
 
@@ -101,12 +101,12 @@ pub mod plugin {
 
     def spr(&self, n: i32, x: i32, y: i32, w: i32, h: i32, flip_x: bool, flip_y: bool) -> PyResult<i32> {
         self.screen(py).lock().unwrap().spr(n as u32,
-                                                     x as u32,
-                                                     y as u32,
-                                                     w as u32,
-                                                     h as u32,
-                                                     flip_x,
-                                                     flip_y);
+                                            x as i32,
+                                            y as i32,
+                                            w as u32,
+                                            h as u32,
+                                            flip_x,
+                                            flip_y);
 
         Ok(0)
     }
@@ -121,8 +121,8 @@ pub mod plugin {
                                              sy as u32,
                                              sw as u32,
                                              sh as u32,
-                                             dx as u32,
-                                             dy as u32,
+                                             dx as i32,
+                                             dy as i32,
                                              dw as u32,
                                              dh as u32,
                                              flip_x,
@@ -166,7 +166,7 @@ pub mod plugin {
 
     def spr_map(&self, cel_x: i32, cel_y: i32, sx: i32, sy: i32, cel_w: i32, cel_h: i32) -> PyResult<i32> {
         self.screen(py).lock().unwrap().map(cel_x as u32, cel_y as u32,
-                                            sx as u32, sy as u32,
+                                            sx, sy,
                                             cel_w as u32, cel_h as u32);
 
         Ok(0)

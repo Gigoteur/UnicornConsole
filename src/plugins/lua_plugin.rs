@@ -889,7 +889,7 @@ pub mod plugin {
                 col = 16;
             }
 
-            screen.lock().unwrap().pset(x as u32, y as u32, px8::Color::from_u8(col as u8));
+            screen.lock().unwrap().pset(x as i32, y as i32, px8::Color::from_u8(col as u8));
 
             1
         }
@@ -1028,7 +1028,7 @@ pub mod plugin {
                 data.screen.clone()
             });
 
-            screen.lock().unwrap().spr(n as u32, x as u32, y as u32, w as u32, h as u32, flip_x == 1, flip_y == 1);
+            screen.lock().unwrap().spr(n as u32, x as i32, y as i32, w as u32, h as u32, flip_x == 1, flip_y == 1);
 
             1
         }
@@ -1061,8 +1061,8 @@ pub mod plugin {
                                         sy as u32,
                                         sw as u32,
                                         sh as u32,
-                                        dx as u32,
-                                        dy as u32,
+                                        dx as i32,
+                                        dy as i32,
                                         dw as u32,
                                         dh as u32,
                                         flip_x == 1,
@@ -1090,7 +1090,7 @@ pub mod plugin {
             });
 
             screen.lock().unwrap().map(cel_x as u32, cel_y as u32,
-                                       sx as u32, sy as u32,
+                                       sx as i32, sy as i32,
                                        cel_w as u32, cel_h as u32);
 
 
