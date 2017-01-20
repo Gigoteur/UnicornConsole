@@ -9,14 +9,13 @@ It is still in development but the main features are:
  * 128x128 pixels, 16 colours
  * Python 3 / Lua 5.X support for the cartridge (no tokens limit)
  * Controls with dpad + 2 buttons (gamecontroller/joystick support)
- * Desktop/Mobile (Emscripten) support
+ * Desktop/Mobile/Browser (Emscripten) support
  * Unlimited sprites (8x8)
  * Map support (128x32)
  * Edition of the cartridge data
  * PX8 format to be able to use your favorite code editor
  * Screenshot (PNG) / Video recording (GIF)
  * Pico-8 (P8/P8.PNG) cartridge format support
- * Mainly run @60 FPS
  
 It should work on all platform (Linux/OSX/Windows), in the browser (via Emscripten), and on tiny hardware like Raspberry Pi.
 
