@@ -867,10 +867,6 @@ pub mod plugin {
             let y = state.check_integer(3);
             let mut col = state.check_integer(4);
 
-            if col < 0 {
-                col = 1;
-            }
-
             if x < 0 || y < 0 {
                 return 1;
             }
@@ -883,11 +879,6 @@ pub mod plugin {
                 let data = extra.as_ref().unwrap().downcast_ref::<ExtraData>().unwrap();
                 data.screen.clone()
             });
-
-
-            if col == -1 {
-                col = 16;
-            }
 
             screen.lock().unwrap().pset(x as i32, y as i32, px8::Color::from_u8(col as u8));
 
@@ -964,21 +955,10 @@ pub mod plugin {
             let y1 = state.check_integer(5);
             let mut col = state.check_integer(6);
 
-            if col < 0 {
-                col = 0;
-            }
-
-            debug!("LUA LINE x0 {:?} y0 {:?} x1 {:?} y1 {:?} col {:?}", x0, y0, x1, y1, col);
-
-
             let screen = state.with_extra(|extra| {
                 let data = extra.as_ref().unwrap().downcast_ref::<ExtraData>().unwrap();
                 data.screen.clone()
             });
-
-            if col == -1 {
-                col = 16;
-            }
 
             screen.lock().unwrap().line(x0 as i32, y0 as i32, x1 as i32, y1 as i32, px8::Color::from_u8(col as u8));
 

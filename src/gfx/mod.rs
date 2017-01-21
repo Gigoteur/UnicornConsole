@@ -371,7 +371,9 @@ impl Screen {
     }
 
     pub fn color(&mut self, col: px8::Color) {
-        self.color = col;
+        if col != px8::Color::UNKNOWN {
+            self.color = col;
+        }
     }
 
     pub fn putpixel(&mut self, x: i32, y: i32, col: px8::Color) {
@@ -471,6 +473,8 @@ impl Screen {
         if col == px8::Color::UNKNOWN {
             col = self.color;
         }
+
+        debug!("LINE {:?} {:?} {:?} {:?} {:?}", x0, y0, x1, y1, col as u8);
 
         let (mut x0, mut y0) = (x0, y0);
         let (x1, y1) = (x1, y1);
