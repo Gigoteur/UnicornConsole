@@ -49,7 +49,6 @@ mod frontend;
 mod renderer;
 mod gfx;
 mod px8;
-mod pico8;
 mod plugins;
 mod cartridge;
 

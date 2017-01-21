@@ -45,5 +45,4 @@ pub mod renderer;
 pub mod gfx;
 pub mod px8;
 pub mod cartridge;
-pub mod pico8;
 pub mod plugins;

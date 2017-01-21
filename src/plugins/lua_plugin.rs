@@ -23,8 +23,6 @@ pub mod plugin {
     use gfx::{SCREEN_WIDTH, SCREEN_HEIGHT};
     use gfx::Screen;
 
-    use pico8::pico8::{Memory};
-
     pub struct ExtraData {
         pub tx_input: Sender<Vec<u8>>,
         pub rx_output: Receiver<Vec<u8>>,
@@ -34,7 +32,6 @@ pub mod plugin {
         pub screen: Arc<Mutex<Screen>>,
         pub sprites: Vec<Sprite>,
         pub map: [[u32; 32]; px8::SCREEN_WIDTH],
-        pub memory: Arc<Mutex<Memory>>,
         pub info: Arc<Mutex<Info>>,
     }
 
@@ -71,7 +68,6 @@ pub mod plugin {
               screen: screen.clone(),
               sprites: sprites.clone(),
               map: map,
-              memory: Arc::new(Mutex::new(Memory::new(sprites, map))),
             };
 
             let mut lua_state = self.lua_state.lock().unwrap();
@@ -218,6 +214,18 @@ pub mod plugin {
               "#);
 
             lua_state.do_string(r#"pal = function(c0, c1, p)
+              if c0 == nil then
+                c0 = -1
+              end
+
+              if c1 == nil then
+                c1 = -1
+              end
+
+              if p == nil then
+                p = -1
+              end
+
               s:pal(c0, c1, p)
               end
               "#);
@@ -253,6 +261,21 @@ pub mod plugin {
               end
               "#);
 
+
+            lua_state.do_string(r#"sset = function(x, y, color)
+              x = math.floor(x)
+              y = math.floor(y)
+
+              if color == nil then
+                color = -1
+              end
+
+              color = math.floor(color)
+
+              s:sset(x, y, c)
+              end
+              "#);
+
             lua_state.do_string(r#"map = function(cel_x, cel_y, sx, sy, cel_w, cel_h, layer)
 
               cel_x = math.floor(cel_x)
@@ -270,6 +293,11 @@ pub mod plugin {
               s:map(cel_x, cel_y, sx, sy, cel_w, cel_h, layer)
               end
               "#);
+
+            lua_state.do_string(r#"mapdraw = function(cel_x, cel_y, sx, sy, cel_w, cel_h, layer)
+                map(cel_x, cel_y, sx, sy, cel_w, cel_h, layer)
+                end
+                "#);
 
             lua_state.do_string(r#"mget = function(x, y)
               x = math.floor(x)
@@ -932,14 +960,43 @@ pub mod plugin {
                 return 1;
             }
 
-            let memory = state.with_extra(|extra| {
+            let screen = state.with_extra(|extra| {
                 let data = extra.as_ref().unwrap().downcast_ref::<ExtraData>().unwrap();
-                data.memory.clone()
+                data.screen.clone()
             });
 
-            let value = memory.lock().unwrap().sget(x as u32, y as u32);
+            let value = screen.lock().unwrap().sget(x as u32, y as u32);
 
             state.push_integer(value as i64);
+
+            1
+        }
+
+        unsafe extern "C" fn lua_sset(lua_context: *mut lua_State) -> c_int {
+            debug!("LUA SSET");
+
+            let mut state = State::from_ptr(lua_context);
+
+            let x = state.check_integer(2);
+            let y = state.check_integer(3);
+            let c = state.check_integer(4);
+
+            debug!("LUA SSET {:?} {:?} {:?}", x, y, c);
+
+            if x < 0 || y < 0 {
+                return 1;
+            }
+
+            if x as usize >= 128 || y as usize >= 128 {
+                return 1;
+            }
+
+            let screen = state.with_extra(|extra| {
+                let data = extra.as_ref().unwrap().downcast_ref::<ExtraData>().unwrap();
+                data.screen.clone()
+            });
+
+            let value = screen.lock().unwrap().sset(x as u32, y as u32, px8::Color::from_u8(c as u8));
 
             1
         }
@@ -1208,7 +1265,7 @@ pub mod plugin {
 
     }
 
-    pub const PX8LUA_LIB: [(&'static str, Function); 27] = [
+    pub const PX8LUA_LIB: [(&'static str, Function); 28] = [
         ("new", Some(PX8Lua::lua_new)),
 
         ("camera", Some(PX8Lua::lua_camera)),
@@ -1240,6 +1297,7 @@ pub mod plugin {
         ("pset", Some(PX8Lua::lua_pset)),
 
         ("sget", Some(PX8Lua::lua_sget)),
+        ("sset", Some(PX8Lua::lua_sset)),
 
         ("rnd", Some(PX8Lua::lua_rnd)),
 
