@@ -9,6 +9,7 @@ repository = "https://github.com/Gigoteur/PX8"
 readme = "README.md"
 keywords = ["rust", "console", "python", "lua", "8bits"]
 license = "MIT"
+build = "build.rs"
 
 exclude = [ ".idea/*", ".travis.yml" ]
 

@@ -37,9 +37,7 @@ use gfx;
 use gfx::{Screen, Sprite};
 use cartridge::{Cartridge, CartridgeFormat};
 
-
-pub const SCREEN_WIDTH: usize = 128;
-pub const SCREEN_HEIGHT: usize = 128;
+include!(concat!(env!("OUT_DIR"), "/parameters.rs"));
 
 pub const SCREEN_PIXELS: usize = SCREEN_WIDTH * SCREEN_HEIGHT;
 

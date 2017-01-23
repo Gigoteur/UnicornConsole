@@ -134,6 +134,7 @@ globals()["cos"] = cos
 globals()["sin"] = sin
 globals()["flr"] = flr
 globals()["rnd"] = rnd
+globals()["sqrt"] = math.sqrt
 
 # Memory
 
