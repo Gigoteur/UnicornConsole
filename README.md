@@ -290,8 +290,8 @@ btnp | :white_check_mark: | :white_check_mark:
 API | Python | Lua
 ------------ | ------------- | -------------
 map | :white_check_mark: (spr_map) | :white_check_mark:
-mget | :red_circle: | :white_check_mark:
-mset | :red_circle: | :white_check_mark:
+mget | :white_check_mark: | :white_check_mark:
+mset | :white_check_mark: | :white_check_mark:
 
 ### Math
 
