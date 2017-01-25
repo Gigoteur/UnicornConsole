@@ -228,7 +228,6 @@ impl fmt::Debug for Sprite {
 }
 
 // Screen scaling
-//
 
 #[derive(Copy, Clone)]
 pub enum Scale {
@@ -283,13 +282,14 @@ unsafe impl Sync for Screen {}
 
 impl Screen {
     pub fn new() -> Screen {
-        Screen { back_buffer: Box::new(px8::SCREEN_EMPTY),
-                 sprites: Vec::new(),
-                 map: [[0; 32]; px8::SCREEN_WIDTH],
-                 transparency: [0; 16],
-                 colors: [px8::Color::Black; 16],
-                 camera: Camera::new(),
-                 color: px8::Color::Black,
+        Screen {
+            back_buffer: Box::new(px8::SCREEN_EMPTY),
+            sprites: Vec::new(),
+            map: [[0; 32]; px8::SCREEN_WIDTH],
+            transparency: [0; 16],
+            colors: [px8::Color::Black; 16],
+            camera: Camera::new(),
+            color: px8::Color::Black,
         }
     }
 
@@ -404,9 +404,9 @@ impl Screen {
     }
 
     pub fn sget(&mut self, x: u32, y: u32) -> u8 {
-        let idx_sprite = (x/8) + 16 * (y/8);
+        let idx_sprite = (x / 8) + 16 * (y / 8);
         let sprite = &self.sprites[idx_sprite as usize];
-        return *sprite.data.get(((x%8) + (y % 8) * 8) as usize).unwrap();
+        return *sprite.data.get(((x % 8) + (y % 8) * 8) as usize).unwrap();
     }
 
     pub fn sset(&mut self, x: u32, y: u32, col: px8::Color) {
@@ -415,9 +415,9 @@ impl Screen {
             col = self.color;
         }
 
-        let idx_sprite = (x/8) + 16 * (y/8);
+        let idx_sprite = (x / 8) + 16 * (y / 8);
         let ref mut sprite = self.sprites[idx_sprite as usize];
-        sprite.set_data(((x%8) + (y % 8) * 8) as usize, px8::Color::to_u8(col));
+        sprite.set_data(((x % 8) + (y % 8) * 8) as usize, px8::Color::to_u8(col));
     }
 
     pub fn cls(&mut self) {
@@ -443,7 +443,8 @@ impl Screen {
 
             if value >= 32 && value <= 126 {
                 data = GLYPH[value - 32];
-            } else { /* Unknown char, replace by a space */
+            } else {
+                /* Unknown char, replace by a space */
                 data = [0x0000, 0x0000];
             }
 
@@ -451,7 +452,7 @@ impl Screen {
             let mut idx_1 = 0;
 
             for i in 0..32 {
-               if (data[idx] & (0x1 << idx_1)) != 0 {
+                if (data[idx] & (0x1 << idx_1)) != 0 {
                     self.pset(x, y + i % 8, col)
                 }
 
@@ -528,11 +529,11 @@ impl Screen {
     }
 
     pub fn square(&mut self, x0: i32, y0: i32, h: i32, col: px8::Color) {
-        self.rect(x0, y0, x0+h, y0+h, col);
+        self.rect(x0, y0, x0 + h, y0 + h, col);
     }
 
     pub fn squarefill(&mut self, x0: i32, y0: i32, h: i32, col: px8::Color) {
-        self.rectfill(x0, y0, x0+h, y0+h, col);
+        self.rectfill(x0, y0, x0 + h, y0 + h, col);
     }
 
     pub fn circ(&mut self, x: i32, y: i32, r: i32, col: px8::Color) {
@@ -725,8 +726,8 @@ impl Screen {
         while idx < vx.len() - 1 {
             self.line(vx[idx],
                       vy[idx],
-                      vx[idx+1],
-                      vy[idx+1],
+                      vx[idx + 1],
+                      vy[idx + 1],
                       col);
 
 
@@ -738,7 +739,6 @@ impl Screen {
                   *vx.get(0).unwrap(),
                   *vy.get(0).unwrap(),
                   col);
-
     }
 
     pub fn spr(&mut self, n: u32, x: i32, y: i32, w: u32, h: u32, flip_x: bool, flip_y: bool) {
@@ -752,7 +752,7 @@ impl Screen {
         let mut orig_y = y;
 
         for i in 0..sprites_number {
-            let mut sprite = self.sprites[(n+i) as usize].clone();
+            let mut sprite = self.sprites[(n + i) as usize].clone();
             if flip_x {
                 sprite = sprite.flip_x();
             }
@@ -763,7 +763,7 @@ impl Screen {
             let mut new_x = orig_x % 128;
             let mut new_y = orig_y;
 
-            debug!("SPRITE = {:?} x:{:?} y:{:?} {:?}", (n+i) as usize, new_x, new_y, sprite);
+            debug!("SPRITE = {:?} x:{:?} y:{:?} {:?}", (n + i) as usize, new_x, new_y, sprite);
 
             let mut index = 0;
             for c in &sprite.data {
@@ -787,7 +787,7 @@ impl Screen {
             if idx_w == w {
                 orig_y += 8;
                 idx_w = 0;
-                orig_x  = 0;
+                orig_x = 0;
             }
         }
     }
@@ -848,6 +848,24 @@ impl Screen {
 
             idx_y += 1;
         }
+    }
+
+    pub fn mget(&mut self, x: u32, y: u32) -> u32 {
+        if x as usize > px8::SCREEN_WIDTH || y as usize > px8::SCREEN_WIDTH {
+            return 0;
+        }
+
+        let value = self.map[x as usize][y as usize];
+
+        return value;
+    }
+
+    pub fn mset(&mut self, x: u32, y: u32, v: u32) {
+        if x as usize > px8::SCREEN_WIDTH || y as usize > px8::SCREEN_WIDTH {
+            return;
+        }
+
+        self.map[x as usize][y as usize] = v;
     }
 
     pub fn sspr(&mut self, sx: u32, sy: u32, sw: u32, sh: u32, dx: i32, dy: i32, dw: u32, dh: u32, flip_x: bool, flip_y: bool) {

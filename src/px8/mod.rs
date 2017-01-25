@@ -625,9 +625,7 @@ impl Px8New {
                                          rx_output.clone(),
                                          players.clone(),
                                          info.clone(),
-                                         self.screen.clone(),
-                                         gfx_sprites.clone(),
-                                         gfx_map);
+                                         self.screen.clone());
                 }
                 _ => (),
             }
@@ -649,9 +647,7 @@ impl Px8New {
                                      rx_output.clone(),
                                      players.clone(),
                                      info.clone(),
-                                     self.screen.clone(),
-                                     gfx_sprites.clone(),
-                                     gfx_map);
+                                     self.screen.clone());
 
                 println!("{:?}", data);
 
@@ -663,9 +659,7 @@ impl Px8New {
 
                 self.python_plugin.load(players.clone(),
                                         info.clone(),
-                                        self.screen.clone(),
-                                        gfx_sprites.clone(),
-                                        gfx_map);
+                                        self.screen.clone());
 
                 self.python_plugin.load_code(data);
             },

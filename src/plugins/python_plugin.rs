@@ -17,7 +17,6 @@ pub mod plugin {
     data member: i32;
     data screen: Arc<Mutex<Screen>>;
     data players: Arc<Mutex<Players>>;
-    data sprites: Vec<Sprite>;
     data info: Arc<Mutex<Info>>;
 
     // Audio
@@ -160,10 +159,6 @@ pub mod plugin {
 
     // Map
 
-    // Math
-
-    // Memory
-
     def spr_map(&self, cel_x: i32, cel_y: i32, sx: i32, sy: i32, cel_w: i32, cel_h: i32) -> PyResult<i32> {
         self.screen(py).lock().unwrap().map(cel_x as u32, cel_y as u32,
                                             sx, sy,
@@ -171,6 +166,21 @@ pub mod plugin {
 
         Ok(0)
     }
+
+
+    def spr_mget(&self, x: u32, y: u32) -> PyResult<u32> {
+        let value = self.screen(py).lock().unwrap().mget(x as u32, y);
+        Ok(value)
+    }
+
+    def spr_mset(&self, x: u32, y: u32, v: u32) -> PyResult<i32> {
+        self.screen(py).lock().unwrap().mset(x, y, v);
+        Ok(0)
+    }
+
+    // Math
+
+    // Memory
 
     // Peek/Poke
 
@@ -200,9 +210,7 @@ pub mod plugin {
         pub fn load(&mut self,
                     players: Arc<Mutex<Players>>,
                     info: Arc<Mutex<Info>>,
-                    screen: Arc<Mutex<Screen>>,
-                    sprites: Vec<Sprite>,
-                    map: [[u32; 32]; gfx::SCREEN_WIDTH]) {
+                    screen: Arc<Mutex<Screen>>) {
             info!("INIT PYTHON plugin");
 
             let gil = Python::acquire_gil();
@@ -212,7 +220,6 @@ pub mod plugin {
                                                    7,
                                                    screen.clone(),
                                                    players.clone(),
-                                                   sprites.clone(),
                                                    info.clone()).unwrap();
             self.mydict.set_item(py, "obj", obj).unwrap();
 
@@ -353,9 +360,7 @@ pub mod plugin {
         pub fn load(&mut self,
                     players: Arc<Mutex<Players>>,
                     info: Arc<Mutex<Info>>,
-                    screen: Arc<Mutex<Screen>>,
-                    sprites: Vec<Sprite>,
-                    map: [[u32; 32]; gfx::SCREEN_WIDTH]) {
+                    screen: Arc<Mutex<Screen>>) {
             panic!("PYTHON plugin disabled");
         }
         pub fn init(&mut self) {}

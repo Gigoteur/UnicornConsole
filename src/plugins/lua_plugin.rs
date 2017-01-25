@@ -30,8 +30,6 @@ pub mod plugin {
         /* External objects */
         pub players: Arc<Mutex<Players>>,
         pub screen: Arc<Mutex<Screen>>,
-        pub sprites: Vec<Sprite>,
-        pub map: [[u32; 32]; px8::SCREEN_WIDTH],
         pub info: Arc<Mutex<Info>>,
     }
 
@@ -53,9 +51,7 @@ pub mod plugin {
                     rx_output: Receiver<Vec<u8>>,
                     players: Arc<Mutex<Players>>,
                     info: Arc<Mutex<Info>>,
-                    screen: Arc<Mutex<Screen>>,
-                    sprites: Vec<Sprite>,
-                    map: [[u32; 32]; SCREEN_WIDTH]) {
+                    screen: Arc<Mutex<Screen>>) {
             info!("Init LUA struct");
 
             let extra = ExtraData {
@@ -66,8 +62,6 @@ pub mod plugin {
               info: info.clone(),
 
               screen: screen.clone(),
-              sprites: sprites.clone(),
-              map: map,
             };
 
             let mut lua_state = self.lua_state.lock().unwrap();
@@ -304,6 +298,15 @@ pub mod plugin {
               y = math.floor(y)
 
               return s:mget(x, y)
+              end
+              "#);
+
+            lua_state.do_string(r#"mset = function(x, y, v)
+              x = math.floor(x)
+              y = math.floor(y)
+              v = math.floor(v)
+
+              s:mset(x, y, v)
               end
               "#);
 
@@ -1142,27 +1145,37 @@ pub mod plugin {
             let x = state.check_integer(2);
             let y = state.check_integer(3);
 
-            if x < 0 || y < 0 {
-                return 1;
-            }
-
-            if x as usize >= SCREEN_HEIGHT || y as usize >= SCREEN_WIDTH {
-                return 1;
-            }
-
-            let map = state.with_extra(|extra| {
+            let screen = state.with_extra(|extra| {
                 let data = extra.as_ref().unwrap().downcast_ref::<ExtraData>().unwrap();
-                data.map
+                data.screen.clone()
             });
 
-
-            let value = map[x as usize][y as usize];
+            let value = screen.lock().unwrap().mget(x as u32, y as u32);
 
             state.push_integer(value as i64);
 
             1
         }
 
+
+        unsafe extern "C" fn lua_mset(lua_context: *mut lua_State) -> c_int {
+            debug!("LUA MSET");
+
+            let mut state = State::from_ptr(lua_context);
+
+            let x = state.check_integer(2);
+            let y = state.check_integer(3);
+            let v = state.check_integer(4);
+
+            let screen = state.with_extra(|extra| {
+                let data = extra.as_ref().unwrap().downcast_ref::<ExtraData>().unwrap();
+                data.screen.clone()
+            });
+
+            let value = screen.lock().unwrap().mset(x as u32, y as u32, v as u32);
+
+            1
+        }
 
         unsafe extern "C" fn lua_print(lua_context: *mut lua_State) -> c_int {
             debug!("LUA PRINT");
@@ -1265,7 +1278,7 @@ pub mod plugin {
 
     }
 
-    pub const PX8LUA_LIB: [(&'static str, Function); 28] = [
+    pub const PX8LUA_LIB: [(&'static str, Function); 29] = [
         ("new", Some(PX8Lua::lua_new)),
 
         ("camera", Some(PX8Lua::lua_camera)),
@@ -1289,6 +1302,7 @@ pub mod plugin {
 
         ("map", Some(PX8Lua::lua_map)),
         ("mget", Some(PX8Lua::lua_mget)),
+        ("mset", Some(PX8Lua::lua_mset)),
 
         ("palt", Some(PX8Lua::lua_palt)),
         ("pal", Some(PX8Lua::lua_pal)),
@@ -1345,9 +1359,7 @@ pub mod plugin {
                     rx_output: Receiver<Vec<u8>>,
                     players: Arc<Mutex<Players>>,
                     info: Arc<Mutex<Info>>,
-                    screen: Arc<Mutex<Screen>>,
-                    sprites: Vec<Sprite>,
-                    map: [[u32; 32]; SCREEN_WIDTH]) {
+                    screen: Arc<Mutex<Screen>>) {
             panic!("LUA plugin disabled");
         }
         pub fn load_code(&mut self, data: String) {}

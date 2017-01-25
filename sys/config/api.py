@@ -115,7 +115,15 @@ globals()["mouse_state"] = mouse_state
 def spr_map(cel_x, cel_y, sx, sy, cel_w, cel_h):
     global_obj.spr_map(cel_x, cel_y, sx, sy, cel_w, cel_h)
 
+def mget(x, y):
+    return global_obj.mget(math.floor(x), math.floor(y))
+
+def mset(x, y, v):
+    global_obj.mset(math.floor(x), math.floor(y), math.floor(v))
+
 globals()["spr_map"] = spr_map
+globals()["mget"] = mget
+globals()["mset"] = mset
 
 # Math
 def cos(x):
