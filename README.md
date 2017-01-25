@@ -3,23 +3,24 @@
 
 # PX8
 
-PX8 is an open source fantasy console (128x128 pixels) in Rust, where the cartridge code could be in Python or Lua.
+PX8 is an open source fantasy console (128x128 pixels) in Rust, by using a cartridge that contains the code/gfx/music. The code could be in Python/Lua, or you could create directly everything in Rust.
 
-It is still in development but the main features are:
+It is still in development, but it is usable and the main features are:
  * 128x128 pixels, 16 colours
  * Python 3 / Lua 5.X support for the cartridge (no tokens limit)
- * Controls with dpad + 2 buttons (gamecontroller/joystick support)
  * Desktop/Mobile/Browser (Emscripten) support
+ * Controls with dpad + 2 buttons (gamecontroller/joystick support)
  * Unlimited sprites (8x8)
  * Map support (128x32)
  * Edition of the cartridge data
  * PX8 format to be able to use your favorite code editor
+ * Change the screen definition
  * Screenshot (PNG) / Video recording (GIF)
  * Pico-8 (P8/P8.PNG) cartridge format support
  
-It should work on all platform (Linux/OSX/Windows), in the browser (via Emscripten), and on tiny hardware like Raspberry Pi.
+It works on all platforms (Linux/OSX/Windows), in the browser (via Emscripten), and on tiny hardware like Raspberry Pi.
 
-The console is inspired from [Pico-8](http://www.lexaloffle.com/pico-8.php), so you can play Pico-8 cartridges (P8/P8.PNG).
+The console is inspired from the awesome [Pico-8](http://www.lexaloffle.com/pico-8.php), so a compatibility is available with Pico-8 cartridges (P8/PNG).
 
 ![](https://j.gifs.com/0gMZ87.gif)
 ![](https://j.gifs.com/xGyM1n.gif)
@@ -42,7 +43,7 @@ The console is inspired from [Pico-8](http://www.lexaloffle.com/pico-8.php), so 
   * [Run a cartridge](#run-a-cartridge)
   * [Edit a cartridge](#edit-a-cartridge)
   * [Keyboard Shortcut](#keyboard-shortcut)
-  * [Create a new cartridge](#create-a-new-cartridge)
+  * [How to create a new cartridge](#how-to-create-a-new-cartridge)
     + [Python](#python)
     + [Lua](#lua)
   * [Cartridge format](#cartridge-format)
@@ -58,7 +59,7 @@ The console is inspired from [Pico-8](http://www.lexaloffle.com/pico-8.php), so 
     + [Memory](#memory)
     + [Peek/Poke](#peek-poke)
   * [Pico-8 compatibility](#pico-8-compatibility)
-  * [Screenshots and Records](#screenshots-and-records)
+  * [Physical Engine](#use-a-physical-engine)
 
 ## Download
 
@@ -178,7 +179,7 @@ System shortcut:
 ### Add player
 
 
-## Create a new cartridge
+## How to create a new cartridge
 
 PX8 will call 3 functions:
   * _init : Called once on cartridge startup, mainly to initialize your variables
