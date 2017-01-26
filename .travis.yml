@@ -12,7 +12,6 @@ dist: trusty
 
 rust:
 - stable
-- nightly
 
 cache: cargo
 before_cache:
@@ -30,11 +29,9 @@ matrix:
       - env: TARGET=x86_64-apple-darwin
         os: osx
       - env: TARGET=armv7-unknown-linux-gnueabihf
-  allow_failures:
-    - rust: nightly
 
 before_install:
-- set -e
+#- set -e
 - export PATH="$(echo $PATH | tr ':' "\n" | sed '/\/opt\/python/d' | tr "\n" ":" |
   sed "s|::|:|g")"
 
