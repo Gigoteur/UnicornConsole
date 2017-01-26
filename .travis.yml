@@ -44,6 +44,8 @@ install:
 - sh ci/install.sh
 - source ~/.cargo/env || true
 - cargo clean
+- echo $LD_LIBRARY_PATH
+- echo $LIBRARY_PATH
 - locate readline.h
 
 addons:
