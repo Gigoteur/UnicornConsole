@@ -53,6 +53,7 @@ addons:
       - python3
 
 script:
+  - echo $TARGET
   - cross build --target $TARGET --release --features="sdl_renderer cpython lua dyon"
 
 #after_script: set +e
