@@ -36,7 +36,7 @@ install:
 - export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$PYTHON_LIB"
 - sh ci/install.sh
 - source ~/.cargo/env || true
-- cargo clean
+#- cargo clean
 - echo $LD_LIBRARY_PATH
 - echo $LIBRARY_PATH
 
