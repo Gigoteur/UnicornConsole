@@ -1,7 +1,8 @@
 services: docker
 language: rust
 env:
-  - TARGET=x86_64-unknown-linux-gnu
+  global:
+    - TARGET=x86_64-unknown-linux-gnu
 
 sudo: required
 
@@ -27,7 +28,7 @@ matrix:
       - env: TARGET=armv7-unknown-linux-gnueabihf
 
 before_install:
-#- set -e
+- set -e
 - export PATH="$(echo $PATH | tr ':' "\n" | sed '/\/opt\/python/d' | tr "\n" ":" |
   sed "s|::|:|g")"
 
@@ -50,7 +51,7 @@ addons:
 
 script:
   - echo $TARGET || true
-  - cross build --target $TARGET --release --features="sdl_renderer cpython lua dyon"
+ # - cross build --target $TARGET --release --features="sdl_renderer cpython lua dyon"
  # - cargo build --target $TARGET --release --features="sdl_renderer cpython lua dyon"
 
 #after_script: set +e
