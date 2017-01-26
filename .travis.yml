@@ -44,6 +44,7 @@ install:
 - sh ci/install.sh
 - source ~/.cargo/env || true
 - cargo clean
+- locate readline.h
 
 addons:
   apt:
