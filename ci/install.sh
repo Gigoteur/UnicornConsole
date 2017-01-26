@@ -28,7 +28,7 @@ main() {
            --target $target
 
     docker images --all
-    docker build -t my/image:tag ci/docker/
+    docker build -t my/image ci/docker/
 }
 
 main
