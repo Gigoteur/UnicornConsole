@@ -14,7 +14,6 @@ dist: trusty
 
 rust:
 - stable
-- beta
 - nightly
 
 matrix:
@@ -39,13 +38,6 @@ addons:
     - python3
 
 script:
-- cargo build --verbose
-- cargo test --verbose
-- cargo build --features="cpython lua dyon" --verbose
-- cargo test --features="cpython lua dyon" --verbose
-- cargo build --features="sdl_renderer" --verbose
-- cargo test --features="sdl_renderer" --verbose
-- cargo test --features="sdl_renderer cpython lua dyon"
 - cargo build --features="sdl_renderer cpython lua dyon" --release
 
 before_deploy:
