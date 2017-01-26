@@ -1,18 +1,14 @@
-services: docker
-language: rust
-env:
-  global:
-    - TARGET=x86_64-unknown-linux-gnu
-
-sudo: required
-
-os:
-  - linux
-
 dist: trusty
+language: rust
+services: docker
+sudo: required
 
 rust:
 - stable
+
+env:
+  global:
+    - TARGET=x86_64-unknown-linux-gnu
 
 matrix:
   include:
