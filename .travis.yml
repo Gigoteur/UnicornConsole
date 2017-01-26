@@ -31,11 +31,12 @@ before_cache:
 #      - env: TARGET=armv7-unknown-linux-gnueabihf
 
 before_install:
-- set -e
+#- set -e
 - export PATH="$(echo $PATH | tr ':' "\n" | sed '/\/opt\/python/d' | tr "\n" ":" |
   sed "s|::|:|g")"
 
 install:
+- sudo apt-get update -q
 - sudo apt-get install libsdl2-dev libreadline-dev
 - export PYTHON_LIB=$(python -c "import sysconfig; print(sysconfig.get_config_var('LIBDIR'))")
 - export LIBRARY_PATH="$LIBRARY_PATH:$PYTHON_LIB"
