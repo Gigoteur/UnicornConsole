@@ -17,27 +17,25 @@ cache: cargo
 before_cache:
   - chmod -R a+r $HOME/.cargo
 
-matrix:
-  include:
-      - env: TARGET=i686-unknown-linux-gnu
-      - env: TARGET=i686-unknown-linux-musl
-      - env: TARGET=x86_64-unknown-linux-musl
+#matrix:
+#  include:
+#      - env: TARGET=i686-unknown-linux-gnu
+#      - env: TARGET=i686-unknown-linux-musl
+#      - env: TARGET=x86_64-unknown-linux-musl
 
-      # OSX
-      - env: TARGET=i686-apple-darwin
-        os: osx
-      - env: TARGET=x86_64-apple-darwin
-        os: osx
-      - env: TARGET=armv7-unknown-linux-gnueabihf
+#      # OSX
+#      - env: TARGET=i686-apple-darwin
+#        os: osx
+#      - env: TARGET=x86_64-apple-darwin
+#        os: osx
+#      - env: TARGET=armv7-unknown-linux-gnueabihf
 
 before_install:
-#- set -e
+- set -e
 - export PATH="$(echo $PATH | tr ':' "\n" | sed '/\/opt\/python/d' | tr "\n" ":" |
   sed "s|::|:|g")"
 
 install:
-#- sudo add-apt-repository ppa:team-xbmc/ppa -y
-#- sudo apt-get update -q
 - sudo apt-get install libsdl2-dev
 - export PYTHON_LIB=$(python -c "import sysconfig; print(sysconfig.get_config_var('LIBDIR'))")
 - export LIBRARY_PATH="$LIBRARY_PATH:$PYTHON_LIB"
