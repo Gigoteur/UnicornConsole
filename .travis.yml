@@ -55,7 +55,7 @@ addons:
 script:
   - echo $TARGET || true
  # - cross build --target $TARGET --release --features="sdl_renderer cpython lua dyon"
-  - rust build --target $TARGET --release --features="sdl_renderer cpython lua dyon"
+  - cargo build --target $TARGET --release --features="sdl_renderer cpython lua dyon"
 
 #after_script: set +e
 
