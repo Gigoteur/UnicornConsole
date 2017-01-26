@@ -26,6 +26,8 @@ main() {
            --git japaric/cross \
            --tag $tag \
            --target $target
+
+    docker images --all
 }
 
 main
