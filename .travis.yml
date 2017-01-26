@@ -45,8 +45,8 @@ script:
 - cargo test --features="cpython lua dyon" --verbose
 - cargo build --features="sdl_renderer" --verbose
 - cargo test --features="sdl_renderer" --verbose
-- cargo build --features="sdl_renderer cpython lua dyon" --verbose
-- cargo test --features="sdl_renderer cpython lua dyon" --verbose
+- cargo test --features="sdl_renderer cpython lua dyon"
+- cargo build --features="sdl_renderer cpython lua dyon" --release
 
 before_deploy:
 - mv target/release/px8 .
