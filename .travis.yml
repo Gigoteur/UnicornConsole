@@ -36,6 +36,7 @@ before_install:
   sed "s|::|:|g")"
 
 install:
+- sudo updatedb
 - sudo apt-get update -q
 - sudo apt-get install libsdl2-dev libreadline-dev
 - export PYTHON_LIB=$(python -c "import sysconfig; print(sysconfig.get_config_var('LIBDIR'))")
