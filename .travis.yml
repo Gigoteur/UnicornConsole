@@ -20,7 +20,7 @@ matrix:
 #        os: osx
 #      - env: TARGET=x86_64-apple-darwin
 #        os: osx
-      - env: TARGET=armv7-unknown-linux-gnueabihf
+#      - env: TARGET=armv7-unknown-linux-gnueabihf
 
 before_install:
 - set -e
@@ -46,7 +46,7 @@ addons:
 
 script:
   - echo $TARGET || true
- # - cross build --target $TARGET --release --features="sdl_renderer cpython lua dyon"
+  - cross build --target $TARGET --release --features="sdl_renderer lua dyon"
  # - cargo build --target $TARGET --release --features="sdl_renderer cpython lua dyon"
 
 #after_script: set +e
