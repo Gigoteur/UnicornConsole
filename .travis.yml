@@ -3,8 +3,7 @@ language: rust
 services: docker
 sudo: required
 
-rust:
-- stable
+rust: stable
 
 env:
   global:
@@ -69,3 +68,8 @@ deploy:
     condition: $TRAVIS_RUST_VERSION = stable
     repo: Gigoteur/PX8
     tags: true
+
+cache: cargo
+before_cache:
+  # Travis can't cache files that are not readable by "others"
+  - chmod -R a+r $HOME/.cargo
