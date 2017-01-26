@@ -1,2 +1,5 @@
 [target.x86_64-unknown-linux-gnu]
-image = "my/image"
+image = "my/image-x86_64-unknown-linux-gnu"
+
+[target.i686-unknown-linux-gnu]
+image = "my/image-i686-unknown-linux-gnu"

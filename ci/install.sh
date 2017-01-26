@@ -28,7 +28,8 @@ main() {
            --target $target
 
     docker images --all
-    docker build -t my/image ci/docker/x86_64-unknown-linux-gnu
+    docker build -t my/image-x86_64-unknown-linux-gnu ci/docker/x86_64-unknown-linux-gnu
+    docker build -t my/image-i686-unknown-linux-gnu ci/docker/i686-unknown-linux-gnu
 }
 
 main
