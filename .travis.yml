@@ -45,18 +45,13 @@ install:
 - export PYTHON_LIB=$(python -c "import sysconfig; print(sysconfig.get_config_var('LIBDIR'))")
 - export LIBRARY_PATH="$LIBRARY_PATH:$PYTHON_LIB"
 - export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$PYTHON_LIB"
+- sh ci/install.sh
+- source ~/.cargo/env || true
 
 addons:
   apt:
     packages:
     - python3
-
-script:
-- cargo build --features="sdl_renderer cpython lua dyon" --release
-
-install:
-  - sh ci/install.sh
-  - source ~/.cargo/env || true
 
 script:
   - bash ci/script.sh
