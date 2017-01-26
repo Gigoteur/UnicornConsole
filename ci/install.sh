@@ -1,4 +1,4 @@
-set -ex
+#set -ex
 
 main() {
     curl https://sh.rustup.rs -sSf | \
