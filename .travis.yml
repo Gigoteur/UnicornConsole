@@ -15,7 +15,6 @@ rust:
 
 cache: cargo
 before_cache:
-  # Travis can't cache files that are not readable by "others"
   - chmod -R a+r $HOME/.cargo
 
 matrix:
@@ -53,6 +52,15 @@ addons:
 
 script:
 - cargo build --features="sdl_renderer cpython lua dyon" --release
+
+install:
+  - sh ci/install.sh
+  - source ~/.cargo/env || true
+
+script:
+  - bash ci/script.sh
+
+after_script: set +e
 
 before_deploy:
 - mkdir PX8
