@@ -11,13 +11,13 @@ env:
 
 matrix:
   include:
-    - env: TARGET=armv7-unknown-linux-gnueabihf
+    - env: TARGET=armv7-unknown-linux-gnueabihf DEPLOY=1
+    - env: TARGET=x86_64-unknown-linux-gnu DEPLOY=1
 
 before_install:
 - set -e
 - export PATH="$(echo $PATH | tr ':' "\n" | sed '/\/opt\/python/d' | tr "\n" ":" |
   sed "s|::|:|g")"
-- docker run --rm --privileged multiarch/qemu-user-static:register --reset
 
 install:
 - sudo apt-get update -q
@@ -25,7 +25,6 @@ install:
 - export PYTHON_LIB=$(python -c "import sysconfig; print(sysconfig.get_config_var('LIBDIR'))")
 - export LIBRARY_PATH="$LIBRARY_PATH:$PYTHON_LIB"
 - export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$PYTHON_LIB"
-- docker build -t px8-$TARGET ci/docker/$TARGET
 
 addons:
   apt:
@@ -39,6 +38,7 @@ script:
   - cargo build --release --features="lua"
   - cargo build --release --features="dyon"
   - cargo build --release --features="sdl_renderer cpython lua dyon"
+  - bash ci/script.sh
 
 before_deploy:
 - mkdir PX8
