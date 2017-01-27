@@ -15,14 +15,16 @@ matrix:
 
 before_install:
 - set -e
-#- export PATH="$(echo $PATH | tr ':' "\n" | sed '/\/opt\/python/d' | tr "\n" ":" |
-#  sed "s|::|:|g")"
+- export PATH="$(echo $PATH | tr ':' "\n" | sed '/\/opt\/python/d' | tr "\n" ":" |
+  sed "s|::|:|g")"
 - docker run --rm --privileged multiarch/qemu-user-static:register --reset
 
 install:
-#- export PYTHON_LIB=$(python -c "import sysconfig; print(sysconfig.get_config_var('LIBDIR'))")
-#- export LIBRARY_PATH="$LIBRARY_PATH:$PYTHON_LIB"
-#- export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$PYTHON_LIB"
+- sudo apt-get update -q
+- sudo apt-get install libsdl2-dev libreadline5-dev libreadline-dev
+- export PYTHON_LIB=$(python -c "import sysconfig; print(sysconfig.get_config_var('LIBDIR'))")
+- export LIBRARY_PATH="$LIBRARY_PATH:$PYTHON_LIB"
+- export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$PYTHON_LIB"
 - docker build -t px8-$TARGET ci/docker/$TARGET
 
 addons:
@@ -31,9 +33,12 @@ addons:
       - python3
 
 script:
-  - echo $TARGET || true
-#  - cargo build --target $TARGET --release --features="sdl_renderer cpython lua dyon"
-#after_script: set +e
+  - cargo build --release
+  - cargo build --release --features="sdl_renderer"
+  - cargo build --release --features="cpython"
+  - cargo build --release --features="lua"
+  - cargo build --release --features="dyon"
+  - cargo build --release --features="sdl_renderer cpython lua dyon"
 
 before_deploy:
 - mkdir PX8
