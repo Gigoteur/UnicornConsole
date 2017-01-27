@@ -33,6 +33,7 @@ install:
 - export LIBRARY_PATH="$LIBRARY_PATH:$PYTHON_LIB"
 - export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$PYTHON_LIB"
 - sh ci/install.sh
+- docker build -t px8-$TARGET ci/docker/$TARGET
 - source ~/.cargo/env || true
 #- cargo clean
 - echo $LD_LIBRARY_PATH

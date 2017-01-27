@@ -26,8 +26,6 @@ main() {
            --git japaric/cross \
            --tag $tag \
            --target $target
-
-    docker build -t px8-$target ci/docker/$target
 }
 
 main
