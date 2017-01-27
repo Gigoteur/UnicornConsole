@@ -250,7 +250,7 @@ impl Px8New {
             python_plugin: PythonPlugin::new(),
             code_type: Code::UNKNOWN,
             state: PX8State::RUN,
-            menu: Menu{ idx:0, items: Vec::new() },
+            menu: Menu { idx: 0, items: Vec::new() },
             show_info_overlay: true,
             fps: 0.0,
             draw_time: 0.0,
@@ -304,7 +304,7 @@ impl Px8New {
         info!("Recording the frame");
 
         if self.record.nb % 4 == 0 {
-            let mut buffer:Vec<u8> = Vec::new();
+            let mut buffer: Vec<u8> = Vec::new();
 
             let scale = 2;
 
@@ -335,16 +335,16 @@ impl Px8New {
         encoder.set(gif::Repeat::Infinite).unwrap();
 
         let mut idx = 0;
-        for i in 0..self.record.images.len() / (SCREEN_WIDTH*SCREEN_HEIGHT*3) {
+        for i in 0..self.record.images.len() / (SCREEN_WIDTH * SCREEN_HEIGHT * 3) {
             info!("Generate frame {:?} {:?}/{:?}", i, self.record.images.len(), idx);
 
-            let mut buffer:Vec<u8> = Vec::new();
+            let mut buffer: Vec<u8> = Vec::new();
 
             for x in 0..SCREEN_WIDTH {
                 for y in 0..SCREEN_HEIGHT {
                     buffer.push(*self.record.images.get(idx).unwrap());
-                    buffer.push(*self.record.images.get(idx+1).unwrap());
-                    buffer.push(*self.record.images.get(idx+2).unwrap());
+                    buffer.push(*self.record.images.get(idx + 1).unwrap());
+                    buffer.push(*self.record.images.get(idx + 2).unwrap());
                     idx += 3;
                 }
             }
@@ -363,8 +363,8 @@ impl Px8New {
 
             info!("Creating gif Frame");
             let mut frame = gif::Frame::from_rgb((SCREEN_WIDTH * scale) as u16,
-                                             (SCREEN_HEIGHT * scale) as u16,
-                                             &mut *image.raw_pixels());
+                                                 (SCREEN_HEIGHT * scale) as u16,
+                                                 &mut *image.raw_pixels());
 
             frame.delay = 1;
             encoder.write_frame(&frame).unwrap();
@@ -376,7 +376,7 @@ impl Px8New {
     pub fn screenshot(&mut self, filename: String) {
         info!("Taking screenshot");
 
-        let mut buffer:Vec<u8> = Vec::new();
+        let mut buffer: Vec<u8> = Vec::new();
 
         for x in 0..SCREEN_WIDTH {
             for y in 0..SCREEN_HEIGHT {
@@ -433,7 +433,7 @@ impl Px8New {
         self.screen.lock().unwrap().print("Quit".to_string(), 50, 65, Color::White);
     }
 
-    pub fn update_pause(&mut self, enter:bool, up:bool, down: bool) {
+    pub fn update_pause(&mut self, enter: bool, up: bool, down: bool) {
         self.screen.lock().unwrap().rectfill(40, 50, 90, 80, Color::Black);
 
         if down {
@@ -445,12 +445,12 @@ impl Px8New {
         }
 
 
-        if  self.menu.idx == 0 {
+        if self.menu.idx == 0 {
             self.screen.lock().unwrap().pset(45, 59, Color::White);
         }
 
-        if  self.menu.idx == 1 {
-            self.screen.lock().unwrap().pset(45, 59+10, Color::White);
+        if self.menu.idx == 1 {
+            self.screen.lock().unwrap().pset(45, 59 + 10, Color::White);
         }
 
         self.screen.lock().unwrap().print("Continue".to_string(), 50, 55, Color::White);
@@ -464,7 +464,6 @@ impl Px8New {
                           players: Arc<Mutex<Players>>,
                           info: Arc<Mutex<Info>>,
                           editor: bool) {
-
         let idx = self.cartridges.len();
 
         info!("IDX CARTRIDGE {:?}", idx);
@@ -510,7 +509,6 @@ impl Px8New {
                               players: Arc<Mutex<Players>>,
                               info: Arc<Mutex<Info>>,
                               editor: bool) {
-
         let idx = self.cartridges.len();
 
         info!("IDX CARTRIDGE {:?}", idx);
@@ -556,13 +554,11 @@ impl Px8New {
     }
 
     pub fn switch_code(&mut self) {
-
         let idx = self.current_cartridge;
 
         let mut data;
 
         if self.cartridges[idx].edit {
-
             // Reload the code for the px8 format
             match self.cartridges[idx].format {
                 CartridgeFormat::Px8Format => {
