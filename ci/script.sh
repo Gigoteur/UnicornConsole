@@ -15,7 +15,7 @@ main_deploy() {
 }
 
 if [! -z $DEPLOY ]; then
-    main
+    main_deploy
 else
     main
 fi
