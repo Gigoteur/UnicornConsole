@@ -14,7 +14,7 @@ main_deploy() {
     docker build -t px8-$TARGET ci/docker/$TARGET
 }
 
-if [! -z $DEPLOY ]; then
+if [ ! -z $DEPLOY ]; then
     main_deploy
 else
     main
