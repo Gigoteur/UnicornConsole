@@ -9,10 +9,10 @@ env:
   global:
     - TARGET=x86_64-unknown-linux-gnu
 
-#matrix:
-#  include:
-#    - env: TARGET=i686-unknown-linux-gnu
-#    - env: TARGET=armv7-unknown-linux-gnueabihf
+matrix:
+  include:
+    - env: TARGET=i686-unknown-linux-gnu
+    - env: TARGET=armv7-unknown-linux-gnueabihf
 #      - env: TARGET=i686-unknown-linux-musl
 
 #      # OSX
