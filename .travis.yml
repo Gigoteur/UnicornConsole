@@ -1,6 +1,6 @@
 dist: trusty
 language: rust
-services: docker
+#services: docker
 sudo: required
 
 rust: stable
@@ -9,10 +9,10 @@ env:
   global:
     - TARGET=x86_64-unknown-linux-gnu
 
-matrix:
-  include:
-    - env: TARGET=i686-unknown-linux-gnu
-    - env: TARGET=armv7-unknown-linux-gnueabihf
+#matrix:
+#  include:
+#    - env: TARGET=i686-unknown-linux-gnu
+#    - env: TARGET=armv7-unknown-linux-gnueabihf
 #      - env: TARGET=i686-unknown-linux-musl
 
 #      # OSX
@@ -32,10 +32,9 @@ install:
 - export PYTHON_LIB=$(python -c "import sysconfig; print(sysconfig.get_config_var('LIBDIR'))")
 - export LIBRARY_PATH="$LIBRARY_PATH:$PYTHON_LIB"
 - export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$PYTHON_LIB"
-- sh ci/install.sh
-- docker build -t px8-$TARGET ci/docker/$TARGET
-- source ~/.cargo/env || true
-#- cargo clean
+#- sh ci/install.sh
+#- docker build -t px8-$TARGET ci/docker/$TARGET
+#- source ~/.cargo/env || true
 - echo $LD_LIBRARY_PATH
 - echo $LIBRARY_PATH
 - echo $PYTHON_LIB
@@ -47,8 +46,8 @@ addons:
 
 script:
   - echo $TARGET || true
-  - cross build --target $TARGET --release --features="sdl_renderer lua dyon"
-#  - cargo build --target $TARGET --release --features="sdl_renderer cpython lua dyon"
+#  - cross build --target $TARGET --release --features="sdl_renderer lua dyon"
+  - cargo build --target $TARGET --release --features="sdl_renderer cpython lua dyon"
 
 #after_script: set +e
 
