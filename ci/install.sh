@@ -27,8 +27,7 @@ main() {
            --tag $tag \
            --target $target
 
-    docker build -t my/image-x86_64-unknown-linux-gnu ci/docker/x86_64-unknown-linux-gnu
-  #  docker build -t my/image-i686-unknown-linux-gnu ci/docker/i686-unknown-linux-gnu
+    docker build -t px8-$target ci/docker/$target
 }
 
 main
