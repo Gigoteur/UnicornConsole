@@ -1,8 +1,0 @@
-[target.x86_64-unknown-linux-gnu]
-image = "px8-x86_64-unknown-linux-gnu"
-
-[target.i686-unknown-linux-gnu]
-image = "px8-i686-unknown-linux-gnu"
-
-[target.armv7-unknown-linux-gnueabihf]
-image = "px8-armv7-unknown-linux-gnueabihf"
