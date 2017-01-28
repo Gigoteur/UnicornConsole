@@ -760,7 +760,7 @@ impl Screen {
                 sprite = sprite.flip_y();
             }
 
-            let mut new_x = orig_x % 128;
+            let mut new_x = orig_x % SCREEN_WIDTH as i32;
             let mut new_y = orig_y;
 
             debug!("SPRITE = {:?} x:{:?} y:{:?} {:?}", (n + i) as usize, new_x, new_y, sprite);
@@ -775,7 +775,7 @@ impl Screen {
 
                 if index != 0 && index % 8 == 0 {
                     new_y = new_y + 1;
-                    new_x = orig_x % 128;
+                    new_x = orig_x % SCREEN_WIDTH as i32;
                 } else {
                     new_x = new_x + 1;
                 }
@@ -797,8 +797,8 @@ impl Screen {
         let mut idx_y: i32 = 0;
 
         let mut cel_w = cel_w;
-        if cel_w > 128 {
-            cel_w = 128;
+        if cel_w > SCREEN_WIDTH as u32 {
+            cel_w = SCREEN_WIDTH as u32;
         }
 
         let mut cel_h = cel_h;
@@ -816,7 +816,7 @@ impl Screen {
                 let mut new_x = orig_x;
                 let mut new_y = sy + 8 * idx_y;
 
-                if new_x > 128 || new_y > 128 {
+                if new_x > SCREEN_WIDTH as i32 || new_y > SCREEN_HEIGHT as i32 {
                     break
                 }
 
