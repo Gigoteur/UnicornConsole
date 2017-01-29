@@ -344,6 +344,43 @@ pub mod plugin {
               end
               "#);
 
+            lua_state.do_string(r#"sspr = function(sx, sy, sw, sh, dx, dy, dw, dh, flip_x, flip_y)
+              sx = math.floor(sx)
+              sy = math.floor(sy)
+              sw = math.floor(sw)
+              sh = math.floor(sh)
+              dx = math.floor(dx)
+              dy = math.floor(dy)
+
+              if dw == nil then
+                dw = sw
+              end
+              if dh == nil then
+                dh = sh
+              end
+              if flip_x == nil then
+                flip_x = false
+              end
+              if flip_y == nil then
+                flip_y = false
+              end
+
+              if flip_x == true then
+                flip_x = 1
+              else
+                flip_x = 0
+              end
+
+              if flip_y == true then
+                flip_y = 1
+              else
+                flip_y = 0
+              end
+
+              s:sspr(sx, sy, sw, sh, dx, dy, dw, dh, flip_x, flip_y)
+              end
+              "#);
+
            lua_state.do_string(r#"print = function(str, x, y, col)
 
               if x == nil then
