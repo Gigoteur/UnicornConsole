@@ -258,7 +258,7 @@ API | Python | Lua
 camera | :white_check_mark: | :white_check_mark:
 circ | :white_check_mark: | :white_check_mark:
 circfill | :white_check_mark: | :white_check_mark:
-clip | :red_circle: | :red_circle:
+clip | :white_check_mark: | :white_check_mark:
 cls | :white_check_mark: | :white_check_mark:
 color | :white_check_mark: | :white_check_mark:
 cursor | :red_circle: | :red_circle:
@@ -299,12 +299,12 @@ API | Python | Lua
 ------------ | ------------- | -------------
 rnd | :white_check_mark: | :white_check_mark:
 flr | :white_check_mark: | :white_check_mark:
-ceil | :white_check_mark: (math.ceil) | :white_check_mark:
+ceil | :white_check_mark: | :white_check_mark:
 cos | :white_check_mark: | :white_check_mark:
 sin | :white_check_mark: | :white_check_mark:
-atan2 | :red_circle: | :white_check_mark:
-sqrt | :white_check_mark: (math.sqrt) | :white_check_mark:
-abs | :white_check_mark: (math.abs) | :white_check_mark:
+atan2 | :white_check_mark: | :white_check_mark:
+sqrt | :white_check_mark: | :white_check_mark:
+abs | :white_check_mark: | :white_check_mark:
 sgn | :white_check_mark: | :white_check_mark:
 band | :white_check_mark: | :white_check_mark:
 bor | :white_check_mark: | :white_check_mark:
