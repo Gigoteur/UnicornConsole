@@ -15,6 +15,9 @@ def circ(x, y, r, color=-1):
 def circfill(x, y, r, color=-1):
     global_obj.circfill(math.floor(x), math.floor(y), math.floor(r), color)
 
+def clip(x=-1, y=-1, w=-1, h=-1):
+    global_obj.clip(math.floor(x), math.floor(y), math.floor(w), math.floor(h))
+
 def cls():
     global_obj.cls()
 
@@ -69,6 +72,7 @@ def trigon(x1, y1, x2, y2, x3, y3, color):
 globals()["camera"] = camera
 globals()["circ"] = circ
 globals()["circfill"] = circfill
+globals()["clip"] = clip
 globals()["cls"] = cls
 globals()["color"] = color
 globals()["line"] = line
@@ -126,6 +130,10 @@ globals()["mget"] = mget
 globals()["mset"] = mset
 
 # Math
+def atan2(x, y):
+    v = math.atan2(y,x)
+    return (((v - math.pi) / (math.pi*2)) + 0.25) % 1.0
+
 def cos(x):
     return math.cos((x or 0)*(math.pi*2))
 
@@ -138,6 +146,8 @@ def flr(x):
 def rnd(x):
     return random.random() * x
 
+globals()["atan2"] = atan2
+globals()["ceil"] = math.ceil
 globals()["cos"] = cos
 globals()["sin"] = sin
 globals()["flr"] = flr

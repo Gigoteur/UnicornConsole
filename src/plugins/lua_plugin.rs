@@ -127,6 +127,11 @@ pub mod plugin {
               y0 = math.floor(y0)
               x1 = math.floor(x1)
               y1 = math.floor(y1)
+
+              if color == nil then
+                color = -1
+              end
+
               color = math.floor(color)
 
               s:rect(x0, y0, x1, y1, color)
@@ -138,6 +143,11 @@ pub mod plugin {
               y0 = math.floor(y0)
               x1 = math.floor(x1)
               y1 = math.floor(y1)
+
+              if color == nil then
+                color = -1
+              end
+
               color = math.floor(color)
 
               s:rectfill(x0, y0, x1, y1, color)
@@ -147,6 +157,11 @@ pub mod plugin {
               x = math.floor(x)
               y = math.floor(y)
               r = math.floor(r)
+
+              if color == nil then
+                color = -1
+              end
+
               color = math.floor(color)
 
               s:circ(x, y, r, color)
@@ -156,9 +171,36 @@ pub mod plugin {
               x = math.floor(x)
               y = math.floor(y)
               r = math.floor(r)
+
+              if color == nil then
+                color = -1
+              end
+
               color = math.floor(color)
 
               s:circfill(x, y, r, color)
+              end
+              "#);
+            lua_state.do_string(r#"clip = function(x, y, w, h)
+              if x == nil then
+                x = -1
+              end
+              if y == nil then
+                y = -1
+              end
+              if w == nil then
+                w = -1
+              end
+              if h == nil then
+                h = -1
+              end
+
+              x = math.floor(x)
+              y = math.floor(y)
+              w = math.floor(r)
+              h = math.floor(r)
+
+              s:clip(x, y, w, h)
               end
               "#);
             lua_state.do_string(r#"line = function(x0, y0, x1, y1, color)
@@ -886,6 +928,29 @@ pub mod plugin {
             1
         }
 
+        #[allow(non_snake_case)]
+        unsafe extern "C" fn lua_clip(lua_context: *mut lua_State) -> c_int {
+            debug!("LUA CLIP");
+
+            let mut state = State::from_ptr(lua_context);
+
+            let x = state.check_integer(2);
+            let y = state.check_integer(3);
+            let w = state.check_integer(4);
+            let h = state.check_integer(5);
+
+            debug!("LUA CLIP {:?} {:?} {:?} {:?}", x, y, w, h);
+
+            let screen = state.with_extra(|extra| {
+                let data = extra.as_ref().unwrap().downcast_ref::<ExtraData>().unwrap();
+                data.screen.clone()
+            });
+
+            screen.lock().unwrap().clip(x as i32, y as i32, w as i32, h as i32);
+
+            1
+        }
+
         unsafe extern "C" fn lua_palt(lua_context: *mut lua_State) -> c_int {
             debug!("LUA PALT");
 
@@ -1315,7 +1380,7 @@ pub mod plugin {
 
     }
 
-    pub const PX8LUA_LIB: [(&'static str, Function); 29] = [
+    pub const PX8LUA_LIB: [(&'static str, Function); 30] = [
         ("new", Some(PX8Lua::lua_new)),
 
         ("camera", Some(PX8Lua::lua_camera)),
@@ -1333,6 +1398,7 @@ pub mod plugin {
         ("rectfill", Some(PX8Lua::lua_rectfill)),
         ("circ", Some(PX8Lua::lua_circ)),
         ("circfill", Some(PX8Lua::lua_circfill)),
+        ("clip", Some(PX8Lua::lua_clip)),
 
         ("spr", Some(PX8Lua::lua_spr)),
         ("sspr", Some(PX8Lua::lua_sspr)),

@@ -267,6 +267,20 @@ impl Camera {
     }
 }
 
+pub struct Clipping {
+    pub x: u32,
+    pub y: u32,
+    pub w: u32,
+    pub h: u32,
+    pub clipped: bool,
+}
+
+impl Clipping {
+    pub fn new() -> Clipping {
+        Clipping {x: 0, y: 0, w: 0, h: 0, clipped: false}
+    }
+}
+
 pub struct Screen {
     pub back_buffer: Box<px8::ScreenBuffer>,
     pub sprites: Vec<Sprite>,
@@ -275,6 +289,7 @@ pub struct Screen {
     pub colors: [px8::Color; 16],
     pub camera: Camera,
     pub color: px8::Color,
+    pub clipping: Clipping,
 }
 
 unsafe impl Send for Screen {}
@@ -290,6 +305,7 @@ impl Screen {
             colors: [px8::Color::Black; 16],
             camera: Camera::new(),
             color: px8::Color::Black,
+            clipping: Clipping::new(),
         }
     }
 
@@ -355,14 +371,26 @@ impl Screen {
     }
 
     pub fn putpixel_(&mut self, x: i32, y: i32, col: px8::Color) {
-        //debug!("PUTPIXEL x:{:?} y:{:?} -> {:?}", x, y, col);
-
+        // Camera
         let x = (x as i32 - self.camera.x) as usize;
         let y = (y as i32 - self.camera.y) as usize;
         let mut col = col;
 
         if x >= SCREEN_WIDTH || y >= SCREEN_HEIGHT {
             return;
+        }
+
+        // Clipped
+        if self.clipping.clipped {
+            let x = x as u32;
+            let y = y as u32;
+
+            if !(x >= self.clipping.x && x <= self.clipping.x+self.clipping.w) {
+                return;
+            }
+            if !(y >= self.clipping.y && y <= self.clipping.y+self.clipping.h) {
+                return;
+            }
         }
 
         col = self.colors[col as usize];
@@ -694,6 +722,29 @@ impl Screen {
             j = (h * rx) / ry;
             k = (i * rx) / ry;
         }
+    }
+
+    pub fn clip(&mut self, x: i32, y: i32, w: i32, h: i32) {
+        // reset
+        if x == -1 && y == -1 && w == -1 && h == -1 {
+            self.clipping.clipped = false;
+        }
+
+        // invalid clipping value
+        if x == -1 || y == -1 || w == -1 || h == -1 {
+            return;
+        }
+
+        if x < 0 || y  < 0 || w  < 0 || h  < 0 {
+            return;
+        }
+
+        self.clipping.x = x as u32;
+        self.clipping.y = y as u32;
+        self.clipping.w = w as u32;
+        self.clipping.h = h as u32;
+
+        self.clipping.clipped = true;
     }
 
     pub fn trigon(&mut self, x1: i32, y1: i32, x2: i32, y2: i32, x3: i32, y3: i32, col: px8::Color) {

@@ -138,6 +138,29 @@ class Camera(object):
 
         camera()
 
+class Clip(object):
+    def __init__(self):
+        self.T = 0
+
+    def init(self):
+        cls()
+
+    def update(self):
+        self.T += 1
+
+    def draw(self):
+        cls()
+
+        clip(0, 8, 128, 116)
+
+        circfill(10, 10, 8, 8)
+        circfill(10, 118, 8, 8)
+
+        clip()
+
+        circfill(40, 10, 8, 7)
+        circfill(40, 118, 8, 7)
+
 
 idx_demo = 0
 demos = [
@@ -148,6 +171,7 @@ demos = [
     ["spr", [Spr()]],
     ["sspr", [SSpr()]],
     ["camera", [Camera()]],
+    ["clip", [Clip()]],
 ]
 
 def _end():

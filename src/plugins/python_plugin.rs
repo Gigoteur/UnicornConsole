@@ -40,6 +40,11 @@ pub mod plugin {
         Ok(0)
     }
 
+    def clip(&self, x: i32, y: i32, w: i32, h: i32) -> PyResult<i32> {
+        self.screen(py).lock().unwrap().clip(x, y, w, h);
+        Ok(0)
+    }
+
     def cls(&self) -> PyResult<i32> {
         self.screen(py).lock().unwrap().cls();
         Ok(0)
