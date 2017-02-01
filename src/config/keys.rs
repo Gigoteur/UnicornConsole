@@ -31,6 +31,14 @@ pub fn map_button(button: Button) -> Option<PX8Key> {
     }
 }
 
+pub fn map_button_joystick(button: u8) -> Option<PX8Key> {
+    match button {
+        0 => Some(PX8Key::O),
+        1 => Some(PX8Key::X),
+        _ => None
+    }
+}
+
 pub fn map_keycode(key: Keycode) -> (Option<PX8Key>, u8) {
     match key {
         Keycode::Right => (Some(PX8Key::Right), 0),
@@ -73,6 +81,27 @@ pub fn map_axis(axis: Axis, value: i16) -> Option<(PX8Key, bool)> {
         },
 
         Axis::LeftY => match value {
+            -32768...-16384 => Some((PX8Key::Up, true)),
+            -16383...-1 => Some((PX8Key::Up, false)),
+            0...16383 => Some((PX8Key::Down, false)),
+            16384...32767 => Some((PX8Key::Down, true)),
+            _ => None
+        },
+        _ => None
+    }
+}
+
+pub fn map_axis_joystick(axis: u8, value: i16) -> Option<(PX8Key, bool)> {
+    match axis {
+        0 => match value {
+            -32768...-16384 => Some((PX8Key::Left, true)),
+            -16383...-1 => Some((PX8Key::Left, false)),
+            0...16383 => Some((PX8Key::Right, false)),
+            16384...32767 => Some((PX8Key::Right, true)),
+            _ => None
+        },
+
+        1 => match value {
             -32768...-16384 => Some((PX8Key::Up, true)),
             -16383...-1 => Some((PX8Key::Up, false)),
             0...16383 => Some((PX8Key::Down, false)),

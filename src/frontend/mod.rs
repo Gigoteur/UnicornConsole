@@ -26,7 +26,7 @@ use chan::{Receiver, Sender};
 use renderer;
 use px8;
 use config;
-use config::keys::{PX8Key, map_axis, map_button, map_keycode};
+use config::keys::{PX8Key, map_axis, map_button, map_keycode, map_button_joystick, map_axis_joystick};
 use config::controllers;
 
 use gfx::{Scale};
@@ -158,7 +158,8 @@ impl Frontend {
     }
 
     pub fn init_joysticks(&mut self) {
-        info!("Init Game Controller");
+        info!("Init Joysticks");
+
         let game_controller_subsystem = self.sdl.game_controller().unwrap();
 
         info!("Loading the database of Game Controller");
@@ -174,22 +175,22 @@ impl Frontend {
 
         for id in 0..available {
             if game_controller_subsystem.is_game_controller(id) {
-                println!("Attempting to open controller {}", id);
+                info!("Attempting to open controller {}", id);
 
                 match game_controller_subsystem.open(id) {
                     Ok(c) => {
                         // We managed to find and open a game controller,
                         // exit the loop
-                        info!("Success: opened \"{}\"", c.name());
-                        info!("Success: opened \"{}\"", c.mapping());
+                        info!("[CONTROLLER] Success: opened \"{}\"", c.name());
+                        info!("[CONTROLLER] Success: opened \"{}\"", c.mapping());
 
-                        self.controllers.push_controller(Some(c).unwrap());
+                        self.controllers.push_controller(id, Some(c).unwrap());
                         break;
                     },
                     Err(e) => error!("failed: {:?}", e),
                 }
             } else {
-                info!("{} is not a game controller", id);
+                info!("[CONTROLLER] {} is not a game controller", id);
             }
         }
 
@@ -201,18 +202,19 @@ impl Frontend {
             Err(e) => panic!("can't enumerate joysticks: {}", e),
         };
 
-        println!("{} joysticks available", available);
+        info!("{} joysticks available", available);
 
         // Iterate over all available joysticks and stop once we manage to
         // open one.
         for id in 0..available {
-            match joystick_subsystem.open(id) {
-                Ok(c) => {
-                    info!("Success: opened \"{}\"", c.name());
-
-                    self.controllers.push_joystick(Some(c).unwrap());
-                },
-                Err(e) => error!("failed: {:?}", e),
+            if ! self.controllers.contains(id) {
+                match joystick_subsystem.open(id) {
+                    Ok(c) => {
+                        info!("[JOYSTICK] Success: opened \"{}\"", c.name());
+                        self.controllers.push_joystick(id, Some(c).unwrap());
+                    },
+                    Err(e) => error!("failed: {:?}", e),
+                }
             }
         }
     }
@@ -301,10 +303,6 @@ impl Frontend {
                         if let (Some(key), player) = map_keycode(keycode) { players.lock().unwrap().key_up(player, key) }
                     },
 
-                    Event::ControllerDeviceAdded { which: id, .. } => {
-                        info!("New Controller detected {:?}", id);
-                    },
-
                     Event::ControllerButtonDown { which: id, button, .. } => {
                         info!("Controller button Down {:?} {:?}", id, button);
                         if let Some(key) = map_button(button) { players.lock().unwrap().key_down(0, key, false, self.elapsed_time) }
@@ -315,16 +313,15 @@ impl Frontend {
                         if let Some(key) = map_button(button) { players.lock().unwrap().key_up(0, key) }
                     },
 
-                    Event::ControllerAxisMotion { which: id, axis, value, .. } => {
-                        info!("Controller Axis Motion {:?} {:?} {:?}", id, axis, value);
+                    Event::JoyAxisMotion { which: id, axis_idx, value, .. } => {
+                        info!("Joystick Axis Motion {:?} {:?} {:?}", id, axis_idx, value);
 
-                        if let Some((key, state)) = map_axis(axis, value) {
-                            info!("Key {:?} State {:?}", key, state);
+                        if let Some((key, state)) = map_axis_joystick(axis_idx, value) {
+                            info!("Joystick Key {:?} State {:?}", key, state);
 
-
-                            if axis == Axis::LeftX && value == 128 {
+                            if axis_idx == 0 && value == 128 {
                                 players.lock().unwrap().key_direc_hor_up(0);
-                            } else if axis == Axis::LeftY && value == -129 {
+                            } else if axis_idx == 1 && value == -129 {
                                 players.lock().unwrap().key_direc_ver_up(0);
                             } else {
                                 if state {
@@ -336,21 +333,14 @@ impl Frontend {
                         }
                     },
 
-                    Event::JoyAxisMotion { which: id, axis_idx, value: val, .. } => {
-                        info!("Joystick Axis Motion {:?} {:?} {:?}", id, axis_idx, val);
-                    },
-
                     Event::JoyButtonDown { which: id, button_idx, .. } => {
                         info!("Joystick button DOWN {:?} {:?}", id, button_idx);
-                        // if let Some(key) = map_button(button) { players_clone.lock().unwrap().key_up(0, key) }
+                        if let Some(key) = map_button_joystick(button_idx) { players.lock().unwrap().key_down(0, key, false, self.elapsed_time) }
                     },
 
                     Event::JoyButtonUp { which: id, button_idx, .. } => {
-                        info!("Joystick Button {:?} {:?} up", id, button_idx);
-                    },
-
-                    Event::JoyHatMotion { which: id, hat_idx, state, .. } => {
-                        info!("Joystick Hat {:?} {:?} moved to {:?}", id, hat_idx, state);
+                        info!("Joystick Button {:?} {:?} UP", id, button_idx);
+                        if let Some(key) = map_button_joystick(button_idx) { players.lock().unwrap().key_up(0, key) }
                     },
 
                     _ => (),
@@ -433,12 +423,8 @@ impl Frontend {
                         if let (Some(key), player) = map_keycode(keycode) { players.lock().unwrap().key_up(player, key) }
                     },
 
-                    Event::ControllerDeviceAdded { which: id, .. } => {
-                        info!("New Controller detected {:?}", id);
-                    },
-
                     Event::ControllerButtonDown { which: id, button, .. } => {
-                        info!("Controller button DOWN {:?} {:?}", id, button);
+                        info!("Controller button Down {:?} {:?}", id, button);
                         if let Some(key) = map_button(button) { players.lock().unwrap().key_down(0, key, false, self.elapsed_time) }
                     },
 
@@ -447,36 +433,15 @@ impl Frontend {
                         if let Some(key) = map_button(button) { players.lock().unwrap().key_up(0, key) }
                     },
 
-                    Event::ControllerAxisMotion { which: id, axis, value, .. } => {
-                        info!("Controller Axis Motion {:?} {:?} {:?}", id, axis, value);
+                    Event::JoyAxisMotion { which: id, axis_idx, value, .. } => {
+                        info!("Joystick Axis Motion {:?} {:?} {:?}", id, axis_idx, value);
 
-                        if let Some((key, state)) = map_axis(axis, value) {
-                            info!("Controller Key {:?} State {:?}", key, state);
-
-
-                            if axis == Axis::LeftX && value == 128 {
-                                players.lock().unwrap().key_direc_hor_up(0);
-                            } else if axis == Axis::LeftY && value == -129 {
-                                players.lock().unwrap().key_direc_ver_up(0);
-                            } else {
-                                if state {
-                                    players.lock().unwrap().key_down(0, key, false, self.elapsed_time)
-                                } else {
-                                    players.lock().unwrap().key_up(0, key)
-                                }
-                            }
-                        }
-                    },
-
-                    Event::JoyAxisMotion { which: id, axis_idx, value: val, .. } => {
-                        info!("Joystick Axis Motion {:?} {:?} {:?}", id, axis_idx, val);
-
-                        if let Some((key, state)) = map_axis(axis, value) {
+                        if let Some((key, state)) = map_axis_joystick(axis_idx, value) {
                             info!("Joystick Key {:?} State {:?}", key, state);
 
-                            if axis == Axis::LeftX && value == 128 {
+                            if axis_idx == 0 && value == 128 {
                                 players.lock().unwrap().key_direc_hor_up(0);
-                            } else if axis == Axis::LeftY && value == -129 {
+                            } else if axis_idx == 1 && value == -129 {
                                 players.lock().unwrap().key_direc_ver_up(0);
                             } else {
                                 if state {
@@ -490,12 +455,12 @@ impl Frontend {
 
                     Event::JoyButtonDown { which: id, button_idx, .. } => {
                         info!("Joystick button DOWN {:?} {:?}", id, button_idx);
-                        if let Some(key) = map_button(button) { players_clone.lock().unwrap().key_down(0, key) }
+                        if let Some(key) = map_button_joystick(button_idx) { players.lock().unwrap().key_down(0, key, false, self.elapsed_time) }
                     },
 
                     Event::JoyButtonUp { which: id, button_idx, .. } => {
                         info!("Joystick Button {:?} {:?} UP", id, button_idx);
-                        if let Some(key) = map_button(button) { players_clone.lock().unwrap().key_up(0, key) }
+                        if let Some(key) = map_button_joystick(button_idx) { players.lock().unwrap().key_up(0, key) }
                     },
 
                     _ => (),
