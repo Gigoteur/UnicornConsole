@@ -1,5 +1,4 @@
 pub mod info;
-pub mod packet;
 pub mod cartdata;
 pub mod emscripten;
 

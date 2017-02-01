@@ -5,8 +5,7 @@ main() {
     cargo build --release --features="sdl_renderer"
     cargo build --release --features="cpython"
     cargo build --release --features="lua"
-    cargo build --release --features="dyon"
-    cargo build --release --features="sdl_renderer cpython lua dyon"
+    cargo build --release --features="sdl_renderer cpython lua"
 }
 
 main_deploy() {

@@ -27,6 +27,8 @@ use renderer;
 use px8;
 use config;
 use config::keys::{PX8Key, map_axis, map_button, map_keycode};
+use config::controllers;
+
 use gfx::{Scale};
 
 #[cfg(target_os = "emscripten")]
@@ -84,6 +86,7 @@ pub struct Frontend {
     sdl: Sdl,
     event_pump: EventPump,
     renderer: renderer::renderer::Renderer,
+    controllers: controllers::Controllers,
     times: frametimes::FrameTimes,
     px8: px8::Px8New,
     info: Arc<Mutex<px8::info::Info>>,
@@ -116,6 +119,7 @@ impl Frontend {
             sdl: sdl,
             event_pump: event_pump,
             renderer: renderer,
+            controllers: controllers::Controllers::new(),
             times: frametimes::FrameTimes::new(Duration::from_secs(1) / 60),
             px8: px8::Px8New::new(),
             info: Arc::new(Mutex::new(px8::info::Info::new())),
@@ -128,11 +132,17 @@ impl Frontend {
         })
     }
 
-    pub fn main(&mut self, filename: String, editor: bool) {
+    pub fn run_cartridge(&mut self, filename: String, editor: bool, server: bool) {
         self.start_time = time::now();
         self.times.reset();
 
-        self.run_cartridge(filename, editor);
+        info!("Frontend: initialise joysticks");
+        self.init_joysticks();
+
+        info!("Frontend: initialise PX8");
+        self.px8.init();
+
+        self._run_cartridge(filename, editor);
     }
 
     pub fn update_time(&mut self, players: Arc<Mutex<config::Players>>) {
@@ -147,24 +157,7 @@ impl Frontend {
         players.lock().unwrap().update(self.elapsed_time);
     }
 
-    pub fn blit(&mut self) {
-        self.renderer.blit(&self.px8.screen.lock().unwrap().back_buffer);
-        self.times.limit();
-    }
-
-    pub fn run_cartridge(&mut self, filename: String, editor: bool) {
-        let players_input = Arc::new(Mutex::new(config::Players::new()));
-        let players_clone = players_input.clone();
-
-        self.px8.init();
-
-        self.px8.load_cartridge(filename.clone(),
-                                self.channels.tx_input.clone(),
-                                self.channels.rx_output.clone(),
-                                players_input,
-                                self.info.clone(),
-                                editor);
-
+    pub fn init_joysticks(&mut self) {
         info!("Init Game Controller");
         let game_controller_subsystem = self.sdl.game_controller().unwrap();
 
@@ -179,9 +172,6 @@ impl Frontend {
 
         info!("{} joysticks available", available);
 
-        let mut joysticks = Vec::new();
-        let mut controllers = Vec::new();
-
         for id in 0..available {
             if game_controller_subsystem.is_game_controller(id) {
                 println!("Attempting to open controller {}", id);
@@ -193,7 +183,7 @@ impl Frontend {
                         info!("Success: opened \"{}\"", c.name());
                         info!("Success: opened \"{}\"", c.mapping());
 
-                        controllers.push(Some(c));
+                        self.controllers.push_controller(Some(c).unwrap());
                         break;
                     },
                     Err(e) => error!("failed: {:?}", e),
@@ -220,12 +210,23 @@ impl Frontend {
                 Ok(c) => {
                     info!("Success: opened \"{}\"", c.name());
 
-                    joysticks.push(Some(c));
+                    self.controllers.push_joystick(Some(c).unwrap());
                 },
                 Err(e) => error!("failed: {:?}", e),
             }
         }
+    }
 
+    pub fn _run_cartridge(&mut self, filename: String, editor: bool) {
+        let players_input = Arc::new(Mutex::new(config::Players::new()));
+        let players_clone = players_input.clone();
+
+        self.px8.load_cartridge(filename.clone(),
+                                self.channels.tx_input.clone(),
+                                self.channels.rx_output.clone(),
+                                players_input,
+                                self.info.clone(),
+                                editor);
 
         // Call the init of the cartridge
         self.px8.init_time = self.px8.call_init() * 1000.0;
@@ -513,5 +514,10 @@ impl Frontend {
             self.update_time(players.clone());
             self.blit();
         });
+    }
+
+    pub fn blit(&mut self) {
+        self.renderer.blit(&self.px8.screen.lock().unwrap().back_buffer);
+        self.times.limit();
     }
 }

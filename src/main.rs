@@ -5,9 +5,6 @@ extern crate lua;
 #[macro_use]
 extern crate cpython;
 
-#[cfg(feature = "dyon")]
-extern crate dyon;
-
 extern crate sdl2;
 extern crate getopts;
 
@@ -36,6 +33,11 @@ extern crate log;
 extern crate fern;
 
 extern crate rustc_serialize;
+
+extern crate futures;
+extern crate tokio_core;
+extern crate tokio_proto;
+extern crate tokio_service;
 
 use std::env;
 use getopts::Options;
@@ -83,6 +85,7 @@ fn main() {
     opts.optflagopt("d", "dump", "dump the cartridge", "FILE");
     opts.optflagopt("t", "transform", "transform the PNG/PX8 cartridge in P8", "FILE");
     opts.optflagopt("s", "scale", "scale the display", "VALUE");
+    opts.optflagopt("b", "bind", "bind a server on a specific address", "ADDR");
     opts.optflag("h", "help", "print this help menu");
 
     let matches = match opts.parse(&args[1..]) {
@@ -157,7 +160,7 @@ fn main() {
                 6 => scale = Scale::Scale6x,
                 8 => scale = Scale::Scale8x,
                 10 => scale = Scale::Scale10x,
-                _ => scale = Scale::Scale4x
+                _ => scale = Scale::Scale1x
             }
         }
 
@@ -176,5 +179,5 @@ pub fn start_px8(scale: gfx::Scale, fullscreen: bool, filename: String, editor: 
     Ok(frontend) => frontend
   };
 
-  frontend.main(filename, editor);
+  frontend.run_cartridge(filename, editor, false);
 }

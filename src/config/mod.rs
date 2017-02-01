@@ -1,4 +1,5 @@
 pub mod keys;
+pub mod controllers;
 
 use self::keys::PX8Key;
 use sdl2::mouse::MouseState;
