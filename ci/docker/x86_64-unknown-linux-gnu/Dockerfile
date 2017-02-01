@@ -17,4 +17,4 @@ RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 ENV PATH /root/.cargo/bin:$PATH
 
 RUN git clone https://github.com/Gigoteur/PX8 && cd PX8 && \
-    cargo build --release --features="sdl_renderer cpython lua dyon" && ldd target/release/px8
+    cargo build --release --features="sdl_renderer cpython lua" && ldd target/release/px8

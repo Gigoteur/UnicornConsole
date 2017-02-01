@@ -438,7 +438,7 @@ impl Frontend {
                     },
 
                     Event::ControllerButtonDown { which: id, button, .. } => {
-                        info!("Controller button Down {:?} {:?}", id, button);
+                        info!("Controller button DOWN {:?} {:?}", id, button);
                         if let Some(key) = map_button(button) { players.lock().unwrap().key_down(0, key, false, self.elapsed_time) }
                     },
 
@@ -451,7 +451,7 @@ impl Frontend {
                         info!("Controller Axis Motion {:?} {:?} {:?}", id, axis, value);
 
                         if let Some((key, state)) = map_axis(axis, value) {
-                            info!("Key {:?} State {:?}", key, state);
+                            info!("Controller Key {:?} State {:?}", key, state);
 
 
                             if axis == Axis::LeftX && value == 128 {
@@ -470,19 +470,32 @@ impl Frontend {
 
                     Event::JoyAxisMotion { which: id, axis_idx, value: val, .. } => {
                         info!("Joystick Axis Motion {:?} {:?} {:?}", id, axis_idx, val);
+
+                        if let Some((key, state)) = map_axis(axis, value) {
+                            info!("Joystick Key {:?} State {:?}", key, state);
+
+                            if axis == Axis::LeftX && value == 128 {
+                                players.lock().unwrap().key_direc_hor_up(0);
+                            } else if axis == Axis::LeftY && value == -129 {
+                                players.lock().unwrap().key_direc_ver_up(0);
+                            } else {
+                                if state {
+                                    players.lock().unwrap().key_down(0, key, false, self.elapsed_time)
+                                } else {
+                                    players.lock().unwrap().key_up(0, key)
+                                }
+                            }
+                        }
                     },
 
                     Event::JoyButtonDown { which: id, button_idx, .. } => {
                         info!("Joystick button DOWN {:?} {:?}", id, button_idx);
-                        // if let Some(key) = map_button(button) { players_clone.lock().unwrap().key_up(0, key) }
+                        if let Some(key) = map_button(button) { players_clone.lock().unwrap().key_down(0, key) }
                     },
 
                     Event::JoyButtonUp { which: id, button_idx, .. } => {
-                        info!("Joystick Button {:?} {:?} up", id, button_idx);
-                    },
-
-                    Event::JoyHatMotion { which: id, hat_idx, state, .. } => {
-                        info!("Joystick Hat {:?} {:?} moved to {:?}", id, hat_idx, state);
+                        info!("Joystick Button {:?} {:?} UP", id, button_idx);
+                        if let Some(key) = map_button(button) { players_clone.lock().unwrap().key_up(0, key) }
                     },
 
                     _ => (),
