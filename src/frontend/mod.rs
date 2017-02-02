@@ -136,8 +136,8 @@ impl Frontend {
         self.start_time = time::now();
         self.times.reset();
 
-        info!("Frontend: initialise joysticks");
-        self.init_joysticks();
+        info!("Frontend: initialise controllers");
+        self.init_controllers();
 
         info!("Frontend: initialise PX8");
         self.px8.init();
@@ -157,8 +157,8 @@ impl Frontend {
         players.lock().unwrap().update(self.elapsed_time);
     }
 
-    pub fn init_joysticks(&mut self) {
-        info!("Init Joysticks");
+    pub fn init_controllers(&mut self) {
+        info!("Init Controllers");
 
         let game_controller_subsystem = self.sdl.game_controller().unwrap();
 
@@ -171,7 +171,7 @@ impl Frontend {
             Err(e) => panic!("can't enumerate joysticks: {}", e),
         };
 
-        info!("{} joysticks available", available);
+        info!("[CONTROLLER] {} joysticks available", available);
 
         for id in 0..available {
             if game_controller_subsystem.is_game_controller(id) {
@@ -202,19 +202,17 @@ impl Frontend {
             Err(e) => panic!("can't enumerate joysticks: {}", e),
         };
 
-        info!("{} joysticks available", available);
+        info!("[JOYSTICK] {} joysticks available", available);
 
         // Iterate over all available joysticks and stop once we manage to
         // open one.
         for id in 0..available {
-            if ! self.controllers.contains(id) {
-                match joystick_subsystem.open(id) {
-                    Ok(c) => {
-                        info!("[JOYSTICK] Success: opened \"{}\"", c.name());
-                        self.controllers.push_joystick(id, Some(c).unwrap());
-                    },
-                    Err(e) => error!("failed: {:?}", e),
-                }
+            match joystick_subsystem.open(id) {
+                Ok(c) => {
+                    info!("[JOYSTICK] Success: opened \"{}\"", c.name());
+                    self.controllers.push_joystick(id, Some(c).unwrap());
+                },
+                Err(e) => error!("failed: {:?}", e),
             }
         }
     }
@@ -304,17 +302,54 @@ impl Frontend {
                     },
 
                     Event::ControllerButtonDown { which: id, button, .. } => {
-                        info!("Controller button Down {:?} {:?}", id, button);
+                        if !self.controllers.is_controller(id as u32) {
+                            break;
+                        }
+
+                        info!("ID [{:?}] Controller button Down {:?}", id, button);
                         if let Some(key) = map_button(button) { players.lock().unwrap().key_down(0, key, false, self.elapsed_time) }
                     },
 
                     Event::ControllerButtonUp { which: id, button, .. } => {
-                        info!("Controller button UP {:?} {:?}", id, button);
+                        if !self.controllers.is_controller(id as u32) {
+                            break;
+                        }
+
+                        info!("ID [{:?}] Controller button UP {:?}", id, button);
                         if let Some(key) = map_button(button) { players.lock().unwrap().key_up(0, key) }
                     },
 
+                    Event::ControllerAxisMotion { which: id, axis, value, .. } => {
+                        if !self.controllers.is_controller(id as u32) {
+                            break;
+                        }
+
+                        info!("ID [{:?}] Controller Axis Motion {:?} {:?}", id, axis, value);
+
+                        if let Some((key, state)) = map_axis(axis, value) {
+                            info!("Key {:?} State {:?}", key, state);
+
+
+                            if axis == Axis::LeftX && value == 128 {
+                                players.lock().unwrap().key_direc_hor_up(0);
+                            } else if axis == Axis::LeftY && value == -129 {
+                                players.lock().unwrap().key_direc_ver_up(0);
+                            } else {
+                                if state {
+                                    players.lock().unwrap().key_down(0, key, false, self.elapsed_time)
+                                } else {
+                                    players.lock().unwrap().key_up(0, key)
+                                }
+                            }
+                        }
+                    },
+
                     Event::JoyAxisMotion { which: id, axis_idx, value, .. } => {
-                        info!("Joystick Axis Motion {:?} {:?} {:?}", id, axis_idx, value);
+                        if !self.controllers.is_joystick(id as u32) {
+                            break;
+                        }
+
+                        info!("ID [{:?}] Joystick Axis Motion {:?} {:?}", id, axis_idx, value);
 
                         if let Some((key, state)) = map_axis_joystick(axis_idx, value) {
                             info!("Joystick Key {:?} State {:?}", key, state);
@@ -334,12 +369,20 @@ impl Frontend {
                     },
 
                     Event::JoyButtonDown { which: id, button_idx, .. } => {
-                        info!("Joystick button DOWN {:?} {:?}", id, button_idx);
+                        if !self.controllers.is_joystick(id as u32) {
+                            break;
+                        }
+
+                        info!("ID [{:?}] Joystick button DOWN {:?}", id, button_idx);
                         if let Some(key) = map_button_joystick(button_idx) { players.lock().unwrap().key_down(0, key, false, self.elapsed_time) }
                     },
 
                     Event::JoyButtonUp { which: id, button_idx, .. } => {
-                        info!("Joystick Button {:?} {:?} UP", id, button_idx);
+                        if !self.controllers.is_joystick(id as u32) {
+                            break;
+                        }
+
+                        info!("ID [{:?}] Joystick Button UP {:?}", id, button_idx);
                         if let Some(key) = map_button_joystick(button_idx) { players.lock().unwrap().key_up(0, key) }
                     },
 

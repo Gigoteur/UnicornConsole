@@ -5,6 +5,8 @@ pub struct Controllers {
     controllers: Vec<GameController>,
     joysticks: Vec<Joystick>,
     ids: Vec<u32>,
+    j_ids: Vec<u32>,
+    g_ids: Vec<u32>,
 }
 
 impl Controllers {
@@ -13,20 +15,36 @@ impl Controllers {
             controllers: Vec::new(),
             joysticks: Vec::new(),
             ids: Vec::new(),
+            j_ids: Vec::new(),
+            g_ids: Vec::new(),
         }
     }
 
     pub fn push_controller(&mut self, id: u32, controller: GameController) {
-        self.controllers.push(controller);
-        self.ids.push(id);
+        if !self.ids.contains(&id) {
+            info!("REGISTERED CONTROLLER {:?}", id);
+
+            self.controllers.push(controller);
+            self.ids.push(id);
+            self.g_ids.push(id);
+        }
     }
 
     pub fn push_joystick(&mut self, id: u32, joystick: Joystick) {
-        self.joysticks.push(joystick);
-        self.ids.push(id);
+        if !self.ids.contains(&id) {
+            info!("REGISTERED JOYSTICK {:?}", id);
+
+            self.joysticks.push(joystick);
+            self.ids.push(id);
+            self.j_ids.push(id);
+        }
     }
 
-    pub fn contains(&mut self, id: u32) -> bool {
-        self.ids.contains(&id)
+    pub fn is_controller(&mut self, id: u32) -> bool {
+        self.g_ids.contains(&id)
+    }
+
+    pub fn is_joystick(&mut self, id: u32) -> bool {
+        self.j_ids.contains(&id)
     }
 }
