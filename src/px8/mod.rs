@@ -144,6 +144,11 @@ impl Color {
 
 pub const SCREEN_EMPTY: ScreenBuffer = [Color::Black; SCREEN_PIXELS];
 
+pub trait RustPlugin {
+    fn update(&self) -> f64;
+    fn draw(&self, screen: Arc<Mutex<gfx::Screen>>) -> f64;
+}
+
 pub enum PX8State {
     RUN,
     PAUSE,
@@ -172,7 +177,6 @@ impl Debug {
     pub fn update(&mut self) -> i32 {
         let now = time::precise_time_s();
         if now >= self.last_time + 1f64 {
-            // info!("{} FPS", self.frames);
             let v = self.frames;
 
             self.frames = 0;
@@ -190,11 +194,31 @@ pub enum Code {
     UNKNOWN = 0,
     LUA = 1,
     PYTHON = 2,
+    RUST = 3,
 }
 
 pub struct Menu {
     idx: u32,
     items: Vec<String>,
+}
+
+impl Menu {
+    pub fn new() -> Menu {
+        Menu { idx: 0, items: Vec::new() }
+    }
+
+    pub fn update(&self) {
+
+    }
+
+    pub fn draw(&self, screen: Arc<Mutex<gfx::Screen>>) {
+        screen.lock().unwrap().rectfill(40, 50, 90, 80, Color::Black);
+
+        screen.lock().unwrap().pset(45, 59, Color::White);
+
+        screen.lock().unwrap().print("Continue".to_string(), 50, 55, Color::White);
+        screen.lock().unwrap().print("Quit".to_string(), 50, 65, Color::White);
+    }
 }
 
 pub struct Record {
@@ -224,6 +248,7 @@ pub struct Px8New {
     pub current_cartridge: usize,
     pub lua_plugin: LuaPlugin,
     pub python_plugin: PythonPlugin,
+    pub rust_plugin: Vec<Box<RustPlugin>>,
     pub code_type: Code,
     pub state: PX8State,
     pub menu: Menu,
@@ -247,9 +272,10 @@ impl Px8New {
             current_cartridge: 0,
             lua_plugin: LuaPlugin::new(),
             python_plugin: PythonPlugin::new(),
+            rust_plugin: Vec::new(),
             code_type: Code::UNKNOWN,
             state: PX8State::RUN,
-            menu: Menu { idx: 0, items: Vec::new() },
+            menu: Menu::new(),
             show_info_overlay: true,
             fps: 0.0,
             draw_time: 0.0,
@@ -271,7 +297,7 @@ impl Px8New {
         self.show_info_overlay = !self.show_info_overlay;
     }
 
-    pub fn update(&mut self) {
+    pub fn debug_update(&mut self) {
         if self.show_info_overlay {
             self.screen.lock().unwrap().rectfill(0, 0, 108, 8, Color::Black);
 
@@ -280,6 +306,38 @@ impl Px8New {
                                                       self.init_time,
                                                       self.draw_time,
                                                       self.update_time).to_string(), 0, 0, Color::White);
+        }
+    }
+
+    pub fn update(&mut self) -> bool {
+        match self.state {
+            PX8State::PAUSE => {
+                self.menu.update();
+            },
+            PX8State::RUN => {
+                if self.is_end() {
+                    return false;
+                }
+
+                self.update_time = self.call_update() * 1000.0;
+            }
+        }
+
+        return true;
+    }
+
+    pub fn draw(&mut self) {
+        match self.state {
+            PX8State::PAUSE => {
+                self.menu.draw(self.screen.clone());
+            },
+            PX8State::RUN => {
+                self.draw_time = self.call_draw() * 1000.0;
+
+                if self.is_recording() {
+                    self.record();
+                }
+            }
         }
     }
 
@@ -421,39 +479,15 @@ impl Px8New {
         }
     }
 
-    pub fn pause(&mut self) {
-        self.state = PX8State::PAUSE;
-
-        self.screen.lock().unwrap().rectfill(40, 50, 90, 80, Color::Black);
-
-        self.screen.lock().unwrap().pset(45, 59, Color::White);
-
-        self.screen.lock().unwrap().print("Continue".to_string(), 50, 55, Color::White);
-        self.screen.lock().unwrap().print("Quit".to_string(), 50, 65, Color::White);
-    }
-
-    pub fn update_pause(&mut self, enter: bool, up: bool, down: bool) {
-        self.screen.lock().unwrap().rectfill(40, 50, 90, 80, Color::Black);
-
-        if down {
-            self.menu.idx = 1;
+    pub fn switch_pause(&mut self) {
+        match self.state {
+            PX8State::PAUSE => {
+                self.state = PX8State::RUN;
+            },
+            PX8State::RUN => {
+                self.state = PX8State::PAUSE;
+            }
         }
-
-        if up {
-            self.menu.idx = 0;
-        }
-
-
-        if self.menu.idx == 0 {
-            self.screen.lock().unwrap().pset(45, 59, Color::White);
-        }
-
-        if self.menu.idx == 1 {
-            self.screen.lock().unwrap().pset(45, 59 + 10, Color::White);
-        }
-
-        self.screen.lock().unwrap().print("Continue".to_string(), 50, 55, Color::White);
-        self.screen.lock().unwrap().print("Quit".to_string(), 50, 65, Color::White);
     }
 
     pub fn load_cartridge(&mut self,
@@ -585,7 +619,7 @@ impl Px8New {
             Code::PYTHON => {
                 self.python_plugin.load_code(data);
             },
-            Code::UNKNOWN => ()
+            _ => ()
         }
     }
 
@@ -658,7 +692,7 @@ impl Px8New {
 
                 self.python_plugin.load_code(data);
             },
-            Code::UNKNOWN => ()
+            _ => ()
         }
     }
 
@@ -683,7 +717,7 @@ impl Px8New {
         match self.code_type {
             Code::LUA       => self.lua_plugin.init(),
             Code::PYTHON    => self.python_plugin.init(),
-            Code::UNKNOWN   => (),
+            _   => (),
         }
 
         let diff_time =  time::now() - current_time;
@@ -699,7 +733,7 @@ impl Px8New {
         match self.code_type {
             Code::LUA       => self.draw_return = self.lua_plugin.draw(),
             Code::PYTHON    => self.draw_return = self.python_plugin.draw(),
-            Code::UNKNOWN   => (),
+            _   => (),
         }
 
         let diff_time =  time::now() - current_time;
@@ -715,7 +749,7 @@ impl Px8New {
         match self.code_type {
             Code::LUA       => self.update_return = self.lua_plugin.update(),
             Code::PYTHON    => self.update_return = self.python_plugin.update(),
-            Code::UNKNOWN   => (),
+            _   => (),
         }
 
         let diff_time =  time::now() - current_time;

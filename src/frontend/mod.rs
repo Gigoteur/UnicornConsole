@@ -90,6 +90,7 @@ pub struct Frontend {
     times: frametimes::FrameTimes,
     px8: px8::Px8New,
     info: Arc<Mutex<px8::info::Info>>,
+    players: Arc<Mutex<config::Players>>,
     channels: Channels,
     start_time: time::Tm,
     elapsed_time: f64,
@@ -123,6 +124,7 @@ impl Frontend {
             times: frametimes::FrameTimes::new(Duration::from_secs(1) / 60),
             px8: px8::Px8New::new(),
             info: Arc::new(Mutex::new(px8::info::Info::new())),
+            players: Arc::new(Mutex::new(config::Players::new())),
             channels: Channels::new(),
             start_time: time::now(),
             elapsed_time: 0.,
@@ -145,7 +147,7 @@ impl Frontend {
         self._run_cartridge(filename, editor);
     }
 
-    pub fn update_time(&mut self, players: Arc<Mutex<config::Players>>) {
+    pub fn update_time(&mut self) {
         let new_time = time::now();
         let diff_time = new_time - self.start_time;
         let nanoseconds = (diff_time.num_nanoseconds().unwrap() as f64) - (diff_time.num_seconds() * 1000000000) as f64;
@@ -154,7 +156,7 @@ impl Frontend {
 
         self.info.lock().unwrap().elapsed_time = self.elapsed_time;
 
-        players.lock().unwrap().update(self.elapsed_time);
+        self.players.lock().unwrap().update(self.elapsed_time);
     }
 
     pub fn init_controllers(&mut self) {
@@ -218,24 +220,23 @@ impl Frontend {
     }
 
     pub fn _run_cartridge(&mut self, filename: String, editor: bool) {
-        let players_input = Arc::new(Mutex::new(config::Players::new()));
-        let players_clone = players_input.clone();
-
         self.px8.load_cartridge(filename.clone(),
                                 self.channels.tx_input.clone(),
                                 self.channels.rx_output.clone(),
-                                players_input,
+                                self.players.clone(),
                                 self.info.clone(),
                                 editor);
 
         // Call the init of the cartridge
         self.px8.init_time = self.px8.call_init() * 1000.0;
 
-        self.handle_event(editor, players_clone);
+        self.handle_event(editor);
     }
 
     #[cfg(not(target_os = "emscripten"))]
-    fn handle_event(&mut self, editor: bool, players: Arc<Mutex<config::Players>>) {
+    fn handle_event(&mut self, editor: bool) {
+        info!("Handle Event");
+
         'main: loop {
             let delta = self.times.update();
 
@@ -246,9 +247,9 @@ impl Frontend {
             let mouse_state = self.event_pump.mouse_state();
             let (width, height) = self.renderer.get_dimensions();
 
-            players.lock().unwrap().set_mouse_x(mouse_state.x() / (width as i32 / px8::SCREEN_WIDTH as i32));
-            players.lock().unwrap().set_mouse_y(mouse_state.y() / (height as i32 / px8::SCREEN_HEIGHT as i32));
-            players.lock().unwrap().set_mouse_state(mouse_state);
+            self.players.lock().unwrap().set_mouse_x(mouse_state.x() / (width as i32 / px8::SCREEN_WIDTH as i32));
+            self.players.lock().unwrap().set_mouse_y(mouse_state.y() / (height as i32 / px8::SCREEN_HEIGHT as i32));
+            self.players.lock().unwrap().set_mouse_state(mouse_state);
 
             if mouse_state.left() {
                 debug!("MOUSE X {:?} Y {:?}",
@@ -265,7 +266,7 @@ impl Frontend {
                     },
                     Event::KeyDown { keycode: Some(keycode), repeat, .. } => {
                         if let (Some(key), player) = map_keycode(keycode) {
-                            players.lock().unwrap().key_down(player, key, repeat, self.elapsed_time);
+                            self.players.lock().unwrap().key_down(player, key, repeat, self.elapsed_time);
                         }
 
                         if keycode == Keycode::F2 {
@@ -292,13 +293,14 @@ impl Frontend {
                             self.px8.init_time = self.px8.call_init() * 1000.0;
                         }
 
-                        let pause = players.lock().unwrap().get_value_quick(0, 7) == 1;
-                        if pause {
-                            self.px8.pause();
+                        if self.players.lock().unwrap().get_value_quick(0, 7) == 1 {
+                            self.px8.switch_pause();
                         }
                     },
                     Event::KeyUp { keycode: Some(keycode), .. } => {
-                        if let (Some(key), player) = map_keycode(keycode) { players.lock().unwrap().key_up(player, key) }
+                        if let (Some(key), player) = map_keycode(keycode) {
+                            self.players.lock().unwrap().key_up(player, key)
+                        }
                     },
 
                     Event::ControllerButtonDown { which: id, button, .. } => {
@@ -307,7 +309,9 @@ impl Frontend {
                         }
 
                         info!("ID [{:?}] Controller button Down {:?}", id, button);
-                        if let Some(key) = map_button(button) { players.lock().unwrap().key_down(0, key, false, self.elapsed_time) }
+                        if let Some(key) = map_button(button) {
+                            self.players.lock().unwrap().key_down(0, key, false, self.elapsed_time)
+                        }
                     },
 
                     Event::ControllerButtonUp { which: id, button, .. } => {
@@ -316,7 +320,9 @@ impl Frontend {
                         }
 
                         info!("ID [{:?}] Controller button UP {:?}", id, button);
-                        if let Some(key) = map_button(button) { players.lock().unwrap().key_up(0, key) }
+                        if let Some(key) = map_button(button) {
+                            self.players.lock().unwrap().key_up(0, key)
+                        }
                     },
 
                     Event::ControllerAxisMotion { which: id, axis, value, .. } => {
@@ -331,14 +337,14 @@ impl Frontend {
 
 
                             if axis == Axis::LeftX && value == 128 {
-                                players.lock().unwrap().key_direc_hor_up(0);
+                                self.players.lock().unwrap().key_direc_hor_up(0);
                             } else if axis == Axis::LeftY && value == -129 {
-                                players.lock().unwrap().key_direc_ver_up(0);
+                                self.players.lock().unwrap().key_direc_ver_up(0);
                             } else {
                                 if state {
-                                    players.lock().unwrap().key_down(0, key, false, self.elapsed_time)
+                                    self.players.lock().unwrap().key_down(0, key, false, self.elapsed_time)
                                 } else {
-                                    players.lock().unwrap().key_up(0, key)
+                                    self.players.lock().unwrap().key_up(0, key)
                                 }
                             }
                         }
@@ -355,14 +361,14 @@ impl Frontend {
                             info!("Joystick Key {:?} State {:?}", key, state);
 
                             if axis_idx == 0 && value == 128 {
-                                players.lock().unwrap().key_direc_hor_up(0);
+                                self.players.lock().unwrap().key_direc_hor_up(0);
                             } else if axis_idx == 1 && value == -129 {
-                                players.lock().unwrap().key_direc_ver_up(0);
+                                self.players.lock().unwrap().key_direc_ver_up(0);
                             } else {
                                 if state {
-                                    players.lock().unwrap().key_down(0, key, false, self.elapsed_time)
+                                    self.players.lock().unwrap().key_down(0, key, false, self.elapsed_time)
                                 } else {
-                                    players.lock().unwrap().key_up(0, key)
+                                    self.players.lock().unwrap().key_up(0, key)
                                 }
                             }
                         }
@@ -374,7 +380,9 @@ impl Frontend {
                         }
 
                         info!("ID [{:?}] Joystick button DOWN {:?}", id, button_idx);
-                        if let Some(key) = map_button_joystick(button_idx) { players.lock().unwrap().key_down(0, key, false, self.elapsed_time) }
+                        if let Some(key) = map_button_joystick(button_idx) {
+                            self.players.lock().unwrap().key_down(0, key, false, self.elapsed_time)
+                        }
                     },
 
                     Event::JoyButtonUp { which: id, button_idx, .. } => {
@@ -383,40 +391,24 @@ impl Frontend {
                         }
 
                         info!("ID [{:?}] Joystick Button UP {:?}", id, button_idx);
-                        if let Some(key) = map_button_joystick(button_idx) { players.lock().unwrap().key_up(0, key) }
+                        if let Some(key) = map_button_joystick(button_idx) {
+                            self.players.lock().unwrap().key_up(0, key)
+                        }
                     },
 
                     _ => (),
                 }
             }
 
-            match self.px8.state {
-                px8::PX8State::PAUSE => {
-                    let up = players.lock().unwrap().get_value_quick(0, 2) == 1;
-                    let down = players.lock().unwrap().get_value_quick(0, 3) == 1;
-                    let enter = players.lock().unwrap().get_value_quick(0, 6) == 1;
-
-                    self.px8.update_pause(enter, up, down);
-
-                    self.px8.update();
-                },
-                px8::PX8State::RUN => {
-                    if self.px8.is_end() {
-                        break 'main;
-                    }
-
-                    self.px8.update_time = self.px8.call_update() * 1000.0;
-                    self.px8.draw_time = self.px8.call_draw() * 1000.0;
-
-                    self.px8.update();
-
-                    if self.px8.is_recording() {
-                        self.px8.record();
-                    }
-                }
+            if !self.px8.update() {
+                break 'main;
             }
 
-            self.update_time(players.clone());
+            self.px8.draw();
+
+            self.px8.debug_update();
+
+            self.update_time();
             self.blit();
         }
     }
@@ -510,27 +502,10 @@ impl Frontend {
                 }
             }
 
-            match self.px8.state {
-                px8::PX8State::PAUSE => {
-                    let up = players.lock().unwrap().get_value_quick(0, 2) == 1;
-                    let down = players.lock().unwrap().get_value_quick(0, 3) == 1;
-                    let enter = players.lock().unwrap().get_value_quick(0, 6) == 1;
+            self.px8.update();
+            self.px8.draw();
 
-                    self.px8.update_pause(enter, up, down);
-
-                    self.px8.update();
-                },
-                px8::PX8State::RUN => {
-                    self.px8.update_time = self.px8.call_update() * 1000.0;
-                    self.px8.draw_time = self.px8.call_draw() * 1000.0;
-
-                    self.px8.update();
-
-                    if self.px8.is_recording() {
-                        self.px8.record();
-                    }
-                }
-            }
+            self.px8.debug_update();
 
             self.update_time(players.clone());
             self.blit();
