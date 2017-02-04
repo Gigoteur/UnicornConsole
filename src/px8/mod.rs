@@ -145,8 +145,8 @@ impl Color {
 pub const SCREEN_EMPTY: ScreenBuffer = [Color::Black; SCREEN_PIXELS];
 
 pub trait RustPlugin {
-    fn update(&self) -> f64;
-    fn draw(&self, screen: Arc<Mutex<gfx::Screen>>) -> f64;
+    fn update(&mut self) -> f64;
+    fn draw(&mut self, screen: Arc<Mutex<gfx::Screen>>) -> f64;
 }
 
 pub enum PX8State {
@@ -490,6 +490,10 @@ impl Px8New {
         }
     }
 
+    pub fn register<F: RustPlugin + 'static>(&mut self, callback: F) {
+        self.rust_plugin.push(Box::new(callback));
+    }
+
     pub fn load_cartridge(&mut self,
                           filename: String,
                           tx_input: Sender<Vec<u8>>,
@@ -733,6 +737,12 @@ impl Px8New {
         match self.code_type {
             Code::LUA       => self.draw_return = self.lua_plugin.draw(),
             Code::PYTHON    => self.draw_return = self.python_plugin.draw(),
+            Code::RUST => {
+                self.draw_return = true;
+                for callback in self.rust_plugin.iter_mut() {
+                    callback.draw(self.screen.clone());
+                }
+            }
             _   => (),
         }
 
@@ -749,6 +759,12 @@ impl Px8New {
         match self.code_type {
             Code::LUA       => self.update_return = self.lua_plugin.update(),
             Code::PYTHON    => self.update_return = self.python_plugin.update(),
+            Code::RUST => {
+                self.update_return = true;
+                for callback in self.rust_plugin.iter_mut() {
+                    callback.update();
+                }
+            }
             _   => (),
         }
 

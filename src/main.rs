@@ -174,10 +174,11 @@ fn main() {
 }
 
 pub fn start_px8(scale: gfx::Scale, fullscreen: bool, filename: String, editor: bool) {
-  let mut frontend = match frontend::Frontend::init(scale, fullscreen) {
-    Err(error) => panic!("{:?}", error),
-    Ok(frontend) => frontend
-  };
+    let mut frontend = match frontend::Frontend::init(scale, fullscreen) {
+        Err(error) => panic!("{:?}", error),
+        Ok(frontend) => frontend
+    };
 
-  frontend.run_cartridge(filename, editor, false);
+    frontend.start();
+    frontend.run_cartridge(filename, editor);
 }

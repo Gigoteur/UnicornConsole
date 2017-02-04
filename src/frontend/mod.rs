@@ -88,9 +88,9 @@ pub struct Frontend {
     renderer: renderer::renderer::Renderer,
     controllers: controllers::Controllers,
     times: frametimes::FrameTimes,
-    px8: px8::Px8New,
-    info: Arc<Mutex<px8::info::Info>>,
-    players: Arc<Mutex<config::Players>>,
+    pub px8: px8::Px8New,
+    pub info: Arc<Mutex<px8::info::Info>>,
+    pub players: Arc<Mutex<config::Players>>,
     channels: Channels,
     start_time: time::Tm,
     elapsed_time: f64,
@@ -130,11 +130,11 @@ impl Frontend {
             elapsed_time: 0.,
             delta: Duration::from_secs(0),
             scale: scale,
-            fps_counter : fps::FpsCounter::new(),
+            fps_counter: fps::FpsCounter::new(),
         })
     }
 
-    pub fn run_cartridge(&mut self, filename: String, editor: bool, server: bool) {
+    pub fn start(&mut self) {
         self.start_time = time::now();
         self.times.reset();
 
@@ -143,8 +143,6 @@ impl Frontend {
 
         info!("Frontend: initialise PX8");
         self.px8.init();
-
-        self._run_cartridge(filename, editor);
     }
 
     pub fn update_time(&mut self) {
@@ -219,7 +217,13 @@ impl Frontend {
         }
     }
 
-    pub fn _run_cartridge(&mut self, filename: String, editor: bool) {
+    pub fn run_native_cartridge(&mut self) {
+        self.px8.code_type = px8::Code::RUST;
+
+        self.handle_event(false);
+    }
+
+    pub fn run_cartridge(&mut self, filename: String, editor: bool) {
         self.px8.load_cartridge(filename.clone(),
                                 self.channels.tx_input.clone(),
                                 self.channels.rx_output.clone(),
