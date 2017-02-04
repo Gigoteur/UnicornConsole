@@ -145,7 +145,8 @@ impl Color {
 pub const SCREEN_EMPTY: ScreenBuffer = [Color::Black; SCREEN_PIXELS];
 
 pub trait RustPlugin {
-    fn update(&mut self) -> f64;
+    fn init(&mut self, screen: Arc<Mutex<gfx::Screen>>) -> f64;
+    fn update(&mut self, players: Arc<Mutex<Players>>) -> f64;
     fn draw(&mut self, screen: Arc<Mutex<gfx::Screen>>) -> f64;
 }
 
@@ -309,7 +310,7 @@ impl Px8New {
         }
     }
 
-    pub fn update(&mut self) -> bool {
+    pub fn update(&mut self, players: Arc<Mutex<Players>>) -> bool {
         match self.state {
             PX8State::PAUSE => {
                 self.menu.update();
@@ -319,7 +320,7 @@ impl Px8New {
                     return false;
                 }
 
-                self.update_time = self.call_update() * 1000.0;
+                self.update_time = self.call_update(players) * 1000.0;
             }
         }
 
@@ -721,6 +722,12 @@ impl Px8New {
         match self.code_type {
             Code::LUA       => self.lua_plugin.init(),
             Code::PYTHON    => self.python_plugin.init(),
+            Code::RUST => {
+                self.draw_return = true;
+                for callback in self.rust_plugin.iter_mut() {
+                    callback.init(self.screen.clone());
+                }
+            }
             _   => (),
         }
 
@@ -753,7 +760,7 @@ impl Px8New {
         return elapsed_time;
     }
 
-    pub fn call_update(&mut self) -> f64 {
+    pub fn call_update(&mut self, players: Arc<Mutex<Players>>) -> f64 {
         let current_time = time::now();
 
         match self.code_type {
@@ -762,7 +769,7 @@ impl Px8New {
             Code::RUST => {
                 self.update_return = true;
                 for callback in self.rust_plugin.iter_mut() {
-                    callback.update();
+                    callback.update(players.clone());
                 }
             }
             _   => (),

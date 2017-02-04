@@ -219,6 +219,7 @@ impl Frontend {
 
     pub fn run_native_cartridge(&mut self) {
         self.px8.code_type = px8::Code::RUST;
+        self.px8.init_time = self.px8.call_init() * 1000.0;
 
         self.handle_event(false);
     }
@@ -404,7 +405,7 @@ impl Frontend {
                 }
             }
 
-            if !self.px8.update() {
+            if !self.px8.update(self.players.clone()) {
                 break 'main;
             }
 
@@ -506,7 +507,7 @@ impl Frontend {
                 }
             }
 
-            self.px8.update();
+            self.px8.update(players.clone());
             self.px8.draw();
 
             self.px8.debug_update();
