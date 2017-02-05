@@ -430,9 +430,9 @@ impl Frontend {
             let mouse_state = self.event_pump.mouse_state();
             let (width, height) = self.renderer.get_dimensions();
 
-            players.lock().unwrap().set_mouse_x(mouse_state.x() / (width as i32 / px8::SCREEN_WIDTH as i32));
-            players.lock().unwrap().set_mouse_y(mouse_state.y() / (height as i32 / px8::SCREEN_HEIGHT as i32));
-            players.lock().unwrap().set_mouse_state(mouse_state);
+            self.players.lock().unwrap().set_mouse_x(mouse_state.x() / (width as i32 / px8::SCREEN_WIDTH as i32));
+            self.players.lock().unwrap().set_mouse_y(mouse_state.y() / (height as i32 / px8::SCREEN_HEIGHT as i32));
+            self.players.lock().unwrap().set_mouse_state(mouse_state);
 
             if mouse_state.left() {
                 debug!("MOUSE X {:?} Y {:?}",
@@ -442,77 +442,156 @@ impl Frontend {
 
             for event in self.event_pump.poll_iter() {
                 match event {
+                    Event::Quit { .. } => break 'main,
+                    Event::KeyDown { keycode: Some(keycode), .. } if keycode == Keycode::Escape => break 'main,
                     Event::Window { win_event: WindowEvent::SizeChanged(_, _), .. } => {
                         self.renderer.update_dimensions();
                     },
                     Event::KeyDown { keycode: Some(keycode), repeat, .. } => {
                         if let (Some(key), player) = map_keycode(keycode) {
-                            players.lock().unwrap().key_down(player, key, repeat, self.elapsed_time);
+                            self.players.lock().unwrap().key_down(player, key, repeat, self.elapsed_time);
                         }
 
                         if keycode == Keycode::F2 {
                             self.px8.toggle_info_overlay();
+                        } else if keycode == Keycode::F3 {
+                            let dt = Local::now();
+                            self.px8.screenshot("screenshot-".to_string() + &dt.format("%Y-%m-%d-%H-%M-%S.png").to_string());
+                        } else if keycode == Keycode::F4 {
+                            let record_screen = self.px8.is_recording();
+                            if ! record_screen {
+                                let dt = Local::now();
+                                self.px8.start_record("record-".to_string() + &dt.format("%Y-%m-%d-%H-%M-%S.gif").to_string());
+                            } else {
+                                self.px8.stop_record(self.scale.factor());
+                            }
+                        } else if keycode == Keycode::F5 {
+                            if editor {
+                                let dt = Local::now();
+                                self.px8.save_current_cartridge(dt.format("%Y-%m-%d-%H-%M-%S").to_string());
+                            }
+                        } else if keycode == Keycode::F6 && editor {
+                            self.px8.switch_code();
+                            // Call the init of the new code
+                            self.px8.init_time = self.px8.call_init() * 1000.0;
                         }
 
-                        let pause = players.lock().unwrap().get_value_quick(0, 7) == 1;
-                        if pause {
-                            self.px8.pause();
+                        if self.players.lock().unwrap().get_value_quick(0, 7) == 1 {
+                            self.px8.switch_pause();
                         }
                     },
                     Event::KeyUp { keycode: Some(keycode), .. } => {
-                        if let (Some(key), player) = map_keycode(keycode) { players.lock().unwrap().key_up(player, key) }
+                        if let (Some(key), player) = map_keycode(keycode) {
+                            self.players.lock().unwrap().key_up(player, key)
+                        }
                     },
 
                     Event::ControllerButtonDown { which: id, button, .. } => {
-                        info!("Controller button Down {:?} {:?}", id, button);
-                        if let Some(key) = map_button(button) { players.lock().unwrap().key_down(0, key, false, self.elapsed_time) }
+                        if !self.controllers.is_controller(id as u32) {
+                            break;
+                        }
+
+                        info!("ID [{:?}] Controller button Down {:?}", id, button);
+                        if let Some(key) = map_button(button) {
+                            self.players.lock().unwrap().key_down(0, key, false, self.elapsed_time)
+                        }
                     },
 
                     Event::ControllerButtonUp { which: id, button, .. } => {
-                        info!("Controller button UP {:?} {:?}", id, button);
-                        if let Some(key) = map_button(button) { players.lock().unwrap().key_up(0, key) }
+                        if !self.controllers.is_controller(id as u32) {
+                            break;
+                        }
+
+                        info!("ID [{:?}] Controller button UP {:?}", id, button);
+                        if let Some(key) = map_button(button) {
+                            self.players.lock().unwrap().key_up(0, key)
+                        }
+                    },
+
+                    Event::ControllerAxisMotion { which: id, axis, value, .. } => {
+                        if !self.controllers.is_controller(id as u32) {
+                            break;
+                        }
+
+                        info!("ID [{:?}] Controller Axis Motion {:?} {:?}", id, axis, value);
+
+                        if let Some((key, state)) = map_axis(axis, value) {
+                            info!("Key {:?} State {:?}", key, state);
+
+
+                            if axis == Axis::LeftX && value == 128 {
+                                self.players.lock().unwrap().key_direc_hor_up(0);
+                            } else if axis == Axis::LeftY && value == -129 {
+                                self.players.lock().unwrap().key_direc_ver_up(0);
+                            } else {
+                                if state {
+                                    self.players.lock().unwrap().key_down(0, key, false, self.elapsed_time)
+                                } else {
+                                    self.players.lock().unwrap().key_up(0, key)
+                                }
+                            }
+                        }
                     },
 
                     Event::JoyAxisMotion { which: id, axis_idx, value, .. } => {
-                        info!("Joystick Axis Motion {:?} {:?} {:?}", id, axis_idx, value);
+                        if !self.controllers.is_joystick(id as u32) {
+                            break;
+                        }
+
+                        info!("ID [{:?}] Joystick Axis Motion {:?} {:?}", id, axis_idx, value);
 
                         if let Some((key, state)) = map_axis_joystick(axis_idx, value) {
                             info!("Joystick Key {:?} State {:?}", key, state);
 
                             if axis_idx == 0 && value == 128 {
-                                players.lock().unwrap().key_direc_hor_up(0);
+                                self.players.lock().unwrap().key_direc_hor_up(0);
                             } else if axis_idx == 1 && value == -129 {
-                                players.lock().unwrap().key_direc_ver_up(0);
+                                self.players.lock().unwrap().key_direc_ver_up(0);
                             } else {
                                 if state {
-                                    players.lock().unwrap().key_down(0, key, false, self.elapsed_time)
+                                    self.players.lock().unwrap().key_down(0, key, false, self.elapsed_time)
                                 } else {
-                                    players.lock().unwrap().key_up(0, key)
+                                    self.players.lock().unwrap().key_up(0, key)
                                 }
                             }
                         }
                     },
 
                     Event::JoyButtonDown { which: id, button_idx, .. } => {
-                        info!("Joystick button DOWN {:?} {:?}", id, button_idx);
-                        if let Some(key) = map_button_joystick(button_idx) { players.lock().unwrap().key_down(0, key, false, self.elapsed_time) }
+                        if !self.controllers.is_joystick(id as u32) {
+                            break;
+                        }
+
+                        info!("ID [{:?}] Joystick button DOWN {:?}", id, button_idx);
+                        if let Some(key) = map_button_joystick(button_idx) {
+                            self.players.lock().unwrap().key_down(0, key, false, self.elapsed_time)
+                        }
                     },
 
                     Event::JoyButtonUp { which: id, button_idx, .. } => {
-                        info!("Joystick Button {:?} {:?} UP", id, button_idx);
-                        if let Some(key) = map_button_joystick(button_idx) { players.lock().unwrap().key_up(0, key) }
+                        if !self.controllers.is_joystick(id as u32) {
+                            break;
+                        }
+
+                        info!("ID [{:?}] Joystick Button UP {:?}", id, button_idx);
+                        if let Some(key) = map_button_joystick(button_idx) {
+                            self.players.lock().unwrap().key_up(0, key)
+                        }
                     },
 
                     _ => (),
                 }
             }
 
-            self.px8.update(players.clone());
+            if !self.px8.update(self.players.clone()) {
+                break 'main;
+            }
+
             self.px8.draw();
 
             self.px8.debug_update();
 
-            self.update_time(players.clone());
+            self.update_time();
             self.blit();
         });
     }
