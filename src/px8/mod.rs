@@ -14,6 +14,8 @@ use time;
 use chan;
 use chan::{Receiver, Sender};
 
+use nalgebra::clamp;
+
 use image;
 
 use gif;
@@ -200,25 +202,71 @@ pub enum Code {
 
 pub struct Menu {
     idx: u32,
+    selected_idx: i32,
     items: Vec<String>,
 }
 
 impl Menu {
     pub fn new() -> Menu {
-        Menu { idx: 0, items: Vec::new() }
+        let mut items = Vec::new();
+
+        items.push("Continue".to_string());
+        items.push("Config".to_string());
+        items.push("Quit".to_string());
+
+        Menu {
+            idx: 0,
+            selected_idx: -1,
+            items: items.clone(),
+        }
     }
 
-    pub fn update(&self) {
+    pub fn reset(&mut self) {
+        self.selected_idx = -1;
+        self.idx = 0;
+    }
 
+    pub fn stop(&mut self) -> bool {
+        // Continue is clicked
+        self.selected_idx == 0
+    }
+
+    pub fn update(&mut self, players: Arc<Mutex<Players>>) -> bool {
+        info!("{:?} {:?}", self.selected_idx, players.lock().unwrap().btnp(0, 6));
+
+        if players.lock().unwrap().btnp(0, 6) {
+            self.selected_idx = self.idx as i32;
+            if self.selected_idx == 2 {
+                return false;
+            }
+
+            self.selected_idx = -1;
+        }
+        else {
+            if players.lock().unwrap().btnp(0, 2) {
+                self.idx = clamp(self.idx - 1, 0, (self.items.len() as u32) - 1);
+            }
+
+            if players.lock().unwrap().btnp(0, 3) {
+                self.idx = clamp(self.idx + 1, 0, (self.items.len() as u32) - 1);
+            }
+        }
+
+        return true;
     }
 
     pub fn draw(&self, screen: Arc<Mutex<gfx::Screen>>) {
-        screen.lock().unwrap().rectfill(40, 50, 90, 80, Color::Black);
+        if self.selected_idx == -1 {
+            screen.lock().unwrap().rectfill(40, 50, 90, 80, Color::Black);
 
-        screen.lock().unwrap().pset(45, 59, Color::White);
+            screen.lock().unwrap().pset(45, 57 + (self.idx as i32) * 10, Color::White);
 
-        screen.lock().unwrap().print("Continue".to_string(), 50, 55, Color::White);
-        screen.lock().unwrap().print("Quit".to_string(), 50, 65, Color::White);
+            let mut pos = 0;
+            for item in &self.items {
+                screen.lock().unwrap().print(item.to_string(), 50, 55 + pos * 10, Color::White);
+                pos += 1;
+            }
+        }
     }
 }
 
@@ -313,7 +361,11 @@ impl Px8New {
     pub fn update(&mut self, players: Arc<Mutex<Players>>) -> bool {
         match self.state {
             PX8State::PAUSE => {
-                self.menu.update();
+                if self.menu.stop() {
+                    self.state = PX8State::RUN;
+                }
+
+                return self.menu.update(players);
             },
             PX8State::RUN => {
                 if self.is_end() {
@@ -484,9 +536,12 @@ impl Px8New {
         match self.state {
             PX8State::PAUSE => {
                 self.state = PX8State::RUN;
+                self.screen.lock().unwrap().restore();
             },
             PX8State::RUN => {
+                self.menu.reset();
                 self.state = PX8State::PAUSE;
+                self.screen.lock().unwrap().save();
             }
         }
     }

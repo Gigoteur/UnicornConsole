@@ -65,6 +65,7 @@ pub fn map_keycode(key: Keycode) -> (Option<PX8Key>, u8) {
 
         Keycode::P => (Some(PX8Key::Pause), 0),
         Keycode::KpEnter => (Some(PX8Key::Enter), 0),
+        Keycode::Return => (Some(PX8Key::Enter), 0),
 
         _ => (None, 0)
     }

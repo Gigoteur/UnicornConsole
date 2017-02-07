@@ -283,6 +283,7 @@ impl Clipping {
 
 pub struct Screen {
     pub back_buffer: Box<px8::ScreenBuffer>,
+    pub saved_back_buffer: Box<px8::ScreenBuffer>,
     pub sprites: Vec<Sprite>,
     pub map: [[u32; 32]; px8::SCREEN_WIDTH],
     pub transparency: [u8; 16],
@@ -299,12 +300,17 @@ impl Screen {
     pub fn new() -> Screen {
         Screen {
             back_buffer: Box::new(px8::SCREEN_EMPTY),
+            saved_back_buffer: Box::new(px8::SCREEN_EMPTY),
+
             sprites: Vec::new(),
             map: [[0; 32]; px8::SCREEN_WIDTH],
+
             transparency: [0; 16],
             colors: [px8::Color::Black; 16],
-            camera: Camera::new(),
             color: px8::Color::Black,
+
+            camera: Camera::new(),
+
             clipping: Clipping::new(),
         }
     }
@@ -350,6 +356,18 @@ impl Screen {
         self.colors[13] = px8::Color::Indigo;
         self.colors[14] = px8::Color::Pink;
         self.colors[15] = px8::Color::Peach;
+    }
+
+    pub fn save(&mut self) {
+        for i in 0..px8::SCREEN_PIXELS {
+            self.saved_back_buffer[i] = self.back_buffer[i];
+        }
+    }
+
+    pub fn restore(&mut self) {
+        for i in 0..px8::SCREEN_PIXELS {
+            self.back_buffer[i] = self.saved_back_buffer[i];
+        }
     }
 
     pub fn camera(&mut self, x: i32, y: i32) {

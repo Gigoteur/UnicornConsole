@@ -370,48 +370,30 @@ impl Players {
 
 
     pub fn get_value_quick(&mut self, player: u8, index: u8) -> u8 {
-        let mut value = 0;
-
-        match self.keys.get_mut(&player) {
+        match self.keys.get(&player) {
             Some(keys) => {
-                if index == 0 {
-                    if keys.left_quick {
-                        value = 1;
-                    }
-                } else if index == 1 {
-                    if keys.right_quick {
-                        value = 1;
-                    }
-                } else if index == 2 {
-                    if keys.up_quick {
-                        value = 1;
-                    }
-                } else if index == 3 {
-                    if keys.down_quick {
-                        value = 1;
-                    }
-                } else if index == 4 {
-                    if keys.o_quick {
-                        value = 1;
-                    }
-                } else if index == 5 {
-                    if keys.x_quick {
-                        value = 1;
-                    }
-                } else if index == 6 {
-                    if keys.enter_quick {
-                        value = 1;
-                    }
-                } else if index == 7 {
-                    if keys.pause_quick {
-                        value = 1;
-                    }
+                match index {
+                    0 if keys.left_quick => 1,
+                    1 if keys.right_quick => 1,
+                    2 if keys.up_quick => 1,
+                    3 if keys.down_quick => 1,
+                    4 if keys.o_quick => 1,
+                    5 if keys.x_quick => 1,
+                    6 if keys.enter_quick => 1,
+                    7 if keys.pause_quick => 1,
+                    _ => 0
                 }
             },
-            None => ()
+            None => 0
         }
+    }
 
-        return value;
+    pub fn btn(&mut self, player: u8, index: u8) -> bool {
+        self.get_value(player, index) == 1
+    }
+
+    pub fn btnp(&mut self, player: u8, index: u8) -> bool {
+        self.get_value_quick(player, index) == 1
     }
 
     pub fn get_mouse(&mut self, index: u8) -> i32 {
