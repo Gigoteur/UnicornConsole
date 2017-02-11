@@ -232,15 +232,11 @@ impl Menu {
     }
 
     pub fn update(&mut self, players: Arc<Mutex<Players>>) -> bool {
-        info!("{:?} {:?}", self.selected_idx, players.lock().unwrap().btnp(0, 6));
-
         if players.lock().unwrap().btnp(0, 6) {
             self.selected_idx = self.idx as i32;
             if self.selected_idx == 2 {
                 return false;
             }
-
-            self.selected_idx = -1;
         }
         else {
             if players.lock().unwrap().btnp(0, 2) {
@@ -266,6 +262,11 @@ impl Menu {
                 screen.lock().unwrap().print(item.to_string(), 50, 55 + pos * 10, Color::White);
                 pos += 1;
             }
+        }
+
+        if self.selected_idx == 1 {
+            screen.lock().unwrap().cls();
+           // screen.lock().unwrap().print(item.to_string(), 50, 55 + pos * 10, Color::White);
         }
     }
 }

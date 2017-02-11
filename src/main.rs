@@ -179,6 +179,6 @@ pub fn start_px8(scale: gfx::Scale, fullscreen: bool, filename: String, editor: 
         Ok(frontend) => frontend
     };
 
-    frontend.start();
+    frontend.start("./sys/config/gamecontrollerdb.txt".to_string());
     frontend.run_cartridge(filename, editor);
 }

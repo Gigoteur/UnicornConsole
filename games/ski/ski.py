@@ -185,6 +185,12 @@ class Peoples(object):
         for people in self.l:
             people.draw()
 
+    def collides(self, players):
+        for player in players:
+            for people in self.l:
+                if collides(people, player):
+                    print("COLLIDE BETWEEN ", people, player)
+
 class People(object):
     def __init__(self, config):
         self.config = config
@@ -216,6 +222,17 @@ class People(object):
     def draw(self):
         spr(3, self.x, self.y + 2)
         spr(self.f + self.f_offset, self.x, self.y)
+
+class Yeti(object):
+    def __init__(self, config):
+        self.config = config
+
+        self.anim_tick = 0
+        self.f = 24
+        self.y = -70
+        self.x = 60
+        self.vy = 0.3
+        self.howl = False
 
 class Particle(object):
     def __init__(self, config, x, y, col):
@@ -334,7 +351,6 @@ def _update():
 
         for tree in trees:
             if collides(tree, players[0]):
-                print("BOOM")
                 if not players[0].dead:
                     shakescreen = 50
                 players[0].set_dead()
@@ -343,6 +359,8 @@ def _update():
                 particles.add(tree.x + 4, tree.y + 4, tree.col, 10)
 
                 tree.y = -150
+
+        peoples.collides(players)
 
     if timer % 100 == 0:
             trees.append(Tree(config))
@@ -374,18 +392,6 @@ def fade_out(fa=0.2):
     for n in range(1, pn):
         pal(n,fades[n][fi],0)
 
-def fade_out2():
-    dpal=[0,1,1, 2,1,13,6,
-          4,4,9,3, 13,1,13,14]
-
-    for i in range(0, 40):
-        for j in range(1, 15):
-            col = j
-            for k in range(1, math.floor(((i+(j%5))/4))):
-                col=dpal[col]
-            pal(j,col,1)
-
-
 def logo_draw():
     global logo
     w = 8
@@ -395,7 +401,6 @@ def logo_draw():
 
     for x in range(0, w):
         for y in range(0, h):
-            #print(x+start + (y * 16), logo.x + (x * 8), logo.y + (y*8))
             spr(x+start + (y * 16), logo.x + (x * 8), logo.y + (y*8))
 
 def do_shakescreen():

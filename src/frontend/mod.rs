@@ -134,12 +134,12 @@ impl Frontend {
         })
     }
 
-    pub fn start(&mut self) {
+    pub fn start(&mut self, pathdb: String) {
         self.start_time = time::now();
         self.times.reset();
 
         info!("Frontend: initialise controllers");
-        self.init_controllers();
+        self.init_controllers(pathdb);
 
         info!("Frontend: initialise PX8");
         self.px8.init();
@@ -157,13 +157,13 @@ impl Frontend {
         self.players.lock().unwrap().update(self.elapsed_time);
     }
 
-    pub fn init_controllers(&mut self) {
+    pub fn init_controllers(&mut self, pathdb: String) {
         info!("Init Controllers");
 
         let game_controller_subsystem = self.sdl.game_controller().unwrap();
 
         info!("Loading the database of Game Controller");
-        info!("-> {:?}", game_controller_subsystem.load_mappings(Path::new("./sys/config/gamecontrollerdb.txt")));
+        info!("-> {:?}", game_controller_subsystem.load_mappings(Path::new(&pathdb)));
 
         let available =
         match game_controller_subsystem.num_joysticks() {
