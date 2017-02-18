@@ -1,4 +1,5 @@
 use std::fmt;
+use std::collections::HashMap;
 
 use px8;
 
@@ -286,10 +287,10 @@ pub struct Screen {
     pub saved_back_buffer: Box<px8::ScreenBuffer>,
     pub sprites: Vec<Sprite>,
     pub map: [[u32; 32]; px8::SCREEN_WIDTH],
-    pub transparency: [u8; 16],
-    pub colors: [px8::Color; 16],
+    pub transparency: HashMap<u32, u8>,
+    pub colors: HashMap<u32, u32>,
     pub camera: Camera,
-    pub color: px8::Color,
+    pub color: u32,
     pub clipping: Clipping,
 }
 
@@ -305,9 +306,9 @@ impl Screen {
             sprites: Vec::new(),
             map: [[0; 32]; px8::SCREEN_WIDTH],
 
-            transparency: [0; 16],
-            colors: [px8::Color::Black; 16],
-            color: px8::Color::Black,
+            transparency: HashMap::new(),
+            colors:  HashMap::new(),
+            color: 0,
 
             camera: Camera::new(),
 
@@ -321,41 +322,30 @@ impl Screen {
     }
 
     pub fn _reset_transparency(&mut self) {
-        self.transparency[0] = 1;
-        self.transparency[1] = 0;
-        self.transparency[2] = 0;
-        self.transparency[3] = 0;
-        self.transparency[4] = 0;
-        self.transparency[5] = 0;
-        self.transparency[6] = 0;
-        self.transparency[7] = 0;
-        self.transparency[8] = 0;
-        self.transparency[9] = 0;
-        self.transparency[10] = 0;
-        self.transparency[11] = 0;
-        self.transparency[12] = 0;
-        self.transparency[13] = 0;
-        self.transparency[14] = 0;
-        self.transparency[15] = 0;
+        self.transparency.clear();
+        self.transparency.insert(0, 1);
     }
 
     pub fn _reset_colors(&mut self) {
-        self.colors[0] = px8::Color::Black;
-        self.colors[1] = px8::Color::DarkBlue;
-        self.colors[2] = px8::Color::DarkPurple;
-        self.colors[3] = px8::Color::DarkGreen;
-        self.colors[4] = px8::Color::Brown;
-        self.colors[5] = px8::Color::DarkGray;
-        self.colors[6] = px8::Color::LightGray;
-        self.colors[7] = px8::Color::White;
-        self.colors[8] = px8::Color::Red;
-        self.colors[9] = px8::Color::Orange;
-        self.colors[10] = px8::Color::Yellow;
-        self.colors[11] = px8::Color::Green;
-        self.colors[12] = px8::Color::Blue;
-        self.colors[13] = px8::Color::Indigo;
-        self.colors[14] = px8::Color::Pink;
-        self.colors[15] = px8::Color::Peach;
+        self.colors.clear();
+        /*
+                self.colors[0] = px8::Color::Black;
+                self.colors[1] = px8::Color::DarkBlue;
+                self.colors[2] = px8::Color::DarkPurple;
+                self.colors[3] = px8::Color::DarkGreen;
+                self.colors[4] = px8::Color::Brown;
+                self.colors[5] = px8::Color::DarkGray;
+                self.colors[6] = px8::Color::LightGray;
+                self.colors[7] = px8::Color::White;
+                self.colors[8] = px8::Color::Red;
+                self.colors[9] = px8::Color::Orange;
+                self.colors[10] = px8::Color::Yellow;
+                self.colors[11] = px8::Color::Green;
+                self.colors[12] = px8::Color::Blue;
+                self.colors[13] = px8::Color::Indigo;
+                self.colors[14] = px8::Color::Pink;
+                self.colors[15] = px8::Color::Peach;
+                */
     }
 
     pub fn save(&mut self) {
@@ -368,6 +358,15 @@ impl Screen {
         for i in 0..px8::SCREEN_PIXELS {
             self.back_buffer[i] = self.saved_back_buffer[i];
         }
+    }
+
+    pub fn _find_color(&mut self, col: i32) -> u32 {
+        // no specified color
+        if col == -1 {
+            return self.color;
+        }
+
+        return col as u32;
     }
 
     pub fn camera(&mut self, x: i32, y: i32) {
@@ -388,7 +387,7 @@ impl Screen {
         self.map = map;
     }
 
-    pub fn putpixel_(&mut self, x: i32, y: i32, col: px8::Color) {
+    pub fn putpixel_(&mut self, x: i32, y: i32, col: u32) {
         // Camera
         let x = (x as i32 - self.camera.x) as usize;
         let y = (y as i32 - self.camera.y) as usize;
@@ -411,42 +410,42 @@ impl Screen {
             }
         }
 
-        col = self.colors[col as usize];
+        match self.colors.get(&col) {
+            Some(&value) => col = value,
+            None => (),
+        }
+     //   col = self.colors[col as usize];
 
         self.back_buffer[x + y * SCREEN_WIDTH] = col;
     }
 
-    pub fn color(&mut self, col: px8::Color) {
-        if col != px8::Color::UNKNOWN {
-            self.color = col;
+    pub fn color(&mut self, col: i32) {
+        if col != -1 {
+            self.color = col as u32;
         }
     }
 
-    pub fn putpixel(&mut self, x: i32, y: i32, col: px8::Color) {
+    pub fn putpixel(&mut self, x: i32, y: i32, col: u32) {
         return self.putpixel_(x, y, col);
     }
 
-    pub fn getpixel(&mut self, x: usize, y: usize) -> u8 {
+    pub fn getpixel(&mut self, x: usize, y: usize) -> u32 {
         if x >= SCREEN_WIDTH || y >= SCREEN_HEIGHT {
             return 0;
         }
 
-        return self.back_buffer[x + y * SCREEN_WIDTH] as u8;
+        return self.back_buffer[x + y * SCREEN_WIDTH] as u32;
     }
 
-    pub fn pget(&mut self, x: u32, y: u32) -> u8 {
+    pub fn pget(&mut self, x: u32, y: u32) -> u32 {
         let col = self.getpixel(x as usize, y as usize);
         return col;
     }
 
 
-    pub fn pset(&mut self, x: i32, y: i32, col: px8::Color) {
-        let mut col = col;
-        if col == px8::Color::UNKNOWN {
-            col = self.color;
-        }
-
-        self.putpixel_(x, y, col);
+    pub fn pset(&mut self, x: i32, y: i32, col: i32) {
+        let color = self._find_color(col);
+        self.putpixel_(x, y, color);
     }
 
     pub fn sget(&mut self, x: u32, y: u32) -> u8 {
@@ -455,33 +454,25 @@ impl Screen {
         return *sprite.data.get(((x % 8) + (y % 8) * 8) as usize).unwrap();
     }
 
-    pub fn sset(&mut self, x: u32, y: u32, col: px8::Color) {
-        let mut col = col;
-        if col == px8::Color::UNKNOWN {
-            col = self.color;
-        }
+    pub fn sset(&mut self, x: u32, y: u32, col: i32) {
+        let col = self._find_color(col);
 
         let idx_sprite = (x / 8) + 16 * (y / 8);
         let ref mut sprite = self.sprites[idx_sprite as usize];
-        sprite.set_data(((x % 8) + (y % 8) * 8) as usize, px8::Color::to_u8(col));
+        sprite.set_data(((x % 8) + (y % 8) * 8) as usize, col as u8);
     }
 
     pub fn cls(&mut self) {
         for x in 0..SCREEN_WIDTH {
             for y in 0..SCREEN_HEIGHT {
-                self.putpixel(x as i32, y as i32, px8::Color::Black);
+                self.putpixel(x as i32, y as i32, 0);
             }
         }
     }
 
-    pub fn print(&mut self, string: String, x: i32, y: i32, col: px8::Color) {
+    pub fn print(&mut self, string: String, x: i32, y: i32, col: i32) {
         let mut x = x;
         let y = y;
-
-        let mut col = col;
-        if col == px8::Color::UNKNOWN {
-            col = self.color;
-        }
 
         for k in 0..string.len() {
             let value = string.as_bytes()[k] as usize;
@@ -515,13 +506,10 @@ impl Screen {
         }
     }
 
-    pub fn line(&mut self, x0: i32, y0: i32, x1: i32, y1: i32, col: px8::Color) {
-        let mut col = col;
-        if col == px8::Color::UNKNOWN {
-            col = self.color;
-        }
+    pub fn line(&mut self, x0: i32, y0: i32, x1: i32, y1: i32, col: i32) {
+        debug!("LINE {:?} {:?} {:?} {:?} {:?}", x0, y0, x1, y1, col);
 
-        debug!("LINE {:?} {:?} {:?} {:?} {:?}", x0, y0, x1, y1, col as u8);
+        let color = self._find_color(col);
 
         let (mut x0, mut y0) = (x0, y0);
         let (x1, y1) = (x1, y1);
@@ -534,7 +522,7 @@ impl Screen {
         let mut err: i32 = dx + dy; /* error value e_xy */
 
         loop {
-            self.putpixel(x0, y0, col);
+            self.putpixel(x0, y0, color);
             if x0 == x1 && y0 == y1 {
                 break;
             }
@@ -551,18 +539,18 @@ impl Screen {
         }
     }
 
-    pub fn hline(&mut self, x1: i32, x2: i32, y: i32, col: px8::Color) {
+    pub fn hline(&mut self, x1: i32, x2: i32, y: i32, col: i32) {
         self.line(x1, y, x2, y, col);
     }
 
-    pub fn rect(&mut self, x0: i32, y0: i32, x1: i32, y1: i32, col: px8::Color) {
+    pub fn rect(&mut self, x0: i32, y0: i32, x1: i32, y1: i32, col: i32) {
         self.line(x0, y0, x0, y1, col);
         self.line(x0, y0, x1, y0, col);
         self.line(x0, y1, x1, y1, col);
         self.line(x1, y0, x1, y1, col);
     }
 
-    pub fn rectfill(&mut self, x0: i32, y0: i32, x1: i32, y1: i32, col: px8::Color) {
+    pub fn rectfill(&mut self, x0: i32, y0: i32, x1: i32, y1: i32, col: i32) {
         self.line(x0, y0, x0, y1, col);
         self.line(x0, y0, x1, y0, col);
         self.line(x0, y1, x1, y1, col);
@@ -574,23 +562,20 @@ impl Screen {
         }
     }
 
-    pub fn square(&mut self, x0: i32, y0: i32, h: i32, col: px8::Color) {
+    pub fn square(&mut self, x0: i32, y0: i32, h: i32, col: i32) {
         self.rect(x0, y0, x0 + h, y0 + h, col);
     }
 
-    pub fn squarefill(&mut self, x0: i32, y0: i32, h: i32, col: px8::Color) {
+    pub fn squarefill(&mut self, x0: i32, y0: i32, h: i32, col: i32) {
         self.rectfill(x0, y0, x0 + h, y0 + h, col);
     }
 
-    pub fn circ(&mut self, x: i32, y: i32, r: i32, col: px8::Color) {
+    pub fn circ(&mut self, x: i32, y: i32, r: i32, col: i32) {
         if r <= 0 {
             return;
         }
 
-        let mut col = col;
-        if col == px8::Color::UNKNOWN {
-            col = self.color;
-        }
+        let col = self._find_color(col);
 
         let mut h: i32;
         let mut i: i32;
@@ -668,14 +653,9 @@ impl Screen {
         }
     }
 
-    pub fn circfill(&mut self, x: i32, y: i32, r: i32, col: px8::Color) {
+    pub fn circfill(&mut self, x: i32, y: i32, r: i32, col: i32) {
         if r <= 0 {
             return;
-        }
-
-        let mut col = col;
-        if col == px8::Color::UNKNOWN {
-            col = self.color;
         }
 
         let mut h: i32;
@@ -765,7 +745,7 @@ impl Screen {
         self.clipping.clipped = true;
     }
 
-    pub fn trigon(&mut self, x1: i32, y1: i32, x2: i32, y2: i32, x3: i32, y3: i32, col: px8::Color) {
+    pub fn trigon(&mut self, x1: i32, y1: i32, x2: i32, y2: i32, x3: i32, y3: i32, col: i32) {
         let mut vx = Vec::new();
         let mut vy = Vec::new();
 
@@ -781,7 +761,7 @@ impl Screen {
     }
 
 
-    pub fn polygon(&mut self, vx: Vec<i32>, vy: Vec<i32>, col: px8::Color) {
+    pub fn polygon(&mut self, vx: Vec<i32>, vy: Vec<i32>, col: i32) {
         if vx.len() < 3 || vy.len() < 3 {
             return;
         }
@@ -836,8 +816,8 @@ impl Screen {
 
             let mut index = 0;
             for c in &sprite.data {
-                if self.transparency[*c as usize] == 0 {
-                    self.putpixel_(new_x, new_y, px8::Color::from_u8(*c));
+                if ! self.is_transparent(*c as u32) {
+                    self.putpixel_(new_x, new_y, *c as u32);
                 }
 
                 index = index + 1;
@@ -898,8 +878,8 @@ impl Screen {
 
                 let mut index = 0;
                 for c in &sprite.data {
-                    if self.transparency[*c as usize] == 0 {
-                        self.putpixel_(new_x, new_y, px8::Color::from_u8(*c));
+                    if ! self.is_transparent(*c as u32) {
+                        self.putpixel_(new_x, new_y, *c as u32);
                     }
 
                     index = index + 1;
@@ -998,19 +978,33 @@ impl Screen {
                 let d:u8 = *ret.get(idx).unwrap();
                 idx += 1;
                 if d != 0 {
-                    if self.transparency[d as usize] == 0 {
-                        self.putpixel_(i as i32 + dx, j as i32 + dy, px8::Color::from_u8(d));
+                    if ! self.is_transparent(d as u32) {
+                        self.putpixel_(i as i32 + dx, j as i32 + dy, d as u32);
                     }
+                    //if self.transparency[d as usize] == 0 {
+                    //    self.putpixel_(i as i32 + dx, j as i32 + dy, px8::Color::from_u8(d));
+                   // }
                 }
             }
         }
     }
 
+    pub fn is_transparent(&mut self, value: u32) -> bool {
+        match self.transparency.get(&(value as u32)) {
+            Some(&1) => {
+                return true;
+            },
+            Some(&_) => (),
+            None => (),
+        }
+        return false;
+    }
+
     pub fn pal(&mut self, c0: i32, c1: i32) {
-        if c0 == -1 && c1 == -1 {
+        if c0 < 0 || c1 < 0 {
             self._reset_colors();
         } else {
-            self.colors[c0 as usize] = px8::Color::from_u8(c1 as u8);
+            self.colors.insert(c0 as u32, c1 as u32);
         }
     }
 
@@ -1018,7 +1012,7 @@ impl Screen {
         if c == -1 {
             self._reset_transparency();
         } else {
-            self.transparency[c as usize] = t as u8;
+            self.transparency.insert(c as u32, t as u8);
         }
     }
 }

@@ -336,9 +336,9 @@ pub mod renderer {
 
             let window;
             if fullscreen {
-                window = window_builder.fullscreen().build().unwrap();
+                window = window_builder.fullscreen().opengl().build().unwrap();
             } else {
-                window = window_builder.resizable().position_centered().build().unwrap();
+                window = window_builder.resizable().position_centered().opengl().build().unwrap();
             }
 
             info!("[SDL] Creating renderer");
@@ -362,7 +362,7 @@ pub mod renderer {
 
             for x in 0..px8::SCREEN_WIDTH {
                 for y in 0..px8::SCREEN_HEIGHT {
-                    let col_rgb = px8::Color::to_rgb(back_buffer[x + y * px8::SCREEN_WIDTH]);
+                    let col_rgb = px8::to_rgb(back_buffer[x + y * px8::SCREEN_WIDTH]);
 
                     data[(x+y*px8::SCREEN_WIDTH)*3] = col_rgb.b;
                     data[(x+y*px8::SCREEN_WIDTH)*3+1] = col_rgb.g;

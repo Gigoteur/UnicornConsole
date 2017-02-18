@@ -6,20 +6,31 @@ pub mod plugin {
     use std::fs::File;
     use std::io::Read;
 
-    use gfx;
-    use gfx::Sprite;
     use config::Players;
     use px8::info::Info;
     use px8;
     use gfx::Screen;
+    use sound::Sound;
 
     py_class!(class PX8Instance |py| {
-    data member: i32;
     data screen: Arc<Mutex<Screen>>;
     data players: Arc<Mutex<Players>>;
     data info: Arc<Mutex<Info>>;
+    data sound: Arc<Mutex<Sound>>;
 
     // Audio
+    def sound_load(&self, filename: String) -> PyResult<i32> {
+        self.sound(py).lock().unwrap().load(filename);
+        Ok(0)
+    }
+
+    def sound_play(&self, filename: String) -> PyResult<i32> {
+        Ok(0)
+    }
+
+    def sound_stop(&self, filename: String) -> PyResult<i32> {
+        Ok(0)
+    }
 
     // Cart Data
 
@@ -31,12 +42,12 @@ pub mod plugin {
     }
 
     def circ(&self, x: i32, y: i32, r: i32, color: i32) -> PyResult<i32> {
-        self.screen(py).lock().unwrap().circ(x, y, r, px8::Color::from_u8(color as u8));
+        self.screen(py).lock().unwrap().circ(x, y, r, color);
         Ok(0)
     }
 
     def circfill(&self, x: i32, y: i32, r: i32, color: i32) -> PyResult<i32> {
-        self.screen(py).lock().unwrap().circfill(x, y, r, px8::Color::from_u8(color as u8));
+        self.screen(py).lock().unwrap().circfill(x, y, r, color);
         Ok(0)
     }
 
@@ -50,8 +61,8 @@ pub mod plugin {
         Ok(0)
     }
 
-    def color(&self, color:u8) -> PyResult<i32> {
-        self.screen(py).lock().unwrap().color(px8::Color::from_u8(color as u8));
+    def color(&self, color:i32) -> PyResult<i32> {
+        self.screen(py).lock().unwrap().color(color);
         Ok(0)
     }
 
@@ -60,7 +71,7 @@ pub mod plugin {
     }
 
     def line(&self, x1: i32, y1: i32, x2: i32, y2: i32, color: i32) -> PyResult<i32> {
-        self.screen(py).lock().unwrap().line(x1, y1, x2, y2, px8::Color::from_u8(color as u8));
+        self.screen(py).lock().unwrap().line(x1, y1, x2, y2, color);
         Ok(0)
     }
 
@@ -75,27 +86,27 @@ pub mod plugin {
     }
 
     def pset(&self, x: i32, y: i32, color: i32) -> PyResult<i32> {
-        self.screen(py).lock().unwrap().pset(x, y, px8::Color::from_u8(color as u8));
+        self.screen(py).lock().unwrap().pset(x, y, color);
         Ok(0)
     }
 
     def print(&self, str: String, x: i32, y: i32, color: i32) -> PyResult<i32> {
-        self.screen(py).lock().unwrap().print(str, x as i32, y as i32, px8::Color::from_u8(color as u8));
+        self.screen(py).lock().unwrap().print(str, x as i32, y as i32, color);
         Ok(0)
     }
 
-    def pget(&self, x: i32, y: i32) -> PyResult<u8> {
+    def pget(&self, x: i32, y: i32) -> PyResult<u32> {
         let value = self.screen(py).lock().unwrap().pget(x as u32, y as u32);
         Ok(value)
     }
 
     def rect(&self, x1: i32, y1: i32, x2: i32, y2: i32, color: i32) -> PyResult<i32> {
-        self.screen(py).lock().unwrap().rect(x1, y1, x2, y2, px8::Color::from_u8(color as u8));
+        self.screen(py).lock().unwrap().rect(x1, y1, x2, y2, color);
         Ok(0)
     }
 
     def rectfill(&self, x1: i32, y1: i32, x2: i32, y2: i32, color: i32) -> PyResult<i32> {
-        self.screen(py).lock().unwrap().rectfill(x1, y1, x2, y2, px8::Color::from_u8(color as u8));
+        self.screen(py).lock().unwrap().rectfill(x1, y1, x2, y2, color);
         Ok(0)
     }
 
@@ -116,7 +127,7 @@ pub mod plugin {
     }
 
     def sset(&self, x: i32, y: i32, color: i32) -> PyResult<u8> {
-        self.screen(py).lock().unwrap().sset(x as u32, y as u32, px8::Color::from_u8(color as u8));
+        self.screen(py).lock().unwrap().sset(x as u32, y as u32, color);
         Ok(0)
     }
 
@@ -136,7 +147,7 @@ pub mod plugin {
 
 
     def trigon(&self, x1: i32, y1: i32, x2: i32, y2: i32, x3: i32, y3: i32, color: i32) -> PyResult<i32> {
-        self.screen(py).lock().unwrap().trigon(x1, y1, x2, y2, x3, y3, px8::Color::from_u8(color as u8));
+        self.screen(py).lock().unwrap().trigon(x1, y1, x2, y2, x3, y3, color);
         Ok(0)
     }
 
@@ -215,17 +226,18 @@ pub mod plugin {
         pub fn load(&mut self,
                     players: Arc<Mutex<Players>>,
                     info: Arc<Mutex<Info>>,
-                    screen: Arc<Mutex<Screen>>) {
+                    screen: Arc<Mutex<Screen>>,
+                    sound: Arc<Mutex<Sound>>) {
             info!("INIT PYTHON plugin");
 
             let gil = Python::acquire_gil();
             let py = gil.python();
 
             let obj = PX8Instance::create_instance(py,
-                                                   7,
                                                    screen.clone(),
                                                    players.clone(),
-                                                   info.clone()).unwrap();
+                                                   info.clone(),
+                                                   sound.clone()).unwrap();
             self.mydict.set_item(py, "obj", obj).unwrap();
 
             py.run(r###"globals()["global_obj"] = obj;"###, None, Some(&self.mydict));
@@ -347,11 +359,8 @@ pub mod plugin {
     use gfx::Sprite;
     use config::Players;
 
-    use px8;
     use px8::info::Info;
 
-    use gfx;
-    use gfx::{SCREEN_WIDTH, SCREEN_HEIGHT};
     use gfx::Screen;
 
     pub struct PythonPlugin {}

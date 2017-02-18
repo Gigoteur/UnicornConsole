@@ -33,6 +33,11 @@ pub mod plugin {
         pub info: Arc<Mutex<Info>>,
     }
 
+    #[derive(Clone, Debug)]
+    pub enum LuaPluginError {
+        ThreadStatus(String),
+        Other(String),
+    }
 
     pub struct LuaPlugin {
         lua_state: Arc<Mutex<lua::State>>,
@@ -45,6 +50,7 @@ pub mod plugin {
                         loaded_code: false
             }
         }
+
 
         pub fn load(&mut self,
                     tx_input: Sender<Vec<u8>>,
@@ -773,7 +779,7 @@ pub mod plugin {
                 data.screen.clone()
             });
 
-            screen.lock().unwrap().color(px8::Color::from_u8(value as u8));
+            screen.lock().unwrap().color(value as i32);
 
             1
         }
@@ -856,7 +862,7 @@ pub mod plugin {
                 data.screen.clone()
             });
 
-            screen.lock().unwrap().rect(x0 as i32, y0 as i32, x1 as i32, y1 as i32, px8::Color::from_u8(col as u8));
+            screen.lock().unwrap().rect(x0 as i32, y0 as i32, x1 as i32, y1 as i32, col as i32);
 
             1
         }
@@ -879,7 +885,7 @@ pub mod plugin {
                 let data = extra.as_ref().unwrap().downcast_ref::<ExtraData>().unwrap();
                 data.screen.clone()
             });
-            screen.lock().unwrap().rectfill(x0 as i32, y0 as i32, x1 as i32, y1 as i32, px8::Color::from_u8(col as u8));
+            screen.lock().unwrap().rectfill(x0 as i32, y0 as i32, x1 as i32, y1 as i32, col as i32);
 
             1
         }
@@ -900,7 +906,7 @@ pub mod plugin {
                 data.screen.clone()
             });
 
-            screen.lock().unwrap().circ(x as i32, y as i32, r as i32, px8::Color::from_u8(col as u8));
+            screen.lock().unwrap().circ(x as i32, y as i32, r as i32, col as i32);
 
             1
         }
@@ -923,7 +929,7 @@ pub mod plugin {
                 data.screen.clone()
             });
 
-            screen.lock().unwrap().circfill(x as i32, y as i32, r as i32, px8::Color::from_u8(col as u8));
+            screen.lock().unwrap().circfill(x as i32, y as i32, r as i32, col as i32);
 
             1
         }
@@ -998,7 +1004,7 @@ pub mod plugin {
 
             let x = state.check_integer(2);
             let y = state.check_integer(3);
-            let mut col = state.check_integer(4);
+            let col = state.check_integer(4);
 
             if x < 0 || y < 0 {
                 return 1;
@@ -1013,7 +1019,7 @@ pub mod plugin {
                 data.screen.clone()
             });
 
-            screen.lock().unwrap().pset(x as i32, y as i32, px8::Color::from_u8(col as u8));
+            screen.lock().unwrap().pset(x as i32, y as i32, col as i32);
 
             1
         }
@@ -1084,9 +1090,9 @@ pub mod plugin {
 
             let x = state.check_integer(2);
             let y = state.check_integer(3);
-            let c = state.check_integer(4);
+            let col = state.check_integer(4);
 
-            debug!("LUA SSET {:?} {:?} {:?}", x, y, c);
+            debug!("LUA SSET {:?} {:?} {:?}", x, y, col);
 
             if x < 0 || y < 0 {
                 return 1;
@@ -1101,7 +1107,7 @@ pub mod plugin {
                 data.screen.clone()
             });
 
-            let value = screen.lock().unwrap().sset(x as u32, y as u32, px8::Color::from_u8(c as u8));
+            let value = screen.lock().unwrap().sset(x as u32, y as u32, col as i32);
 
             1
         }
@@ -1115,14 +1121,14 @@ pub mod plugin {
             let y0 = state.check_integer(3);
             let x1 = state.check_integer(4);
             let y1 = state.check_integer(5);
-            let mut col = state.check_integer(6);
+            let col = state.check_integer(6);
 
             let screen = state.with_extra(|extra| {
                 let data = extra.as_ref().unwrap().downcast_ref::<ExtraData>().unwrap();
                 data.screen.clone()
             });
 
-            screen.lock().unwrap().line(x0 as i32, y0 as i32, x1 as i32, y1 as i32, px8::Color::from_u8(col as u8));
+            screen.lock().unwrap().line(x0 as i32, y0 as i32, x1 as i32, y1 as i32, col as i32);
 
             1
         }
@@ -1141,8 +1147,6 @@ pub mod plugin {
             } else {
                 value = rand::thread_rng().gen_range(0.0, x as f64);
             }
-
-            debug!("LUA RND 0..{:?} -> {:?}", x, value);
 
             state.push_number(value);
 
@@ -1295,7 +1299,7 @@ pub mod plugin {
                 data.screen.clone()
             });
 
-            screen.lock().unwrap().print(str_data.to_string(), x as i32, y as i32, px8::Color::from_u8(col as u8));
+            screen.lock().unwrap().print(str_data.to_string(), x as i32, y as i32, col as i32);
 
             1
         }

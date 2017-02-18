@@ -379,47 +379,49 @@ impl fmt::Debug for CartridgeGFX {
 impl CartridgeGFX {
     pub fn new(lines: &mut Vec<String>) -> CartridgeGFX {
         info!("CartridgeGFX");
-
-        let mut v = Vec::new();
-
-        for line in lines {
-            if line.len() > 128 {
-                continue;
-            }
-
-
-            for c in line.as_bytes() {
-                v.push((*c as char).to_digit(16).unwrap());
-            }
-        }
-
         let mut sprites: Vec<Sprite> = Vec::new();
 
-        let mut g_off = 0;
-        // Fill all sprites
-        for idx in 0..256 {
-            let mut data: [u8; 8 * 8] = [0; 8 * 8];
+        if lines.len() > 0 {
+            let mut v = Vec::new();
 
-            let mut idx_vec = 0;
+            for line in lines {
+                if line.len() > 128 {
+                    continue;
+                }
 
-            if idx > 0 {
-                if idx % 16 == 0 {
-                    g_off = idx * 8 * 8;
-                } else {
-                    g_off += 8;
+
+                for c in line.as_bytes() {
+                    v.push((*c as char).to_digit(16).unwrap());
                 }
             }
 
-            for y in 0..8 {
-                for x in 0..8 {
-                    let offset = g_off + y * 128 + x;
 
-                    data[idx_vec] = v[offset] as u8;
-                    idx_vec += 1;
+            let mut g_off = 0;
+            // Fill all sprites
+            for idx in 0..256 {
+                let mut data: [u8; 8 * 8] = [0; 8 * 8];
+
+                let mut idx_vec = 0;
+
+                if idx > 0 {
+                    if idx % 16 == 0 {
+                        g_off = idx * 8 * 8;
+                    } else {
+                        g_off += 8;
+                    }
                 }
-            }
 
-            sprites.push(Sprite::new(data));
+                for y in 0..8 {
+                    for x in 0..8 {
+                        let offset = g_off + y * 128 + x;
+
+                        data[idx_vec] = v[offset] as u8;
+                        idx_vec += 1;
+                    }
+                }
+
+                sprites.push(Sprite::new(data));
+            }
         }
 
 
@@ -429,33 +431,34 @@ impl CartridgeGFX {
     pub fn new_from_bytes(v: Vec<u8>) -> CartridgeGFX {
         let mut sprites: Vec<Sprite> = Vec::new();
 
-        let mut g_off = 0;
-        // Fill all sprites
-        for idx in 0..256 {
-            let mut data: [u8; 8 * 8] = [0; 8 * 8];
+        if v.len() > 0 {
+            let mut g_off = 0;
+            // Fill all sprites
+            for idx in 0..256 {
+                let mut data: [u8; 8 * 8] = [0; 8 * 8];
 
-            let mut idx_vec = 0;
+                let mut idx_vec = 0;
 
-            if idx > 0 {
-                if idx % 16 == 0 {
-                    g_off = idx * 8 * 8;
-                } else {
-                    g_off += 8;
+                if idx > 0 {
+                    if idx % 16 == 0 {
+                        g_off = idx * 8 * 8;
+                    } else {
+                        g_off += 8;
+                    }
                 }
-            }
 
-            for y in 0..8 {
-                for x in 0..8 {
-                    let offset = g_off + y * 128 + x;
+                for y in 0..8 {
+                    for x in 0..8 {
+                        let offset = g_off + y * 128 + x;
 
-                    data[idx_vec] = v[offset] as u8;
-                    idx_vec += 1;
+                        data[idx_vec] = v[offset] as u8;
+                        idx_vec += 1;
+                    }
                 }
-            }
 
-            sprites.push(Sprite::new(data));
+                sprites.push(Sprite::new(data));
+            }
         }
-
 
         CartridgeGFX { sprites: sprites }
     }

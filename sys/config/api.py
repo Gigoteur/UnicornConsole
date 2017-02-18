@@ -1,6 +1,18 @@
 import math
 
 # Audio
+def sound_load(filename):
+    global_obj.sound_load(filename)
+
+def sound_play(filename):
+    global_obj.sound_play(filename)
+
+def sound_stop(filename):
+    global_obj.sound_stop(filename)
+
+globals()["sound_load"] = sound_load
+globals()["sound_play"] = sound_play
+globals()["sound_stop"] = sound_stop
 
 # Cart Data
 

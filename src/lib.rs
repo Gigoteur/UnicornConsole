@@ -35,6 +35,9 @@ extern crate chan;
 extern crate log;
 extern crate fern;
 
+#[macro_use]
+extern crate lazy_static;
+
 extern crate rustc_serialize;
 
 #[macro_use]
@@ -46,3 +49,4 @@ pub mod gfx;
 pub mod px8;
 pub mod cartridge;
 pub mod plugins;
+pub mod sound;

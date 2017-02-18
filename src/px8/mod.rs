@@ -37,12 +37,72 @@ use self::info::Info;
 use gfx;
 use gfx::{Screen, Sprite};
 use cartridge::{Cartridge, CartridgeFormat};
+use sound::Sound;
 
 include!(concat!(env!("OUT_DIR"), "/parameters.rs"));
 
 pub const SCREEN_PIXELS: usize = SCREEN_WIDTH * SCREEN_HEIGHT;
 
-pub type ScreenBuffer = [Color; SCREEN_PIXELS];
+pub type ScreenBuffer = [u32; SCREEN_PIXELS];
+
+
+lazy_static! {
+    static ref PALETTE: Mutex<HashMap<u32, RGB>> = {
+        let mut m = Mutex::new(HashMap::new());
+        m
+    };
+    static ref COUNT: usize = PALETTE.lock().unwrap().len();
+}
+
+
+pub fn to_rgb(value: u32) -> RGB {
+    unsafe {
+        match PALETTE.lock().unwrap().get(&value) {
+            Some(rgb_value) => RGB::new(rgb_value.r, rgb_value.g, rgb_value.b),
+            _ => RGB::new(0, 0, 0),
+        }
+    }
+}
+
+pub fn load_pico8_palette() {
+    /* Pico 8 Palette */
+    PALETTE.lock().unwrap().insert(0, RGB::new(0, 0, 0));
+    PALETTE.lock().unwrap().insert(1, RGB::new(29, 43, 83));
+    PALETTE.lock().unwrap().insert(2, RGB::new(126, 37, 83));
+    PALETTE.lock().unwrap().insert(3, RGB::new(0, 144, 61));
+    PALETTE.lock().unwrap().insert(4, RGB::new(171, 82, 54));
+    PALETTE.lock().unwrap().insert(5, RGB::new(95, 87, 79));
+    PALETTE.lock().unwrap().insert(6, RGB::new(194, 195, 199));
+    PALETTE.lock().unwrap().insert(7, RGB::new(255, 241, 232));
+    PALETTE.lock().unwrap().insert(8, RGB::new(255, 0, 77));
+    PALETTE.lock().unwrap().insert(9, RGB::new(255, 163, 0));
+    PALETTE.lock().unwrap().insert(10, RGB::new(255, 236, 39));
+    PALETTE.lock().unwrap().insert(11, RGB::new(0, 228, 54));
+    PALETTE.lock().unwrap().insert(12, RGB::new(41, 173, 255));
+    PALETTE.lock().unwrap().insert(13, RGB::new(132, 118, 156));
+    PALETTE.lock().unwrap().insert(14, RGB::new(255, 119, 168));
+    PALETTE.lock().unwrap().insert(15, RGB::new(255, 204, 170));
+}
+
+pub fn load_c64_palette() {
+    /* C64 Palette */
+    PALETTE.lock().unwrap().insert(0, RGB::new_hexa(0x000000));
+    PALETTE.lock().unwrap().insert(1, RGB::new_hexa(0xFFFFFF));
+    PALETTE.lock().unwrap().insert(2, RGB::new_hexa(0x880000));
+    PALETTE.lock().unwrap().insert(3, RGB::new_hexa(0xAAFFEE));
+    PALETTE.lock().unwrap().insert(4, RGB::new_hexa(0xCC44CC));
+    PALETTE.lock().unwrap().insert(5, RGB::new_hexa(0x00CC55));
+    PALETTE.lock().unwrap().insert(6, RGB::new_hexa(0x0000AA));
+    PALETTE.lock().unwrap().insert(7, RGB::new_hexa(0xEEEE77));
+    PALETTE.lock().unwrap().insert(8, RGB::new_hexa(0xDD8855));
+    PALETTE.lock().unwrap().insert(9, RGB::new_hexa(0x664400));
+    PALETTE.lock().unwrap().insert(10, RGB::new_hexa(0xFF7777));
+    PALETTE.lock().unwrap().insert(11, RGB::new_hexa(0x333333));
+    PALETTE.lock().unwrap().insert(12, RGB::new_hexa(0x777777));
+    PALETTE.lock().unwrap().insert(13, RGB::new_hexa(0xAAFF66));
+    PALETTE.lock().unwrap().insert(14, RGB::new_hexa(0x0088FF));
+    PALETTE.lock().unwrap().insert(15, RGB::new_hexa(0xBBBBBB));
+}
 
 pub struct RGB {
     pub r: u8,
@@ -50,101 +110,25 @@ pub struct RGB {
     pub b: u8,
 }
 
-#[derive(PartialEq, Clone, Copy)]
-#[repr(u8)]
-pub enum Color {
-    Black = 0,
-    DarkBlue = 1,
-    DarkPurple = 2,
-    DarkGreen = 3,
-    Brown = 4,
-    DarkGray = 5,
-    LightGray = 6,
-    White = 7,
-    Red = 8,
-    Orange = 9,
-    Yellow = 10,
-    Green = 11,
-    Blue = 12,
-    Indigo = 13,
-    Pink = 14,
-    Peach = 15,
-    UNKNOWN = 16,
-}
+impl RGB {
+    pub fn new(r: u8, g: u8, b: u8) -> RGB {
+        RGB {
+            r: r,
+            g: g,
+            b: b
+        }
+    }
 
-impl Color {
-    #[inline]
-    pub fn from_u8(value: u8) -> Color {
-        use self::Color::*;
-        match value {
-            0 => Black,
-            1 => DarkBlue,
-            2 => DarkPurple,
-            3 => DarkGreen,
-            4 => Brown,
-            5 => DarkGray,
-            6 => LightGray,
-            7 => White,
-            8 => Red,
-            9 => Orange,
-            10 => Yellow,
-            11 => Green,
-            12 => Blue,
-            13 => Indigo,
-            14 => Pink,
-            15 => Peach,
-            _ => UNKNOWN,
-        }
-    }
-    #[inline]
-    pub fn to_rgb(value: Color) -> RGB {
-        use self::Color::*;
-        match value {
-            Black => RGB{r:0, g:0, b:0}, // 0   0   0 black
-            DarkBlue => RGB{r:29, g:43, b:83}, // 29 43 83 dark_blue
-            DarkPurple => RGB{r:126, g:37, b:83}, // 126  37  83 dark_purple
-            DarkGreen => RGB{r:0, g:135, b:81}, // 0 144  61 dark_green
-            Brown => RGB{r:171, g:82, b:54}, // 171  82  54 brown
-            DarkGray => RGB{r:95, g:87, b:79}, // 95  87  79 dark_gray
-            LightGray => RGB{r:194, g:195, b:199}, // 194 195 199 light_gray
-            White => RGB{r:255, g:241, b:232}, // 255 241 232 white
-            Red => RGB{r:255, g:0, b:77}, // 255   0  77 red
-            Orange => RGB{r:255, g:163, b:0}, // 255 163 0 orange
-            Yellow => RGB{r:255, g:236, b:39}, // 255 236 39 yellow
-            Green => RGB{r:0, g:228, b:54}, // 0 228 54 green
-            Blue => RGB{r:41, g:173, b:255}, // 41 173 255 blue
-            Indigo => RGB{r:132, g:118, b:156}, // 132 118 156 indigo
-            Pink => RGB{r:255, g:119, b:168}, // 255 119 168 pink
-            Peach => RGB{r:255, g:204, b:170}, // 255 204 170 peach
-            _ => RGB{r:0, g:0, b:0},
-        }
-    }
-    #[inline]
-    pub fn to_u8(value: Color) -> u8 {
-        use self::Color::*;
-        match value {
-            Black => 0, // 0   0   0 black
-            DarkBlue => 1, // 29 43 83  dark_blue
-            DarkPurple => 2, // 126  37  83 dark_purple
-            DarkGreen => 3, // 0 144  61 dark_green
-            Brown => 4, // 171  82  54 brown
-            DarkGray => 5, // 95  87  79 dark_gray
-            LightGray => 6, // 194 195 199 light_gray
-            White => 7, // 255 241 232 white
-            Red => 8, // 255   0  77 red
-            Orange => 9, // 255 163 0 orange
-            Yellow => 10, // 255 236  39 yellow
-            Green => 11, // 0 228 54 green
-            Blue => 12, // 41 173 255 blue
-            Indigo => 13, // 132 118 156 indigo
-            Pink => 14, // 255 119 168 pink
-            Peach => 15, // 255 204 170 peach
-            _ => 16,
+    pub fn new_hexa(v: u32) -> RGB {
+        RGB {
+            r: ((v & 0xff0000) >> 16) as u8,
+            g: ((v & 0x00ff00) >> 8) as u8,
+            b: (v & 0x0000ff) as u8,
         }
     }
 }
 
-pub const SCREEN_EMPTY: ScreenBuffer = [Color::Black; SCREEN_PIXELS];
+pub const SCREEN_EMPTY: ScreenBuffer = [0; SCREEN_PIXELS];
 
 pub trait RustPlugin {
     fn init(&mut self, screen: Arc<Mutex<gfx::Screen>>) -> f64;
@@ -232,6 +216,8 @@ impl Menu {
     }
 
     pub fn update(&mut self, players: Arc<Mutex<Players>>) -> bool {
+        info!("IDX {:?}", self.selected_idx);
+
         if players.lock().unwrap().btnp(0, 6) {
             self.selected_idx = self.idx as i32;
             if self.selected_idx == 2 {
@@ -253,13 +239,13 @@ impl Menu {
 
     pub fn draw(&self, screen: Arc<Mutex<gfx::Screen>>) {
         if self.selected_idx == -1 {
-            screen.lock().unwrap().rectfill(40, 50, 90, 80, Color::Black);
+            screen.lock().unwrap().rectfill(40, 50, 90, 80, 0);
 
-            screen.lock().unwrap().pset(45, 57 + (self.idx as i32) * 10, Color::White);
+            screen.lock().unwrap().pset(45, 57 + (self.idx as i32) * 10, 7);
 
             let mut pos = 0;
             for item in &self.items {
-                screen.lock().unwrap().print(item.to_string(), 50, 55 + pos * 10, Color::White);
+                screen.lock().unwrap().print(item.to_string(), 50, 55 + pos * 10, 7);
                 pos += 1;
             }
         }
@@ -337,7 +323,14 @@ impl Px8New {
         }
     }
 
+    pub fn init_palette(&mut self) {
+       // load_c64_palette();
+        load_pico8_palette();
+    }
+
     pub fn init(&mut self) {
+        self.init_palette();
+
         self.screen.lock().unwrap().init();
         self.update_return = true;
         self.draw_return = true;
@@ -349,13 +342,15 @@ impl Px8New {
 
     pub fn debug_update(&mut self) {
         if self.show_info_overlay {
-            self.screen.lock().unwrap().rectfill(0, 0, 108, 8, Color::Black);
+            self.screen.lock().unwrap().rectfill(0, 0, 108, 8, 0);
 
             self.screen.lock().unwrap().print(format!("{:.0} FPS {:.2}ms {:.2}ms {:.2}ms",
                                                       self.fps,
                                                       self.init_time,
                                                       self.draw_time,
-                                                      self.update_time).to_string(), 0, 0, Color::White);
+                                                      self.update_time).to_string(),
+                                              0, 0,
+                                              7);
         }
     }
 
@@ -422,7 +417,7 @@ impl Px8New {
             for x in 0..self::SCREEN_WIDTH {
                 for y in 0..self::SCREEN_HEIGHT {
                     let value = self.screen.lock().unwrap().pget(x as u32, y as u32);
-                    let rgb_value = Color::to_rgb(Color::from_u8(value));
+                    let rgb_value = to_rgb(value);
 
                     buffer.push(rgb_value.r);
                     buffer.push(rgb_value.g);
@@ -492,7 +487,7 @@ impl Px8New {
         for x in 0..SCREEN_WIDTH {
             for y in 0..SCREEN_HEIGHT {
                 let value = self.screen.lock().unwrap().pget(x as u32, y as u32);
-                let rgb_value = Color::to_rgb(Color::from_u8(value));
+                let rgb_value = to_rgb(value);
 
                 buffer.push(rgb_value.r);
                 buffer.push(rgb_value.g);
@@ -557,6 +552,7 @@ impl Px8New {
                           rx_output: Receiver<Vec<u8>>,
                           players: Arc<Mutex<Players>>,
                           info: Arc<Mutex<Info>>,
+                          sound: Arc<Mutex<Sound>>,
                           editor: bool) {
         let idx = self.cartridges.len();
 
@@ -592,7 +588,7 @@ impl Px8New {
         self.screen.lock().unwrap().set_sprites(self.cartridges[idx].gfx.sprites.clone());
         self.screen.lock().unwrap().set_map(self.cartridges[idx].map.map);
 
-        self.load_plugin(idx, tx_input, rx_output, players, info, editor);
+        self.load_plugin(idx, tx_input, rx_output, players, info, sound, editor);
     }
 
     pub fn load_cartridge_raw(&mut self,
@@ -602,6 +598,7 @@ impl Px8New {
                               rx_output: Receiver<Vec<u8>>,
                               players: Arc<Mutex<Players>>,
                               info: Arc<Mutex<Info>>,
+                              sound: Arc<Mutex<Sound>>,
                               editor: bool) {
         let idx = self.cartridges.len();
 
@@ -632,7 +629,7 @@ impl Px8New {
         self.screen.lock().unwrap().set_sprites(self.cartridges[idx].gfx.sprites.clone());
         self.screen.lock().unwrap().set_map(self.cartridges[idx].map.map);
 
-        self.load_plugin(idx, tx_input, rx_output, players, info, editor);
+        self.load_plugin(idx, tx_input, rx_output, players, info, sound, editor);
     }
 
     pub fn _get_code_type(&mut self, idx: usize) -> Code {
@@ -695,6 +692,7 @@ impl Px8New {
                        rx_output: Receiver<Vec<u8>>,
                        players: Arc<Mutex<Players>>,
                        info: Arc<Mutex<Info>>,
+                       sound: Arc<Mutex<Sound>>,
                        editor: bool) {
         let mut data;
 
@@ -749,7 +747,8 @@ impl Px8New {
 
                 self.python_plugin.load(players.clone(),
                                         info.clone(),
-                                        self.screen.clone());
+                                        self.screen.clone(),
+                                        sound.clone());
 
                 self.python_plugin.load_code(data);
             },

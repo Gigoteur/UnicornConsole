@@ -24,6 +24,7 @@ use chan;
 use chan::{Receiver, Sender};
 
 use renderer;
+use sound;
 use px8;
 use config;
 use config::keys::{PX8Key, map_axis, map_button, map_keycode, map_button_joystick, map_axis_joystick};
@@ -91,6 +92,7 @@ pub struct Frontend {
     pub px8: px8::Px8New,
     pub info: Arc<Mutex<px8::info::Info>>,
     pub players: Arc<Mutex<config::Players>>,
+    pub sound: Arc<Mutex<sound::Sound>>,
     channels: Channels,
     start_time: time::Tm,
     elapsed_time: f64,
@@ -102,24 +104,29 @@ pub struct Frontend {
 impl Frontend {
     pub fn init(scale: Scale, fullscreen: bool) -> FrontendResult<Frontend> {
         info!("Frontend: SDL2 init");
-        let sdl = try!(sdl2::init());
+        let sdl_context = try!(sdl2::init());
 
         info!("Frontend: SDL2 Video init");
-        let sdl_video = try!(sdl.video());
+        let sdl_video = try!(sdl_context.video());
 
         info!("Frontend: SDL2 event pump");
-        let event_pump = try!(sdl.event_pump());
+        let event_pump = try!(sdl_context.event_pump());
 
         info!("Frontend: creating renderer");
         let renderer = renderer::renderer::Renderer::new(sdl_video, fullscreen, scale).unwrap();
 
+        info!("Frontend: SDL2 audio");
+        let audio_subsystem = try!(sdl_context.audio());
+        let sound = sound::Sound::new();
+
         // Disable mouse in the window
-        sdl.mouse().show_cursor(true);
+        sdl_context.mouse().show_cursor(true);
 
         Ok(Frontend {
-            sdl: sdl,
+            sdl: sdl_context,
             event_pump: event_pump,
             renderer: renderer,
+            sound: Arc::new(Mutex::new(sound)),
             controllers: controllers::Controllers::new(),
             times: frametimes::FrameTimes::new(Duration::from_secs(1) / 60),
             px8: px8::Px8New::new(),
@@ -230,6 +237,7 @@ impl Frontend {
                                 self.channels.rx_output.clone(),
                                 self.players.clone(),
                                 self.info.clone(),
+                                self.sound.clone(),
                                 editor);
 
         // Call the init of the cartridge
