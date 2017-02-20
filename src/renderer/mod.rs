@@ -76,13 +76,6 @@ pub mod renderer {
     }
 
 
-    unsafe impl PixelValue for px8::Color {
-        fn get_format() -> ClientFormat {
-            ClientFormat::U8
-        }
-    }
-
-
     type Texture = Texture2d;
 
     #[derive(Copy, Clone)]
@@ -96,7 +89,7 @@ pub mod renderer {
     pub struct Renderer {
         vertex_buffer: VertexBuffer<Vertex>,
         index_buffer: IndexBuffer<u16>,
-        pixel_buffer: PixelBuffer<px8::Color>,
+        pixel_buffer: PixelBuffer<u32>,
         program: Program,
         texture: Texture,
         matrix: Matrix4<f32>,
@@ -121,8 +114,7 @@ pub mod renderer {
     }
 
     impl Renderer {
-
-        pub fn new(sdl_video: VideoSubsystem, fullscreen: bool, scale: Scale) -> RendererResult<Renderer> {
+        pub fn new(sdl_video: VideoSubsystem, fullscreen: bool, opengl: bool, scale: Scale) -> RendererResult<Renderer> {
             let display;
 
             info!("SDL2 Video with opengl [glium]");
@@ -199,7 +191,7 @@ pub mod renderer {
             info!("Creating PixelBuffer");
 
             let pixel_buffer = PixelBuffer::new_empty(&display, px8::SCREEN_WIDTH * px8::SCREEN_HEIGHT);
-            pixel_buffer.write(&vec![px8::Color::Black; pixel_buffer.get_size()]);
+            pixel_buffer.write(&vec![0; pixel_buffer.get_size()]);
 
             info!("Creating Texture");
             let mut texture = try!(Texture::empty_with_format(&display,
@@ -327,18 +319,26 @@ pub mod renderer {
     }
 
     impl Renderer {
-        pub fn new(sdl_video: VideoSubsystem, fullscreen: bool, scale: Scale) -> RendererResult<Renderer> {
-            info!("[SDL] Creating window");
+        pub fn new(sdl_video: VideoSubsystem, fullscreen: bool, opengl: bool, scale: Scale) -> RendererResult<Renderer> {
+            info!("[SDL] Creating window fullscreen={:?} opengl={:?}", fullscreen, opengl);
 
             let mut window_builder = sdl_video.window("PX8",
                                                       (px8::SCREEN_WIDTH as usize * scale.factor()) as u32,
                                                       (px8::SCREEN_HEIGHT as usize * scale.factor()) as u32);
 
             let window;
-            if fullscreen {
-                window = window_builder.fullscreen().opengl().build().unwrap();
+            if opengl {
+                if fullscreen {
+                    window = window_builder.fullscreen().opengl().build().unwrap();
+                } else {
+                    window = window_builder.resizable().position_centered().opengl().build().unwrap();
+                }
             } else {
-                window = window_builder.resizable().position_centered().opengl().build().unwrap();
+                if fullscreen {
+                    window = window_builder.fullscreen().build().unwrap();
+                } else {
+                    window = window_builder.resizable().position_centered().build().unwrap();
+                }
             }
 
             info!("[SDL] Creating renderer");

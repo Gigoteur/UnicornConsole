@@ -85,6 +85,7 @@ fn main() {
     let mut opts = Options::new();
     opts.optflag("c", "check", "check the cartridge");
     opts.optflag("e", "editor", "edit the cartridge");
+    opts.optflag("o", "opengl", "enable opengl with SDL");
     opts.optflag("f", "fullscreen", "display in fullscreen");
     opts.optflagopt("d", "dump", "dump the cartridge", "FILE");
     opts.optflagopt("t", "transform", "transform the PNG/PX8 cartridge in P8", "FILE");
@@ -173,12 +174,20 @@ fn main() {
             fullscreen = true;
         }
 
-        start_px8(scale, fullscreen, input, matches.opt_present("e"));
+        let mut opengl = true;
+        if cfg!(feature = "sdl_renderer") {
+            opengl = false;
+            if matches.opt_present("o") {
+                opengl = true;
+            }
+        }
+
+        start_px8(scale, fullscreen, opengl, input, matches.opt_present("e"));
     }
 }
 
-pub fn start_px8(scale: gfx::Scale, fullscreen: bool, filename: String, editor: bool) {
-    let mut frontend = match frontend::Frontend::init(scale, fullscreen) {
+pub fn start_px8(scale: gfx::Scale, fullscreen: bool, opengl: bool, filename: String, editor: bool) {
+    let mut frontend = match frontend::Frontend::init(scale, fullscreen, opengl) {
         Err(error) => panic!("{:?}", error),
         Ok(frontend) => frontend
     };

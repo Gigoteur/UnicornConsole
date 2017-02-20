@@ -161,6 +161,22 @@ class Clip(object):
         circfill(40, 10, 8, 7)
         circfill(40, 118, 8, 7)
 
+class Colors(object):
+    def __init__(self):
+        self.T = 0
+
+    def init(self):
+        set_color(16, 255, 51, 255)
+        set_color(17, 128, 255, 0)
+
+    def update(self):
+        self.T += 1
+
+    def draw(self):
+        cls()
+
+        circ(64, 64, 6, 16)
+        circ(10, 10, 6, 17)
 
 idx_demo = 0
 demos = [
@@ -172,10 +188,8 @@ demos = [
     ["sspr", [SSpr()]],
     ["camera", [Camera()]],
     ["clip", [Clip()]],
+    ["colors", [Colors()]],
 ]
-
-def _end():
-    return False
 
 def _init():
     global demos

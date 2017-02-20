@@ -64,6 +64,23 @@ pub fn to_rgb(value: u32) -> RGB {
     }
 }
 
+pub fn reset_colors() {
+    PALETTE.lock().unwrap().clear();
+    load_pico8_palette();
+}
+
+pub fn set_color(color: u32, r: u8, g: u8, b: u8) {
+    PALETTE.lock().unwrap().insert(color, RGB::new(r, g, b));
+}
+
+pub fn switch_palette(name: String) {
+    match name.as_ref() {
+        "pico8" => load_pico8_palette(),
+        "C64" => load_c64_palette(),
+        _ => (),
+    }
+}
+
 pub fn load_pico8_palette() {
     /* Pico 8 Palette */
     PALETTE.lock().unwrap().insert(0, RGB::new(0, 0, 0));
@@ -196,6 +213,7 @@ impl Menu {
 
         items.push("Continue".to_string());
         items.push("Config".to_string());
+        items.push("Palette".to_string());
         items.push("Quit".to_string());
 
         Menu {
@@ -220,7 +238,7 @@ impl Menu {
 
         if players.lock().unwrap().btnp(0, 6) {
             self.selected_idx = self.idx as i32;
-            if self.selected_idx == 2 {
+            if self.selected_idx == self.items.len() as i32 {
                 return false;
             }
         }
@@ -237,23 +255,37 @@ impl Menu {
         return true;
     }
 
-    pub fn draw(&self, screen: Arc<Mutex<gfx::Screen>>) {
+    pub fn draw(&mut self, screen: Arc<Mutex<gfx::Screen>>) {
         if self.selected_idx == -1 {
-            screen.lock().unwrap().rectfill(40, 50, 90, 80, 0);
+            let idx_x = (SCREEN_WIDTH / 2 - 20) as i32;
+            let idx_y = (SCREEN_WIDTH / 2 - 10) as i32;
 
-            screen.lock().unwrap().pset(45, 57 + (self.idx as i32) * 10, 7);
+            screen.lock().unwrap().rectfill(idx_x, idx_y,
+                                            idx_x + 10 * self.items.len() as i32,
+                                            idx_y + 15 * self.items.len() as i32,
+                                            0);
+
+            screen.lock().unwrap().pset(idx_x, idx_y + (self.idx as i32) * 10, 7);
 
             let mut pos = 0;
             for item in &self.items {
-                screen.lock().unwrap().print(item.to_string(), 50, 55 + pos * 10, 7);
+                screen.lock().unwrap().print(item.to_string(), idx_x + 5, idx_y + pos * 10, 7);
                 pos += 1;
             }
         }
 
         if self.selected_idx == 1 {
             screen.lock().unwrap().cls();
-           // screen.lock().unwrap().print(item.to_string(), 50, 55 + pos * 10, Color::White);
+            // screen.lock().unwrap().print(item.to_string(), 50, 55 + pos * 10, Color::White);
         }
+
+        if self.selected_idx == 2 {
+            self.draw_palette_option(screen);
+        }
+    }
+
+    pub fn draw_palette_option(&mut self, screen: Arc<Mutex<gfx::Screen>>) {
+        screen.lock().unwrap().cls();
     }
 }
 

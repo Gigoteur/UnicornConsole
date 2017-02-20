@@ -102,7 +102,7 @@ pub struct Frontend {
 }
 
 impl Frontend {
-    pub fn init(scale: Scale, fullscreen: bool) -> FrontendResult<Frontend> {
+    pub fn init(scale: Scale, fullscreen: bool, opengl: bool) -> FrontendResult<Frontend> {
         info!("Frontend: SDL2 init");
         let sdl_context = try!(sdl2::init());
 
@@ -113,7 +113,7 @@ impl Frontend {
         let event_pump = try!(sdl_context.event_pump());
 
         info!("Frontend: creating renderer");
-        let renderer = renderer::renderer::Renderer::new(sdl_video, fullscreen, scale).unwrap();
+        let renderer = renderer::renderer::Renderer::new(sdl_video, fullscreen, opengl, scale).unwrap();
 
         info!("Frontend: SDL2 audio");
         let audio_subsystem = try!(sdl_context.audio());

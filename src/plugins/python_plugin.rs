@@ -12,7 +12,7 @@ pub mod plugin {
     use gfx::Screen;
     use sound::Sound;
 
-    py_class!(class PX8Instance |py| {
+    py_class!(class PX8Audio |py| {
     data screen: Arc<Mutex<Screen>>;
     data players: Arc<Mutex<Players>>;
     data info: Arc<Mutex<Info>>;
@@ -31,6 +31,14 @@ pub mod plugin {
     def sound_stop(&self, filename: String) -> PyResult<i32> {
         Ok(0)
     }
+
+    });
+
+    py_class!(class PX8Graphic |py| {
+    data screen: Arc<Mutex<Screen>>;
+    data players: Arc<Mutex<Players>>;
+    data info: Arc<Mutex<Info>>;
+    data sound: Arc<Mutex<Sound>>;
 
     // Cart Data
 
@@ -63,6 +71,21 @@ pub mod plugin {
 
     def color(&self, color:i32) -> PyResult<i32> {
         self.screen(py).lock().unwrap().color(color);
+        Ok(0)
+    }
+
+    def set_color(&self, color:i32, r: u8, g: u8, b: u8) -> PyResult<i32> {
+        self.screen(py).lock().unwrap().set_color(color, r, g, b);
+        Ok(0)
+    }
+
+    def reset_colors(&self) -> PyResult<i32> {
+        self.screen(py).lock().unwrap().reset_colors();
+        Ok(0)
+    }
+
+    def switch_palette(&self, name: String) -> PyResult<i32> {
+        self.screen(py).lock().unwrap().switch_palette(name);
         Ok(0)
     }
 
@@ -233,14 +256,22 @@ pub mod plugin {
             let gil = Python::acquire_gil();
             let py = gil.python();
 
-            let obj = PX8Instance::create_instance(py,
-                                                   screen.clone(),
-                                                   players.clone(),
-                                                   info.clone(),
-                                                   sound.clone()).unwrap();
-            self.mydict.set_item(py, "obj", obj).unwrap();
+            let px8_graphic_obj = PX8Graphic::create_instance(py,
+                                                              screen.clone(),
+                                                              players.clone(),
+                                                              info.clone(),
+                                                              sound.clone()).unwrap();
+            self.mydict.set_item(py, "px8_graphic", px8_graphic_obj).unwrap();
 
-            py.run(r###"globals()["global_obj"] = obj;"###, None, Some(&self.mydict));
+            let px8_audio_obj = PX8Audio::create_instance(py,
+                                                          screen.clone(),
+                                                          players.clone(),
+                                                          info.clone(),
+                                                          sound.clone()).unwrap();
+            self.mydict.set_item(py, "px8_audio", px8_audio_obj).unwrap();
+
+            py.run(r###"globals()["px8_graphic"] = px8_graphic;"###, None, Some(&self.mydict));
+            py.run(r###"globals()["px8_audio"] = px8_audio;"###, None, Some(&self.mydict));
 
             let mut f = File::open("./sys/config/api.py").unwrap();
             let mut data = String::new();

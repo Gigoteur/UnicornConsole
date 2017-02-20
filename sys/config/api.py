@@ -2,13 +2,13 @@ import math
 
 # Audio
 def sound_load(filename):
-    global_obj.sound_load(filename)
+    px8_audio.sound_load(filename)
 
 def sound_play(filename):
-    global_obj.sound_play(filename)
+    px8_audio.sound_play(filename)
 
 def sound_stop(filename):
-    global_obj.sound_stop(filename)
+    px8_audio.sound_stop(filename)
 
 globals()["sound_load"] = sound_load
 globals()["sound_play"] = sound_play
@@ -19,55 +19,64 @@ globals()["sound_stop"] = sound_stop
 # Graphics
 
 def camera(x=-1, y=-1):
-    global_obj.camera(x, y)
+    px8_graphic.camera(x, y)
 
 def circ(x, y, r, color=-1):
-    global_obj.circ(math.floor(x), math.floor(y), math.floor(r), color)
+    px8_graphic.circ(math.floor(x), math.floor(y), math.floor(r), color)
 
 def circfill(x, y, r, color=-1):
-    global_obj.circfill(math.floor(x), math.floor(y), math.floor(r), color)
+    px8_graphic.circfill(math.floor(x), math.floor(y), math.floor(r), color)
 
 def clip(x=-1, y=-1, w=-1, h=-1):
-    global_obj.clip(math.floor(x), math.floor(y), math.floor(w), math.floor(h))
+    px8_graphic.clip(math.floor(x), math.floor(y), math.floor(w), math.floor(h))
 
 def cls():
-    global_obj.cls()
+    px8_graphic.cls()
 
 def color(col):
-    global_obj.color(col)
+    px8_graphic.color(col)
+
+def set_color(col, r, g, b):
+    px8_graphic.set_color(col, r, g, b)
+
+def reset_colors():
+    px8_graphic.reset_colors()
+
+def switch_palette(name):
+    px8_graphic.switch_palette(name)
 
 def line(x1, y1, x2, y2, color=-1):
-    global_obj.line(math.floor(x1), math.floor(y1), math.floor(x2), math.floor(y2), color)
+    px8_graphic.line(math.floor(x1), math.floor(y1), math.floor(x2), math.floor(y2), color)
 
 def pal(c0 = -1, c1 = -1, p=0):
-    global_obj.pal(math.floor(c0), math.floor(c1))
+    px8_graphic.pal(math.floor(c0), math.floor(c1))
 
 def palt(c = -1, t = False):
-    global_obj.palt(math.floor(c), t)
+    px8_graphic.palt(math.floor(c), t)
 
 def pget(x, y):
-    return global_obj.pget(math.floor(x), math.floor(y))
+    return px8_graphic.pget(math.floor(x), math.floor(y))
 
 def pset(x, y, color):
-    global_obj.pset(math.floor(x), math.floor(y), math.floor(color))
+    px8_graphic.pset(math.floor(x), math.floor(y), math.floor(color))
 
 def px8_print(str, x=-1, y=-1, col=-1):
-    return global_obj.print(str, x, y, col)
+    return px8_graphic.print(str, x, y, col)
 
 def rect(x1, y1, x2, y2, color=-1):
-    global_obj.rect(math.floor(x1), math.floor(y1), math.floor(x2), math.floor(y2), color)
+    px8_graphic.rect(math.floor(x1), math.floor(y1), math.floor(x2), math.floor(y2), color)
 
 def rectfill(x1, y1, x2, y2, color=-1):
-    global_obj.rectfill(math.floor(x1), math.floor(y1), math.floor(x2), math.floor(y2), color)
+    px8_graphic.rectfill(math.floor(x1), math.floor(y1), math.floor(x2), math.floor(y2), color)
 
 def sget(x, y):
-    return global_obj.sget(x, y)
+    return px8_graphic.sget(x, y)
 
 def spr(n, x, y,  w=1, h=1, flip_x=False, flip_y=False):
-    global_obj.spr(n, x, y, w, h, flip_x, flip_y)
+    px8_graphic.spr(n, x, y, w, h, flip_x, flip_y)
 
 def sset(x, y, c=-1):
-    global_obj.sset(x, y, c)
+    px8_graphic.sset(x, y, c)
 
 def sspr(sx, sy, sw, sh, dx, dy, dw=-1, dh=-1, flip_x=False, flip_y=False):
     if dw == -1:
@@ -76,10 +85,10 @@ def sspr(sx, sy, sw, sh, dx, dy, dw=-1, dh=-1, flip_x=False, flip_y=False):
     if dh == -1:
         dh = sh
 
-    global_obj.sspr(sx, sy, sw, sh, dx, dy, dw, dh, flip_x, flip_y)
+    px8_graphic.sspr(sx, sy, sw, sh, dx, dy, dw, dh, flip_x, flip_y)
 
 def trigon(x1, y1, x2, y2, x3, y3, color):
-    global_obj.trigon(math.floor(x1), math.floor(y1), math.floor(x2), math.floor(y2), math.floor(x3), math.floor(y3), color)
+    px8_graphic.trigon(math.floor(x1), math.floor(y1), math.floor(x2), math.floor(y2), math.floor(x3), math.floor(y3), color)
 
 globals()["camera"] = camera
 globals()["circ"] = circ
@@ -87,6 +96,9 @@ globals()["circfill"] = circfill
 globals()["clip"] = clip
 globals()["cls"] = cls
 globals()["color"] = color
+globals()["set_color"] = set_color
+globals()["reset_colors"] = reset_colors
+globals()["switch_palette"] = switch_palette
 globals()["line"] = line
 globals()["pal"] = pal
 globals()["palt"] = palt
@@ -104,19 +116,19 @@ globals()["trigon"] = trigon
 # Input
 
 def btn(x, p=0):
-    return global_obj.btn(x, p)
+    return px8_graphic.btn(x, p)
 
 def btnp(x, p=0):
-    return global_obj.btnp(x, p)
+    return px8_graphic.btnp(x, p)
 
 def mouse_x():
-    return global_obj.btn_mouse(0)
+    return px8_graphic.btn_mouse(0)
 
 def mouse_y():
-    return global_obj.btn_mouse(1)
+    return px8_graphic.btn_mouse(1)
 
 def mouse_state():
-    return global_obj.btn_mouse_state()
+    return px8_graphic.btn_mouse_state()
 
 
 globals()["btn"] = btn
@@ -129,13 +141,13 @@ globals()["mouse_state"] = mouse_state
 # Map
 
 def spr_map(cel_x, cel_y, sx, sy, cel_w, cel_h):
-    global_obj.spr_map(cel_x, cel_y, sx, sy, cel_w, cel_h)
+    px8_graphic.spr_map(cel_x, cel_y, sx, sy, cel_w, cel_h)
 
 def mget(x, y):
-    return global_obj.mget(math.floor(x), math.floor(y))
+    return px8_graphic.mget(math.floor(x), math.floor(y))
 
 def mset(x, y, v):
-    global_obj.mset(math.floor(x), math.floor(y), math.floor(v))
+    px8_graphic.mset(math.floor(x), math.floor(y), math.floor(v))
 
 globals()["spr_map"] = spr_map
 globals()["mget"] = mget
@@ -175,7 +187,7 @@ def stat(x):
 
 # Others
 def px8_time():
-    return global_obj.time()
+    return px8_graphic.time()
 
 globals()["px8_time"] = px8_time
 
