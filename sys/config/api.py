@@ -36,15 +36,6 @@ def cls():
 def color(col):
     px8_graphic.color(col)
 
-def set_color(col, r, g, b):
-    px8_graphic.set_color(col, r, g, b)
-
-def reset_colors():
-    px8_graphic.reset_colors()
-
-def switch_palette(name):
-    px8_graphic.switch_palette(name)
-
 def line(x1, y1, x2, y2, color=-1):
     px8_graphic.line(math.floor(x1), math.floor(y1), math.floor(x2), math.floor(y2), color)
 
@@ -96,9 +87,6 @@ globals()["circfill"] = circfill
 globals()["clip"] = clip
 globals()["cls"] = cls
 globals()["color"] = color
-globals()["set_color"] = set_color
-globals()["reset_colors"] = reset_colors
-globals()["switch_palette"] = switch_palette
 globals()["line"] = line
 globals()["pal"] = pal
 globals()["palt"] = palt
@@ -179,6 +167,21 @@ globals()["rnd"] = rnd
 globals()["sqrt"] = math.sqrt
 
 # Memory
+
+# Palette
+
+def set_palette_color(col, r, g, b):
+    px8_palette.set_palette_color(col, r, g, b)
+
+def reset_palette():
+    px8_palette.reset_palette()
+
+def switch_palette(name):
+    px8_palette.switch_palette(name)
+
+globals()["set_palette_color"] = set_palette_color
+globals()["reset_palette"] = reset_palette
+globals()["switch_palette"] = switch_palette
 
 # Peek/Poke
 

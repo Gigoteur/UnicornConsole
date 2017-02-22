@@ -407,20 +407,6 @@ impl Screen {
         }
     }
 
-    pub fn set_color(&mut self, col: i32, r: u8, g: u8, b: u8) {
-        if col != -1 {
-            px8::set_color(col as u32, r, g, b);
-        }
-    }
-
-    pub fn reset_colors(&mut self) {
-        px8::reset_colors();
-    }
-
-    pub fn switch_palette(&mut self, name: String) {
-      //  px8::switch_palette(name);
-    }
-
     pub fn putpixel(&mut self, x: i32, y: i32, col: u32) {
         return self.putpixel_(x, y, col);
     }

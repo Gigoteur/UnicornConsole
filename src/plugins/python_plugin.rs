@@ -9,11 +9,13 @@ pub mod plugin {
     use config::Players;
     use px8::info::Info;
     use px8;
+    use px8::Palettes;
     use gfx::Screen;
     use sound::Sound;
 
     py_class!(class PX8Audio |py| {
     data screen: Arc<Mutex<Screen>>;
+    data palettes: Arc<Mutex<Palettes>>;
     data players: Arc<Mutex<Players>>;
     data info: Arc<Mutex<Info>>;
     data sound: Arc<Mutex<Sound>>;
@@ -34,8 +36,34 @@ pub mod plugin {
 
     });
 
+    py_class!(class PX8Palette |py| {
+    data screen: Arc<Mutex<Screen>>;
+    data palettes: Arc<Mutex<Palettes>>;
+    data players: Arc<Mutex<Players>>;
+    data info: Arc<Mutex<Info>>;
+    data sound: Arc<Mutex<Sound>>;
+
+    // Palettes
+    def set_palette_color(&self, color:u32, r: u8, g: u8, b: u8) -> PyResult<i32> {
+    self.palettes(py).lock().unwrap().set_color(color, r, g, b);
+    Ok(0)
+    }
+
+    def reset_palette(&self) -> PyResult<i32> {
+    self.palettes(py).lock().unwrap().reset();
+    Ok(0)
+    }
+
+    def switch_palette(&self, name: String) -> PyResult<i32> {
+    self.palettes(py).lock().unwrap().switch_to(name);
+    Ok(0)
+    }
+
+    });
+
     py_class!(class PX8Graphic |py| {
     data screen: Arc<Mutex<Screen>>;
+    data palettes: Arc<Mutex<Palettes>>;
     data players: Arc<Mutex<Players>>;
     data info: Arc<Mutex<Info>>;
     data sound: Arc<Mutex<Sound>>;
@@ -71,21 +99,6 @@ pub mod plugin {
 
     def color(&self, color:i32) -> PyResult<i32> {
         self.screen(py).lock().unwrap().color(color);
-        Ok(0)
-    }
-
-    def set_color(&self, color:i32, r: u8, g: u8, b: u8) -> PyResult<i32> {
-        self.screen(py).lock().unwrap().set_color(color, r, g, b);
-        Ok(0)
-    }
-
-    def reset_colors(&self) -> PyResult<i32> {
-        self.screen(py).lock().unwrap().reset_colors();
-        Ok(0)
-    }
-
-    def switch_palette(&self, name: String) -> PyResult<i32> {
-        self.screen(py).lock().unwrap().switch_palette(name);
         Ok(0)
     }
 
@@ -247,6 +260,7 @@ pub mod plugin {
 
 
         pub fn load(&mut self,
+                    palettes: Arc<Mutex<Palettes>>,
                     players: Arc<Mutex<Players>>,
                     info: Arc<Mutex<Info>>,
                     screen: Arc<Mutex<Screen>>,
@@ -258,13 +272,23 @@ pub mod plugin {
 
             let px8_graphic_obj = PX8Graphic::create_instance(py,
                                                               screen.clone(),
+                                                              palettes.clone(),
                                                               players.clone(),
                                                               info.clone(),
                                                               sound.clone()).unwrap();
             self.mydict.set_item(py, "px8_graphic", px8_graphic_obj).unwrap();
 
+            let px8_palette_obj = PX8Palette::create_instance(py,
+                                                              screen.clone(),
+                                                              palettes.clone(),
+                                                              players.clone(),
+                                                              info.clone(),
+                                                              sound.clone()).unwrap();
+            self.mydict.set_item(py, "px8_palette", px8_palette_obj).unwrap();
+
             let px8_audio_obj = PX8Audio::create_instance(py,
                                                           screen.clone(),
+                                                          palettes.clone(),
                                                           players.clone(),
                                                           info.clone(),
                                                           sound.clone()).unwrap();
@@ -272,6 +296,7 @@ pub mod plugin {
 
             py.run(r###"globals()["px8_graphic"] = px8_graphic;"###, None, Some(&self.mydict));
             py.run(r###"globals()["px8_audio"] = px8_audio;"###, None, Some(&self.mydict));
+            py.run(r###"globals()["px8_palette"] = px8_palette;"###, None, Some(&self.mydict));
 
             let mut f = File::open("./sys/config/api.py").unwrap();
             let mut data = String::new();

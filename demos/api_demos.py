@@ -183,7 +183,7 @@ class Palette(object):
         self.T = 0
         self.idx = 0
 
-        self.palettes = ["pico8", "c64"]
+        self.palettes = ["pico-8", "commodore64"]
 
     def init(self):
         pass

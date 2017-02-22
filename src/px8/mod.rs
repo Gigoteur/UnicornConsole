@@ -251,105 +251,66 @@ impl Record {
     }
 }
 
-pub struct Px8New {
-    pub screen: Arc<Mutex<gfx::Screen>>,
-    cursor: GfxCursor,
-    pub cartridges: Vec<Cartridge>,
-    pub current_cartridge: usize,
-    pub lua_plugin: LuaPlugin,
-    pub python_plugin: PythonPlugin,
-    pub rust_plugin: Vec<Box<RustPlugin>>,
-    pub code_type: Code,
-    pub state: PX8State,
-    pub menu: Menu,
-    pub show_info_overlay: bool,
-    pub fps: f64,
-    pub draw_time: f64,
-    pub init_time: f64,
-    pub update_time: f64,
-    pub record: Record,
-    pub draw_return: bool,
-    pub update_return: bool,
-
+pub struct Palettes {
     pub palette_idx: u32,
     pub palettes: HashMap<String, Vec<RGB>>,
     pub palettes_list: Vec<String>,
-    pub palette_name: String,
+    pub name: String,
 }
 
-
-impl Px8New {
-    pub fn new() -> Px8New {
-        Px8New {
-            screen: Arc::new(Mutex::new(gfx::Screen::new())),
-            cursor: GfxCursor { x: 0, y: 0 },
-            cartridges: Vec::new(),
-            current_cartridge: 0,
-            lua_plugin: LuaPlugin::new(),
-            python_plugin: PythonPlugin::new(),
-            rust_plugin: Vec::new(),
-            code_type: Code::UNKNOWN,
-            state: PX8State::RUN,
-            menu: Menu::new(),
-            show_info_overlay: true,
-            fps: 0.0,
-            draw_time: 0.0,
-            init_time: 0.0,
-            update_time: 0.0,
-            record: Record::new(),
-            draw_return: true,
-            update_return: true,
-
+impl Palettes {
+    pub fn new() -> Palettes {
+        Palettes {
             palette_idx: 0,
             palettes: HashMap::new(),
             palettes_list: Vec::new(),
-            palette_name: "".to_string(),
+            name: "".to_string(),
         }
     }
 
-    pub fn init_palettes(&mut self) {
+    pub fn init(&mut self) {
         // load palettes statically for emscripten
-        self.load_palette("a64".to_string(), include_str!("../../sys/assets/palettes/a64.gpl").to_string());
-        self.load_palette("apple-ii".to_string(), include_str!("../../sys/assets/palettes/apple-ii.gpl").to_string());
-        self.load_palette("arne-paldac".to_string(), include_str!("../../sys/assets/palettes/arne-paldac.gpl").to_string());
-        self.load_palette("arne16".to_string(), include_str!("../../sys/assets/palettes/arne16.gpl").to_string());
-        self.load_palette("arne32".to_string(), include_str!("../../sys/assets/palettes/arne32.gpl").to_string());
-        self.load_palette("atari2600-ntsc".to_string(), include_str!("../../sys/assets/palettes/atari2600-ntsc.gpl").to_string());
-        self.load_palette("atari2600-pal".to_string(), include_str!("../../sys/assets/palettes/atari2600-pal.gpl").to_string());
-        self.load_palette("cg-arne".to_string(), include_str!("../../sys/assets/palettes/cg-arne.gpl").to_string());
-        self.load_palette("cga".to_string(), include_str!("../../sys/assets/palettes/cga.gpl").to_string());
-        self.load_palette("commodore-plus4".to_string(), include_str!("../../sys/assets/palettes/commodore-plus4.gpl").to_string());
-        self.load_palette("commodore-vic20".to_string(), include_str!("../../sys/assets/palettes/commodore-vic20.gpl").to_string());
-        self.load_palette("commodore64".to_string(), include_str!("../../sys/assets/palettes/commodore64.gpl").to_string());
-        self.load_palette("copper-tech".to_string(), include_str!("../../sys/assets/palettes/copper-tech.gpl").to_string());
-        self.load_palette("cpc-boy".to_string(), include_str!("../../sys/assets/palettes/cpc-boy.gpl").to_string());
-        self.load_palette("db16".to_string(), include_str!("../../sys/assets/palettes/db16.gpl").to_string());
-        self.load_palette("db32".to_string(), include_str!("../../sys/assets/palettes/db32.gpl").to_string());
-        self.load_palette("edg16".to_string(), include_str!("../../sys/assets/palettes/edg16.gpl").to_string());
-        self.load_palette("edg32".to_string(), include_str!("../../sys/assets/palettes/edg32.gpl").to_string());
-        self.load_palette("eroge-copper".to_string(), include_str!("../../sys/assets/palettes/eroge-copper.gpl").to_string());
-        self.load_palette("gameboy-color-type1".to_string(), include_str!("../../sys/assets/palettes/gameboy-color-type1.gpl").to_string());
-        self.load_palette("gameboy".to_string(), include_str!("../../sys/assets/palettes/gameboy.gpl").to_string());
-        self.load_palette("google-ui".to_string(), include_str!("../../sys/assets/palettes/google-ui.gpl").to_string());
-        self.load_palette("jmp".to_string(), include_str!("../../sys/assets/palettes/jmp.gpl").to_string());
-        self.load_palette("mail24".to_string(), include_str!("../../sys/assets/palettes/mail24.gpl").to_string());
-        self.load_palette("master-system".to_string(), include_str!("../../sys/assets/palettes/master-system.gpl").to_string());
-        self.load_palette("monokai".to_string(), include_str!("../../sys/assets/palettes/monokai.gpl").to_string());
-        self.load_palette("nes-ntsc".to_string(), include_str!("../../sys/assets/palettes/nes-ntsc.gpl").to_string());
-        self.load_palette("nes".to_string(), include_str!("../../sys/assets/palettes/nes.gpl").to_string());
-        self.load_palette("pico-8".to_string(), include_str!("../../sys/assets/palettes/pico-8.gpl").to_string());
-        self.load_palette("psygnork".to_string(), include_str!("../../sys/assets/palettes/psygnork.gpl").to_string());
-        self.load_palette("smile-basic".to_string(), include_str!("../../sys/assets/palettes/smile-basic.gpl").to_string());
-        self.load_palette("solarized".to_string(), include_str!("../../sys/assets/palettes/solarized.gpl").to_string());
-        self.load_palette("teletext".to_string(), include_str!("../../sys/assets/palettes/teletext.gpl").to_string());
-        self.load_palette("vga-13h".to_string(), include_str!("../../sys/assets/palettes/vga-13h.gpl").to_string());
-        self.load_palette("web-safe-colors".to_string(), include_str!("../../sys/assets/palettes/web-safe-colors.gpl").to_string());
-        self.load_palette("win16".to_string(), include_str!("../../sys/assets/palettes/win16.gpl").to_string());
-        self.load_palette("x11".to_string(), include_str!("../../sys/assets/palettes/x11.gpl").to_string());
-        self.load_palette("zx-spectrum".to_string(), include_str!("../../sys/assets/palettes/zx-spectrum.gpl").to_string());
+        self.load("a64".to_string(), include_str!("../../sys/assets/palettes/a64.gpl").to_string());
+        self.load("apple-ii".to_string(), include_str!("../../sys/assets/palettes/apple-ii.gpl").to_string());
+        self.load("arne-paldac".to_string(), include_str!("../../sys/assets/palettes/arne-paldac.gpl").to_string());
+        self.load("arne16".to_string(), include_str!("../../sys/assets/palettes/arne16.gpl").to_string());
+        self.load("arne32".to_string(), include_str!("../../sys/assets/palettes/arne32.gpl").to_string());
+        self.load("atari2600-ntsc".to_string(), include_str!("../../sys/assets/palettes/atari2600-ntsc.gpl").to_string());
+        self.load("atari2600-pal".to_string(), include_str!("../../sys/assets/palettes/atari2600-pal.gpl").to_string());
+        self.load("cg-arne".to_string(), include_str!("../../sys/assets/palettes/cg-arne.gpl").to_string());
+        self.load("cga".to_string(), include_str!("../../sys/assets/palettes/cga.gpl").to_string());
+        self.load("commodore-plus4".to_string(), include_str!("../../sys/assets/palettes/commodore-plus4.gpl").to_string());
+        self.load("commodore-vic20".to_string(), include_str!("../../sys/assets/palettes/commodore-vic20.gpl").to_string());
+        self.load("commodore64".to_string(), include_str!("../../sys/assets/palettes/commodore64.gpl").to_string());
+        self.load("copper-tech".to_string(), include_str!("../../sys/assets/palettes/copper-tech.gpl").to_string());
+        self.load("cpc-boy".to_string(), include_str!("../../sys/assets/palettes/cpc-boy.gpl").to_string());
+        self.load("db16".to_string(), include_str!("../../sys/assets/palettes/db16.gpl").to_string());
+        self.load("db32".to_string(), include_str!("../../sys/assets/palettes/db32.gpl").to_string());
+        self.load("edg16".to_string(), include_str!("../../sys/assets/palettes/edg16.gpl").to_string());
+        self.load("edg32".to_string(), include_str!("../../sys/assets/palettes/edg32.gpl").to_string());
+        self.load("eroge-copper".to_string(), include_str!("../../sys/assets/palettes/eroge-copper.gpl").to_string());
+        self.load("gameboy-color-type1".to_string(), include_str!("../../sys/assets/palettes/gameboy-color-type1.gpl").to_string());
+        self.load("gameboy".to_string(), include_str!("../../sys/assets/palettes/gameboy.gpl").to_string());
+        self.load("google-ui".to_string(), include_str!("../../sys/assets/palettes/google-ui.gpl").to_string());
+        self.load("jmp".to_string(), include_str!("../../sys/assets/palettes/jmp.gpl").to_string());
+        self.load("mail24".to_string(), include_str!("../../sys/assets/palettes/mail24.gpl").to_string());
+        self.load("master-system".to_string(), include_str!("../../sys/assets/palettes/master-system.gpl").to_string());
+        self.load("monokai".to_string(), include_str!("../../sys/assets/palettes/monokai.gpl").to_string());
+        self.load("nes-ntsc".to_string(), include_str!("../../sys/assets/palettes/nes-ntsc.gpl").to_string());
+        self.load("nes".to_string(), include_str!("../../sys/assets/palettes/nes.gpl").to_string());
+        self.load("pico-8".to_string(), include_str!("../../sys/assets/palettes/pico-8.gpl").to_string());
+        self.load("psygnork".to_string(), include_str!("../../sys/assets/palettes/psygnork.gpl").to_string());
+        self.load("smile-basic".to_string(), include_str!("../../sys/assets/palettes/smile-basic.gpl").to_string());
+        self.load("solarized".to_string(), include_str!("../../sys/assets/palettes/solarized.gpl").to_string());
+        self.load("teletext".to_string(), include_str!("../../sys/assets/palettes/teletext.gpl").to_string());
+        self.load("vga-13h".to_string(), include_str!("../../sys/assets/palettes/vga-13h.gpl").to_string());
+        self.load("web-safe-colors".to_string(), include_str!("../../sys/assets/palettes/web-safe-colors.gpl").to_string());
+        self.load("win16".to_string(), include_str!("../../sys/assets/palettes/win16.gpl").to_string());
+        self.load("x11".to_string(), include_str!("../../sys/assets/palettes/x11.gpl").to_string());
+        self.load("zx-spectrum".to_string(), include_str!("../../sys/assets/palettes/zx-spectrum.gpl").to_string());
     }
 
-    pub fn load_palette(&mut self, name: String, data: String) {
+    pub fn load(&mut self, name: String, data: String) {
         let mut buf_reader = Cursor::new(data);
 
         let mut values = Vec::new();
@@ -385,17 +346,13 @@ impl Px8New {
         self.palettes_list.push(name.clone());
     }
 
-    pub fn init(&mut self) {
-        self.init_palettes();
-
-        self.use_palette("pico-8".to_string());
-
-        self.screen.lock().unwrap().init();
-        self.update_return = true;
-        self.draw_return = true;
+    pub fn next(&mut self) {
+        self.palette_idx = (self.palette_idx + 1) % self.palettes_list.len() as u32;
+        let ref mut p_value = self.palettes_list[self.palette_idx as usize].clone();
+        self.switch_to(p_value.clone());
     }
 
-    pub fn use_palette(&mut self, name: String) {
+    pub fn switch_to(&mut self, name: String) {
         let ref values = *self.palettes.get(&name).unwrap();
 
         let mut idx = 0;
@@ -404,13 +361,79 @@ impl Px8New {
             idx += 1;
         }
 
-        self.palette_name = name.clone();
+        self.name = name.clone();
+    }
+
+    pub fn set_color(&mut self, color:u32, r: u8, g: u8, b: u8) {
+        set_color(color, r, g, b);
+    }
+
+    pub fn reset(&mut self) {
+        reset_colors();
+    }
+}
+
+pub struct Px8New {
+    pub screen: Arc<Mutex<gfx::Screen>>,
+    pub palettes: Arc<Mutex<Palettes>>,
+    pub cursor: GfxCursor,
+    pub cartridges: Vec<Cartridge>,
+    pub current_cartridge: usize,
+    pub lua_plugin: LuaPlugin,
+    pub python_plugin: PythonPlugin,
+    pub rust_plugin: Vec<Box<RustPlugin>>,
+    pub code_type: Code,
+    pub state: PX8State,
+    pub menu: Menu,
+    pub show_info_overlay: bool,
+    pub fps: f64,
+    pub draw_time: f64,
+    pub init_time: f64,
+    pub update_time: f64,
+    pub record: Record,
+    pub draw_return: bool,
+    pub update_return: bool,
+
+
+}
+
+
+impl Px8New {
+    pub fn new() -> Px8New {
+        Px8New {
+            screen: Arc::new(Mutex::new(gfx::Screen::new())),
+            palettes: Arc::new(Mutex::new(Palettes::new())),
+            cursor: GfxCursor { x: 0, y: 0 },
+            cartridges: Vec::new(),
+            current_cartridge: 0,
+            lua_plugin: LuaPlugin::new(),
+            python_plugin: PythonPlugin::new(),
+            rust_plugin: Vec::new(),
+            code_type: Code::UNKNOWN,
+            state: PX8State::RUN,
+            menu: Menu::new(),
+            show_info_overlay: true,
+            fps: 0.0,
+            draw_time: 0.0,
+            init_time: 0.0,
+            update_time: 0.0,
+            record: Record::new(),
+            draw_return: true,
+            update_return: true,
+        }
+    }
+
+    pub fn init(&mut self) {
+        self.palettes.lock().unwrap().init();
+        self.palettes.lock().unwrap().switch_to("pico-8".to_string());
+
+        self.screen.lock().unwrap().init();
+        self.update_return = true;
+        self.draw_return = true;
     }
 
     pub fn next_palette(&mut self) {
-        self.palette_idx = (self.palette_idx + 1) % self.palettes_list.len() as u32;
-        let ref mut p_value = self.palettes_list[self.palette_idx as usize].clone();
-        self.use_palette(p_value.clone());
+        self.palettes.lock().unwrap().next();
     }
 
     pub fn toggle_info_overlay(&mut self) {
@@ -425,7 +448,7 @@ impl Px8New {
                                                       self.fps,
                                                       self.draw_time,
                                                       self.update_time,
-                                                      self.palette_name).to_string(),
+                                                      &self.palettes.lock().unwrap().name).to_string(),
                                               0, 0,
                                               7);
         }
@@ -822,7 +845,8 @@ impl Px8New {
             Code::PYTHON => {
                 info!("Loading PYTHON Plugin");
 
-                self.python_plugin.load(players.clone(),
+                self.python_plugin.load(self.palettes.clone(),
+                                        players.clone(),
                                         info.clone(),
                                         self.screen.clone(),
                                         sound.clone());
