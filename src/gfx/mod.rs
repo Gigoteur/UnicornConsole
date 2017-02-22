@@ -328,24 +328,6 @@ impl Screen {
 
     pub fn _reset_colors(&mut self) {
         self.colors.clear();
-        /*
-                self.colors[0] = px8::Color::Black;
-                self.colors[1] = px8::Color::DarkBlue;
-                self.colors[2] = px8::Color::DarkPurple;
-                self.colors[3] = px8::Color::DarkGreen;
-                self.colors[4] = px8::Color::Brown;
-                self.colors[5] = px8::Color::DarkGray;
-                self.colors[6] = px8::Color::LightGray;
-                self.colors[7] = px8::Color::White;
-                self.colors[8] = px8::Color::Red;
-                self.colors[9] = px8::Color::Orange;
-                self.colors[10] = px8::Color::Yellow;
-                self.colors[11] = px8::Color::Green;
-                self.colors[12] = px8::Color::Blue;
-                self.colors[13] = px8::Color::Indigo;
-                self.colors[14] = px8::Color::Pink;
-                self.colors[15] = px8::Color::Peach;
-                */
     }
 
     pub fn save(&mut self) {
@@ -436,7 +418,7 @@ impl Screen {
     }
 
     pub fn switch_palette(&mut self, name: String) {
-        px8::switch_palette(name);
+      //  px8::switch_palette(name);
     }
 
     pub fn putpixel(&mut self, x: i32, y: i32, col: u32) {

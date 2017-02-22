@@ -66,61 +66,13 @@ pub fn to_rgb(value: u32) -> RGB {
 
 pub fn reset_colors() {
     PALETTE.lock().unwrap().clear();
-    load_pico8_palette();
 }
 
 pub fn set_color(color: u32, r: u8, g: u8, b: u8) {
     PALETTE.lock().unwrap().insert(color, RGB::new(r, g, b));
 }
 
-pub fn switch_palette(name: String) {
-    match name.as_ref() {
-        "pico8" => load_pico8_palette(),
-        "C64" => load_c64_palette(),
-        _ => (),
-    }
-}
-
-pub fn load_pico8_palette() {
-    /* Pico 8 Palette */
-    PALETTE.lock().unwrap().insert(0, RGB::new(0, 0, 0));
-    PALETTE.lock().unwrap().insert(1, RGB::new(29, 43, 83));
-    PALETTE.lock().unwrap().insert(2, RGB::new(126, 37, 83));
-    PALETTE.lock().unwrap().insert(3, RGB::new(0, 144, 61));
-    PALETTE.lock().unwrap().insert(4, RGB::new(171, 82, 54));
-    PALETTE.lock().unwrap().insert(5, RGB::new(95, 87, 79));
-    PALETTE.lock().unwrap().insert(6, RGB::new(194, 195, 199));
-    PALETTE.lock().unwrap().insert(7, RGB::new(255, 241, 232));
-    PALETTE.lock().unwrap().insert(8, RGB::new(255, 0, 77));
-    PALETTE.lock().unwrap().insert(9, RGB::new(255, 163, 0));
-    PALETTE.lock().unwrap().insert(10, RGB::new(255, 236, 39));
-    PALETTE.lock().unwrap().insert(11, RGB::new(0, 228, 54));
-    PALETTE.lock().unwrap().insert(12, RGB::new(41, 173, 255));
-    PALETTE.lock().unwrap().insert(13, RGB::new(132, 118, 156));
-    PALETTE.lock().unwrap().insert(14, RGB::new(255, 119, 168));
-    PALETTE.lock().unwrap().insert(15, RGB::new(255, 204, 170));
-}
-
-pub fn load_c64_palette() {
-    /* C64 Palette */
-    PALETTE.lock().unwrap().insert(0, RGB::new_hexa(0x000000));
-    PALETTE.lock().unwrap().insert(1, RGB::new_hexa(0xFFFFFF));
-    PALETTE.lock().unwrap().insert(2, RGB::new_hexa(0x880000));
-    PALETTE.lock().unwrap().insert(3, RGB::new_hexa(0xAAFFEE));
-    PALETTE.lock().unwrap().insert(4, RGB::new_hexa(0xCC44CC));
-    PALETTE.lock().unwrap().insert(5, RGB::new_hexa(0x00CC55));
-    PALETTE.lock().unwrap().insert(6, RGB::new_hexa(0x0000AA));
-    PALETTE.lock().unwrap().insert(7, RGB::new_hexa(0xEEEE77));
-    PALETTE.lock().unwrap().insert(8, RGB::new_hexa(0xDD8855));
-    PALETTE.lock().unwrap().insert(9, RGB::new_hexa(0x664400));
-    PALETTE.lock().unwrap().insert(10, RGB::new_hexa(0xFF7777));
-    PALETTE.lock().unwrap().insert(11, RGB::new_hexa(0x333333));
-    PALETTE.lock().unwrap().insert(12, RGB::new_hexa(0x777777));
-    PALETTE.lock().unwrap().insert(13, RGB::new_hexa(0xAAFF66));
-    PALETTE.lock().unwrap().insert(14, RGB::new_hexa(0x0088FF));
-    PALETTE.lock().unwrap().insert(15, RGB::new_hexa(0xBBBBBB));
-}
-
+#[derive(Clone)]
 pub struct RGB {
     pub r: u8,
     pub g: u8,
@@ -213,7 +165,6 @@ impl Menu {
 
         items.push("Continue".to_string());
         items.push("Config".to_string());
-        items.push("Palette".to_string());
         items.push("Quit".to_string());
 
         Menu {
@@ -234,8 +185,6 @@ impl Menu {
     }
 
     pub fn update(&mut self, players: Arc<Mutex<Players>>) -> bool {
-        info!("IDX {:?}", self.selected_idx);
-
         if players.lock().unwrap().btnp(0, 6) {
             self.selected_idx = self.idx as i32;
             if self.selected_idx == self.items.len() as i32 {
@@ -279,13 +228,6 @@ impl Menu {
             // screen.lock().unwrap().print(item.to_string(), 50, 55 + pos * 10, Color::White);
         }
 
-        if self.selected_idx == 2 {
-            self.draw_palette_option(screen);
-        }
-    }
-
-    pub fn draw_palette_option(&mut self, screen: Arc<Mutex<gfx::Screen>>) {
-        screen.lock().unwrap().cls();
     }
 }
 
@@ -328,6 +270,11 @@ pub struct Px8New {
     pub record: Record,
     pub draw_return: bool,
     pub update_return: bool,
+
+    pub palette_idx: u32,
+    pub palettes: HashMap<String, Vec<RGB>>,
+    pub palettes_list: Vec<String>,
+    pub palette_name: String,
 }
 
 
@@ -352,20 +299,118 @@ impl Px8New {
             record: Record::new(),
             draw_return: true,
             update_return: true,
+
+            palette_idx: 0,
+            palettes: HashMap::new(),
+            palettes_list: Vec::new(),
+            palette_name: "".to_string(),
         }
     }
 
-    pub fn init_palette(&mut self) {
-       // load_c64_palette();
-        load_pico8_palette();
+    pub fn init_palettes(&mut self) {
+        // load palettes statically for emscripten
+        self.load_palette("a64".to_string(), include_str!("../../sys/assets/palettes/a64.gpl").to_string());
+        self.load_palette("apple-ii".to_string(), include_str!("../../sys/assets/palettes/apple-ii.gpl").to_string());
+        self.load_palette("arne-paldac".to_string(), include_str!("../../sys/assets/palettes/arne-paldac.gpl").to_string());
+        self.load_palette("arne16".to_string(), include_str!("../../sys/assets/palettes/arne16.gpl").to_string());
+        self.load_palette("arne32".to_string(), include_str!("../../sys/assets/palettes/arne32.gpl").to_string());
+        self.load_palette("atari2600-ntsc".to_string(), include_str!("../../sys/assets/palettes/atari2600-ntsc.gpl").to_string());
+        self.load_palette("atari2600-pal".to_string(), include_str!("../../sys/assets/palettes/atari2600-pal.gpl").to_string());
+        self.load_palette("cg-arne".to_string(), include_str!("../../sys/assets/palettes/cg-arne.gpl").to_string());
+        self.load_palette("cga".to_string(), include_str!("../../sys/assets/palettes/cga.gpl").to_string());
+        self.load_palette("commodore-plus4".to_string(), include_str!("../../sys/assets/palettes/commodore-plus4.gpl").to_string());
+        self.load_palette("commodore-vic20".to_string(), include_str!("../../sys/assets/palettes/commodore-vic20.gpl").to_string());
+        self.load_palette("commodore64".to_string(), include_str!("../../sys/assets/palettes/commodore64.gpl").to_string());
+        self.load_palette("copper-tech".to_string(), include_str!("../../sys/assets/palettes/copper-tech.gpl").to_string());
+        self.load_palette("cpc-boy".to_string(), include_str!("../../sys/assets/palettes/cpc-boy.gpl").to_string());
+        self.load_palette("db16".to_string(), include_str!("../../sys/assets/palettes/db16.gpl").to_string());
+        self.load_palette("db32".to_string(), include_str!("../../sys/assets/palettes/db32.gpl").to_string());
+        self.load_palette("edg16".to_string(), include_str!("../../sys/assets/palettes/edg16.gpl").to_string());
+        self.load_palette("edg32".to_string(), include_str!("../../sys/assets/palettes/edg32.gpl").to_string());
+        self.load_palette("eroge-copper".to_string(), include_str!("../../sys/assets/palettes/eroge-copper.gpl").to_string());
+        self.load_palette("gameboy-color-type1".to_string(), include_str!("../../sys/assets/palettes/gameboy-color-type1.gpl").to_string());
+        self.load_palette("gameboy".to_string(), include_str!("../../sys/assets/palettes/gameboy.gpl").to_string());
+        self.load_palette("google-ui".to_string(), include_str!("../../sys/assets/palettes/google-ui.gpl").to_string());
+        self.load_palette("jmp".to_string(), include_str!("../../sys/assets/palettes/jmp.gpl").to_string());
+        self.load_palette("mail24".to_string(), include_str!("../../sys/assets/palettes/mail24.gpl").to_string());
+        self.load_palette("master-system".to_string(), include_str!("../../sys/assets/palettes/master-system.gpl").to_string());
+        self.load_palette("monokai".to_string(), include_str!("../../sys/assets/palettes/monokai.gpl").to_string());
+        self.load_palette("nes-ntsc".to_string(), include_str!("../../sys/assets/palettes/nes-ntsc.gpl").to_string());
+        self.load_palette("nes".to_string(), include_str!("../../sys/assets/palettes/nes.gpl").to_string());
+        self.load_palette("pico-8".to_string(), include_str!("../../sys/assets/palettes/pico-8.gpl").to_string());
+        self.load_palette("psygnork".to_string(), include_str!("../../sys/assets/palettes/psygnork.gpl").to_string());
+        self.load_palette("smile-basic".to_string(), include_str!("../../sys/assets/palettes/smile-basic.gpl").to_string());
+        self.load_palette("solarized".to_string(), include_str!("../../sys/assets/palettes/solarized.gpl").to_string());
+        self.load_palette("teletext".to_string(), include_str!("../../sys/assets/palettes/teletext.gpl").to_string());
+        self.load_palette("vga-13h".to_string(), include_str!("../../sys/assets/palettes/vga-13h.gpl").to_string());
+        self.load_palette("web-safe-colors".to_string(), include_str!("../../sys/assets/palettes/web-safe-colors.gpl").to_string());
+        self.load_palette("win16".to_string(), include_str!("../../sys/assets/palettes/win16.gpl").to_string());
+        self.load_palette("x11".to_string(), include_str!("../../sys/assets/palettes/x11.gpl").to_string());
+        self.load_palette("zx-spectrum".to_string(), include_str!("../../sys/assets/palettes/zx-spectrum.gpl").to_string());
+    }
+
+    pub fn load_palette(&mut self, name: String, data: String) {
+        let mut buf_reader = Cursor::new(data);
+
+        let mut values = Vec::new();
+
+        for line in buf_reader.lines() {
+            let line = line.unwrap();
+            let l = line.trim_left().to_string();
+
+            if l.len() == 0 {
+                continue;
+            }
+
+            if l.starts_with("#") {
+                continue;
+            }
+
+            let l_b = l.as_bytes();
+
+            if ! (l_b[0] as char).is_digit(10) {
+                continue;
+            }
+
+            let mut iter = l.split_whitespace();
+
+            let r = iter.next().unwrap().parse::<u8>().unwrap();
+            let g = iter.next().unwrap().parse::<u8>().unwrap();
+            let b = iter.next().unwrap().parse::<u8>().unwrap();
+
+            values.push(RGB::new(r, g, b));
+        }
+
+        self.palettes.insert(name.clone(), values);
+        self.palettes_list.push(name.clone());
     }
 
     pub fn init(&mut self) {
-        self.init_palette();
+        self.init_palettes();
+
+        self.use_palette("pico-8".to_string());
 
         self.screen.lock().unwrap().init();
         self.update_return = true;
         self.draw_return = true;
+    }
+
+    pub fn use_palette(&mut self, name: String) {
+        let ref values = *self.palettes.get(&name).unwrap();
+
+        let mut idx = 0;
+        for rgb_value in values {
+            PALETTE.lock().unwrap().insert(idx, rgb_value.clone());
+            idx += 1;
+        }
+
+        self.palette_name = name.clone();
+    }
+
+    pub fn next_palette(&mut self) {
+        self.palette_idx = (self.palette_idx + 1) % self.palettes_list.len() as u32;
+        let ref mut p_value = self.palettes_list[self.palette_idx as usize].clone();
+        self.use_palette(p_value.clone());
     }
 
     pub fn toggle_info_overlay(&mut self) {
@@ -374,13 +419,13 @@ impl Px8New {
 
     pub fn debug_update(&mut self) {
         if self.show_info_overlay {
-            self.screen.lock().unwrap().rectfill(0, 0, 108, 8, 0);
+            self.screen.lock().unwrap().rectfill(0, 0, SCREEN_WIDTH as i32, 8, 0);
 
-            self.screen.lock().unwrap().print(format!("{:.0} FPS {:.2}ms {:.2}ms {:.2}ms",
+            self.screen.lock().unwrap().print(format!("{:.0}FPS {:.2} {:.2} {:?}",
                                                       self.fps,
-                                                      self.init_time,
                                                       self.draw_time,
-                                                      self.update_time).to_string(),
+                                                      self.update_time,
+                                                      self.palette_name).to_string(),
                                               0, 0,
                                               7);
         }

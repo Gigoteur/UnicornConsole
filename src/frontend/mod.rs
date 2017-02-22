@@ -304,6 +304,8 @@ impl Frontend {
                             self.px8.switch_code();
                             // Call the init of the new code
                             self.px8.init_time = self.px8.call_init() * 1000.0;
+                        } else if keycode == Keycode::F7 {
+                            self.px8.next_palette();
                         }
 
                         if self.players.lock().unwrap().get_value_quick(0, 7) == 1 {

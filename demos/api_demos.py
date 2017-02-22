@@ -178,6 +178,29 @@ class Colors(object):
         circ(64, 64, 6, 16)
         circ(10, 10, 6, 17)
 
+class Palette(object):
+    def __init__(self):
+        self.T = 0
+        self.idx = 0
+
+        self.palettes = ["pico8", "c64"]
+
+    def init(self):
+        pass
+
+    def update(self):
+        self.T += 1
+
+    def draw(self):
+        cls()
+        px8_print(self.palettes[self.idx], 10, 100, 7)
+
+        if self.T % 100 == 0:
+            self.idx = (self.idx + 1) % len(self.palettes)
+            switch_palette(self.palettes[self.idx])
+
+        sspr(8, 0, 8, 8, 8, 8, 8, 8)
+
 idx_demo = 0
 demos = [
     ["rect", [Rect()]],
@@ -189,6 +212,7 @@ demos = [
     ["camera", [Camera()]],
     ["clip", [Clip()]],
     ["colors", [Colors()]],
+    ["palette", [Palette()]],
 ]
 
 def _init():
