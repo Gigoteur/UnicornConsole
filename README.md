@@ -18,16 +18,14 @@ It is still in development, but it is usable and the main features are:
  * Screenshot (PNG) / Video recording (GIF)
  * Pico-8 compatibility + cartridge (P8/P8.PNG) format support
  
-It works on all platforms (Linux/OSX/Windows), in the browser (via Emscripten), and on tiny hardware like Raspberry Pi.
+It works on all platforms (Linux/OSX/Windows), in the browser (via Emscripten), and on tiny hardware like Raspberry Pi 2/3.
 
-The console is inspired from the awesome [Pico-8](http://www.lexaloffle.com/pico-8.php), so a compatibility is available with Pico-8 cartridges (P8/PNG).
+The console is inspired from the awesome [Pico-8](http://www.lexaloffle.com/pico-8.php), so there is a compatibility mode available with Pico-8 console and cartridges (P8/PNG).
 
 ![](https://j.gifs.com/0gMZ87.gif)
 ![](https://j.gifs.com/xGyM1n.gif)
 ![](https://j.gifs.com/vgw08V.gif)
 ![](https://j.gifs.com/k5gVw5.gif)
-
-* Recorded GIF 
 
 **The time for each frame is slow (10ms) in the GIF, and doesn't correspond to the speed of the game.**
 
@@ -43,6 +41,7 @@ The console is inspired from the awesome [Pico-8](http://www.lexaloffle.com/pico
   * [Run a cartridge](#run-a-cartridge)
   * [Edit a cartridge](#edit-a-cartridge)
   * [Keyboard Shortcut](#keyboard-shortcut)
+  * [Display options](#display-options)
   * [How to create a new cartridge](#how-to-create-a-new-cartridge)
     + [Python](#python)
     + [Lua](#lua)
@@ -121,10 +120,8 @@ You can see example of PX8 + Emscripten in the demos [repository](https://github
 You should be able to run it directly by providing the path of the cartridge:
 
 ```
-./target/release/px8 -s 4 ./games/ski/ski.px8
+./target/release/px8 ./games/ski/ski.px8
 ```
-
-The '-s' option is the scale, so you can increase it (2/4/8/10), or in fullscreen by using '-f' option.
 
 ### Demos
 
@@ -159,12 +156,32 @@ System shortcut:
   * F4: Take a video
   * F5: Save the current cartridge
   * F6: Switch between editor/play mode
+  * F7: Switch to the next available palette
 
 ### Game controller  / Joystick
 
 ### Change shortcuts
 
 ### Add player
+
+## Display options
+
+### Change the scale
+
+With the '-s' option you can change the size of the console, so you can increase it (2/4/8/10).
+
+You can also use the fullscreen option by using '-f' option.
+
+### SDL renderer
+
+You can use the SDL renderer by using the sdl_renderer feature during the compilation:
+```
+cargo build --features="sdl_renderer" --release
+```
+
+### SDL + OpenGL
+
+You can add the '-o' option to force SDL to use OpenGL
 
 
 ## How to create a new cartridge
