@@ -66,6 +66,12 @@ def sget(x, y):
 def spr(n, x, y,  w=1, h=1, flip_x=False, flip_y=False):
     px8_graphic.spr(n, x, y, w, h, flip_x, flip_y)
 
+def spr_dyn(id, x, y, flip_x=False, flip_y=False):
+    return px8_graphic.spr_dyn(id, x, y, flip_x, flip_y)
+
+def spr_dyn_load(data, width, height):
+    return px8_graphic.spr_dyn_load(data, width, height)
+
 def sset(x, y, c=-1):
     px8_graphic.sset(x, y, c)
 
@@ -97,6 +103,8 @@ globals()["rect"] = rect
 globals()["rectfill"] = rectfill
 globals()["sget"] = sget
 globals()["spr"] = spr
+globals()["spr_dyn"] = spr_dyn
+globals()["spr_dyn_load"] = spr_dyn_load
 globals()["sset"] = sset
 globals()["sspr"] = sspr
 globals()["trigon"] = trigon
@@ -104,19 +112,19 @@ globals()["trigon"] = trigon
 # Input
 
 def btn(x, p=0):
-    return px8_graphic.btn(x, p)
+    return px8_input.btn(x, p)
 
 def btnp(x, p=0):
-    return px8_graphic.btnp(x, p)
+    return px8_input.btnp(x, p)
 
 def mouse_x():
-    return px8_graphic.btn_mouse(0)
+    return px8_input.btn_mouse(0)
 
 def mouse_y():
-    return px8_graphic.btn_mouse(1)
+    return px8_input.btn_mouse(1)
 
 def mouse_state():
-    return px8_graphic.btn_mouse_state()
+    return px8_input.btn_mouse_state()
 
 
 globals()["btn"] = btn
@@ -129,13 +137,13 @@ globals()["mouse_state"] = mouse_state
 # Map
 
 def spr_map(cel_x, cel_y, sx, sy, cel_w, cel_h):
-    px8_graphic.spr_map(cel_x, cel_y, sx, sy, cel_w, cel_h)
+    px8_map.spr_map(cel_x, cel_y, sx, sy, cel_w, cel_h)
 
 def mget(x, y):
-    return px8_graphic.mget(math.floor(x), math.floor(y))
+    return px8_map.mget(math.floor(x), math.floor(y))
 
 def mset(x, y, v):
-    px8_graphic.mset(math.floor(x), math.floor(y), math.floor(v))
+    px8_map.mset(math.floor(x), math.floor(y), math.floor(v))
 
 globals()["spr_map"] = spr_map
 globals()["mget"] = mget
@@ -190,11 +198,29 @@ def stat(x):
 
 # Others
 def px8_time():
-    return px8_graphic.time()
+    return px8_sys.time()
 
 globals()["px8_time"] = px8_time
 
 
+
+def img_to_rgb(data):
+    from PIL import Image
+
+    res = []
+    im = Image.open(data)
+    pix = im.load()
+    width, height = im.size
+
+    for x in range(width):
+        for y in range(height):
+            v = pix[x, y][:-1]
+
+            res.append(v[0])
+            res.append(v[1])
+            res.append(v[2])
+
+    return res, width, height
 
 
 

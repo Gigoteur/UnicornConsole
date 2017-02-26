@@ -2,36 +2,48 @@ px8 / python cartridge
 version 1
 __python__
 
-from PIL import Image
+import json
+import base64
+import io
 
-# Get a PNG and display it directly by adding the color
+import random
+
+ANIM_BIRD = [
+    -1,
+    -1,
+    -1,
+]
+
+T = 0
+
 def _init():
     cls()
-    im = Image.open("./demos/assets/Tux.png")
-    print(im)
-    pix = im.load()
-    width, height = im.size
-    print(width, height)
+    rectfill(0, 0, 127, 127, 7)
+    j = json.load(open("./games/flappy/assets/Flappy.fpsheet"))
+    for image in j['images']:
+        data = io.BytesIO(base64.b64decode(j['images'][image]['src'][22:]))
+        data, width, height = img_to_rgb(data)
 
-    palettes = {}
-    idx = 16
+        if image == 'flappy-71.png':
+            ANIM_BIRD[0] = spr_dyn_load(data, width, height)
 
-    for x in range(width):
-        for y in range(height):
-            v = pix[x, y][:-1]
-            if v not in palettes:
-                palettes[v] = idx
-                set_palette_color(idx, v[0], v[1], v[2])
-                idx += 1
-            pset(x, y, palettes[v])
+        if image == 'flappy-50.png':
+            ANIM_BIRD[1] = spr_dyn_load(data, width, height)
 
+        if image == 'flappy-52.png':
+            ANIM_BIRD[2] = spr_dyn_load(data, width, height)
 
+    print(ANIM_BIRD)
+    #spr_dyn(ANIM_BIRD[0], 64, 64, flip_x=True)
 
 def _update():
-    pass
+    global T
+    T += 1
 
 def _draw():
-    pass
+    global T
+    cls()
+    spr_dyn(ANIM_BIRD[T % len(ANIM_BIRD) - 1], 64, 64)
 
 __gfx__
 10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000

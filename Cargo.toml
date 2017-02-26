@@ -13,9 +13,9 @@ build = "build.rs"
 
 exclude = [ ".idea/*", ".travis.yml" ]
 
-[lib]
-name       = "px8"
-path       = "src/lib.rs"
+#[lib]
+#name       = "px8"
+#path       = "src/lib.rs"
 
 [features]
 default = []
@@ -33,7 +33,7 @@ log = "0.3.6"
 fern = "0.3.5"
 rusttype = "0.2.1"
 getopts = "0.2.14"
-nalgebra = "0.10.1"
+nalgebra = "0.11.1"
 image = "0.11.0"
 gif = "0.9.0"
 rustc-serialize = "0.3.22"

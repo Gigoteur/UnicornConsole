@@ -362,7 +362,7 @@ pub mod renderer {
 
             for x in 0..px8::SCREEN_WIDTH {
                 for y in 0..px8::SCREEN_HEIGHT {
-                    let col_rgb = px8::to_rgb(back_buffer[x + y * px8::SCREEN_WIDTH]);
+                    let col_rgb = px8::PALETTE.lock().unwrap().get_rgb(back_buffer[x + y * px8::SCREEN_WIDTH]);
 
                     data[(x+y*px8::SCREEN_WIDTH)*3] = col_rgb.b;
                     data[(x+y*px8::SCREEN_WIDTH)*3+1] = col_rgb.g;

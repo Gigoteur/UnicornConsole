@@ -114,6 +114,93 @@ pub const GLYPH : [[u16; 2]; 95]  = [
     [0x0013, 0x0419], // ~
 ];
 
+use nalgebra::{U2, U3, Rotation2, Dynamic, Matrix, MatrixArray, MatrixVec};
+
+type DMatrixu32 = Matrix<u32, Dynamic, Dynamic, MatrixVec<u32, Dynamic, Dynamic>>;
+
+#[derive(Clone)]
+pub struct DynSprite {
+    pub data: DMatrixu32,
+}
+
+impl DynSprite {
+    pub fn new(data: Vec<u32>, width: u32, height: u32) -> DynSprite {
+        let mut d_mat = DMatrixu32::from_element(height as usize, width as usize, 0);
+
+        let mut idx = 0;
+
+        debug!("WIDTH {:?} HEIGHT {:?} -> {:?} {:?}", width, height, d_mat.ncols(), d_mat.nrows());
+
+        for i in 0..width {
+            for j in 0..height {
+                d_mat[(i+j*width) as usize] = *data.get(idx).unwrap();
+                idx += 1;
+            }
+        }
+
+        DynSprite {
+            data: d_mat.clone(),
+        }
+    }
+
+    pub fn new_from_matrix(d_mat: DMatrixu32) -> DynSprite {
+        DynSprite {
+            data: d_mat,
+        }
+    }
+
+
+    pub fn flip_x(&mut self) -> DMatrixu32 {
+        let mut r_mat = self.data.clone();
+
+        let n_cols = r_mat.ncols();
+        let n_rows = r_mat.nrows();
+
+        for i in 0..n_cols/2 {
+            for j in 0..n_rows {
+                let tmp = r_mat[(i + j * n_cols) as usize];
+                r_mat[(i + j * n_cols) as usize] = r_mat[((n_cols - (i+1)) + j * n_cols) as usize];
+                r_mat[((n_cols - (i+1)) + j * n_cols) as usize] = tmp;
+            }
+        }
+        return r_mat;
+    }
+
+    pub fn flip_y(&mut self) -> DMatrixu32 {
+        let mut r_mat = self.data.clone();
+
+        let n_cols = r_mat.ncols();
+        let n_rows = r_mat.nrows();
+
+        for i in 0..n_rows/2 {
+            for j in 0..n_cols {
+                let tmp = r_mat[(j + i * n_cols) as usize];
+                r_mat[(j + i * n_cols) as usize] = r_mat[(j + (n_rows - (i+1)) * n_cols) as usize];
+                r_mat[(j + (n_rows - (i+1)) * n_cols) as usize] = tmp;
+            }
+        }
+        return r_mat;
+    }
+
+}
+
+impl fmt::Debug for DynSprite {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let mut data_matrix = String::new();
+        data_matrix.push('\n');
+
+        for j in 0..self.data.nrows() {
+            for i in 0..self.data.ncols() {
+                data_matrix.push_str(format!("{:?} ", self.data[(i+j*self.data.ncols()) as usize]).as_str());
+            }
+            data_matrix.push('\n');
+
+        }
+
+        write!(f, "{}", data_matrix)
+    }
+}
+
 #[derive(Clone)]
 pub struct Sprite {
     pub data: Vec<u8>,
@@ -155,18 +242,6 @@ impl Sprite {
         return data;
     }
 
-    pub fn transpose(&mut self) -> [u8; 64] {
-        let mut ret : [u8; 64] = [0; 8 * 8];
-
-        for i in 0..8 {
-            for j in 0..8 {
-                ret[(j+i*8) as usize] = self.data[(i + j * 8) as usize];
-            }
-        }
-
-        return ret;
-    }
-
     pub fn horizontal_reflection(&mut self) -> [u8; 64] {
         let mut ret: [u8; 64] = self.to_u8_64_array();
 
@@ -203,7 +278,6 @@ impl Sprite {
     pub fn flip_y(&mut self) -> Sprite {
         return Sprite::new(self.vertical_reflection());
     }
-
 
     pub fn to_u8_64_array(&mut self) -> [u8;64] {
         let mut arr = [0u8;64];
@@ -286,6 +360,7 @@ pub struct Screen {
     pub back_buffer: Box<px8::ScreenBuffer>,
     pub saved_back_buffer: Box<px8::ScreenBuffer>,
     pub sprites: Vec<Sprite>,
+    pub dyn_sprites: Vec<DynSprite>,
     pub map: [[u32; 32]; px8::SCREEN_WIDTH],
     pub transparency: HashMap<u32, u8>,
     pub colors: HashMap<u32, u32>,
@@ -304,10 +379,11 @@ impl Screen {
             saved_back_buffer: Box::new(px8::SCREEN_EMPTY),
 
             sprites: Vec::new(),
+            dyn_sprites: Vec::new(),
             map: [[0; 32]; px8::SCREEN_WIDTH],
 
             transparency: HashMap::new(),
-            colors:  HashMap::new(),
+            colors: HashMap::new(),
             color: 0,
 
             camera: Camera::new(),
@@ -384,10 +460,10 @@ impl Screen {
             let x = x as u32;
             let y = y as u32;
 
-            if !(x >= self.clipping.x && x <= self.clipping.x+self.clipping.w) {
+            if !(x >= self.clipping.x && x <= self.clipping.x + self.clipping.w) {
                 return;
             }
-            if !(y >= self.clipping.y && y <= self.clipping.y+self.clipping.h) {
+            if !(y >= self.clipping.y && y <= self.clipping.y + self.clipping.h) {
                 return;
             }
         }
@@ -396,7 +472,7 @@ impl Screen {
             Some(&value) => col = value,
             None => (),
         }
-     //   col = self.colors[col as usize];
+        //   col = self.colors[col as usize];
 
         self.back_buffer[x + y * SCREEN_WIDTH] = col;
     }
@@ -715,7 +791,7 @@ impl Screen {
             return;
         }
 
-        if x < 0 || y  < 0 || w  < 0 || h  < 0 {
+        if x < 0 || y < 0 || w < 0 || h < 0 {
             return;
         }
 
@@ -798,7 +874,7 @@ impl Screen {
 
             let mut index = 0;
             for c in &sprite.data {
-                if ! self.is_transparent(*c as u32) {
+                if !self.is_transparent(*c as u32) {
                     self.putpixel_(new_x, new_y, *c as u32);
                 }
 
@@ -821,6 +897,53 @@ impl Screen {
                 orig_x = 0;
             }
         }
+    }
+
+    pub fn spr_dyn(&mut self, id: u32, x: i32, y: i32, flip_x: bool, flip_y: bool) {
+        info!("SPR DYN {:?}: {:?} {:?}", id, x, y);
+
+        if id as usize >= self.dyn_sprites.len() {
+            return
+        }
+
+        let mut sprite = self.dyn_sprites[id as usize].clone();
+
+        if flip_x {
+            sprite = DynSprite::new_from_matrix(sprite.flip_x());
+        }
+
+        if flip_y {
+            sprite = DynSprite::new_from_matrix(sprite.flip_y());
+        }
+
+        for j in 0..sprite.data.nrows() {
+            for i in 0..sprite.data.ncols() {
+                self.putpixel_(i as i32 + x, j as i32 + y, sprite.data[(i+j*sprite.data.ncols()) as usize]);
+            }
+        }
+    }
+
+    pub fn spr_dyn_load(&mut self, data: Vec<u8>, width: u32, height: u32) -> i32 {
+        debug!("Load dynamic sprite {:?} {:?}", width, height);
+
+        let mut idx = 0;
+        let mut v:Vec<u32> = Vec::new();
+
+        while idx < data.len() {
+            let r = *data.get(idx).unwrap();
+            let g = *data.get(idx+1).unwrap();
+            let b = *data.get(idx+2).unwrap();
+
+            v.push(px8::PALETTE.lock().unwrap().add_color(r, g, b));
+
+            idx += 3;
+        }
+
+        let s = DynSprite::new(v, width, height);
+
+        self.dyn_sprites.push(s.clone());
+
+        (self.dyn_sprites.len() as i32) - 1
     }
 
     pub fn map(&mut self, cel_x: u32, cel_y: u32, sx: i32, sy: i32, cel_w: u32, cel_h: u32) {

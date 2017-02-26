@@ -2,30 +2,14 @@ px8 / python cartridge
 version 1
 __python__
 
-from PIL import Image
-
-# Get a PNG and display it directly by adding the color
+# Get a PNG and load it via spr_dyn_load + spr_dyn
 def _init():
     cls()
-    im = Image.open("./demos/assets/Tux.png")
-    print(im)
-    pix = im.load()
-    width, height = im.size
-    print(width, height)
 
-    palettes = {}
-    idx = 16
+    data, width, height = img_to_rgb("./demos/assets/Tux.png")
+    id_sprite = spr_dyn_load(data, width, height)
 
-    for x in range(width):
-        for y in range(height):
-            v = pix[x, y][:-1]
-            if v not in palettes:
-                palettes[v] = idx
-                set_palette_color(idx, v[0], v[1], v[2])
-                idx += 1
-            pset(x, y, palettes[v])
-
-
+    spr_dyn(id_sprite, 0, 0)
 
 def _update():
     pass

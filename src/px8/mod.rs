@@ -45,31 +45,69 @@ pub const SCREEN_PIXELS: usize = SCREEN_WIDTH * SCREEN_HEIGHT;
 
 pub type ScreenBuffer = [u32; SCREEN_PIXELS];
 
-
-lazy_static! {
-    static ref PALETTE: Mutex<HashMap<u32, RGB>> = {
-        let mut m = Mutex::new(HashMap::new());
-        m
-    };
-    static ref COUNT: usize = PALETTE.lock().unwrap().len();
+pub struct Palette {
+    colors: HashMap<u32, RGB>,
+    rcolors: HashMap<u32, u32>,
+    idx: u32,
 }
 
+impl Palette {
+    pub fn new() -> Palette {
+        Palette {
+            colors: HashMap::new(),
+            rcolors: HashMap::new(),
+            idx: 16,
+        }
+    }
 
-pub fn to_rgb(value: u32) -> RGB {
-    unsafe {
-        match PALETTE.lock().unwrap().get(&value) {
+    pub fn get_rgb(&mut self, value: u32) -> RGB {
+        match self.colors.get(&value) {
             Some(rgb_value) => RGB::new(rgb_value.r, rgb_value.g, rgb_value.b),
             _ => RGB::new(0, 0, 0),
         }
     }
+
+    pub fn reset(&mut self) {
+        self.colors.clear();
+    }
+
+    pub fn set_color(&mut self, color: u32, r: u8, g: u8, b: u8) {
+        self.colors.insert(color, RGB::new(r, g, b));
+        self.rcolors.insert((r as u32) << 16 | (g as u32) << 8 | (b as u32), color);
+    }
+
+    pub fn get_color(&mut self, color: u32) -> u32 {
+        unsafe {
+            match self.colors.get(&color) {
+                Some(rgb_value) => return (rgb_value.r as u32) << 16 | (rgb_value.g as u32) << 8 | (rgb_value.b as u32),
+                _ => return 0,
+            }
+        }
+    }
+
+    pub fn add_color(&mut self, r: u8, g: u8, b: u8) -> u32 {
+        let value = self.idx;
+
+        let v = (r as u32) << 16 | (g as u32) << 8 | (b as u32);
+        match self.rcolors.get(&v) {
+            Some(color) => return *color,
+            _ => (),
+        }
+
+        debug!("ADD COLOR {:?}: {:?} {:?} {:?}", value, r, g, b);
+
+        self.set_color(value, r, g, b);
+        self.idx += 1;
+
+        value
+    }
 }
 
-pub fn reset_colors() {
-    PALETTE.lock().unwrap().clear();
-}
-
-pub fn set_color(color: u32, r: u8, g: u8, b: u8) {
-    PALETTE.lock().unwrap().insert(color, RGB::new(r, g, b));
+lazy_static! {
+    pub static ref PALETTE: Mutex<Palette> = {
+        let mut m = Mutex::new(Palette::new());
+        m
+    };
 }
 
 #[derive(Clone)]
@@ -357,7 +395,7 @@ impl Palettes {
 
         let mut idx = 0;
         for rgb_value in values {
-            PALETTE.lock().unwrap().insert(idx, rgb_value.clone());
+            PALETTE.lock().unwrap().set_color(idx, rgb_value.r, rgb_value.g, rgb_value.b);
             idx += 1;
         }
 
@@ -365,11 +403,15 @@ impl Palettes {
     }
 
     pub fn set_color(&mut self, color:u32, r: u8, g: u8, b: u8) {
-        set_color(color, r, g, b);
+        PALETTE.lock().unwrap().set_color(color, r, g, b);
+    }
+
+    pub fn get_color(&mut self, color:u32) -> u32 {
+        PALETTE.lock().unwrap().get_color(color)
     }
 
     pub fn reset(&mut self) {
-        reset_colors();
+        PALETTE.lock().unwrap().reset();
     }
 }
 
@@ -517,7 +559,7 @@ impl Px8New {
             for x in 0..self::SCREEN_WIDTH {
                 for y in 0..self::SCREEN_HEIGHT {
                     let value = self.screen.lock().unwrap().pget(x as u32, y as u32);
-                    let rgb_value = to_rgb(value);
+                    let rgb_value = PALETTE.lock().unwrap().get_rgb(value);
 
                     buffer.push(rgb_value.r);
                     buffer.push(rgb_value.g);
@@ -587,7 +629,7 @@ impl Px8New {
         for x in 0..SCREEN_WIDTH {
             for y in 0..SCREEN_HEIGHT {
                 let value = self.screen.lock().unwrap().pget(x as u32, y as u32);
-                let rgb_value = to_rgb(value);
+                let rgb_value = PALETTE.lock().unwrap().get_rgb(value);
 
                 buffer.push(rgb_value.r);
                 buffer.push(rgb_value.g);
