@@ -900,7 +900,7 @@ impl Screen {
     }
 
     pub fn spr_dyn(&mut self, id: u32, x: i32, y: i32, flip_x: bool, flip_y: bool) {
-        info!("SPR DYN {:?}: {:?} {:?}", id, x, y);
+        debug!("SPR DYN {:?}: {:?} {:?}", id, x, y);
 
         if id as usize >= self.dyn_sprites.len() {
             return
@@ -918,7 +918,10 @@ impl Screen {
 
         for j in 0..sprite.data.nrows() {
             for i in 0..sprite.data.ncols() {
-                self.putpixel_(i as i32 + x, j as i32 + y, sprite.data[(i+j*sprite.data.ncols()) as usize]);
+                let c = sprite.data[(i + j * sprite.data.ncols()) as usize];
+                if !self.is_transparent(c) {
+                    self.putpixel_(i as i32 + x, j as i32 + y, c);
+                }
             }
         }
     }
