@@ -21,7 +21,7 @@ before_install:
 
 install:
 - sudo apt-get update -q
-- sudo apt-get install libsdl2-dev libreadline-dev
+- sudo apt-get install libsdl2-dev libsdl2-mixer-dev libreadline-dev
 - export PYTHON_LIB=$(python -c "import sysconfig; print(sysconfig.get_config_var('LIBDIR'))")
 - export LIBRARY_PATH="$LIBRARY_PATH:$PYTHON_LIB"
 - export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$PYTHON_LIB"
