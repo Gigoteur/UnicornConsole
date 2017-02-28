@@ -96,6 +96,18 @@ You could build PX8 with cargo directly, in release mode for example, with the s
 cargo build --features="cpython lua" --release 
 ```
 
+## Resolution
+
+By default the resolution will 128x128 but you can change the default values by specifying the values of the env variables PX8_SCREEN_WIDTH + PX8_SCREEN_HEIGHT during the compulation:
+```
+PX8_SCREEN_WIDTH=256 PX8_SCREEN_HEIGHT=256
+```
+
+Example:
+```
+PX8_SCREEN_WIDTH=256 PX8_SCREEN_HEIGHT=256 cargo build --release
+```
+
 ### With SDL
 
 If you want to use only the SDL renderer without opengl, you could use the sdl_renderer feature:
