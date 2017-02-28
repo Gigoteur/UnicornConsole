@@ -19,7 +19,7 @@ pub mod renderer {
     use glium::texture::texture2d::Texture2d;
 
     use glium::uniforms::{MagnifySamplerFilter, MinifySamplerFilter};
-    use nalgebra::{Diagonal, Matrix4, Vector4};
+    use nalgebra::{Matrix4, Vector4};
 
     use self::glium_sdl2::{Display, DisplayBuild, GliumSdl2Error};
 
@@ -211,6 +211,8 @@ pub mod renderer {
             let (x_scale, y_scale) = aspect_ratio_correction(width, height);
             let matrix = Matrix4::from_diagonal(&Vector4::new(x_scale, y_scale, 1.0, 1.0));
 
+            info!("matrix {:?}", matrix);
+
             Ok(Renderer {
                 vertex_buffer: vertex_buffer,
                 index_buffer: index_buffer,
@@ -224,7 +226,7 @@ pub mod renderer {
         }
         pub fn draw<S: Surface>(&self, frame: &mut S) -> RendererResult<()> {
             let uniforms = uniform! {
-                matrix: self.matrix.as_ref().clone(),
+              //  matrix: self.matrix.as_ref().clone(),
                 tex: self.texture.sampled()
                     .minify_filter(MinifySamplerFilter::Nearest)
                     .magnify_filter(MagnifySamplerFilter::Nearest)

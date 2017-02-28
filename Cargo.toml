@@ -13,9 +13,9 @@ build = "build.rs"
 
 exclude = [ ".idea/*", ".travis.yml" ]
 
-#[lib]
-#name       = "px8"
-#path       = "src/lib.rs"
+[lib]
+name       = "px8"
+path       = "src/lib.rs"
 
 [features]
 default = []
@@ -53,5 +53,5 @@ default-features = false
 features = ["mixer"]
 
 [dependencies.glium]
-version = "0.15.0"
+version = "0.16.0"
 default-features = false

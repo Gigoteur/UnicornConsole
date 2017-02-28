@@ -1,7 +1,6 @@
 #version 140
 
 uniform sampler2D tex;
-//uniform sampler2D palettes;
 
 uniform mat4 palette;
 
