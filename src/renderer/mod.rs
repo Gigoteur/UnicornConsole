@@ -3,7 +3,7 @@ pub mod renderer {
     pub mod glium_sdl2;
 
     use px8;
-    use gfx::{Scale};
+    use gfx::{Scale, Screen};
 
     use sdl2::video::gl_attr::GLAttr;
     use sdl2::VideoSubsystem;
@@ -300,11 +300,12 @@ pub mod renderer {
 #[cfg(feature = "sdl_renderer")]
 pub mod renderer {
     use px8;
-    use gfx::{Scale};
+    use gfx::{Scale, Screen};
 
     use sdl2::VideoSubsystem;
     use sdl2::render;
     use sdl2::pixels::PixelFormatEnum;
+    use std::sync::{Arc, Mutex};
 
     #[derive(Clone, Debug)]
     pub enum RendererError {
@@ -359,21 +360,9 @@ pub mod renderer {
             })
         }
 
-        pub fn blit(&mut self, back_buffer: &px8::ScreenBuffer) {
-            let mut data = Box::new([0; px8::SCREEN_HEIGHT*px8::SCREEN_WIDTH*3]);
-
-            for x in 0..px8::SCREEN_WIDTH {
-                for y in 0..px8::SCREEN_HEIGHT {
-                    let col_rgb = px8::PALETTE.lock().unwrap().get_rgb(back_buffer[x + y * px8::SCREEN_WIDTH]);
-
-                    data[(x+y*px8::SCREEN_WIDTH)*3] = col_rgb.b;
-                    data[(x+y*px8::SCREEN_WIDTH)*3+1] = col_rgb.g;
-                    data[(x+y*px8::SCREEN_WIDTH)*3+2] = col_rgb.r;
-                }
-            }
-
+        pub fn blit(&mut self, screen: Arc<Mutex<Screen>>) {
             self.texture.update(None,
-                                &mut *data,
+                                &mut *screen.lock().unwrap().buffer_rgb,
                                 px8::SCREEN_WIDTH * 3).unwrap();
 
             self.renderer.clear();

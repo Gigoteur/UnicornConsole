@@ -607,7 +607,7 @@ impl Frontend {
     }
 
     pub fn blit(&mut self) {
-        self.renderer.blit(&self.px8.screen.lock().unwrap().back_buffer);
+        self.renderer.blit(self.px8.screen.clone());
         self.times.limit();
     }
 }

@@ -1,3 +1,5 @@
+use std::mem;
+
 use std::fmt;
 use std::collections::HashMap;
 
@@ -359,13 +361,19 @@ impl Clipping {
 pub struct Screen {
     pub back_buffer: Box<px8::ScreenBuffer>,
     pub saved_back_buffer: Box<px8::ScreenBuffer>,
+    pub buffer_rgb: Box<px8::ScreenBufferRGB>,
+
     pub sprites: Vec<Sprite>,
     pub dyn_sprites: Vec<DynSprite>,
+
     pub map: [[u32; 32]; px8::SCREEN_WIDTH],
+
     pub transparency: HashMap<u32, u8>,
-    pub colors: HashMap<u32, u32>,
-    pub camera: Camera,
+
     pub color: u32,
+    pub colors: HashMap<u32, u32>,
+
+    pub camera: Camera,
     pub clipping: Clipping,
 }
 
@@ -377,6 +385,7 @@ impl Screen {
         Screen {
             back_buffer: Box::new(px8::SCREEN_EMPTY),
             saved_back_buffer: Box::new(px8::SCREEN_EMPTY),
+            buffer_rgb: Box::new([0; px8::SCREEN_PIXELS_RGB]),
 
             sprites: Vec::new(),
             dyn_sprites: Vec::new(),
@@ -472,9 +481,13 @@ impl Screen {
             Some(&value) => col = value,
             None => (),
         }
-        //   col = self.colors[col as usize];
 
         self.back_buffer[x + y * SCREEN_WIDTH] = col;
+
+        let col_rgb = px8::PALETTE.lock().unwrap().get_rgb(col);
+        self.buffer_rgb[(x + y * SCREEN_WIDTH) * 3] = col_rgb.b;
+        self.buffer_rgb[(x + y * SCREEN_WIDTH) * 3+1] = col_rgb.g;
+        self.buffer_rgb[(x + y * SCREEN_WIDTH) * 3+2] = col_rgb.r;
     }
 
     pub fn color(&mut self, col: i32) {
@@ -521,11 +534,9 @@ impl Screen {
     }
 
     pub fn cls(&mut self) {
-        for x in 0..SCREEN_WIDTH {
-            for y in 0..SCREEN_HEIGHT {
-                self.putpixel(x as i32, y as i32, 0);
-            }
-        }
+        // Fastest way to clean the buffer ?
+        self.back_buffer = Box::new(px8::SCREEN_EMPTY);
+        self.buffer_rgb = Box::new([0; px8::SCREEN_PIXELS_RGB]);
     }
 
     pub fn print(&mut self, string: String, x: i32, y: i32, col: i32) {
@@ -900,7 +911,7 @@ impl Screen {
     }
 
     pub fn spr_dyn(&mut self, id: u32, x: i32, y: i32, flip_x: bool, flip_y: bool) {
-        debug!("SPR DYN {:?}: {:?} {:?}", id, x, y);
+        //debug!("SPR DYN {:?}: {:?} {:?}", id, x, y);
 
         if id as usize >= self.dyn_sprites.len() {
             return
@@ -916,9 +927,12 @@ impl Screen {
             sprite = DynSprite::new_from_matrix(sprite.flip_y());
         }
 
-        for j in 0..sprite.data.nrows() {
-            for i in 0..sprite.data.ncols() {
-                let c = sprite.data[(i + j * sprite.data.ncols()) as usize];
+        let nrows = sprite.data.nrows();
+        let ncols = sprite.data.ncols();
+
+        for j in 0..nrows {
+            for i in 0..ncols {
+                let c = sprite.data[(i + j * ncols) as usize];
                 if !self.is_transparent(c) {
                     self.putpixel_(i as i32 + x, j as i32 + y, c);
                 }
