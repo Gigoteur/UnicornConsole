@@ -19,7 +19,7 @@ path       = "src/lib.rs"
 
 [features]
 default = []
-sdl_renderer = []
+gfx_rs_renderer = []
 
 [dependencies]
 time = "0.1.35"
@@ -43,6 +43,7 @@ tokio-core = "0.1"
 tokio-service = "0.1"
 tokio-proto = "0.1"
 lazy_static = "0.1.*"
+gfx = "0.14"
 
 cpython = {version = "0.1.0", optional = true}
 lua = {version = "0.0.10", optional = true }
@@ -51,7 +52,3 @@ lua = {version = "0.0.10", optional = true }
 version = "0.27.2"
 default-features = false
 features = ["mixer"]
-
-[dependencies.glium]
-version = "0.16.0"
-default-features = false

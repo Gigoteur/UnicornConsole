@@ -52,6 +52,7 @@ pub const SCREEN_EMPTY: ScreenBuffer = [0; SCREEN_PIXELS];
 pub struct Palette {
     colors: HashMap<u32, RGB>,
     rcolors: HashMap<u32, u32>,
+    cached_colors: [u32; 16],
     idx: u32,
 }
 
@@ -60,11 +61,22 @@ impl Palette {
         Palette {
             colors: HashMap::new(),
             rcolors: HashMap::new(),
+            cached_colors: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             idx: 16,
         }
     }
 
     pub fn get_rgb(&mut self, value: u32) -> RGB {
+        if value < 16 {
+            let v = self.cached_colors[value as usize];
+
+            let r = ((v & 0xff0000) >> 16) as u8;
+            let g = ((v & 0x00ff00) >> 8) as u8;
+            let b = (v & 0x0000ff) as u8;
+
+            return RGB::new(r, g, b);
+        }
+
         match self.colors.get(&value) {
             Some(rgb_value) => RGB::new(rgb_value.r, rgb_value.g, rgb_value.b),
             _ => RGB::new(0, 0, 0),
@@ -76,8 +88,13 @@ impl Palette {
     }
 
     pub fn set_color(&mut self, color: u32, r: u8, g: u8, b: u8) {
+        let u32_color = (r as u32) << 16 | (g as u32) << 8 | (b as u32);
+
         self.colors.insert(color, RGB::new(r, g, b));
-        self.rcolors.insert((r as u32) << 16 | (g as u32) << 8 | (b as u32), color);
+        self.rcolors.insert(u32_color, color);
+        if color < 16 {
+            self.cached_colors[color as usize] = u32_color;
+        }
     }
 
     pub fn get_color(&mut self, color: u32) -> u32 {
@@ -97,8 +114,6 @@ impl Palette {
             Some(color) => return *color,
             _ => (),
         }
-
-        debug!("ADD COLOR {:?}: {:?} {:?} {:?}", value, r, g, b);
 
         self.set_color(value, r, g, b);
         self.idx += 1;

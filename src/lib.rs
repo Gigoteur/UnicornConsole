@@ -14,7 +14,7 @@ extern crate getopts;
 extern crate nalgebra;
 
 #[macro_use]
-extern crate glium;
+extern crate gfx as gfx_rs;
 
 extern crate image;
 extern crate gif;
