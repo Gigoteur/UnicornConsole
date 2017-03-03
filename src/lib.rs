@@ -5,9 +5,6 @@ extern crate lua;
 #[macro_use]
 extern crate cpython;
 
-#[cfg(feature = "dyon")]
-extern crate dyon;
-
 extern crate sdl2;
 extern crate getopts;
 
