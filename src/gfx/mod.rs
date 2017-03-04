@@ -676,6 +676,11 @@ impl Screen {
         k = (i * rx) / ry;
 
         while i > h {
+            h = (ix + 32) >> 6;
+            i = (iy + 32) >> 6;
+            j = (h * rx) / ry;
+            k = (i * rx) / ry;
+
             if ((oi != i) && (oh != i)) || ((oh != h) && (oi != h) && (i != h)) {
                 xmj = x - j;
                 xpj = x + j;
@@ -711,11 +716,6 @@ impl Screen {
 
             ix = ix + iy / ry;
             iy = iy - ix / ry;
-
-            h = (ix + 32) >> 6;
-            i = (iy + 32) >> 6;
-            j = (h * rx) / ry;
-            k = (i * rx) / ry;
         }
     }
 
@@ -752,8 +752,12 @@ impl Screen {
         j = (h * rx) / ry;
         k = (i * rx) / ry;
 
-
         while i > h {
+            h = (ix + 32) >> 6;
+            i = (iy + 32) >> 6;
+            j = (h * rx) / ry;
+            k = (i * rx) / ry;
+
             if (oi != i) && (oh != i) {
                 xmj = x - j;
                 xpj = x + j;
@@ -779,12 +783,6 @@ impl Screen {
 
             ix = ix + iy / ry;
             iy = iy - ix / ry;
-
-
-            h = (ix + 32) >> 6;
-            i = (iy + 32) >> 6;
-            j = (h * rx) / ry;
-            k = (i * rx) / ry;
         }
     }
 
