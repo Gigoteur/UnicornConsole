@@ -51,7 +51,7 @@ pub mod renderer {
             }
 
             info!("[SDL] Creating renderer");
-            let mut renderer = window.renderer().accelerated().present_vsync().build().unwrap();
+            let renderer = window.renderer().accelerated().present_vsync().build().unwrap();
 
             info!("[SDL] Creating texture");
             let texture = renderer.create_texture(PixelFormatEnum::BGR24,

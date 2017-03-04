@@ -22,10 +22,10 @@ def camera(x=-1, y=-1):
     px8_graphic.camera(x, y)
 
 def circ(x, y, r, color=-1):
-    px8_graphic.circ(math.floor(x), math.floor(y), math.floor(r), color)
+    px8_graphic.circ(math.floor(x), math.floor(y), math.floor(r), math.floor(color))
 
 def circfill(x, y, r, color=-1):
-    px8_graphic.circfill(math.floor(x), math.floor(y), math.floor(r), color)
+    px8_graphic.circfill(math.floor(x), math.floor(y), math.floor(r), math.floor(color))
 
 def clip(x=-1, y=-1, w=-1, h=-1):
     px8_graphic.clip(math.floor(x), math.floor(y), math.floor(w), math.floor(h))
@@ -37,7 +37,7 @@ def color(col):
     px8_graphic.color(col)
 
 def line(x1, y1, x2, y2, color=-1):
-    px8_graphic.line(math.floor(x1), math.floor(y1), math.floor(x2), math.floor(y2), color)
+    px8_graphic.line(math.floor(x1), math.floor(y1), math.floor(x2), math.floor(y2), math.floor(color))
 
 def pal(c0 = -1, c1 = -1, p=0):
     px8_graphic.pal(math.floor(c0), math.floor(c1))
@@ -55,10 +55,10 @@ def px8_print(str, x=-1, y=-1, col=-1):
     return px8_graphic.print(str, x, y, col)
 
 def rect(x1, y1, x2, y2, color=-1):
-    px8_graphic.rect(math.floor(x1), math.floor(y1), math.floor(x2), math.floor(y2), color)
+    px8_graphic.rect(math.floor(x1), math.floor(y1), math.floor(x2), math.floor(y2), math.floor(color))
 
 def rectfill(x1, y1, x2, y2, color=-1):
-    px8_graphic.rectfill(math.floor(x1), math.floor(y1), math.floor(x2), math.floor(y2), color)
+    px8_graphic.rectfill(math.floor(x1), math.floor(y1), math.floor(x2), math.floor(y2), math.floor(color))
 
 def sget(x, y):
     return px8_graphic.sget(x, y)

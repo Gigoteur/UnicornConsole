@@ -1,7 +1,6 @@
-use std::mem;
-
 use std::fmt;
 use std::collections::HashMap;
+use nalgebra::{Rotation2, Dynamic, Matrix, MatrixVec};
 
 use px8;
 
@@ -115,8 +114,6 @@ pub const GLYPH : [[u16; 2]; 95]  = [
     [0x0013, 0x0419], // }
     [0x0013, 0x0419], // ~
 ];
-
-use nalgebra::{U2, U3, Rotation2, Dynamic, Matrix, MatrixArray, MatrixVec};
 
 type DMatrixu32 = Matrix<u32, Dynamic, Dynamic, MatrixVec<u32, Dynamic, Dynamic>>;
 
@@ -991,8 +988,8 @@ impl Screen {
                     break
                 }
 
-                let mut map_x = cel_x as i32 + idx_x;
-                let mut map_y = cel_y as i32 + idx_y;
+                let map_x = cel_x as i32 + idx_x;
+                let map_y = cel_y as i32 + idx_y;
 
                 let idx_sprite = self.map[map_x as usize][map_y as usize];
 
@@ -1057,8 +1054,8 @@ impl Screen {
         let h1 = sh;
         let h2 = dh;
 
-        let mut x_ratio;
-        let mut y_ratio;
+        let x_ratio;
+        let y_ratio;
 
         let mut ret = Vec::with_capacity((w2 * h2) as usize);
 

@@ -2,16 +2,12 @@ pub mod info;
 pub mod cartdata;
 pub mod emscripten;
 
-use std;
 use std::collections::HashMap;
 use std::io::BufReader;
 use std::io::Cursor;
-use std::sync::mpsc;
-use std::thread;
 use std::sync::{Arc, Mutex};
 use time;
 
-use chan;
 use chan::{Receiver, Sender};
 
 use nalgebra::clamp;
@@ -21,11 +17,8 @@ use image;
 use gif;
 use gif::SetParameter;
 
-use std::io;
 use std::io::prelude::*;
 
-use std::error::Error;
-use std::fmt;
 use std::path::Path;
 use std::fs::File;
 
@@ -35,7 +28,6 @@ use plugins::python_plugin::plugin::PythonPlugin;
 use config::Players;
 use self::info::Info;
 use gfx;
-use gfx::{Screen, Sprite};
 use cartridge::{Cartridge, CartridgeFormat};
 use sound::Sound;
 
@@ -98,11 +90,9 @@ impl Palette {
     }
 
     pub fn get_color(&mut self, color: u32) -> u32 {
-        unsafe {
-            match self.colors.get(&color) {
-                Some(rgb_value) => return (rgb_value.r as u32) << 16 | (rgb_value.g as u32) << 8 | (rgb_value.b as u32),
-                _ => return 0,
-            }
+        match self.colors.get(&color) {
+            Some(rgb_value) => return (rgb_value.r as u32) << 16 | (rgb_value.g as u32) << 8 | (rgb_value.b as u32),
+            _ => return 0,
         }
     }
 
@@ -124,7 +114,7 @@ impl Palette {
 
 lazy_static! {
     pub static ref PALETTE: Mutex<Palette> = {
-        let mut m = Mutex::new(Palette::new());
+        let m = Mutex::new(Palette::new());
         m
     };
 }
@@ -163,42 +153,6 @@ pub trait RustPlugin {
 pub enum PX8State {
     RUN,
     PAUSE,
-}
-
-pub struct GfxCursor {
-    x: u8,
-    y: u8,
-}
-
-pub struct Debug {
-    last_time: f64,
-    frames: u32,
-    fps: i32,
-}
-
-impl Debug {
-    pub fn new() -> Debug {
-        Debug {
-            last_time: time::precise_time_s(),
-            frames: 0,
-            fps: 0,
-        }
-    }
-
-    pub fn update(&mut self) -> i32 {
-        let now = time::precise_time_s();
-        if now >= self.last_time + 1f64 {
-            let v = self.frames;
-
-            self.frames = 0;
-            self.last_time = now;
-            return v as i32;
-        } else {
-            self.frames += 1;
-        }
-
-        return -1;
-    }
 }
 
 pub enum Code {
@@ -295,7 +249,7 @@ pub struct Record {
 
 impl Record {
     pub fn new() -> Record {
-        let mut images = Vec::new();
+        let images = Vec::new();
 
         Record {
             recording: false,
@@ -366,7 +320,7 @@ impl Palettes {
     }
 
     pub fn load(&mut self, name: String, data: String) {
-        let mut buf_reader = Cursor::new(data);
+        let buf_reader = Cursor::new(data);
 
         let mut values = Vec::new();
 
@@ -435,7 +389,6 @@ impl Palettes {
 pub struct Px8New {
     pub screen: Arc<Mutex<gfx::Screen>>,
     pub palettes: Arc<Mutex<Palettes>>,
-    pub cursor: GfxCursor,
     pub cartridges: Vec<Cartridge>,
     pub current_cartridge: usize,
     pub lua_plugin: LuaPlugin,
@@ -462,7 +415,6 @@ impl Px8New {
         Px8New {
             screen: Arc::new(Mutex::new(gfx::Screen::new())),
             palettes: Arc::new(Mutex::new(Palettes::new())),
-            cursor: GfxCursor { x: 0, y: 0 },
             cartridges: Vec::new(),
             current_cartridge: 0,
             lua_plugin: LuaPlugin::new(),
@@ -570,8 +522,6 @@ impl Px8New {
 
         if self.record.nb % 4 == 0 {
             let mut buffer: Vec<u8> = Vec::new();
-
-            let scale = 2;
 
             for x in 0..self::SCREEN_WIDTH {
                 for y in 0..self::SCREEN_HEIGHT {

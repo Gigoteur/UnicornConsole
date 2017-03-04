@@ -7,19 +7,16 @@ use sdl2;
 use std::sync::{Arc, Mutex};
 use sdl2::Sdl;
 use sdl2::EventPump;
-use sdl2::VideoSubsystem;
-use std::time::{Duration, Instant};
+use std::time::{Duration};
 use sdl2::event::{Event, WindowEvent};
 
-use std::error::Error;
 use std::path::Path;
 
 use chrono::Local;
 
-use sdl2::controller::{Axis, Button};
+use sdl2::controller::{Axis};
 use sdl2::keyboard::Keycode;
 
-#[macro_use]
 use chan;
 use chan::{Receiver, Sender};
 
@@ -27,7 +24,7 @@ use renderer;
 use sound;
 use px8;
 use config;
-use config::keys::{PX8Key, map_axis, map_button, map_keycode, map_button_joystick, map_axis_joystick};
+use config::keys::{map_axis, map_button, map_keycode, map_button_joystick, map_axis_joystick};
 use config::controllers;
 
 use gfx::{Scale};
@@ -96,7 +93,6 @@ pub struct Frontend {
     channels: Channels,
     start_time: time::Tm,
     elapsed_time: f64,
-    delta: Duration,
     scale: Scale,
     fps_counter: fps::FpsCounter,
 }
@@ -135,7 +131,6 @@ impl Frontend {
             channels: Channels::new(),
             start_time: time::now(),
             elapsed_time: 0.,
-            delta: Duration::from_secs(0),
             scale: scale,
             fps_counter: fps::FpsCounter::new(),
         })
@@ -251,7 +246,7 @@ impl Frontend {
         info!("Handle Event");
 
         'main: loop {
-            let delta = self.times.update();
+            self.times.update();
 
             self.fps_counter.update(self.times.get_last_time());
 
@@ -431,7 +426,7 @@ impl Frontend {
     #[cfg(target_os = "emscripten")]
     fn handle_event(&mut self, editor: bool, players: Arc<Mutex<config::Players>>) {
         emscripten::set_main_loop_callback(|| {
-            let delta = self.times.update();
+            self.times.update();
 
             self.fps_counter.update(self.times.get_last_time());
 

@@ -8,17 +8,12 @@ pub mod plugin {
 
     use config::Players;
     use px8::info::Info;
-    use px8;
     use px8::Palettes;
     use gfx::Screen;
     use sound::Sound;
 
     // Audio
     py_class!(class PX8Audio |py| {
-    data screen: Arc<Mutex<Screen>>;
-    data palettes: Arc<Mutex<Palettes>>;
-    data players: Arc<Mutex<Players>>;
-    data info: Arc<Mutex<Info>>;
     data sound: Arc<Mutex<Sound>>;
 
     def sound_load(&self, filename: String) -> PyResult<i32> {
@@ -38,11 +33,7 @@ pub mod plugin {
 
     // Palettes
     py_class!(class PX8Palette |py| {
-    data screen: Arc<Mutex<Screen>>;
     data palettes: Arc<Mutex<Palettes>>;
-    data players: Arc<Mutex<Players>>;
-    data info: Arc<Mutex<Info>>;
-    data sound: Arc<Mutex<Sound>>;
 
     def set_palette_color(&self, color:u32, r: u8, g: u8, b: u8) -> PyResult<i32> {
         self.palettes(py).lock().unwrap().set_color(color, r, g, b);
@@ -66,11 +57,6 @@ pub mod plugin {
     // Graphics
     py_class!(class PX8Graphic |py| {
     data screen: Arc<Mutex<Screen>>;
-    data palettes: Arc<Mutex<Palettes>>;
-    data players: Arc<Mutex<Players>>;
-    data info: Arc<Mutex<Info>>;
-    data sound: Arc<Mutex<Sound>>;
-
 
     def camera(&self, x: i32, y: i32) -> PyResult<i32> {
         self.screen(py).lock().unwrap().camera(x, y);
@@ -206,11 +192,7 @@ pub mod plugin {
 
     // Input
     py_class!(class PX8Input |py| {
-    data screen: Arc < Mutex < Screen > >;
-    data palettes: Arc < Mutex < Palettes >>;
     data players: Arc < Mutex < Players> >;
-    data info: Arc < Mutex <Info > >;
-    data sound: Arc < Mutex< Sound > >;
 
     def btn(&self, x: i32, p: i32) -> PyResult<u8> {
         let value = self.players(py).lock().unwrap().get_value(p as u8, x as u8);
@@ -237,12 +219,6 @@ pub mod plugin {
     // Map
     py_class!(class PX8Map |py| {
     data screen: Arc < Mutex < Screen > >;
-    data palettes: Arc < Mutex < Palettes >>;
-    data players: Arc < Mutex < Players> >;
-    data info: Arc < Mutex <Info > >;
-    data sound: Arc < Mutex< Sound > >;
-
-
 
     def spr_map(&self, cel_x: i32, cel_y: i32, sx: i32, sy: i32, cel_w: i32, cel_h: i32) -> PyResult<i32> {
         self.screen(py).lock().unwrap().map(cel_x as u32, cel_y as u32,
@@ -272,11 +248,7 @@ pub mod plugin {
     // Peek/Poke
 
     py_class!(class PX8Sys |py| {
-    data screen: Arc < Mutex < Screen > >;
-    data palettes: Arc < Mutex < Palettes >>;
-    data players: Arc < Mutex < Players> >;
     data info: Arc < Mutex <Info > >;
-    data sound: Arc < Mutex< Sound > >;
 
     // Others
     def time(&self) -> PyResult<f64> {
@@ -313,60 +285,36 @@ pub mod plugin {
             let py = gil.python();
 
             let px8_graphic_obj = PX8Graphic::create_instance(py,
-                                                              screen.clone(),
-                                                              palettes.clone(),
-                                                              players.clone(),
-                                                              info.clone(),
-                                                              sound.clone()).unwrap();
+                                                              screen.clone()).unwrap();
             self.mydict.set_item(py, "px8_graphic", px8_graphic_obj).unwrap();
 
             let px8_palette_obj = PX8Palette::create_instance(py,
-                                                              screen.clone(),
-                                                              palettes.clone(),
-                                                              players.clone(),
-                                                              info.clone(),
-                                                              sound.clone()).unwrap();
+                                                              palettes.clone()).unwrap();
             self.mydict.set_item(py, "px8_palette", px8_palette_obj).unwrap();
 
             let px8_audio_obj = PX8Audio::create_instance(py,
-                                                          screen.clone(),
-                                                          palettes.clone(),
-                                                          players.clone(),
-                                                          info.clone(),
                                                           sound.clone()).unwrap();
             self.mydict.set_item(py, "px8_audio", px8_audio_obj).unwrap();
 
             let px8_input_obj = PX8Input::create_instance(py,
-                                                          screen.clone(),
-                                                          palettes.clone(),
-                                                          players.clone(),
-                                                          info.clone(),
-                                                          sound.clone()).unwrap();
+                                                          players.clone()).unwrap();
             self.mydict.set_item(py, "px8_input", px8_input_obj).unwrap();
 
             let px8_map_obj = PX8Map::create_instance(py,
-                                                      screen.clone(),
-                                                      palettes.clone(),
-                                                      players.clone(),
-                                                      info.clone(),
-                                                      sound.clone()).unwrap();
+                                                      screen.clone()).unwrap();
             self.mydict.set_item(py, "px8_map", px8_map_obj).unwrap();
 
             let px8_sys_obj = PX8Sys::create_instance(py,
-                                                      screen.clone(),
-                                                      palettes.clone(),
-                                                      players.clone(),
-                                                      info.clone(),
-                                                      sound.clone()).unwrap();
+                                                      info.clone()).unwrap();
             self.mydict.set_item(py, "px8_sys", px8_sys_obj).unwrap();
 
 
-            py.run(r###"globals()["px8_graphic"] = px8_graphic;"###, None, Some(&self.mydict));
-            py.run(r###"globals()["px8_audio"] = px8_audio;"###, None, Some(&self.mydict));
-            py.run(r###"globals()["px8_palette"] = px8_palette;"###, None, Some(&self.mydict));
-            py.run(r###"globals()["px8_input"] = px8_input;"###, None, Some(&self.mydict));
-            py.run(r###"globals()["px8_map"] = px8_map;"###, None, Some(&self.mydict));
-            py.run(r###"globals()["px8_sys"] = px8_sys;"###, None, Some(&self.mydict));
+            py.run(r###"globals()["px8_graphic"] = px8_graphic;"###, None, Some(&self.mydict)).unwrap();
+            py.run(r###"globals()["px8_audio"] = px8_audio;"###, None, Some(&self.mydict)).unwrap();
+            py.run(r###"globals()["px8_palette"] = px8_palette;"###, None, Some(&self.mydict)).unwrap();
+            py.run(r###"globals()["px8_input"] = px8_input;"###, None, Some(&self.mydict)).unwrap();
+            py.run(r###"globals()["px8_map"] = px8_map;"###, None, Some(&self.mydict)).unwrap();
+            py.run(r###"globals()["px8_sys"] = px8_sys;"###, None, Some(&self.mydict)).unwrap();
 
             let mut f = File::open("./sys/config/api.py").unwrap();
             let mut data = String::new();

@@ -197,12 +197,36 @@ class Drippy(object):
     def draw(self):
         pset(self.x, self.y, self.c)
 
+# see https://itch.io/t/65644/i-ported-a-nice-mini-demo-from-pico-8-
+class RadBot(object):
+    def __init__(self):
+        pass
+
+    def init(self):
+        self.T = 0
+
+    def update(self):
+        pass
+
+    def draw(self):
+        cls()
+
+        self.T += 1/9
+        r=map(lambda x: x/10.0,range(0,10))
+        for i in r:
+            x = 64+cos(i+self.T)*48
+            y = 64+sin(i+self.T)*24
+            color = 12+y%4
+            circfill(x, y, y/12, color)
+            px8_print("rad bot!", 40, 60, color)
+
 idx_demo = 0
 demos = [
     ["Hello", [HelloWorld()]],
     ["Sphere", [Sphere()]],
     ["Vortex", [Vortex()]],
     ["Drippy", [Drippy()]],
+    ["RadBot", [RadBot()]],
 ]
 
 buttons = []
