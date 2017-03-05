@@ -637,153 +637,11 @@ impl Screen {
     }
 
     pub fn circ(&mut self, x: i32, y: i32, r: i32, col: i32) {
-        if r <= 0 {
-            return;
-        }
-
-        let col = self._find_color(col);
-
-        let mut h: i32;
-        let mut i: i32;
-        let mut j: i32;
-        let mut k: i32;
-
-        let mut oh: i32 = 0xFFFF;
-        let mut oi: i32 = 0xFFFF;
-
-        let mut ix: i32;
-        let mut iy: i32;
-
-        let rx: i32 = r as i32;
-        let ry: i32 = r as i32;
-
-        let mut xmj: i32;
-        let mut xpj: i32;
-        let mut ymi: i32;
-        let mut ypi: i32;
-
-        let mut xmk: i32;
-        let mut xpk: i32;
-        let mut ymh: i32;
-        let mut yph: i32;
-
-        ix = 0;
-        iy = ry * 64;
-
-        h = (ix + 32) >> 6;
-        i = (iy + 32) >> 6;
-        j = (h * rx) / ry;
-        k = (i * rx) / ry;
-
-        while i > h {
-            h = (ix + 32) >> 6;
-            i = (iy + 32) >> 6;
-            j = (h * rx) / ry;
-            k = (i * rx) / ry;
-
-            if ((oi != i) && (oh != i)) || ((oh != h) && (oi != h) && (i != h)) {
-                xmj = x - j;
-                xpj = x + j;
-                if i > 0 {
-                    ypi = y + i;
-                    ymi = y - i;
-                    self.putpixel(xmj, ypi, col);
-                    self.putpixel(xpj, ypi, col);
-                    self.putpixel(xmj, ymi, col);
-                    self.putpixel(xpj, ymi, col);
-                } else {
-                    self.putpixel(xmj, y, col);
-                    self.putpixel(xpj, y, col);
-                }
-
-
-                oi = i;
-                xmk = x - k;
-                xpk = x + k;
-                if h > 0 {
-                    yph = y + h;
-                    ymh = y - h;
-                    self.putpixel(xmk, yph, col);
-                    self.putpixel(xpk, yph, col);
-                    self.putpixel(xmk, ymh, col);
-                    self.putpixel(xpk, ymh, col);
-                } else {
-                    self.putpixel(xmk, y, col);
-                    self.putpixel(xpk, y, col);
-                }
-                oh = h;
-            }
-
-            ix = ix + iy / ry;
-            iy = iy - ix / ry;
-        }
+        self.ellipse(x, y, r, r, col);
     }
 
     pub fn circfill(&mut self, x: i32, y: i32, r: i32, col: i32) {
-        if r <= 0 {
-            return;
-        }
-
-        let mut h: i32;
-        let mut i: i32;
-        let mut j: i32;
-        let mut k: i32;
-
-        let mut oh: i32 = 0xFFFF;
-        let mut oi: i32 = 0xFFFF;
-
-        let mut ix: i32;
-        let mut iy: i32;
-
-        let rx: i32 = r as i32;
-        let ry: i32 = r as i32;
-
-        let mut xmj: i32;
-        let mut xpj: i32;
-
-        let mut xmk: i32;
-        let mut xpk: i32;
-
-        ix = 0;
-        iy = ry * 64;
-
-        h = (ix + 32) >> 6;
-        i = (iy + 32) >> 6;
-        j = (h * rx) / ry;
-        k = (i * rx) / ry;
-
-        while i > h {
-            h = (ix + 32) >> 6;
-            i = (iy + 32) >> 6;
-            j = (h * rx) / ry;
-            k = (i * rx) / ry;
-
-            if (oi != i) && (oh != i) {
-                xmj = x - j;
-                xpj = x + j;
-                if i > 0 {
-                    self.hline(xmj, xpj, (y + i), col);
-                    self.hline(xmj, xpj, (y - i), col);
-                } else {
-                    self.hline(xmj, xpj, y, col);
-                }
-                oi = i;
-            }
-            if (oh != h) && (oi != h) && (i != h) {
-                xmk = x - k;
-                xpk = x + k;
-                if h > 0 {
-                    self.hline(xmk, xpk, (y + h), col);
-                    self.hline(xmk, xpk, (y - h), col);
-                } else {
-                    self.hline(xmk, xpk, y, col);
-                }
-                oh = h;
-            }
-
-            ix = ix + iy / ry;
-            iy = iy - ix / ry;
-        }
+        self.ellipsefill(x, y, r, r, col);
     }
 
     pub fn clip(&mut self, x: i32, y: i32, w: i32, h: i32) {
@@ -807,6 +665,272 @@ impl Screen {
         self.clipping.h = h as u32;
 
         self.clipping.clipped = true;
+    }
+
+    // Original algorithm from SDL2 gfx project
+    pub fn ellipse(&mut self, x: i32, y: i32, rx: i32, ry: i32, col: i32) {
+        if rx <= 0 || ry <= 0 {
+            return;
+        }
+
+        let mut h: i32;
+        let mut i: i32;
+        let mut j: i32;
+        let mut k: i32;
+
+        let mut ok: i32 = 0xFFFF;
+        let mut oj: i32 = 0xFFFF;
+        let mut oh: i32 = 0xFFFF;
+        let mut oi: i32 = 0xFFFF;
+
+        let mut ix: i32;
+        let mut iy: i32;
+
+        let mut xmi: i32;
+        let mut xpi: i32;
+
+        let mut xmj: i32;
+        let mut xpj: i32;
+        let mut ymi: i32;
+        let mut ypi: i32;
+
+        let mut xmk: i32;
+        let mut xpk: i32;
+        let mut ymh: i32;
+        let mut yph: i32;
+
+        let mut ymj: i32;
+        let mut ypj: i32;
+
+        let mut xmh: i32;
+        let mut xph: i32;
+
+        let mut ymk: i32;
+        let mut ypk: i32;
+
+        let col = self._find_color(col);
+
+        if rx > ry {
+            ix = 0;
+            iy = rx * 64;
+
+            h = (ix + 32) >> 6;
+            i = (iy + 32) >> 6;
+            j = (h * ry) / rx;
+            k = (i * ry) / rx;
+
+            while i > h {
+                h = (ix + 32) >> 6;
+                i = (iy + 32) >> 6;
+                j = (h * ry) / rx;
+                k = (i * ry) / rx;
+
+                if ((ok != k) && (oj != k)) || ((oj != j) && (ok != j)) || (k != j) {
+                    xph = x + h;
+                    xmh = x - h;
+
+                    if k > 0 {
+                        ypk = y + k;
+                        ymk = y - k;
+
+                        self.putpixel(xmh, ypk, col);
+                        self.putpixel(xph, ypk, col);
+                        self.putpixel(xmh, ymk, col);
+                        self.putpixel(xph, ymk, col);
+                    } else {
+                        self.putpixel(xmh, y, col);
+                        self.putpixel(xph, y, col);
+                    }
+
+                    ok = k;
+                    xpi = x + i;
+                    xmi = x - i;
+                    if j > 0 {
+                        ypj = y + j;
+                        ymj = y - j;
+                        self.putpixel(xmi, ypj, col);
+                        self.putpixel(xpi, ypj, col);
+                        self.putpixel(xmi, ymj, col);
+                        self.putpixel(xpi, ymj, col);
+                    } else {
+                        self.putpixel(xmi, y, col);
+                        self.putpixel(xpi, y, col);
+                    }
+                    oj = j;
+                }
+
+                ix = ix + iy / rx;
+                iy = iy - ix / rx;
+            }
+        }
+        else {
+            ix = 0;
+            iy = ry * 64;
+
+            h = (ix + 32) >> 6;
+            i = (iy + 32) >> 6;
+            j = (h * rx) / ry;
+            k = (i * rx) / ry;
+
+            while i > h {
+                h = (ix + 32) >> 6;
+                i = (iy + 32) >> 6;
+                j = (h * rx) / ry;
+                k = (i * rx) / ry;
+
+                if ((oi != i) && (oh != i)) || ((oh != h) && (oi != h) && (i != h)) {
+                    xmj = x - j;
+                    xpj = x + j;
+                    if i > 0 {
+                        ypi = y + i;
+                        ymi = y - i;
+                        self.putpixel(xmj, ypi, col);
+                        self.putpixel(xpj, ypi, col);
+                        self.putpixel(xmj, ymi, col);
+                        self.putpixel(xpj, ymi, col);
+                    } else {
+                        self.putpixel(xmj, y, col);
+                        self.putpixel(xpj, y, col);
+                    }
+
+
+                    oi = i;
+                    xmk = x - k;
+                    xpk = x + k;
+                    if h > 0 {
+                        yph = y + h;
+                        ymh = y - h;
+                        self.putpixel(xmk, yph, col);
+                        self.putpixel(xpk, yph, col);
+                        self.putpixel(xmk, ymh, col);
+                        self.putpixel(xpk, ymh, col);
+                    } else {
+                        self.putpixel(xmk, y, col);
+                        self.putpixel(xpk, y, col);
+                    }
+                    oh = h;
+                }
+
+                ix = ix + iy / ry;
+                iy = iy - ix / ry;
+            }
+        }
+    }
+
+    // Original algorithm from SDL2 gfx project
+    pub fn ellipsefill(&mut self, x: i32, y: i32, rx: i32, ry: i32, col: i32) {
+        if rx <= 0 || ry <= 0 {
+            return;
+        }
+
+        let mut h: i32;
+        let mut i: i32;
+        let mut j: i32;
+        let mut k: i32;
+
+        let mut ok: i32 = 0xFFFF;
+        let mut oj: i32 = 0xFFFF;
+        let mut oh: i32 = 0xFFFF;
+        let mut oi: i32 = 0xFFFF;
+
+        let mut ix: i32;
+        let mut iy: i32;
+
+        let mut xmi: i32;
+        let mut xpi: i32;
+        let mut xmj: i32;
+        let mut xpj: i32;
+
+        let mut xmh: i32;
+        let mut xph: i32;
+
+        let mut xmk: i32;
+        let mut xpk: i32;
+
+        if rx > ry {
+            ix = 0;
+            iy = rx * 64;
+
+            h = (ix + 32) >> 6;
+            i = (iy + 32) >> 6;
+            j = (h * ry) / rx;
+            k = (i * ry) / rx;
+
+            while i > h {
+                h = (ix + 32) >> 6;
+                i = (iy + 32) >> 6;
+                j = (h * ry) / rx;
+                k = (i * ry) / rx;
+
+                if (ok != k) && (oj != k) {
+                    xph = x + h;
+                    xmh = x - h;
+                    if k > 0 {
+                        self.hline(xmh, xph, y + k, col);
+                        self.hline(xmh, xph, y - k, col);
+                    } else {
+                        self.hline(xmh, xph, y, col);
+                    }
+                    ok = k;
+                }
+                if (oj != j) && (ok != j) && (k != j) {
+                    xmi = x - i;
+                    xpi = x + i;
+                    if j > 0 {
+                        self.hline(xmi, xpi, y + j, col);
+                        self.hline(xmi, xpi, y - j, col);
+                    } else {
+                        self.hline(xmi, xpi, y, col);
+                    }
+                    oj = j;
+                }
+
+                ix = ix + iy / rx;
+                iy = iy - ix / rx;
+            }
+        } else {
+            ix = 0;
+            iy = ry * 64;
+
+            h = (ix + 32) >> 6;
+            i = (iy + 32) >> 6;
+            j = (h * rx) / ry;
+            k = (i * rx) / ry;
+
+            while i > h {
+                h = (ix + 32) >> 6;
+                i = (iy + 32) >> 6;
+                j = (h * rx) / ry;
+                k = (i * rx) / ry;
+
+                if (oi != i) && (oh != i) {
+                    xmj = x - j;
+                    xpj = x + j;
+                    if i > 0 {
+                        self.hline(xmj, xpj, (y + i), col);
+                        self.hline(xmj, xpj, (y - i), col);
+                    } else {
+                        self.hline(xmj, xpj, y, col);
+                    }
+                    oi = i;
+                }
+                if (oh != h) && (oi != h) && (i != h) {
+                    xmk = x - k;
+                    xpk = x + k;
+                    if h > 0 {
+                        self.hline(xmk, xpk, (y + h), col);
+                        self.hline(xmk, xpk, (y - h), col);
+                    } else {
+                        self.hline(xmk, xpk, y, col);
+                    }
+                    oh = h;
+                }
+
+                ix = ix + iy / ry;
+                iy = iy - ix / ry;
+            }
+
+        }
     }
 
     pub fn trigon(&mut self, x1: i32, y1: i32, x2: i32, y2: i32, x3: i32, y3: i32, col: i32) {

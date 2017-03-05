@@ -63,6 +63,23 @@ class Trigon(object):
             cls()
             trigon(random_coord(), random_coord(), random_coord(), random_coord(), random_coord(), random_coord(), random_color())
 
+class Ellipse(object):
+    def __init__(self):
+        self.T = 0
+
+    def init(self):
+        cls()
+
+    def update(self):
+        self.T += 1
+
+    def draw(self):
+        if self.T % 20 == 1:
+            cls()
+            ellipse(random_coord(), random_coord(), random_radius(), random_radius(), random_color())
+            ellipsefill(random_coord(), random_coord(), random_radius(), random_radius(), random_color())
+
+
 class Line(object):
     def __init__(self):
         self.T = 0
@@ -166,8 +183,8 @@ class Colors(object):
         self.T = 0
 
     def init(self):
-        set_color(16, 255, 51, 255)
-        set_color(17, 128, 255, 0)
+        set_palette_color(16, 255, 51, 255)
+        set_palette_color(17, 128, 255, 0)
 
     def update(self):
         self.T += 1
@@ -206,6 +223,7 @@ demos = [
     ["rect", [Rect()]],
     ["circ", [Circ()]],
     ["trigon", [Trigon()]],
+    ["ellipse", [Ellipse()]],
     ["line", [Line()]],
     ["spr", [Spr()]],
     ["sspr", [SSpr()]],

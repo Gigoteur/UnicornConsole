@@ -36,6 +36,12 @@ def cls():
 def color(col):
     px8_graphic.color(col)
 
+def ellipse(x, y, rx, ry, color=-1):
+    px8_graphic.ellipse(math.floor(x), math.floor(y), math.floor(rx), math.floor(ry), math.floor(color))
+
+def ellipsefill(x, y, rx, ry, color=-1):
+    px8_graphic.ellipsefill(math.floor(x), math.floor(y), math.floor(rx), math.floor(ry), math.floor(color))
+
 def line(x1, y1, x2, y2, color=-1):
     px8_graphic.line(math.floor(x1), math.floor(y1), math.floor(x2), math.floor(y2), math.floor(color))
 
@@ -93,6 +99,8 @@ globals()["circfill"] = circfill
 globals()["clip"] = clip
 globals()["cls"] = cls
 globals()["color"] = color
+globals()["ellipse"] = ellipse
+globals()["ellipsefill"] = ellipsefill
 globals()["line"] = line
 globals()["pal"] = pal
 globals()["palt"] = palt

@@ -88,6 +88,16 @@ pub mod plugin {
         Ok(0)
     }
 
+    def ellipse(&self, x: i32, y: i32, rx: i32, ry: i32, color: i32) -> PyResult<i32> {
+        self.screen(py).lock().unwrap().ellipse(x, y, rx, ry, color);
+        Ok(0)
+    }
+
+    def ellipsefill(&self, x: i32, y: i32, rx: i32, ry: i32, color: i32) -> PyResult<i32> {
+        self.screen(py).lock().unwrap().ellipsefill(x, y, rx, ry, color);
+        Ok(0)
+    }
+
     def flip(&self) -> PyResult<i32> {
         Ok(0)
     }
