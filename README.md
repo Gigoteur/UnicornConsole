@@ -133,6 +133,11 @@ You can see example of PX8 + Emscripten in the demos [repository](https://github
   * Lua Cartridge [[Source Code]](https://github.com/Gigoteur/PX8Demos/tree/master/emscripten/LuaCartridge) [[Live Demo]](https://hallucino.github.io/demos/lua_cartridge.html)
   * Cast [[Source Code]](https://github.com/Gigoteur/PX8Demos/tree/master/emscripten/Cast) [[Live Demo]](https://hallucino.github.io/demos/cast.html)
 
+## Coordinate system
+
+Each pixel can be access from 0 to 128 (or the new defined width/height) :
+![](https://github.com/libgdx/libgdx/wiki/images/screenpixels.png)
+
 ## Run a cartridge
 
 You should be able to run it directly by providing the path of the cartridge:
