@@ -257,13 +257,6 @@ impl Frontend {
 
             self.players.lock().unwrap().set_mouse_x(mouse_state.x() / (width as i32 / px8::SCREEN_WIDTH as i32));
             self.players.lock().unwrap().set_mouse_y(mouse_state.y() / (height as i32 / px8::SCREEN_HEIGHT as i32));
-            self.players.lock().unwrap().set_mouse_state(mouse_state);
-
-            if mouse_state.left() {
-                debug!("MOUSE X {:?} Y {:?}",
-                      mouse_state.x() / (width as i32 / px8::SCREEN_WIDTH as i32),
-                      mouse_state.y() / (height as i32 / px8::SCREEN_HEIGHT as i32));
-            }
 
             for event in self.event_pump.poll_iter() {
                 match event {
@@ -271,6 +264,12 @@ impl Frontend {
                     Event::KeyDown { keycode: Some(keycode), .. } if keycode == Keycode::Escape => break 'main,
                     Event::Window { win_event: WindowEvent::SizeChanged(_, _), .. } => {
                         self.renderer.update_dimensions();
+                    },
+                    Event::MouseButtonDown {x, y, mouse_btn, ..} => {
+                        self.players.lock().unwrap().mouse_button_down(mouse_btn, self.elapsed_time);
+                    },
+                    Event::MouseButtonUp {x, y, mouse_btn, ..} => {
+                        self.players.lock().unwrap().mouse_button_up(mouse_btn, self.elapsed_time);
                     },
                     Event::KeyDown { keycode: Some(keycode), repeat, .. } => {
                         if let (Some(key), player) = map_keycode(keycode) {

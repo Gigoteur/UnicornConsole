@@ -22,7 +22,6 @@ class Button(object):
         self.clicked = False
         if x >= self.x1 and x <= self.x2:
             if y >= self.y1 and y <= self.y2:
-                print("CLICKED")
                 self.clicked = True
 
     def is_click(self):

@@ -2,18 +2,19 @@ pub mod keys;
 pub mod controllers;
 
 use self::keys::PX8Key;
-use sdl2::mouse::MouseState;
+use sdl2::mouse::{MouseState, MouseButton};
 use std::collections::HashMap;
 
 pub struct Mouse {
     pub x: i32,
     pub y: i32,
     pub state: u32,
+    pub delay: f64,
 }
 
 impl Mouse {
     pub fn new() -> Mouse {
-        Mouse{x: 0, y: 0, state: 0}
+        Mouse{x: 0, y: 0, state: 0, delay: 0.}
     }
 
 }
@@ -72,7 +73,6 @@ impl PlayerKeys {
 pub struct Players {
     pub keys: HashMap<u8, PlayerKeys>,
     pub mouse: Mouse,
-
 }
 
 impl Players {
@@ -81,7 +81,7 @@ impl Players {
         keys.insert(0, PlayerKeys::new());
         keys.insert(1, PlayerKeys::new());
 
-        Players{ keys: keys, mouse: Mouse::new() }
+        Players { keys: keys, mouse: Mouse::new() }
     }
 
     pub fn set_mouse_x(&mut self, x: i32) {
@@ -92,24 +92,29 @@ impl Players {
         self.mouse.y = y;
     }
 
-    pub fn set_mouse_state(&mut self, mouse_state: MouseState) {
-        if mouse_state.left() {
+    pub fn mouse_button_down(&mut self, mouse_btn: MouseButton, elapsed: f64) {
+        if mouse_btn == MouseButton::Left {
             self.mouse.state = 1;
-        }
-
-        else if mouse_state.right() {
+        } else if mouse_btn == MouseButton::Right {
             self.mouse.state = 2;
-        }
-
-        else if mouse_state.middle() {
+        } else if mouse_btn == MouseButton::Middle {
             self.mouse.state = 4;
-        }
-        else {
+        } else {
             self.mouse.state = 0;
         }
+
+        self.mouse.delay = elapsed;
+    }
+
+    pub fn mouse_button_up(&mut self, mouse_btn: MouseButton, elapsed: f64) {
+        self.mouse.state = 0;
     }
 
     pub fn update(&mut self, elapsed: f64) {
+        if elapsed - self.mouse.delay > 0.01 {
+            self.mouse.state = 0;
+        }
+
         for (_, keys) in self.keys.iter_mut() {
             if keys.left {
                 match keys.frames.get(&PX8Key::Left) {
