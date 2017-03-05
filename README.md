@@ -108,19 +108,25 @@ Example:
 PX8_SCREEN_WIDTH=256 PX8_SCREEN_HEIGHT=256 cargo build --release
 ```
 
-### With SDL
+### With GFX-RS
 
-If you want to use only the SDL renderer without opengl, you could use the sdl_renderer feature:
+If you want to use the gfx_rs renderer (WIP):
 
 ```
-cargo build --features="sdl_renderer" --release 
+cargo build --features="gfx_rs_renderer" --release 
+```
+
+### SDL + Opengl
+
+You can force opengl with SDL via the '-o' option:
+
+```
+./target/release/px8 -o ./games/ski/ski.px8
 ```
 
 ### With Emscripten
 
 You must follow the following [guide](https://users.rust-lang.org/t/compiling-to-the-web-with-rust-and-emscripten/7627) to install Emscripten.
-
-After that you need to use the sdl_renderer feature to have a working example in the browser.
 
 You can see example of PX8 + Emscripten in the demos [repository](https://github.com/Gigoteur/PX8Demos/tree/master/emscripten/). You could also see live example from your browser:
   * Hello World [[Source Code]](https://github.com/Gigoteur/PX8Demos/tree/master/emscripten/Hello) [[Live Demo]](https://hallucino.github.io/demos/hello.html)
