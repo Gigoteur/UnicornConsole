@@ -345,7 +345,7 @@ pub mod plugin {
         pub fn init(&mut self) {
             info!("CALL INIT");
 
-            if ! self.loaded_code {
+            if !self.loaded_code {
                 return;
             }
 
@@ -391,7 +391,7 @@ pub mod plugin {
             let mut return_update_value = true;
             debug!("CALL UPDATE");
 
-            if ! self.loaded_code {
+            if !self.loaded_code {
                 return false;
             }
 
@@ -419,7 +419,7 @@ pub mod plugin {
         }
 
 
-        pub fn load_code(&mut self, data: String) {
+        pub fn load_code(&mut self, data: String) -> bool {
             info!("LOAD CODE");
             let gil = Python::acquire_gil();
             let py = gil.python();
@@ -429,9 +429,17 @@ pub mod plugin {
             debug!("RES CODE = {:?}", result);
 
             match result {
-                Ok(_) => self.loaded_code = true,
-                _ => self.loaded_code = false,
+                Ok(_) => {
+                    debug!("Code loaded successfully");
+                    self.loaded_code = true
+                },
+                Err(err) => {
+                    error!("Load code error => {:?}", err);
+                    self.loaded_code = false
+                },
             }
+
+            self.loaded_code
         }
     }
 }
@@ -464,6 +472,6 @@ pub mod plugin {
         pub fn init(&mut self) {}
         pub fn draw(&mut self) -> bool { return false; }
         pub fn update(&mut self) -> bool { return false; }
-        pub fn load_code(&mut self, data: String) {}
+        pub fn load_code(&mut self, data: String) -> bool {}
     }
 }

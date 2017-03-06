@@ -75,10 +75,6 @@ fn main() {
         level: log::LogLevelFilter::Trace,
     };
 
-    if let Err(e) = fern::init_global_logger(logger_config, log::LogLevelFilter::Info) {
-        panic!("Failed to initialize global logger: {}", e);
-    }
-
     let args: Vec<String> = env::args().collect();
     let program = args[0].clone();
 
@@ -91,6 +87,7 @@ fn main() {
     opts.optflagopt("t", "transform", "transform the PNG/PX8 cartridge in P8", "FILE");
     opts.optflagopt("s", "scale", "scale the display", "VALUE");
     opts.optflagopt("b", "bind", "bind a server on a specific address", "ADDR");
+    opts.optflag("v", "verbose", "Debug mode level");
     opts.optflag("h", "help", "print this help menu");
 
     let matches = match opts.parse(&args[1..]) {
@@ -108,6 +105,16 @@ fn main() {
         print_usage(&program, opts);
         return;
     };
+
+    if matches.opt_present("v") {
+        if let Err(e) = fern::init_global_logger(logger_config, log::LogLevelFilter::Debug) {
+            panic!("Failed to initialize global logger: {}", e);
+        }
+    } else {
+        if let Err(e) = fern::init_global_logger(logger_config, log::LogLevelFilter::Info) {
+            panic!("Failed to initialize global logger: {}", e);
+        }
+    }
 
     if matches.opt_present("c") {
         if input.contains(".png") {

@@ -662,7 +662,7 @@ impl Px8New {
                           players: Arc<Mutex<Players>>,
                           info: Arc<Mutex<Info>>,
                           sound: Arc<Mutex<Sound>>,
-                          editor: bool) {
+                          editor: bool) -> bool {
         let idx = self.cartridges.len();
 
         info!("IDX CARTRIDGE {:?}", idx);
@@ -697,7 +697,7 @@ impl Px8New {
         self.screen.lock().unwrap().set_sprites(self.cartridges[idx].gfx.sprites.clone());
         self.screen.lock().unwrap().set_map(self.cartridges[idx].map.map);
 
-        self.load_plugin(idx, tx_input, rx_output, players, info, sound, editor);
+        self.load_plugin(idx, tx_input, rx_output, players, info, sound, editor)
     }
 
     pub fn load_cartridge_raw(&mut self,
@@ -802,7 +802,7 @@ impl Px8New {
                        players: Arc<Mutex<Players>>,
                        info: Arc<Mutex<Info>>,
                        sound: Arc<Mutex<Sound>>,
-                       editor: bool) {
+                       editor: bool) -> bool {
         let mut data;
 
         info!("START TO LOAD THE PLUGIN");
@@ -839,17 +839,14 @@ impl Px8New {
         match self.code_type {
             Code::LUA => {
                 info!("Loading LUA Plugin");
-                // load the lua plugin
+
                 self.lua_plugin.load(tx_input.clone(),
                                      rx_output.clone(),
                                      players.clone(),
                                      info.clone(),
                                      self.screen.clone());
 
-                println!("{:?}", data);
-
-                // load the lua code in memory
-                self.lua_plugin.load_code(data);
+                return self.lua_plugin.load_code(data)
             },
             Code::PYTHON => {
                 info!("Loading PYTHON Plugin");
@@ -860,10 +857,12 @@ impl Px8New {
                                         self.screen.clone(),
                                         sound.clone());
 
-                self.python_plugin.load_code(data);
+                return self.python_plugin.load_code(data)
             },
             _ => ()
         }
+
+        false
     }
 
     pub fn load_editor(&mut self, filename: String) -> String {

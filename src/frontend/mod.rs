@@ -227,18 +227,22 @@ impl Frontend {
     }
 
     pub fn run_cartridge(&mut self, filename: String, editor: bool) {
-        self.px8.load_cartridge(filename.clone(),
-                                self.channels.tx_input.clone(),
-                                self.channels.rx_output.clone(),
-                                self.players.clone(),
-                                self.info.clone(),
-                                self.sound.clone(),
-                                editor);
+        let success = self.px8.load_cartridge(filename.clone(),
+                                              self.channels.tx_input.clone(),
+                                              self.channels.rx_output.clone(),
+                                              self.players.clone(),
+                                              self.info.clone(),
+                                              self.sound.clone(),
+                                              editor);
 
-        // Call the init of the cartridge
-        self.px8.init_time = self.px8.call_init() * 1000.0;
-
-        self.handle_event(editor);
+        if success {
+            info!("Successfully loaded the cartridge");
+            // Call the init of the cartridge
+            self.px8.init_time = self.px8.call_init() * 1000.0;
+            self.handle_event(editor);
+        } else {
+            error!("Failed to load the cartridge");
+        }
     }
 
     #[cfg(not(target_os = "emscripten"))]
@@ -410,6 +414,7 @@ impl Frontend {
             }
 
             if !self.px8.update(self.players.clone()) {
+                info!("End of PX8 requested");
                 break 'main;
             }
 
