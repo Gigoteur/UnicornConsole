@@ -1471,9 +1471,9 @@ pub mod plugin {
                     screen: Arc<Mutex<Screen>>) {
             panic!("LUA plugin disabled");
         }
-        pub fn load_code(&mut self, data: String) -> bool {}
+        pub fn load_code(&mut self, data: String) -> bool { false }
         pub fn init(&mut self) {}
-        pub fn draw(&mut self) -> bool { return false; }
-        pub fn update(&mut self) -> bool { return false; }
+        pub fn draw(&mut self) -> bool { false }
+        pub fn update(&mut self) -> bool { false }
     }
 }

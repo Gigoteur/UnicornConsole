@@ -454,6 +454,8 @@ pub mod plugin {
     use px8::info::Info;
 
     use gfx::Screen;
+    use px8::Palettes;
+    use sound::Sound;
 
     pub struct PythonPlugin {}
 
@@ -464,14 +466,16 @@ pub mod plugin {
 
 
         pub fn load(&mut self,
+                    palettes: Arc<Mutex<Palettes>>,
                     players: Arc<Mutex<Players>>,
                     info: Arc<Mutex<Info>>,
-                    screen: Arc<Mutex<Screen>>) {
+                    screen: Arc<Mutex<Screen>>,
+                    sound: Arc<Mutex<Sound>>) {
             panic!("PYTHON plugin disabled");
         }
         pub fn init(&mut self) {}
         pub fn draw(&mut self) -> bool { return false; }
         pub fn update(&mut self) -> bool { return false; }
-        pub fn load_code(&mut self, data: String) -> bool {}
+        pub fn load_code(&mut self, data: String) -> bool { false }
     }
 }
