@@ -3,11 +3,11 @@
 
 # PX8
 
-PX8 is an open source fantasy console (128x128 pixels) in Rust, by using a cartridge that contains the code/gfx/music. The code could be in Python/Lua, or you could create directly everything in Rust by using it as a library.
+PX8 is an open source fantasy console (128x128 pixels) in Rust, by using a cartridge that contains the code/gfx/music. The code could be in Python/Lua, or you could create directly everything in pure Rust by using it as a library.
 
 It is still in development, but it is usable and the main features are:
- * 128x128 pixels, predefined palettes (pico-8, c64, etc), RGB colors
- * Python 3 / Lua 5.X support for the cartridge (no tokens limit)
+ * 128x128 pixels, predefined palettes (pico-8, c64, etc), or use any RGB colors
+ * Python 3 / Lua 5.X support for the cartridge without tokens limit
  * Desktop/Mobile/Browser (Emscripten) support
  * Controls with dpad + 2 buttons (gamecontroller/joystick support)
  * Unlimited sprites (8x8)
@@ -20,7 +20,7 @@ It is still in development, but it is usable and the main features are:
  
 It works on all platforms (Linux/OSX/Windows), in the browser (via Emscripten), and on tiny hardware like Raspberry Pi 2/3.
 
-The console is inspired from the awesome [Pico-8](http://www.lexaloffle.com/pico-8.php), so there is a compatibility mode available with Pico-8 console and cartridges (P8/PNG).
+The console is inspired from the awesome [Pico-8](http://www.lexaloffle.com/pico-8.php), so there is a [compatibility](https://github.com/Gigoteur/PX8/wiki/Pico-8-compatibility) mode available with Pico-8 console and cartridges (P8/PNG).
 
 ![](https://j.gifs.com/0gMZ87.gif)
 ![](https://j.gifs.com/xGyM1n.gif)
@@ -195,17 +195,9 @@ With the '-s' option you can change the size of the console, so you can increase
 
 You can also use the fullscreen option by using '-f' option.
 
-### SDL renderer
-
-You can use the SDL renderer by using the sdl_renderer feature during the compilation:
-```
-cargo build --features="sdl_renderer" --release
-```
-
 ### SDL + OpenGL
 
 You can add the '-o' option to force SDL to use OpenGL
-
 
 ## How to create a new cartridge
 
@@ -258,4 +250,39 @@ PX8 | :white_check_mark: | :white_check_mark:
 
 ## API documentation
 
-See [API](https://github.com/Gigoteur/PX8/wiki/API-Documentation)
+API | Rust | Python | Lua
+------------ | ------------- | ------------- | -------------
+camera | :white_check_mark: | :white_check_mark: | :white_check_mark:
+circ | :white_check_mark: | :white_check_mark: | :white_check_mark:
+circfill | :white_check_mark: | :white_check_mark: | :white_check_mark:
+clip | :white_check_mark: | :white_check_mark: | :white_check_mark:
+cls | :white_check_mark: | :white_check_mark: | :white_check_mark:
+color | :white_check_mark: | :white_check_mark: | :white_check_mark:
+cursor | :red_circle: | :red_circle: | :red_circle:
+ellipse | :white_check_mark: | :white_check_mark: | :white_check_mark:
+ellipsefill | :white_check_mark: | :white_check_mark: | :white_check_mark:
+fget | :white_check_mark: | :white_check_mark: | :white_check_mark:
+flip | :red_circle: | :red_circle: | :red_circle:
+fset | :white_check_mark: | :white_check_mark: | :white_check_mark:
+line | :white_check_mark: | :white_check_mark: | :white_check_mark:
+pal | :white_check_mark: | :white_check_mark: | :white_check_mark:
+palt | :white_check_mark: | :white_check_mark: | :white_check_mark:
+pget | :white_check_mark: | :white_check_mark: | :white_check_mark:
+print | :white_check_mark: | :white_check_mark: | :white_check_mark:
+pset | :white_check_mark: | :white_check_mark: | :white_check_mark:
+rect | :white_check_mark: | :white_check_mark: | :white_check_mark:
+rectfill | :white_check_mark: | :white_check_mark: | :white_check_mark:
+sget | :white_check_mark: | :white_check_mark: | :white_check_mark:
+spr | :white_check_mark: | :white_check_mark: | :white_check_mark:
+sset | :white_check_mark: | :white_check_mark: | :white_check_mark:
+sspr | :white_check_mark: | :white_check_mark: | :white_check_mark:
+trigon | :white_check_mark: | :white_check_mark: | :white_check_mark:
+trigonfill | :red_circle: | :red_circle: | :red_circle:
+btn | :white_check_mark: | :white_check_mark: | :white_check_mark:
+btnp | :white_check_mark: | :white_check_mark: | :white_check_mark:
+map | :white_check_mark: | :white_check_mark: | :white_check_mark:
+mget | :white_check_mark: | :white_check_mark: | :white_check_mark:
+mset | :white_check_mark: | :white_check_mark: | :white_check_mark:
+
+
+More details here about each function with the arguments: [API](https://github.com/Gigoteur/PX8/wiki/API-Documentation)
