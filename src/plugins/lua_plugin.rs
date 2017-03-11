@@ -209,6 +209,36 @@ pub mod plugin {
               s:clip(x, y, w, h)
               end
               "#);
+            lua_state.do_string(r#"ellipse = function(x, y, rx, ry, color)
+              x = math.floor(x)
+              y = math.floor(y)
+              rx = math.floor(rx)
+              ry = math.floor(ry)
+
+              if color == nil then
+                color = -1
+              end
+
+              color = math.floor(color)
+
+              s:ellipse(x, y, rx, ry, color)
+              end
+              "#);
+            lua_state.do_string(r#"ellipsefill = function(x, y, rx, ry, color)
+              x = math.floor(x)
+              y = math.floor(y)
+              rx = math.floor(rx)
+              ry = math.floor(ry)
+
+              if color == nil then
+                color = -1
+              end
+
+              color = math.floor(color)
+
+              s:ellipsefill(x, y, rx, ry, color)
+              end
+              "#);
             lua_state.do_string(r#"line = function(x0, y0, x1, y1, color)
 
               x0 = math.floor(x0)
@@ -223,6 +253,23 @@ pub mod plugin {
               color = math.floor(color)
 
               s:line(x0, y0, x1, y1, color)
+              end
+              "#);
+            lua_state.do_string(r#"trigon = function(x1, y1, x2, y2, x3, y3, color)
+              x1 = math.floor(x1)
+              y1 = math.floor(y1)
+              x2 = math.floor(x2)
+              y2 = math.floor(y2)
+              x3 = math.floor(x3)
+              y3 = math.floor(y3)
+
+              if color == nil then
+                color = -1
+              end
+
+              color = math.floor(color)
+
+              s:trigon(x1, y1, x2, y2, x3, y3, color)
               end
               "#);
 
@@ -959,6 +1006,79 @@ pub mod plugin {
             1
         }
 
+        #[allow(non_snake_case)]
+        unsafe extern "C" fn lua_ellipse(lua_context: *mut lua_State) -> c_int {
+            debug!("LUA ELLIPSE");
+
+            let mut state = State::from_ptr(lua_context);
+
+            let x = state.check_integer(2);
+            let y = state.check_integer(3);
+            let rx = state.check_integer(4);
+            let ry = state.check_integer(5);
+            let col = state.check_integer(6);
+
+            debug!("LUA ELLIPSE x:{:?} y:{:?} rx:{:?} ry:{:?} col:{:?}", x, y, rx, ry, col);
+
+            let screen = state.with_extra(|extra| {
+                let data = extra.as_ref().unwrap().downcast_ref::<ExtraData>().unwrap();
+                data.screen.clone()
+            });
+            screen.lock().unwrap().ellipse(x as i32, y as i32, rx as i32, ry as i32, col as i32);
+
+            1
+        }
+
+        #[allow(non_snake_case)]
+        unsafe extern "C" fn lua_ellipsefill(lua_context: *mut lua_State) -> c_int {
+            debug!("LUA ELLIPSEFILL");
+
+            let mut state = State::from_ptr(lua_context);
+
+            let x = state.check_integer(2);
+            let y = state.check_integer(3);
+            let rx = state.check_integer(4);
+            let ry = state.check_integer(5);
+            let col = state.check_integer(6);
+
+            debug!("LUA ELLIPSEFILL x:{:?} y:{:?} rx:{:?} ry:{:?} col:{:?}", x, y, rx, ry, col);
+
+            let screen = state.with_extra(|extra| {
+                let data = extra.as_ref().unwrap().downcast_ref::<ExtraData>().unwrap();
+                data.screen.clone()
+            });
+            screen.lock().unwrap().ellipsefill(x as i32, y as i32, rx as i32, ry as i32, col as i32);
+
+            1
+        }
+
+
+        #[allow(non_snake_case)]
+        unsafe extern "C" fn lua_trigon(lua_context: *mut lua_State) -> c_int {
+            debug!("LUA TRIGON");
+
+            let mut state = State::from_ptr(lua_context);
+
+            let x1 = state.check_integer(2);
+            let y1 = state.check_integer(3);
+            let x2 = state.check_integer(4);
+            let y2 = state.check_integer(5);
+            let x3 = state.check_integer(6);
+            let y3 = state.check_integer(7);
+            let col = state.check_integer(8);
+
+            debug!("LUA TRIGON x1:{:?} y1:{:?} x2:{:?} y2:{:?} x3:{:?} y3:{:?} col:{:?}", x1, y1, x2, y2, x3, y3, col);
+
+            let screen = state.with_extra(|extra| {
+                let data = extra.as_ref().unwrap().downcast_ref::<ExtraData>().unwrap();
+                data.screen.clone()
+            });
+            screen.lock().unwrap().trigon(x1 as i32, y1 as i32, x2 as i32, y2 as i32, x3 as i32, y3 as i32, col as i32);
+
+            1
+        }
+
+        #[allow(non_snake_case)]
         unsafe extern "C" fn lua_palt(lua_context: *mut lua_State) -> c_int {
             debug!("LUA PALT");
 
@@ -1386,7 +1506,7 @@ pub mod plugin {
 
     }
 
-    pub const PX8LUA_LIB: [(&'static str, Function); 30] = [
+    pub const PX8LUA_LIB: [(&'static str, Function); 33] = [
         ("new", Some(PX8Lua::lua_new)),
 
         ("camera", Some(PX8Lua::lua_camera)),
@@ -1404,7 +1524,13 @@ pub mod plugin {
         ("rectfill", Some(PX8Lua::lua_rectfill)),
         ("circ", Some(PX8Lua::lua_circ)),
         ("circfill", Some(PX8Lua::lua_circfill)),
+        ("ellipse", Some(PX8Lua::lua_ellipse)),
+        ("ellipsefill", Some(PX8Lua::lua_ellipsefill)),
+        ("trigon", Some(PX8Lua::lua_trigon)),
+
         ("clip", Some(PX8Lua::lua_clip)),
+
+
 
         ("spr", Some(PX8Lua::lua_spr)),
         ("sspr", Some(PX8Lua::lua_sspr)),
@@ -1427,6 +1553,7 @@ pub mod plugin {
         ("print", Some(PX8Lua::lua_print)),
 
         ("time", Some(PX8Lua::lua_time)),
+
 
         ("stat", Some(PX8Lua::lua_stat)),
 
