@@ -259,8 +259,8 @@ clip | :white_check_mark: | :white_check_mark: | :white_check_mark:
 cls | :white_check_mark: | :white_check_mark: | :white_check_mark:
 color | :white_check_mark: | :white_check_mark: | :white_check_mark:
 cursor | :red_circle: | :red_circle: | :red_circle:
-ellipse | :white_check_mark: | :white_check_mark: | :red_circle:
-ellipsefill | :white_check_mark: | :white_check_mark: | :red_circle:
+ellipse | :white_check_mark: | :white_check_mark: | :white_check_mark:
+ellipsefill | :white_check_mark: | :white_check_mark: | :white_check_mark:
 fget | :white_check_mark: | :white_check_mark: | :white_check_mark:
 flip | :red_circle: | :red_circle: | :red_circle:
 fset | :white_check_mark: | :white_check_mark: | :white_check_mark:
@@ -276,7 +276,7 @@ sget | :white_check_mark: | :white_check_mark: | :white_check_mark:
 spr | :white_check_mark: | :white_check_mark: | :white_check_mark:
 sset | :white_check_mark: | :white_check_mark: | :white_check_mark:
 sspr | :white_check_mark: | :white_check_mark: | :white_check_mark:
-trigon | :white_check_mark: | :white_check_mark: | :red_circle:
+trigon | :white_check_mark: | :white_check_mark: | :white_check_mark:
 trigonfill | :red_circle: | :red_circle: | :red_circle:
 btn | :white_check_mark: | :white_check_mark: | :white_check_mark:
 btnp | :white_check_mark: | :white_check_mark: | :white_check_mark:
