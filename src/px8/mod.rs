@@ -150,6 +150,12 @@ pub trait RustPlugin {
     fn draw(&mut self, screen: Arc<Mutex<gfx::Screen>>) -> f64;
 }
 
+#[derive(PartialEq)]
+pub enum PX8Mode {
+    PX8,
+    PICO8,
+}
+
 pub enum PX8State {
     RUN,
     PAUSE,
@@ -405,8 +411,6 @@ pub struct Px8New {
     pub record: Record,
     pub draw_return: bool,
     pub update_return: bool,
-
-
 }
 
 
@@ -662,7 +666,8 @@ impl Px8New {
                           players: Arc<Mutex<Players>>,
                           info: Arc<Mutex<Info>>,
                           sound: Arc<Mutex<Sound>>,
-                          editor: bool) -> bool {
+                          editor: bool,
+                          mode: PX8Mode) -> bool {
         let idx = self.cartridges.len();
 
         info!("IDX CARTRIDGE {:?}", idx);
@@ -691,8 +696,9 @@ impl Px8New {
             panic!("Unknown file");
         }
 
-
         self.current_cartridge = idx;
+
+        self.cartridges[idx].set_mode(mode == PX8Mode::PICO8);
 
         self.screen.lock().unwrap().set_sprites(self.cartridges[idx].gfx.sprites.clone());
         self.screen.lock().unwrap().set_map(self.cartridges[idx].map.map);
@@ -708,7 +714,8 @@ impl Px8New {
                               players: Arc<Mutex<Players>>,
                               info: Arc<Mutex<Info>>,
                               sound: Arc<Mutex<Sound>>,
-                              editor: bool) {
+                              editor: bool,
+                              mode: PX8Mode) -> bool {
         let idx = self.cartridges.len();
 
         info!("IDX CARTRIDGE {:?}", idx);
@@ -732,13 +739,14 @@ impl Px8New {
             panic!("Unknown file");
         }
 
-
         self.current_cartridge = idx;
+
+        self.cartridges[idx].set_mode(mode == PX8Mode::PICO8);
 
         self.screen.lock().unwrap().set_sprites(self.cartridges[idx].gfx.sprites.clone());
         self.screen.lock().unwrap().set_map(self.cartridges[idx].map.map);
 
-        self.load_plugin(idx, tx_input, rx_output, players, info, sound, editor);
+        self.load_plugin(idx, tx_input, rx_output, players, info, sound, editor)
     }
 
     pub fn _get_code_type(&mut self, idx: usize) -> Code {

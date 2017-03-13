@@ -1530,8 +1530,6 @@ pub mod plugin {
 
         ("clip", Some(PX8Lua::lua_clip)),
 
-
-
         ("spr", Some(PX8Lua::lua_spr)),
         ("sspr", Some(PX8Lua::lua_sspr)),
 
@@ -1553,7 +1551,6 @@ pub mod plugin {
         ("print", Some(PX8Lua::lua_print)),
 
         ("time", Some(PX8Lua::lua_time)),
-
 
         ("stat", Some(PX8Lua::lua_stat)),
 

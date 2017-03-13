@@ -226,14 +226,15 @@ impl Frontend {
         self.handle_event(false);
     }
 
-    pub fn run_cartridge(&mut self, filename: String, editor: bool) {
+    pub fn run_cartridge(&mut self, filename: String, editor: bool, mode: px8::PX8Mode) {
         let success = self.px8.load_cartridge(filename.clone(),
                                               self.channels.tx_input.clone(),
                                               self.channels.rx_output.clone(),
                                               self.players.clone(),
                                               self.info.clone(),
                                               self.sound.clone(),
-                                              editor);
+                                              editor,
+                                              mode);
 
         if success {
             info!("Successfully loaded the cartridge");

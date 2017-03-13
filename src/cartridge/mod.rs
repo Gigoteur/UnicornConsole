@@ -56,87 +56,86 @@ pub struct CartridgeLua{
 }
 
 impl CartridgeLua {
-    pub fn new(lines: Vec<String>) -> CartridgeLua {
+    pub fn new(lines: Vec<String>, pico8_support: bool) -> CartridgeLua {
         let mut data = "".to_string();
-
-        info!("LINES {:?}", lines);
 
         for line in &lines {
             debug!("LUA LINE {:?}", line);
 
             let mut line = line.to_string();
 
-            //  lua = lua:gsub("(%S+)%s*([%+-%*/%%])=","%1 = %1 %2 ")
-            let re = Regex::new(r"(?P<X>\S+)\s*(?P<Z>[\+\*%/-])=").unwrap();
-            if re.is_match(&line) {
-                let line_clone = line.clone();
-                let after = re.replace_all(&line_clone, "$X = $X $Z $Y");
-                debug!("\t=> {:?}", after);
+            if pico8_support {
+                //  lua = lua:gsub("(%S+)%s*([%+-%*/%%])=","%1 = %1 %2 ")
+                let re = Regex::new(r"(?P<X>\S+)\s*(?P<Z>[\+\*%/-])=").unwrap();
+                if re.is_match(&line) {
+                    let line_clone = line.clone();
+                    let after = re.replace_all(&line_clone, "$X = $X $Z $Y");
+                    debug!("MODIFY {:?} \t=> {:?}", line_clone, after);
 
-                line.clear();
-                line.push_str(&after);
-            }
+                    line.clear();
+                    line.push_str(&after);
+                }
 
-            let re = Regex::new(r"!=").unwrap();
-            if re.is_match(&line) {
-                let line_clone = line.clone();
-                let after = re.replace_all(&line_clone, "~=");
-                debug!("\t=> {:?}", after);
+                let re = Regex::new(r"!=").unwrap();
+                if re.is_match(&line) {
+                    let line_clone = line.clone();
+                    let after = re.replace_all(&line_clone, "~=");
+                    debug!("MODIFY {:?} \t=> {:?}", line_clone, after);
 
-                line.clear();
-                line.push_str(&after);
-            }
+                    line.clear();
+                    line.push_str(&after);
+                }
 
-            let re = Regex::new(r"local function _draw").unwrap();
-            if re.is_match(&line) {
-                let line_clone = line.clone();
-                let after = re.replace_all(&line_clone, "function _draw");
-                debug!("\t=> {:?}", after);
+                let re = Regex::new(r"local function _draw").unwrap();
+                if re.is_match(&line) {
+                    let line_clone = line.clone();
+                    let after = re.replace_all(&line_clone, "function _draw");
+                    debug!("MODIFY {:?} \t=> {:?}", line_clone, after);
 
-                line.clear();
-                line.push_str(&after);
-            }
+                    line.clear();
+                    line.push_str(&after);
+                }
 
-            let re = Regex::new(r"local function _update").unwrap();
-            if re.is_match(&line) {
-                let line_clone = line.clone();
-                let after = re.replace_all(&line_clone, "function _update");
-                debug!("\t=> {:?}", after);
+                let re = Regex::new(r"local function _update").unwrap();
+                if re.is_match(&line) {
+                    let line_clone = line.clone();
+                    let after = re.replace_all(&line_clone, "function _update");
+                    debug!("MODIFY {:?} \t=> {:?}", line_clone, after);
 
-                line.clear();
-                line.push_str(&after);
-            }
+                    line.clear();
+                    line.push_str(&after);
+                }
 
-            let re = Regex::new(r"function _update60\(\)").unwrap();
-            if re.is_match(&line) {
-                let line_clone = line.clone();
-                let after = re.replace_all(&line_clone, "function _update()");
-                debug!("\t=> {:?}", after);
+                let re = Regex::new(r"function _update60\(\)").unwrap();
+                if re.is_match(&line) {
+                    let line_clone = line.clone();
+                    let after = re.replace_all(&line_clone, "function _update()");
+                    debug!("MODIFY {:?} \t=> {:?}", line_clone, after);
 
-                line.clear();
-                line.push_str(&after);
-            }
+                    line.clear();
+                    line.push_str(&after);
+                }
 
-            let re = Regex::new(r"if\(_update60").unwrap();
-            if re.is_match(&line) {
-                debug!("REMOVE update60");
+                let re = Regex::new(r"if\(_update60").unwrap();
+                if re.is_match(&line) {
+                    debug!("REMOVE update60");
 
-                line.clear();
-            }
+                    line.clear();
+                }
 
-            //  lua = lua:gsub('if%s*(%b())%s*([^\n]*)\n',function(a,b)
+                //  lua = lua:gsub('if%s*(%b())%s*([^\n]*)\n',function(a,b)
 
-            //		local nl = a:find('\n')
-            //local th = b:find('%f[%w]then%f[%W]')
-            //local an = b:find('%f[%w]and%f[%W]')
-            //local o = b:find('%f[%w]or%f[%W]')
-            //if nl or th or an or o then
-            //return string.format('if %s %s\n',a,b)
-            //else
-            //return "if "..a:sub(2,#a-1).." then "..b.." end\n"
-            //end
+                //		local nl = a:find('\n')
+                //local th = b:find('%f[%w]then%f[%W]')
+                //local an = b:find('%f[%w]and%f[%W]')
+                //local o = b:find('%f[%w]or%f[%W]')
+                //if nl or th or an or o then
+                //return string.format('if %s %s\n',a,b)
+                //else
+                //return "if "..a:sub(2,#a-1).." then "..b.." end\n"
+                //end
 
-            /*let re = Regex::new(r"if\s*\((?P<X>.*)\)(?P<Y>[^\n]*)").unwrap();
+                /*let re = Regex::new(r"if\s*\((?P<X>.*)\)(?P<Y>[^\n]*)").unwrap();
             if re.is_match(&line) {
                 let re_then = Regex::new(r"then").unwrap();
                 if !re_then.is_match(&line) {
@@ -149,6 +148,7 @@ impl CartridgeLua {
                     line.push_str(&after);
                 }
             }*/
+            }
 
             line.push('\n');
             data = data + &line;
@@ -157,7 +157,7 @@ impl CartridgeLua {
         CartridgeLua { data: data.clone() }
     }
 
-    pub fn new_from_bytes(mut v: &mut Vec<u8>, version: u8) -> CartridgeLua {
+    pub fn new_from_bytes(mut v: &mut Vec<u8>, version: u8, pico8_support: bool) -> CartridgeLua {
         info!("CartridgeLua::new_from_bytes");
 
         let mut vec_code = Vec::new();
@@ -291,7 +291,7 @@ impl CartridgeLua {
             return x1 << 8 | x2;
         }
 
-        return CartridgeLua::new(vec_code);
+        return CartridgeLua::new(vec_code, pico8_support);
     }
 }
 
@@ -302,15 +302,32 @@ pub struct CartridgeCode {
     pub version: u8,
     pub code_type: String,
     pub filename: String,
+    pub mode: bool,
 }
 
 impl CartridgeCode {
     pub fn new(code_type: String, lines: &mut Vec<String>) -> CartridgeCode {
-        CartridgeCode { raw: false, lines: lines.clone(), data: Vec::new(), version:0, code_type: code_type, filename: "".to_string() }
+        CartridgeCode {
+            raw: false,
+            lines: lines.clone(),
+            data: Vec::new(),
+            version: 0,
+            code_type: code_type,
+            filename: "".to_string(),
+            mode: false
+        }
     }
 
     pub fn new_from_bytes(code_type: String, data: &mut Vec<u8>, version: u8) -> CartridgeCode {
-        CartridgeCode { raw: true, lines: Vec::new(), data: data.clone(), version: version, code_type: code_type, filename: "".to_string() }
+        CartridgeCode {
+            raw: true,
+            lines: Vec::new(),
+            data: data.clone(),
+            version: version,
+            code_type: code_type,
+            filename: "".to_string(),
+            mode: false
+        }
     }
 
     pub fn set_filename(&mut self, filename: String) {
@@ -338,10 +355,10 @@ impl CartridgeCode {
     pub fn get_data(&mut self) -> String {
         if self.code_type == "lua" {
             if self.raw {
-                let cart = CartridgeLua::new_from_bytes(&mut self.data, self.version);
+                let cart = CartridgeLua::new_from_bytes(&mut self.data, self.version, self.mode);
                 return cart.data;
             } else {
-                let cart = CartridgeLua::new(self.lines.clone());
+                let cart = CartridgeLua::new(self.lines.clone(), self.mode);
                 return cart.data;
             }
         }
@@ -931,8 +948,12 @@ impl Cartridge {
             format: CartridgeFormat::Px8Format,
             edit: false,
         })
-
     }
+
+    pub fn set_mode(&mut self, mode: bool) {
+        self.code.mode = mode;
+    }
+
 
     pub fn save_in_p8(&mut self, filename: String) {
         info!("Save the modified cartridge in P8 format {:?}", filename);

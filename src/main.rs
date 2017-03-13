@@ -87,6 +87,7 @@ fn main() {
     opts.optflagopt("t", "transform", "transform the PNG/PX8 cartridge in P8", "FILE");
     opts.optflagopt("s", "scale", "scale the display", "VALUE");
     opts.optflagopt("b", "bind", "bind a server on a specific address", "ADDR");
+    opts.optflagopt("m", "mode", "Switch the compatibility mode", "MODE");
     opts.optflag("v", "verbose", "Debug mode level");
     opts.optflag("h", "help", "print this help menu");
 
@@ -189,16 +190,25 @@ fn main() {
             }
         }
 
-        start_px8(scale, fullscreen, opengl, input, matches.opt_present("e"));
+        let mut mode = px8::PX8Mode::PX8;
+
+        if matches.opt_present("m") {
+            let mode_str = matches.opt_str("m").unwrap();
+            if mode_str == "pico8" {
+                mode = px8::PX8Mode::PICO8;
+            }
+        }
+
+        start_px8(scale, fullscreen, opengl, input, matches.opt_present("e"), mode);
     }
 }
 
-pub fn start_px8(scale: gfx::Scale, fullscreen: bool, opengl: bool, filename: String, editor: bool) {
+pub fn start_px8(scale: gfx::Scale, fullscreen: bool, opengl: bool, filename: String, editor: bool, mode: px8::PX8Mode) {
     let mut frontend = match frontend::Frontend::init(scale, fullscreen, opengl) {
         Err(error) => panic!("{:?}", error),
         Ok(frontend) => frontend
     };
 
     frontend.start("./sys/config/gamecontrollerdb.txt".to_string());
-    frontend.run_cartridge(filename, editor);
+    frontend.run_cartridge(filename, editor, mode);
 }
