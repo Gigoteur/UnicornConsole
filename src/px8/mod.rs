@@ -675,25 +675,25 @@ impl Px8New {
         if filename.contains(".png") {
             match Cartridge::from_png_file(filename.clone()) {
                 Ok(c) => self.cartridges.push(c),
-                Err(e) => panic!("Impossible to load the png cartridge"),
+                Err(e) => panic!("Impossible to load the png cartridge {:?}", e),
             }
         } else if filename.contains(".p8") {
             match Cartridge::from_p8_file(filename.clone()) {
                 Ok(c) => self.cartridges.push(c),
-                Err(e) => panic!("Impossible to load the p8 cartridge"),
+                Err(e) => panic!("Impossible to load the p8 cartridge {:?}", e),
             }
         } else if filename.contains(".py") {
             match Cartridge::from_p8_file(filename.clone()) {
                 Ok(c) => self.cartridges.push(c),
-                Err(e) => panic!("Impossible to load the p8 cartridge"),
+                Err(e) => panic!("Impossible to load the p8 cartridge {:?}", e),
             }
         } else if filename.contains(".px8") {
             match Cartridge::from_px8_file(filename.clone()) {
                 Ok(c) => self.cartridges.push(c),
-                Err(e) => panic!("Impossible to load the px8 cartridge"),
+                Err(e) => panic!("Impossible to load the px8 cartridge {:?}", e),
             }
         } else {
-            panic!("Unknown file");
+            panic!("Unknown file format !");
         }
 
         self.current_cartridge = idx;

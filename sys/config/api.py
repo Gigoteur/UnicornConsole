@@ -174,6 +174,12 @@ def flr(x):
 def rnd(x):
     return random.random() * x
 
+def mid(x,y,z):
+    x = x or 0
+    y = y or 0
+    z = z or 0
+    return x > y and x or y > z and z or y
+
 globals()["atan2"] = atan2
 globals()["ceil"] = math.ceil
 globals()["cos"] = cos
@@ -181,6 +187,7 @@ globals()["sin"] = sin
 globals()["flr"] = flr
 globals()["rnd"] = rnd
 globals()["sqrt"] = math.sqrt
+globals()["mid"] = mid
 
 # Memory
 

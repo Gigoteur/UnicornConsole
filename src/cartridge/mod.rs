@@ -646,6 +646,7 @@ pub struct Cartridge {
 
 pub static SECTION_DELIM_RE: &'static str = r"^__(\w+)__$";
 
+#[derive(Debug)]
 pub enum Error {
     Err(String),
     IOError(io::Error),
