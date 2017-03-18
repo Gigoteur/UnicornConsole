@@ -201,12 +201,12 @@ You can add the '-o' option to force SDL to use OpenGL
 
 ## How to create a new cartridge
 
-PX8 will call 3 functions:
+PX8 will call 3 functions, at startup or during the runtime:
   * _init : Called once on cartridge startup, mainly to initialize your variables
   * _update: Called once per visible frame, mainly to get keyboard input for example
   * _draw: Called once per visible frame, mainly to draw things on the screen :)
 
-After that you can use the API to draw whatever you want !
+After that you can use the API to do your game. There is no limitation of what you can do in Python or Lua languages.
 
 ### Python
 
