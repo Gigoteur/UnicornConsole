@@ -135,9 +135,23 @@ class SpritesMap(object):
         current_sprite_y -= 1
         rect(current_sprite_x, current_sprite_y, current_sprite_x+10, current_sprite_y+10, 0)
 
+    def draw_sprite_info(self):
+        px8_print(str(self.state.current_sprite), 80, 64, 7)
+        idx = 0
+        for i in [1, 2, 4, 8, 16, 32, 64, 128]:
+            flag = fget(self.state.current_sprite, i)
+            color = 0
+            if flag:
+                color = 7
+
+            circfill(80 + idx, 74, 1, color)
+
+            idx += 4
+
     def draw(self):
         self.draw_zoom_sprite()
         self.draw_map()
+        self.draw_sprite_info()
 
     def draw_button(self):
         for button in self.buttons_map:
@@ -161,7 +175,6 @@ class PalettePicker(object):
             _mouse_y = mouse_y()
 
             if pointInRectangle(_mouse_x, _mouse_y, [self.idx_x, self.idx_y, self.idx_x+4*8, self.idx_y+4*8]):
-                print("ICI")
                 idx_x = math.floor((_mouse_x - self.idx_x) / 8)
                 idx_y = math.floor((_mouse_y - self.idx_y) / 8)
                 print(idx_x, idx_y, idx_x+idx_y*4)
@@ -222,9 +235,10 @@ def _draw():
 
     cls()
 
+    draw_contour()
+
     sm.draw()
 
-    draw_contour()
     draw_mouse()
 
     sm.draw_button()

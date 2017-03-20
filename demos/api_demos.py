@@ -218,6 +218,20 @@ class Palette(object):
 
         sspr(8, 0, 8, 8, 8, 8, 8, 8)
 
+class Map(object):
+    def __init__(self):
+        self.T = 0
+
+    def init(self):
+        pass
+
+    def update(self):
+        self.T += 1
+
+    def draw(self):
+        cls()
+        spr_map(0, 0, 0, 0, 128, 32)
+
 idx_demo = 0
 demos = [
     ["rect", [Rect()]],
@@ -231,6 +245,7 @@ demos = [
     ["clip", [Clip()]],
     ["colors", [Colors()]],
     ["palette", [Palette()]],
+    ["map", [Map()]],
 ]
 
 def _init():

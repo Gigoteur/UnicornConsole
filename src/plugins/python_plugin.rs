@@ -98,6 +98,18 @@ pub mod plugin {
         Ok(0)
     }
 
+    def fget(&self, idx: u32, v: u32) -> PyResult<bool> {
+        Ok(self.screen(py).lock().unwrap().fget(idx, v))
+    }
+
+    def fget_all(&self, idx: u32) -> PyResult<u8> {
+        Ok(self.screen(py).lock().unwrap().fget_all(idx))
+    }
+
+    def fset(&self) -> PyResult<i32> {
+        Ok(0)
+    }
+
     def flip(&self) -> PyResult<i32> {
         Ok(0)
     }

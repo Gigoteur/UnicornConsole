@@ -42,6 +42,14 @@ def ellipse(x, y, rx, ry, color=-1):
 def ellipsefill(x, y, rx, ry, color=-1):
     px8_graphic.ellipsefill(math.floor(x), math.floor(y), math.floor(rx), math.floor(ry), math.floor(color))
 
+def fget(idx, v=-1):
+    if v == -1:
+        px8_graphic.fget_all(idx)
+    return px8_graphic.fget(idx, v)
+
+def fset(idx, v):
+    pass#return px8_graphic.fget(idx, v)
+
 def line(x1, y1, x2, y2, color=-1):
     px8_graphic.line(math.floor(x1), math.floor(y1), math.floor(x2), math.floor(y2), math.floor(color))
 
@@ -101,6 +109,8 @@ globals()["cls"] = cls
 globals()["color"] = color
 globals()["ellipse"] = ellipse
 globals()["ellipsefill"] = ellipsefill
+globals()["fget"] = fget
+globals()["fset"] = fset
 globals()["line"] = line
 globals()["pal"] = pal
 globals()["palt"] = palt

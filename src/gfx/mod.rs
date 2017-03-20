@@ -203,6 +203,7 @@ impl fmt::Debug for DynSprite {
 #[derive(Clone)]
 pub struct Sprite {
     pub data: Vec<u8>,
+    pub flags: u8,
 }
 
 impl Sprite {
@@ -210,7 +211,19 @@ impl Sprite {
         let mut v = Vec::new();
         v.extend(d.iter().cloned());
 
-        Sprite { data: v }
+        Sprite { data: v, flags: 0 }
+    }
+
+    pub fn is_flags_set(&mut self, value: u8) -> bool {
+        (self.flags & value) != 0
+    }
+
+    pub fn get_flags(&mut self) -> u8 {
+        self.flags
+    }
+
+    pub fn set_flags(&mut self, flags: u8) {
+        self.flags = flags;
     }
 
     pub fn set_data(&mut self, idx: usize, col: u8) {
@@ -447,6 +460,18 @@ impl Screen {
         self.sprites = sprites;
     }
 
+    pub fn set_sprites_flags(&mut self, flags: Vec<u8>) {
+        if flags.len() != self.sprites.len() {
+            panic!("Invalid number of flags {:?} --> {:?}", flags.len(), self.sprites.len())
+        }
+
+        let mut idx = 0;
+        while idx < flags.len() {
+            self.sprites[idx].set_flags(flags[idx]);
+            idx += 1;
+        }
+    }
+
     pub fn set_map(&mut self, map: [[u32; 32]; px8::SCREEN_WIDTH]) {
         self.map = map;
     }
@@ -510,7 +535,6 @@ impl Screen {
         return col;
     }
 
-
     pub fn pset(&mut self, x: i32, y: i32, col: i32) {
         let color = self._find_color(col);
         self.putpixel_(x, y, color);
@@ -528,6 +552,25 @@ impl Screen {
         let idx_sprite = (x / 8) + 16 * (y / 8);
         let ref mut sprite = self.sprites[idx_sprite as usize];
         sprite.set_data(((x % 8) + (y % 8) * 8) as usize, col as u8);
+    }
+
+    pub fn fget(&mut self, idx: u32, v: u32) -> bool {
+        if idx as usize > self.sprites.len() {
+            return false;
+        }
+
+        self.sprites[idx as usize].is_flags_set(v as u8)
+    }
+
+    pub fn fget_all(&mut self, idx: u32) -> u8 {
+        if idx as usize > self.sprites.len() {
+            return self.sprites[idx as usize].get_flags();
+        }
+
+        0
+    }
+
+    pub fn fset(&mut self, x: i32, y: i32, col: i32) {
     }
 
     pub fn cls(&mut self) {
@@ -1114,6 +1157,11 @@ impl Screen {
                 let map_y = cel_y as i32 + idx_y;
 
                 let idx_sprite = self.map[map_x as usize][map_y as usize];
+
+                // Skip the sprite 0
+                if idx_sprite == 0 {
+                    break;
+                }
 
                 let sprite = self.sprites[idx_sprite as usize].clone();
 

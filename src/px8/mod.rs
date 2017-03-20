@@ -701,6 +701,8 @@ impl Px8New {
         self.cartridges[idx].set_mode(mode == PX8Mode::PICO8);
 
         self.screen.lock().unwrap().set_sprites(self.cartridges[idx].gfx.sprites.clone());
+        self.screen.lock().unwrap().set_sprites_flags(self.cartridges[idx].gff.flags.clone());
+
         self.screen.lock().unwrap().set_map(self.cartridges[idx].map.map);
 
         self.load_plugin(idx, tx_input, rx_output, players, info, sound, editor)
