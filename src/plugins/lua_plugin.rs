@@ -203,8 +203,8 @@ pub mod plugin {
 
               x = math.floor(x)
               y = math.floor(y)
-              w = math.floor(r)
-              h = math.floor(r)
+              w = math.floor(w)
+              h = math.floor(h)
 
               s:clip(x, y, w, h)
               end
@@ -237,6 +237,34 @@ pub mod plugin {
               color = math.floor(color)
 
               s:ellipsefill(x, y, rx, ry, color)
+              end
+              "#);
+            lua_state.do_string(r#"fget = function(idx, flag)
+              idx = math.floor(idx)
+              flag = math.floor(flag)
+
+              if flag == nil then
+                return s:fget_all(idx)
+              end
+
+              return s:fget(idx, flag)
+
+              end
+              "#);
+            lua_state.do_string(r#"fset = function(idx, flag, value)
+              idx = math.floor(idx)
+              flag = math.floor(flag)
+
+              if value == nil then
+                s:fset_all(idx, flag)
+              else
+                if value == true then
+                    s:fset(idx, flag, 1)
+                else
+                    s:fset(idx, flag, 0)
+                end
+              end
+
               end
               "#);
             lua_state.do_string(r#"line = function(x0, y0, x1, y1, color)
@@ -376,7 +404,7 @@ pub mod plugin {
 
 
               if layer == nil then
-                layer = false
+                layer = 0
               end
 
               s:map(cel_x, cel_y, sx, sy, cel_w, cel_h, layer)
@@ -1255,6 +1283,78 @@ pub mod plugin {
             1
         }
 
+        unsafe extern "C" fn lua_fget(lua_context: *mut lua_State) -> c_int {
+            debug!("LUA FGET");
+
+            let mut state = State::from_ptr(lua_context);
+
+            let idx = state.check_integer(2);
+            let flag = state.check_integer(3);
+
+            let screen = state.with_extra(|extra| {
+                let data = extra.as_ref().unwrap().downcast_ref::<ExtraData>().unwrap();
+                data.screen.clone()
+            });
+
+            state.push_bool(screen.lock().unwrap().fget(idx as u32, flag as u8));
+
+            1
+        }
+
+        unsafe extern "C" fn lua_fget_all(lua_context: *mut lua_State) -> c_int {
+            debug!("LUA FGET ALL");
+
+            let mut state = State::from_ptr(lua_context);
+
+            let idx = state.check_integer(2);
+
+            let screen = state.with_extra(|extra| {
+                let data = extra.as_ref().unwrap().downcast_ref::<ExtraData>().unwrap();
+                data.screen.clone()
+            });
+
+            state.push_integer(screen.lock().unwrap().fget_all(idx as u32) as i64);
+
+            1
+        }
+
+        unsafe extern "C" fn lua_fset(lua_context: *mut lua_State) -> c_int {
+            debug!("LUA FSET");
+
+            let mut state = State::from_ptr(lua_context);
+
+            let idx = state.check_integer(2);
+            let flag = state.check_integer(3);
+            let value = state.check_integer(4);
+
+            let screen = state.with_extra(|extra| {
+                let data = extra.as_ref().unwrap().downcast_ref::<ExtraData>().unwrap();
+                data.screen.clone()
+            });
+
+            screen.lock().unwrap().fset(idx as u32, flag as u8, value == 1);
+
+            1
+        }
+
+        unsafe extern "C" fn lua_fset_all(lua_context: *mut lua_State) -> c_int {
+            debug!("LUA FSET ALL");
+
+            let mut state = State::from_ptr(lua_context);
+
+            let idx = state.check_integer(2);
+            let flags = state.check_integer(3);
+
+            let screen = state.with_extra(|extra| {
+                let data = extra.as_ref().unwrap().downcast_ref::<ExtraData>().unwrap();
+                data.screen.clone()
+            });
+
+            screen.lock().unwrap().fset_all(idx as u32, flags as u8);
+
+            1
+        }
+
         unsafe extern "C" fn lua_rnd(lua_context: *mut lua_State) -> c_int {
             debug!("LUA RND");
 
@@ -1351,6 +1451,7 @@ pub mod plugin {
             let sy = state.check_integer(5);
             let cel_w = state.check_integer(6);
             let cel_h = state.check_integer(7);
+            let layer = state.check_integer(8);
 
             let screen = state.with_extra(|extra| {
                 let data = extra.as_ref().unwrap().downcast_ref::<ExtraData>().unwrap();
@@ -1359,7 +1460,8 @@ pub mod plugin {
 
             screen.lock().unwrap().map(cel_x as u32, cel_y as u32,
                                        sx as i32, sy as i32,
-                                       cel_w as u32, cel_h as u32);
+                                       cel_w as u32, cel_h as u32,
+                                       layer as u8);
 
 
             1
@@ -1506,7 +1608,7 @@ pub mod plugin {
 
     }
 
-    pub const PX8LUA_LIB: [(&'static str, Function); 33] = [
+    pub const PX8LUA_LIB: [(&'static str, Function); 37] = [
         ("new", Some(PX8Lua::lua_new)),
 
         ("camera", Some(PX8Lua::lua_camera)),
@@ -1517,6 +1619,11 @@ pub mod plugin {
         ("btnp", Some(PX8Lua::lua_btnp)),
 
         ("cls", Some(PX8Lua::lua_cls)),
+
+        ("fget", Some(PX8Lua::lua_fget)),
+        ("fget_all", Some(PX8Lua::lua_fget_all)),
+        ("fset", Some(PX8Lua::lua_fset)),
+        ("fset_all", Some(PX8Lua::lua_fset_all)),
 
         ("line", Some(PX8Lua::lua_line)),
 

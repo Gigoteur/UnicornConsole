@@ -98,7 +98,7 @@ pub mod plugin {
         Ok(0)
     }
 
-    def fget(&self, idx: u32, v: u32) -> PyResult<bool> {
+    def fget(&self, idx: u32, v: u8) -> PyResult<bool> {
         Ok(self.screen(py).lock().unwrap().fget(idx, v))
     }
 
@@ -106,7 +106,13 @@ pub mod plugin {
         Ok(self.screen(py).lock().unwrap().fget_all(idx))
     }
 
-    def fset(&self) -> PyResult<i32> {
+    def fset(&self, idx: u32, flag: u8, value: bool) -> PyResult<i32> {
+        self.screen(py).lock().unwrap().fset(idx, flag, value);
+        Ok(0)
+    }
+
+    def fset_all(&self, idx: u32, flag: u8) -> PyResult<i32> {
+        self.screen(py).lock().unwrap().fset_all(idx, flag);
         Ok(0)
     }
 
@@ -242,10 +248,11 @@ pub mod plugin {
     py_class!(class PX8Map |py| {
     data screen: Arc < Mutex < Screen > >;
 
-    def spr_map(&self, cel_x: i32, cel_y: i32, sx: i32, sy: i32, cel_w: i32, cel_h: i32) -> PyResult<i32> {
+    def spr_map(&self, cel_x: i32, cel_y: i32, sx: i32, sy: i32, cel_w: i32, cel_h: i32, layer: u8) -> PyResult<i32> {
         self.screen(py).lock().unwrap().map(cel_x as u32, cel_y as u32,
                                             sx, sy,
-                                            cel_w as u32, cel_h as u32);
+                                            cel_w as u32, cel_h as u32,
+                                            layer);
 
         Ok(0)
     }

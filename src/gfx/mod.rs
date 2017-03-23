@@ -215,11 +215,26 @@ impl Sprite {
     }
 
     pub fn is_flags_set(&mut self, value: u8) -> bool {
+        debug!("FLAG SET SPRITE {:?} {:?} {:?}", self.flags, value, (self.flags & (value << 1)) != 0);
+        (self.flags & (value << 1)) != 0
+    }
+
+    pub fn is_bit_flags_set(&mut self, value: u8) -> bool {
+        debug!("BIT FLAG SET SPRITE {:?} {:?} {:?}", self.flags, value, (self.flags & value) != 0);
         (self.flags & value) != 0
     }
 
+
     pub fn get_flags(&mut self) -> u8 {
         self.flags
+    }
+
+    pub fn set_flag(&mut self, flag: u8, value: bool) {
+        if value {
+            self.flags |= flag << 1;
+        } else {
+            self.flags &= !flag << 1;
+        }
     }
 
     pub fn set_flags(&mut self, flags: u8) {
@@ -462,7 +477,8 @@ impl Screen {
 
     pub fn set_sprites_flags(&mut self, flags: Vec<u8>) {
         if flags.len() != self.sprites.len() {
-            panic!("Invalid number of flags {:?} --> {:?}", flags.len(), self.sprites.len())
+            error!("Invalid number of flags {:?} --> {:?}", flags.len(), self.sprites.len());
+            return;
         }
 
         let mut idx = 0;
@@ -554,7 +570,7 @@ impl Screen {
         sprite.set_data(((x % 8) + (y % 8) * 8) as usize, col as u8);
     }
 
-    pub fn fget(&mut self, idx: u32, v: u32) -> bool {
+    pub fn fget(&mut self, idx: u32, v: u8) -> bool {
         if idx as usize > self.sprites.len() {
             return false;
         }
@@ -570,8 +586,24 @@ impl Screen {
         0
     }
 
-    pub fn fset(&mut self, x: i32, y: i32, col: i32) {
+    pub fn fset(&mut self, idx: u32, flag: u8, value: bool) {
+        if idx as usize > self.sprites.len() {
+            return;
+        }
+
+        info!("FSET {:?} {:?} {:?}", idx, flag, value);
+
+        self.sprites[idx as usize].set_flag(flag, value);
     }
+
+    pub fn fset_all(&mut self, idx: u32, flags: u8) {
+        if idx as usize > self.sprites.len() {
+            return;
+        }
+
+        self.sprites[idx as usize].set_flags(flags);
+    }
+
 
     pub fn cls(&mut self) {
         // Fastest way to clean the buffer ?
@@ -1125,7 +1157,7 @@ impl Screen {
         (self.dyn_sprites.len() as i32) - 1
     }
 
-    pub fn map(&mut self, cel_x: u32, cel_y: u32, sx: i32, sy: i32, cel_w: u32, cel_h: u32) {
+    pub fn map(&mut self, cel_x: u32, cel_y: u32, sx: i32, sy: i32, cel_w: u32, cel_h: u32, layer: u8) {
         let mut idx_x: i32 = 0;
         let mut idx_y: i32 = 0;
 
@@ -1139,7 +1171,7 @@ impl Screen {
             cel_h = 32;
         }
 
-        debug!("cel_x {:?} cel_y {:?} sx {:?} sy {:?} cel_w {:?} cel_h {:?}", cel_x, cel_y, sx, sy, cel_w, cel_h);
+        debug!("MAP cel_x {:?} cel_y {:?} sx {:?} sy {:?} cel_w {:?} cel_h {:?} layer {:?}", cel_x, cel_y, sx, sy, cel_w, cel_h, layer);
 
         while idx_y < cel_h as i32 {
             idx_x = 0;
@@ -1159,25 +1191,28 @@ impl Screen {
                 let idx_sprite = self.map[map_x as usize][map_y as usize];
 
                 // Skip the sprite 0
-                if idx_sprite == 0 {
-                    break;
-                }
+                if idx_sprite != 0 {
+                    let mut sprite = self.sprites[idx_sprite as usize].clone();
+                    debug!("GET SPRITE {:?}, {:?} {:?}", idx_sprite, map_x, map_y);
 
-                let sprite = self.sprites[idx_sprite as usize].clone();
+                    // not the correct layer
+                    if layer == 0 || sprite.is_bit_flags_set(layer) {
+                        let mut index = 0;
 
-                let mut index = 0;
-                for c in &sprite.data {
-                    if ! self.is_transparent(*c as u32) {
-                        self.putpixel_(new_x, new_y, *c as u32);
-                    }
+                        for c in &sprite.data {
+                            if !self.is_transparent(*c as u32) {
+                                self.putpixel_(new_x, new_y, *c as u32);
+                            }
 
-                    index = index + 1;
+                            index = index + 1;
 
-                    if index > 0 && index % 8 == 0 {
-                        new_y = new_y + 1;
-                        new_x = orig_x;
-                    } else {
-                        new_x = new_x + 1;
+                            if index > 0 && index % 8 == 0 {
+                                new_y = new_y + 1;
+                                new_x = orig_x;
+                            } else {
+                                new_x = new_x + 1;
+                            }
+                        }
                     }
                 }
 
@@ -1229,15 +1264,15 @@ impl Screen {
 
         let mut ret = Vec::with_capacity((w2 * h2) as usize);
 
-        x_ratio = ((w1 << 16)/w2) + 1;
-        y_ratio = ((h1 << 16)/h2) + 1;
+        x_ratio = ((w1 << 16)/h2) + 1;
+        y_ratio = ((h1 << 16)/w2) + 1;
 
-        for i in 0..h2 {
-            for j in 0..w2 {
+        for i in 0..w2 {
+            for j in 0..h2 {
                 x2 = (j * x_ratio)>>16;
                 y2 = (i * y_ratio)>>16;
 
-                ret.insert((i*w2+j) as usize, *v.get((y2*w1+x2) as usize).unwrap());
+                ret.insert((i*h2+j) as usize, *v.get((y2*w1+x2) as usize).unwrap());
             }
         }
 
@@ -1262,17 +1297,14 @@ impl Screen {
         }
 
         let mut idx = 0;
-        for i in 0..h2 {
-            for j in 0..w2 {
+        for i in 0..w2 {
+            for j in 0..h2 {
                 let d:u8 = *ret.get(idx).unwrap();
                 idx += 1;
                 if d != 0 {
                     if ! self.is_transparent(d as u32) {
                         self.putpixel_(i as i32 + dx, j as i32 + dy, d as u32);
                     }
-                    //if self.transparency[d as usize] == 0 {
-                    //    self.putpixel_(i as i32 + dx, j as i32 + dy, px8::Color::from_u8(d));
-                   // }
                 }
             }
         }

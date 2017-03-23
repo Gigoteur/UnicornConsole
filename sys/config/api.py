@@ -42,13 +42,16 @@ def ellipse(x, y, rx, ry, color=-1):
 def ellipsefill(x, y, rx, ry, color=-1):
     px8_graphic.ellipsefill(math.floor(x), math.floor(y), math.floor(rx), math.floor(ry), math.floor(color))
 
-def fget(idx, v=-1):
-    if v == -1:
-        px8_graphic.fget_all(idx)
-    return px8_graphic.fget(idx, v)
+def fget(idx_sprite, flag=-1):
+    if flag == -1:
+        px8_graphic.fget_all(idx_sprite)
+    return px8_graphic.fget(idx_sprite, flag)
 
-def fset(idx, v):
-    pass#return px8_graphic.fget(idx, v)
+def fset(idx_sprite, flag, value=-1):
+    if value == -1:
+        px8_graphic.fset_all(flag)
+    else:
+        px8_graphic.fset(idx_sprite, flag, value)
 
 def line(x1, y1, x2, y2, color=-1):
     px8_graphic.line(math.floor(x1), math.floor(y1), math.floor(x2), math.floor(y2), math.floor(color))
@@ -154,8 +157,8 @@ globals()["mouse_state"] = mouse_state
 
 # Map
 
-def spr_map(cel_x, cel_y, sx, sy, cel_w, cel_h):
-    px8_map.spr_map(cel_x, cel_y, sx, sy, cel_w, cel_h)
+def spr_map(cel_x, cel_y, sx, sy, cel_w, cel_h, layer=0):
+    px8_map.spr_map(cel_x, cel_y, sx, sy, cel_w, cel_h, layer)
 
 def mget(x, y):
     return px8_map.mget(math.floor(x), math.floor(y))

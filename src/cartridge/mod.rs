@@ -517,26 +517,24 @@ pub struct CartridgeGFF {
 
 impl CartridgeGFF {
     pub fn new(lines: &mut Vec<String>) -> CartridgeGFF {
-        let mut flags = Vec::new();
-/*
-        if lines.len() > 0 {
-            let mut v = Vec::new();
+        let mut v = Vec::new();
 
-            for line in lines {
-                if line.len() > 128 {
-                    continue;
-                }
-
-
-                for c in line.as_bytes() {
-                    v.push((*c as char).to_digit(16).unwrap());
-                }
+        for line in lines {
+            for c in line.as_bytes() {
+                v.push((*c as char).to_digit(16).unwrap() as u8);
             }
         }
-*/
-        CartridgeGFF {
-            flags: flags.clone(),
+
+        let mut v_order = Vec::new();
+        let mut idx = 0;
+        while idx < v.len() {
+            v_order.push(v[idx+1]);
+            v_order.push(v[idx]);
+
+            idx += 2;
         }
+
+        CartridgeGFF::new_from_bytes(v_order.clone())
     }
 
     pub fn new_from_bytes(v: Vec<u8>) -> CartridgeGFF {
@@ -548,17 +546,19 @@ impl CartridgeGFF {
         let mut idx = 0;
         let mut idx_sprite = 0;
 
+        info!("V FLAGS {:?}", v_copy);
+
         while idx < len_v {
 
             let flag = read_u8(&mut v_copy);
-
-            info!("IDX SPRITE {:?}, FLAGS {:?}", idx_sprite, flag);
 
             flags.push(flag as u8);
 
             idx += 2;
             idx_sprite += 1;
         }
+
+        info!("GFF FLAGS {:?}", flags);
 
         CartridgeGFF {
             flags: flags.clone(),
