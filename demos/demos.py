@@ -219,6 +219,28 @@ class RadBot(object):
             circfill(x, y, y/12, color)
             px8_print("rad bot!", 40, 60, color)
 
+# see https://itch.io/t/69170/from-pico-8-to-tic-80-another-port-of-nice-mini-demo-
+class Ripple(object):
+    def __init__(self):
+        self.r=64
+        self.t=0
+
+    def init(self):
+        self.T = 0
+
+    def update(self):
+        pass
+
+    def draw(self):
+        cls()
+
+        for y in range(-self.r,self.r,3):
+            for x in range(-self.r,self.r,2):
+                z=cos(sqrt(x*x+y*y*2)/40-self.t)*6
+                pset(self.r+x,self.r+y-z,6)
+
+        self.t+=2/self.r
+
 idx_demo = 0
 demos = [
     ["Hello", [HelloWorld()]],
@@ -226,6 +248,7 @@ demos = [
     ["Vortex", [Vortex()]],
     ["Drippy", [Drippy()]],
     ["RadBot", [RadBot()]],
+    ["Ripple", [Ripple()]],
 ]
 
 buttons = []
