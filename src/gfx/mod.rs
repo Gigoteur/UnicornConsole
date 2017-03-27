@@ -215,8 +215,14 @@ impl Sprite {
     }
 
     pub fn is_flags_set(&mut self, value: u8) -> bool {
-        debug!("FLAG SET SPRITE {:?} {:?} {:?}", self.flags, value, (self.flags & (value << 1)) != 0);
-        (self.flags & (value << 1)) != 0
+        let mut value = value << 1;
+
+        if value == 0 {
+            value = 1;
+        }
+
+        debug!("FLAG SET SPRITE {:?} {:?} {:?}", self.flags, value, (self.flags & value) != 0);
+        (self.flags & value) != 0
     }
 
     pub fn is_bit_flags_set(&mut self, value: u8) -> bool {
@@ -574,6 +580,8 @@ impl Screen {
         if idx as usize > self.sprites.len() {
             return false;
         }
+
+        debug!("FGET {:?}", idx);
 
         self.sprites[idx as usize].is_flags_set(v as u8)
     }
@@ -1181,10 +1189,6 @@ impl Screen {
                 let mut new_x = orig_x;
                 let mut new_y = sy + 8 * idx_y;
 
-                if new_x > SCREEN_WIDTH as i32 || new_y > SCREEN_HEIGHT as i32 {
-                    break
-                }
-
                 let map_x = cel_x as i32 + idx_x;
                 let map_y = cel_y as i32 + idx_y;
 
@@ -1224,7 +1228,7 @@ impl Screen {
     }
 
     pub fn mget(&mut self, x: u32, y: u32) -> u32 {
-        if x as usize > px8::SCREEN_WIDTH || y as usize > px8::SCREEN_WIDTH {
+        if x as usize > px8::SCREEN_WIDTH || y as usize >= 32 {
             return 0;
         }
 
@@ -1234,7 +1238,7 @@ impl Screen {
     }
 
     pub fn mset(&mut self, x: u32, y: u32, v: u32) {
-        if x as usize > px8::SCREEN_WIDTH || y as usize > px8::SCREEN_WIDTH {
+        if x as usize > px8::SCREEN_WIDTH || y as usize >= 32 {
             return;
         }
 

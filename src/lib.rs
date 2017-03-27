@@ -1,4 +1,4 @@
-#[cfg(feature = "lua")]
+/*#[cfg(feature = "lua")]
 extern crate lua;
 
 #[cfg(feature = "cpython")]
@@ -46,4 +46,4 @@ pub mod gfx;
 pub mod px8;
 pub mod cartridge;
 pub mod plugins;
-pub mod sound;
+pub mod sound;*/

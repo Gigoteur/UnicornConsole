@@ -498,7 +498,6 @@ impl CartridgeGFX {
             }
 
             for idx in idx_sprites..idx_sprites+16 {
-                //info!("IDX SPRITES {:?} {:?}", idx, line);
                 let mut gfx_sprites = self.sprites[idx].clone();
 
                 data.push_str(&gfx_sprites.get_line(line));
@@ -546,8 +545,6 @@ impl CartridgeGFF {
         let mut idx = 0;
         let mut idx_sprite = 0;
 
-        info!("V FLAGS {:?}", v_copy);
-
         while idx < len_v {
 
             let flag = read_u8(&mut v_copy);
@@ -558,11 +555,27 @@ impl CartridgeGFF {
             idx_sprite += 1;
         }
 
-        info!("GFF FLAGS {:?}", flags);
-
         CartridgeGFF {
             flags: flags.clone(),
         }
+    }
+
+    pub fn get_data(&mut self) -> String {
+        let mut data = String::new();
+
+        let mut idx_sprites = 0;
+
+        for flag in &self.flags {
+            data.push_str(&format!("{:x}{:x}", (flag & 0xf0) >> 4, flag & 0x0f));
+
+            idx_sprites += 1;
+
+            if idx_sprites > 0 && idx_sprites % 128 == 0 {
+                data.push('\n');
+            }
+        }
+
+        return data;
     }
 }
 
@@ -1034,6 +1047,7 @@ impl Cartridge {
         f.write_all(self.gfx.get_data().clone().as_bytes());
 
         f.write_all("__gff__\n".as_bytes());
+        f.write_all(self.gff.get_data().clone().as_bytes());
 
         f.write_all("__map__\n".as_bytes());
         f.write_all(self.map.get_data().clone().as_bytes());

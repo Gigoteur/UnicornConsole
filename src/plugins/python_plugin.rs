@@ -258,12 +258,12 @@ pub mod plugin {
     }
 
 
-    def spr_mget(&self, x: u32, y: u32) -> PyResult<u32> {
-        let value = self.screen(py).lock().unwrap().mget(x as u32, y);
+    def mget(&self, x: u32, y: u32) -> PyResult<u32> {
+        let value = self.screen(py).lock().unwrap().mget(x, y);
         Ok(value)
     }
 
-    def spr_mset(&self, x: u32, y: u32, v: u32) -> PyResult<i32> {
+    def mset(&self, x: u32, y: u32, v: u32) -> PyResult<i32> {
         self.screen(py).lock().unwrap().mset(x, y, v);
         Ok(0)
     }
