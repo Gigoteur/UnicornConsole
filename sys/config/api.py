@@ -161,6 +161,10 @@ def spr_map(cel_x, cel_y, sx, sy, cel_w, cel_h, layer=0):
     px8_map.spr_map(cel_x, cel_y, sx, sy, cel_w, cel_h, layer)
 
 def mget(x, y):
+    if y < 0:
+        y = 0
+    if x < 0:
+        x = 0
     return px8_map.mget(math.floor(x), math.floor(y))
 
 def mset(x, y, v):

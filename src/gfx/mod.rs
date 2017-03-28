@@ -221,12 +221,10 @@ impl Sprite {
             value = 1;
         }
 
-        debug!("FLAG SET SPRITE {:?} {:?} {:?}", self.flags, value, (self.flags & value) != 0);
         (self.flags & value) != 0
     }
 
     pub fn is_bit_flags_set(&mut self, value: u8) -> bool {
-        debug!("BIT FLAG SET SPRITE {:?} {:?} {:?}", self.flags, value, (self.flags & value) != 0);
         (self.flags & value) != 0
     }
 
@@ -581,8 +579,6 @@ impl Screen {
             return false;
         }
 
-        debug!("FGET {:?}", idx);
-
         self.sprites[idx as usize].is_flags_set(v as u8)
     }
 
@@ -598,8 +594,6 @@ impl Screen {
         if idx as usize > self.sprites.len() {
             return;
         }
-
-        info!("FSET {:?} {:?} {:?}", idx, flag, value);
 
         self.sprites[idx as usize].set_flag(flag, value);
     }
@@ -1080,7 +1074,7 @@ impl Screen {
                 sprite = sprite.flip_y();
             }
 
-            let mut new_x = orig_x % SCREEN_WIDTH as i32;
+            let mut new_x = orig_x;
             let mut new_y = orig_y;
 
             debug!("SPRITE = {:?} x:{:?} y:{:?} {:?}", (n + i) as usize, new_x, new_y, sprite);
@@ -1095,7 +1089,7 @@ impl Screen {
 
                 if index != 0 && index % 8 == 0 {
                     new_y = new_y + 1;
-                    new_x = orig_x % SCREEN_WIDTH as i32;
+                    new_x = orig_x;
                 } else {
                     new_x = new_x + 1;
                 }
