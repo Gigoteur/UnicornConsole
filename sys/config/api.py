@@ -1,4 +1,5 @@
 import math
+import random
 
 # Audio
 def sound_load(filename):
