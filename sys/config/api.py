@@ -1,5 +1,7 @@
 import math
 import random
+from math import frexp, copysign
+from sys import float_info
 
 # Audio
 def sound_load(filename):
@@ -198,6 +200,9 @@ def mid(x,y,z):
     z = z or 0
     return x > y and x or y > z and z or y
 
+def bxor(a,b):
+    return int(a) ^ int(b)
+
 globals()["atan2"] = atan2
 globals()["ceil"] = math.ceil
 globals()["cos"] = cos
@@ -206,6 +211,7 @@ globals()["flr"] = flr
 globals()["rnd"] = rnd
 globals()["sqrt"] = math.sqrt
 globals()["mid"] = mid
+globals()["bxor"] = bxor
 
 # Memory
 

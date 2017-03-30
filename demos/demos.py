@@ -241,6 +241,120 @@ class Ripple(object):
 
         self.t+=2/self.r
 
+# https://twitter.com/Huginn18/status/847155000027627528
+class Tweetjam_0(object):
+    def __init__(self):
+        self.t=[0,0,0,0,0,5,6]
+        self.c = 0
+        self.o = 127
+
+    def init(self):
+        self.T = 0
+        cls()
+
+    def update(self):
+        pass
+
+    def draw(self):
+        x = rnd(self.o)
+        y = rnd(self.o)
+
+        c = pget(x, y+rnd(2))
+        if rnd(self.o) < c:
+            print(c)
+            c = self.t[c-1]
+        circ(x, y, 1.5, c)
+        pset(y, self.o, 7)
+
+# https://twitter.com/imakecoolstuff/status/847177521783345155
+class Tweetjam_1(object):
+    def __init__(self):
+        self.c = 0
+
+    def init(self):
+        self.T = 0
+        cls()
+
+    def update(self):
+        pass
+        self.c+=1
+
+    def draw(self):
+        l=64
+        u=.04
+        for x in range(-l,l):
+            for y in range(-l,l):
+                pset(x+l,y+l,bxor(cos(x*u)*5,sin(y*u)*5+self.c))
+
+# https://twitter.com/imakecoolstuff/status/847387606568411136
+class Tweetjam_2(object):
+    def __init__(self):
+        self.c = 0
+        self.u = 0
+        self.r = 0.01
+        self.s = 64
+
+
+    def init(self):
+        self.T = 0
+        cls()
+
+    def update(self):
+        pass
+
+    def draw(self):
+        cls()
+        self.u+=self.r
+
+        for x in range(0,127):
+            self.c+=self.r
+            y=self.s*sin((x+self.c)*self.r)
+            i=23*sin(self.u)
+            line(x+i,self.s+y,x-i,self.s-y,x/4)
+
+# https://twitter.com/themorfeus/status/847357856659587073
+class Tweetjam_3(object):
+    def __init__(self):
+        self.t=0
+        self.o=128
+        self.d=.001
+
+    def init(self):
+        self.T = 0
+        cls()
+
+    def update(self):
+        pass
+
+    def draw(self):
+        for x in range(0, self.o):
+            for y in range(0, self.o):
+                if y != 0:
+                    pset(sin((x+self.t)*self.d)*self.o, cos((y+self.t)*self.d)*self.o,(x/y)+9)
+                    self.t+=1
+
+# https://twitter.com/imakecoolstuff/status/847342717013114880
+class Tweetjam_4(object):
+    def __init__(self):
+        self.u=63
+        self.c=0
+
+    def init(self):
+        self.T = 0
+        cls()
+
+    def update(self):
+        pass
+
+    def draw(self):
+        self.c+=1
+        t=self.c*.01
+        x=rnd(self.u)
+        y=rnd(self.u)
+        xp=x*cos(t)-y*sin(t)
+        yp=y*cos(t)+x*sin(t)
+        pset(self.u+xp,self.u+yp,sin((x+y)*.01)*8)
+
 idx_demo = 0
 demos = [
     ["Hello", [HelloWorld()]],
@@ -249,6 +363,11 @@ demos = [
     ["Drippy", [Drippy()]],
     ["RadBot", [RadBot()]],
     ["Ripple", [Ripple()]],
+    ["Tweetjam_0", [Tweetjam_0()]],
+    ["Tweetjam_1", [Tweetjam_1()]],
+    ["Tweetjam_2", [Tweetjam_2()]],
+    ["Tweetjam_3", [Tweetjam_3()]],
+    ["Tweetjam_4", [Tweetjam_4()]],
 ]
 
 buttons = []
