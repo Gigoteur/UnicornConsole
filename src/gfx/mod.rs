@@ -1240,6 +1240,8 @@ impl Screen {
     }
 
     pub fn sspr(&mut self, sx: u32, sy: u32, sw: u32, sh: u32, dx: i32, dy: i32, dw: u32, dh: u32, flip_x: bool, flip_y: bool) {
+        debug!("SSPR sx {:?} sy {:?} sw {:?} sh {:?} dx {:?} dy {:?} dw {:?} dh {:?} flip_x {:?} flip_y {:?}", sx, sy, sw, sh, dx, dy, dw, dh, flip_x, flip_y);
+
         let mut v = Vec::new();
 
         for x in sx..sx+sw {
@@ -1247,6 +1249,8 @@ impl Screen {
                 v.push(self.sget(x, y));
             }
         }
+
+        debug!("V {:?} {:?}", v.len(), v);
 
         let mut x2;
         let mut y2;
@@ -1262,15 +1266,19 @@ impl Screen {
 
         let mut ret = Vec::with_capacity((w2 * h2) as usize);
 
-        x_ratio = ((w1 << 16)/h2) + 1;
-        y_ratio = ((h1 << 16)/w2) + 1;
+        x_ratio = ((w1 << 16) / w2) + 1;
+        y_ratio = ((h1 << 16) / h2) + 1;
 
-        for i in 0..w2 {
-            for j in 0..h2 {
-                x2 = (j * x_ratio)>>16;
-                y2 = (i * y_ratio)>>16;
+        debug!("H1 {:?} W1 {:?} H2 {:?} W2 {:?} X RATIO {:?} Y RATIO {:?}", h1, w1, h2, w2, x_ratio, y_ratio);
 
-                ret.insert((i*h2+j) as usize, *v.get((y2*w1+x2) as usize).unwrap());
+        for i in 0..h2 {
+            for j in 0..w2 {
+                x2 = (j * x_ratio) >> 16;
+                y2 = (i * y_ratio) >> 16;
+
+                debug!("{:?} {:?}", i * w2 + j, y2 * w1 + x2);
+
+                ret.insert((i * w2 + j) as usize, *v.get((y2 * w1 + x2) as usize).unwrap());
             }
         }
 
