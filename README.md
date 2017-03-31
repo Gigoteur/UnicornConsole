@@ -199,6 +199,10 @@ You can also use the fullscreen option by using '-f' option.
 
 You can add the '-o' option to force SDL to use OpenGL
 
+## Compatibility mode
+
+You could load a PICO8 cartridge file by using the '-m pico8' option to convert the lua code.
+
 ## How to create a new cartridge
 
 PX8 will call 3 functions, at startup or during the runtime:
