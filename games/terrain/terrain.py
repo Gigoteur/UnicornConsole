@@ -1,3 +1,6 @@
+# Original code is here: http://www.lexaloffle.com/bbs/?uid=12213
+# From Powersaurus
+
 import random
 from datetime import datetime
 
@@ -67,7 +70,6 @@ def copy_terrain_to_per_pixel_terrain():
 
 def _init():
     regenerate(global_randomness)
-    #sspr(0, 0, 1, 32, 0, 64, 1, 32)
 
 def _update():
     global global_randomness, drawmode
@@ -102,9 +104,6 @@ def draw_per_pixel_terrain():
         for y in range(0, height):
             if per_pixel_terrain[x][y] != 0:
                 pset(x, (height)-y, per_pixel_terrain[x][y])
-
-def _draw2():
-    pass
 
 def _draw():
     rectfill(0,0,128,128,12)
