@@ -218,6 +218,7 @@ class Palette(object):
 
         sspr(8, 0, 8, 8, 8, 8, 8, 8)
 
+
 class Map(object):
     def __init__(self):
         self.T = 0
@@ -231,6 +232,46 @@ class Map(object):
     def draw(self):
         cls()
         spr_map(0, 0, 0, 0, 128, 32)
+
+
+class Memcpy(object):
+    def __init__(self):
+        self.T = 0
+        self.dist_amt = 2
+
+    def distort_orig(self, amount):
+        amount = min(amount, 64)
+
+        for iy in range(0, 127):
+            a = flr(-amount + rnd(amount*2) + 0.5)
+
+            s = max(-a, 0)
+            e = max(a, 0)
+
+
+            l = 64 - abs(a)
+            adr = 0x6000 + iy*64
+            memcpy(adr + e, adr + s, l)
+
+    def init(self):
+        pass
+
+    def update(self):
+        self.T += 1
+
+    def draw(self):
+        cls()
+
+        rectfill(10, 10, 120, 120, 3)
+        circfill(63, 63, 16, 7)
+        circfill(10, 50, 23, 10)
+        circfill(50, 10, 23, 8)
+        circfill(80, 80, 23, 11)
+        circfill(120, 80, 23, 11)
+
+        if btn(4):
+            self.distort_orig(self.dist_amt)
+
 
 idx_demo = 0
 demos = [
@@ -246,6 +287,8 @@ demos = [
     ["colors", [Colors()]],
     ["palette", [Palette()]],
     ["map", [Map()]],
+    ["memcpy", [Memcpy()]],
+
 ]
 
 def _init():

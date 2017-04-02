@@ -1480,7 +1480,7 @@ pub mod plugin {
                 data.screen.clone()
             });
 
-            let value = screen.lock().unwrap().mget(x as u32, y as u32);
+            let value = screen.lock().unwrap().mget(x as i32, y as i32);
 
             state.push_integer(value as i64);
 
@@ -1502,7 +1502,7 @@ pub mod plugin {
                 data.screen.clone()
             });
 
-            let value = screen.lock().unwrap().mset(x as u32, y as u32, v as u32);
+            let value = screen.lock().unwrap().mset(x as i32, y as i32, v as u32);
 
             1
         }

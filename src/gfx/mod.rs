@@ -528,8 +528,8 @@ impl Screen {
 
         let col_rgb = px8::PALETTE.lock().unwrap().get_rgb(col);
         self.buffer_rgb[(x + y * SCREEN_WIDTH) * 3] = col_rgb.b;
-        self.buffer_rgb[(x + y * SCREEN_WIDTH) * 3+1] = col_rgb.g;
-        self.buffer_rgb[(x + y * SCREEN_WIDTH) * 3+2] = col_rgb.r;
+        self.buffer_rgb[(x + y * SCREEN_WIDTH) * 3 + 1] = col_rgb.g;
+        self.buffer_rgb[(x + y * SCREEN_WIDTH) * 3 + 2] = col_rgb.r;
     }
 
     pub fn color(&mut self, col: i32) {
@@ -839,8 +839,7 @@ impl Screen {
                 ix = ix + iy / rx;
                 iy = iy - ix / rx;
             }
-        }
-        else {
+        } else {
             ix = 0;
             iy = ry * 64;
 
@@ -1006,7 +1005,6 @@ impl Screen {
                 ix = ix + iy / ry;
                 iy = iy - ix / ry;
             }
-
         }
     }
 
@@ -1140,12 +1138,12 @@ impl Screen {
         debug!("Load dynamic sprite {:?} {:?}", width, height);
 
         let mut idx = 0;
-        let mut v:Vec<u32> = Vec::new();
+        let mut v: Vec<u32> = Vec::new();
 
         while idx < data.len() {
             let r = *data.get(idx).unwrap();
-            let g = *data.get(idx+1).unwrap();
-            let b = *data.get(idx+2).unwrap();
+            let g = *data.get(idx + 1).unwrap();
+            let b = *data.get(idx + 2).unwrap();
 
             v.push(px8::PALETTE.lock().unwrap().add_color(r, g, b));
 
@@ -1221,7 +1219,11 @@ impl Screen {
         }
     }
 
-    pub fn mget(&mut self, x: u32, y: u32) -> u32 {
+    pub fn mget(&mut self, x: i32, y: i32) -> u32 {
+        if x < 0 || y < 0 {
+            return 0;
+        }
+
         if x as usize > px8::SCREEN_WIDTH || y as usize >= 32 {
             return 0;
         }
@@ -1231,7 +1233,11 @@ impl Screen {
         return value;
     }
 
-    pub fn mset(&mut self, x: u32, y: u32, v: u32) {
+    pub fn mset(&mut self, x: i32, y: i32, v: u32) {
+        if x < 0 || y < 0 {
+            return;
+        }
+
         if x as usize > px8::SCREEN_WIDTH || y as usize >= 32 {
             return;
         }
@@ -1244,8 +1250,8 @@ impl Screen {
 
         let mut v = Vec::new();
 
-        for x in sx..sx+sw {
-            for y in sy..sy+sh {
+        for x in sx..sx + sw {
+            for y in sy..sy + sh {
                 v.push(self.sget(x, y));
             }
         }
@@ -1283,21 +1289,21 @@ impl Screen {
         }
 
         if flip_x {
-            for i in 0..w2/2 {
+            for i in 0..w2 / 2 {
                 for j in 0..h2 {
                     let tmp = ret[(i + j * w2) as usize];
-                    ret[(i + j * w2) as usize] = ret[((w2 - (i+1)) + j * w2) as usize];
-                    ret[((w2 - (i+1)) + j * w2) as usize] = tmp;
+                    ret[(i + j * w2) as usize] = ret[((w2 - (i + 1)) + j * w2) as usize];
+                    ret[((w2 - (i + 1)) + j * w2) as usize] = tmp;
                 }
             }
         }
 
         if flip_y {
-            for i in 0..h2/2 {
+            for i in 0..h2 / 2 {
                 for j in 0..w2 {
                     let tmp = ret[(j + i * w2) as usize];
-                    ret[(j + i * w2) as usize] = ret[(j + (h2 - (i+1)) * w2) as usize];
-                    ret[(j + (h2 - (i+1)) * w2) as usize] = tmp;
+                    ret[(j + i * w2) as usize] = ret[(j + (h2 - (i + 1)) * w2) as usize];
+                    ret[(j + (h2 - (i + 1)) * w2) as usize] = tmp;
                 }
             }
         }
@@ -1305,10 +1311,10 @@ impl Screen {
         let mut idx = 0;
         for i in 0..w2 {
             for j in 0..h2 {
-                let d:u8 = *ret.get(idx).unwrap();
+                let d: u8 = *ret.get(idx).unwrap();
                 idx += 1;
                 if d != 0 {
-                    if ! self.is_transparent(d as u32) {
+                    if !self.is_transparent(d as u32) {
                         self.putpixel_(i as i32 + dx, j as i32 + dy, d as u32);
                     }
                 }
@@ -1342,4 +1348,18 @@ impl Screen {
             self.transparency.insert(c as u32, t as u8);
         }
     }
+
+    pub fn peek(&mut self, addr: u32) -> u32 {
+        return self.back_buffer[addr as usize] << 8 + self.back_buffer[(addr + 1) as usize];
+    }
+
+    pub fn poke(&mut self, addr: u32, val: u16) {}
+
+
+    pub fn memcpy(&mut self, dest_addr: u32, source_addr: u32, len: u32) {
+
+    }
+
+    pub fn memset(&mut self, dest_addr: u32, val: u32, len: u32) {}
+
 }
