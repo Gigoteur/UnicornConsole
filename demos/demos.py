@@ -355,6 +355,48 @@ class Tweetjam_4(object):
         yp=y*cos(t)+x*sin(t)
         pset(self.u+xp,self.u+yp,sin((x+y)*.01)*8)
 
+
+# https://twitter.com/lexaloffle/status/848437410102878208
+class Tweetjam_5(object):
+    def __init__(self):
+        self.t=0
+
+    def init(self):
+        cls()
+
+    def update(self):
+        pass
+
+    def draw(self):
+        cls()
+        r=64
+        for y in range(-r,r,2):
+            for x in range(-r,r,3):
+                z=cos(x/r+self.t)*3+cos(y/r+self.t/3)*3
+                pset(r+x-y/2,r+y/2+x/4-z,11+z/2)
+        self.t+=1/r
+
+# https://twitter.com/TRASEVOL_DOG/status/791405685829427200
+class Tweetjam_6(object):
+    def __init__(self):
+        self.t = 0
+
+    def init(self):
+        cls()
+        self.a = 0x0
+        self.b = 0x2000
+
+    def update(self):
+        pass
+
+    def draw(self):
+        if rnd(9999)<1:
+            l = rnd(0x800)
+            memset(self.a+rnd(self.b-l),rnd(256),l)
+        else:
+            l=rnd(0x100)
+            memcpy(self.a+rnd(self.b-l),self.a+rnd(self.b-l),l)
+
 idx_demo = 0
 demos = [
     ["Hello", [HelloWorld()]],
@@ -368,6 +410,8 @@ demos = [
     ["Tweetjam_2", [Tweetjam_2()]],
     ["Tweetjam_3", [Tweetjam_3()]],
     ["Tweetjam_4", [Tweetjam_4()]],
+    ["Tweetjam_5", [Tweetjam_5()]],
+    ["Tweetjam_6", [Tweetjam_6()]],
 ]
 
 buttons = []

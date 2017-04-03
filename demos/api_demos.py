@@ -198,12 +198,11 @@ class Colors(object):
 class Palette(object):
     def __init__(self):
         self.T = 0
-        self.idx = 0
 
         self.palettes = ["pico-8", "commodore64"]
 
     def init(self):
-        pass
+        self.idx = 0
 
     def update(self):
         self.T += 1
@@ -237,7 +236,6 @@ class Map(object):
 class Memcpy(object):
     def __init__(self):
         self.T = 0
-        self.dist_amt = 2
 
     def distort_orig(self, amount):
         amount = min(amount, 64)
@@ -250,14 +248,16 @@ class Memcpy(object):
 
 
             l = 64 - abs(a)
-            adr = 0x6000 + iy*64
+            adr = 0x0 + iy*64
             memcpy(adr + e, adr + s, l)
 
     def init(self):
-        pass
+        self.dist_amt = 2
 
     def update(self):
         self.T += 1
+        if btn(5):
+            self.dist_amt += 0.1
 
     def draw(self):
         cls()

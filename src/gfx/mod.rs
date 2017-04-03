@@ -388,7 +388,7 @@ impl Clipping {
 }
 
 pub struct Screen {
-    pub back_buffer: Box<px8::ScreenBuffer>,
+    pub back_buffer: px8::ScreenBuffer,
     pub saved_back_buffer: Box<px8::ScreenBuffer>,
     pub buffer_rgb: Box<px8::ScreenBufferRGB>,
 
@@ -412,7 +412,7 @@ unsafe impl Sync for Screen {}
 impl Screen {
     pub fn new() -> Screen {
         Screen {
-            back_buffer: Box::new(px8::SCREEN_EMPTY),
+            back_buffer: px8::SCREEN_EMPTY,
             saved_back_buffer: Box::new(px8::SCREEN_EMPTY),
             buffer_rgb: Box::new([0; px8::SCREEN_PIXELS_RGB]),
 
@@ -609,7 +609,7 @@ impl Screen {
 
     pub fn cls(&mut self) {
         // Fastest way to clean the buffer ?
-        self.back_buffer = Box::new(px8::SCREEN_EMPTY);
+        self.back_buffer = px8::SCREEN_EMPTY;
         self.buffer_rgb = Box::new([0; px8::SCREEN_PIXELS_RGB]);
     }
 
@@ -1355,9 +1355,27 @@ impl Screen {
 
     pub fn poke(&mut self, addr: u32, val: u16) {}
 
-
     pub fn memcpy(&mut self, dest_addr: u32, source_addr: u32, len: u32) {
+        let mut idx = 0;
 
+        let mut dest_addr = dest_addr * 2;
+        let mut source_addr = source_addr * 2;
+
+        debug!("MEMPCY dest_addr {:?}, source_addr {:?}, len {:?}", dest_addr, source_addr, len);
+
+        let a = &self.back_buffer[source_addr as usize..(source_addr + len * 2) as usize].to_vec();
+
+        while idx < len * 2 {
+            let value = a[idx as usize] as u32;
+
+            self.back_buffer[(dest_addr + idx) as usize] = value;
+            let col_rgb = px8::PALETTE.lock().unwrap().get_rgb(value);
+            self.buffer_rgb[(dest_addr + idx) as usize * 3] = col_rgb.b;
+            self.buffer_rgb[(dest_addr + idx) as usize * 3 + 1] = col_rgb.g;
+            self.buffer_rgb[(dest_addr + idx) as usize * 3 + 2] = col_rgb.r;
+
+            idx += 1;
+        }
     }
 
     pub fn memset(&mut self, dest_addr: u32, val: u32, len: u32) {}

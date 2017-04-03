@@ -210,6 +210,10 @@ globals()["mid"] = mid
 globals()["bxor"] = bxor
 
 # Memory
+def memcpy(dest_addr, source_addr, len_buff):
+    px8_mem.memcpy(dest_addr, source_addr, len_buff)
+
+globals()["memcpy"] = memcpy
 
 # Palette
 

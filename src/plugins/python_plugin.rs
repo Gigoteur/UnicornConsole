@@ -273,6 +273,16 @@ pub mod plugin {
     // Math
 
     // Memory
+    py_class!(class PX8Memory |py| {
+    data screen: Arc < Mutex < Screen > >;
+
+    // Others
+    def memcpy(&self, dest_addr: u32, source_addr: u32, len: u32) -> PyResult<u32> {
+        self.screen(py).lock().unwrap().memcpy(dest_addr, source_addr, len);
+        Ok(0)
+    }
+
+    });
 
     // Peek/Poke
 
@@ -336,7 +346,9 @@ pub mod plugin {
             let px8_sys_obj = PX8Sys::create_instance(py,
                                                       info.clone()).unwrap();
             self.mydict.set_item(py, "px8_sys", px8_sys_obj).unwrap();
-
+            let px8_mem_obj = PX8Memory::create_instance(py,
+                                                         screen.clone()).unwrap();
+            self.mydict.set_item(py, "px8_mem", px8_mem_obj).unwrap();
 
             py.run(r###"globals()["px8_graphic"] = px8_graphic;"###, None, Some(&self.mydict)).unwrap();
             py.run(r###"globals()["px8_audio"] = px8_audio;"###, None, Some(&self.mydict)).unwrap();
@@ -344,6 +356,7 @@ pub mod plugin {
             py.run(r###"globals()["px8_input"] = px8_input;"###, None, Some(&self.mydict)).unwrap();
             py.run(r###"globals()["px8_map"] = px8_map;"###, None, Some(&self.mydict)).unwrap();
             py.run(r###"globals()["px8_sys"] = px8_sys;"###, None, Some(&self.mydict)).unwrap();
+            py.run(r###"globals()["px8_mem"] = px8_mem;"###, None, Some(&self.mydict)).unwrap();
 
             let mut f = File::open("./sys/config/api.py").unwrap();
             let mut data = String::new();
