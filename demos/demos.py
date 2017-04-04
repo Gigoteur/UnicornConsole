@@ -244,7 +244,7 @@ class Ripple(object):
 # https://twitter.com/Huginn18/status/847155000027627528
 class Tweetjam_0(object):
     def __init__(self):
-        self.t=[0,0,0,0,0,5,6]
+        self.t=[0,0,0,0,0,0,0,10,5,6]
         self.c = 0
         self.o = 127
 
@@ -256,15 +256,15 @@ class Tweetjam_0(object):
         pass
 
     def draw(self):
-        x = rnd(self.o)
-        y = rnd(self.o)
+        for _ in range(0,3000):
+            x = rnd(self.o)
+            y = rnd(self.o)
 
-        c = pget(x, y+rnd(2))
-        if rnd(self.o) < c:
-            print(c)
-            c = self.t[c-1]
-        circ(x, y, 1.5, c)
-        pset(y, self.o, 7)
+            c = pget(x, y+rnd(2))
+            if rnd(self.o) < c:
+                c = self.t[c-1]
+            circ(x, y, 1.5, c)
+            pset(y, self.o, 7)
 
 # https://twitter.com/imakecoolstuff/status/847177521783345155
 class Tweetjam_1(object):
@@ -305,7 +305,6 @@ class Tweetjam_2(object):
     def draw(self):
         cls()
         self.u+=self.r
-
         for x in range(0,127):
             self.c+=self.r
             y=self.s*sin((x+self.c)*self.r)
@@ -397,6 +396,112 @@ class Tweetjam_6(object):
             l=rnd(0x100)
             memcpy(self.a+rnd(self.b-l),self.a+rnd(self.b-l),l)
 
+# https://twitter.com/lexaloffle/status/849083097371070464
+class Tweetjam_7(object):
+    def __init__(self):
+        pass
+
+    def init(self):
+        cls()
+        self.t = 0
+
+    def update(self):
+        pass
+
+    def draw(self):
+        cls()
+        i = 3
+
+        while i < 10:
+            c=cos
+            x=64+i*5*c(i)
+            y=64+i*9*sin(i)
+            line(x,y,x+c(i*2+self.t)*30,y+c(i*3+self.t/2)*19,4+i)
+
+            i += 0.01
+        self.t+=0.01
+
+# https://twitter.com/RedzThief/status/848986167999639552
+class Tweetjam_8(object):
+    def __init__(self):
+        pass
+
+    def init(self):
+        cls()
+        self.z = 64
+
+    def update(self):
+        pass
+
+    def draw(self):
+        for _ in range(0,1000):
+            t=2.4+sin(px8_time()/5)*2
+            j,k=t*18,rnd(1)
+            circfill(rnd(192),rnd(192),1,1)
+            circfill(self.z+cos(k)*j,self.z+sin(k)*j,t*2,t*3+k*3)
+
+class Tweetjam_9(object):
+    def __init__(self):
+        pass
+
+    def init(self):
+        cls()
+        self.z = 64
+
+    def update(self):
+        pass
+
+    def draw(self):
+        for _ in range(0,5000):
+            x=rnd(128)
+            y=rnd(128)
+            c=pget(x,y-rnd(1))
+            if(y<1):
+                c=8+rnd(6)
+            circfill(x,y,1,c)
+
+# https://twitter.com/imakecoolstuff/status/847931676697219072
+class Tweetjam_10(object):
+    def __init__(self):
+        pass
+
+    def init(self):
+        cls()
+        self.z = 128
+        self.c = 0
+
+    def update(self):
+        pass
+
+    def draw(self):
+        l=1.3
+        for _ in range(0, 1000):
+            self.c+=0.00002
+            x=rnd(self.z)
+            y=rnd(self.z)
+            pset(x,y,7+(self.c+(sin(x*.05)*l)+(sin(y*.05)*l))%8)
+
+# https://twitter.com/TheSparrowHunt/status/847353300248707074
+class Tweetjam_11(object):
+    def __init__(self):
+        pass
+
+    def init(self):
+        cls()
+        self.s = 0
+
+    def update(self):
+        pass
+
+    def draw(self):
+        for x in range(0, 128, 8):
+            for y in range(0, 128, 8):
+                rect(x-self.s/2, y-self.s/2, x+self.s/2, y+self.s/2, self.s%7+7)
+
+        self.s+=1
+        if self.s > 16:
+            self.s = 0
+
 idx_demo = 0
 demos = [
     ["Hello", [HelloWorld()]],
@@ -412,10 +517,16 @@ demos = [
     ["Tweetjam_4", [Tweetjam_4()]],
     ["Tweetjam_5", [Tweetjam_5()]],
     ["Tweetjam_6", [Tweetjam_6()]],
+    ["Tweetjam_7", [Tweetjam_7()]],
+    ["Tweetjam_8", [Tweetjam_8()]],
+    ["Tweetjam_9", [Tweetjam_9()]],
+    ["Tweetjam_10", [Tweetjam_10()]],
+    ["Tweetjam_11", [Tweetjam_11()]],
 ]
 
 buttons = []
 buttons.append(Button(110, 110, 16, 8, 9, "next"))
+buttons.append(Button(90, 110, 16, 8, 9, "prev"))
 
 def _init():
     global demos, idx_demo
@@ -451,7 +562,10 @@ def _update():
         for button in buttons:
             button.update(_mouse_x, _mouse_y)
             if button.is_click():
-                next_demo()
+                if button.text == "next":
+                    next_demo()
+                else:
+                    prev_demo()
 
     for demo in demos[idx_demo][1]:
         demo.update()
