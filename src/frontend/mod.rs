@@ -260,8 +260,8 @@ impl Frontend {
             let mouse_state = self.event_pump.mouse_state();
             let (width, height) = self.renderer.get_dimensions();
 
-            self.players.lock().unwrap().set_mouse_x(mouse_state.x() / (width as i32 / px8::SCREEN_WIDTH as i32));
-            self.players.lock().unwrap().set_mouse_y(mouse_state.y() / (height as i32 / px8::SCREEN_HEIGHT as i32));
+            self.players.lock().unwrap().set_mouse_x((mouse_state.x() as f32 * (px8::SCREEN_WIDTH as f32 / width as f32)) as i32);
+            self.players.lock().unwrap().set_mouse_y((mouse_state.y() as f32 * (px8::SCREEN_HEIGHT as f32/ height as f32)) as i32);
 
             for event in self.event_pump.poll_iter() {
                 match event {
