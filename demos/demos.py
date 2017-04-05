@@ -4,6 +4,10 @@ __python__
 
 import random
 
+def frange(start, stop, step):
+    return [x*step+start for x in range(0,round(abs((stop-start)/step)+0.5001),
+                                        int((stop-start)/step<0)*-2+1)]
+
 class Button(object):
     def __init__(self, x, y, w, h, color, text):
         self.x1 = x
@@ -269,10 +273,10 @@ class Tweetjam_0(object):
 # https://twitter.com/imakecoolstuff/status/847177521783345155
 class Tweetjam_1(object):
     def __init__(self):
-        self.c = 0
+        pass
 
     def init(self):
-        self.T = 0
+        self.c = 0
         cls()
 
     def update(self):
@@ -346,13 +350,14 @@ class Tweetjam_4(object):
         pass
 
     def draw(self):
-        self.c+=1
-        t=self.c*.01
-        x=rnd(self.u)
-        y=rnd(self.u)
-        xp=x*cos(t)-y*sin(t)
-        yp=y*cos(t)+x*sin(t)
-        pset(self.u+xp,self.u+yp,sin((x+y)*.01)*8)
+        for _ in range(0,1000):
+            self.c+=1
+            t=self.c*.01
+            x=rnd(self.u)
+            y=rnd(self.u)
+            xp=x*cos(t)-y*sin(t)
+            yp=y*cos(t)+x*sin(t)
+            pset(self.u+xp,self.u+yp,sin((x+y)*.01)*15)
 
 
 # https://twitter.com/lexaloffle/status/848437410102878208
@@ -502,6 +507,50 @@ class Tweetjam_11(object):
         if self.s > 16:
             self.s = 0
 
+# https://twitter.com/guerragames/status/849046571908030464
+class Tweetjam_12(object):
+    def __init__(self):
+        pass
+
+    def init(self):
+        cls()
+        self.c = 64
+        self.t = 1
+
+    def update(self):
+        if self.t > 3.5:
+            self.t = 1
+
+
+    def draw(self):
+        cls()
+        for y in frange(self.t,self.t+1,2/self.c):
+            for x in frange(self.t,self.t+1,3/self.c):
+                w=40+20*cos(x)
+                pset(self.c+w*cos(y),self.c+w*sin(y)/2+40*sin(x),self.t*x)
+        self.t+=.01
+
+# https://twitter.com/TRASEVOL_DOG/status/848656498834239488
+class Tweetjam_13(object):
+    def __init__(self):
+        pass
+
+    def init(self):
+        cls()
+
+    def update(self):
+        pass
+
+
+    def draw(self):
+        for _ in range(0, 1000):
+            x = rnd(128)
+            y = rnd(128)
+
+            a=atan2(x-64,y-64)-cos(px8_time()/10)+.5
+            c=pget(x+3*cos(a),y+3*sin(a))
+            circ(x,y,1,(c+rnd(1.05))%8+8)
+
 idx_demo = 0
 demos = [
     ["Hello", [HelloWorld()]],
@@ -522,6 +571,8 @@ demos = [
     ["Tweetjam_9", [Tweetjam_9()]],
     ["Tweetjam_10", [Tweetjam_10()]],
     ["Tweetjam_11", [Tweetjam_11()]],
+    ["Tweetjam_12", [Tweetjam_12()]],
+    ["Tweetjam_13", [Tweetjam_13()]],
 ]
 
 buttons = []
