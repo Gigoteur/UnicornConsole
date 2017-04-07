@@ -22,6 +22,7 @@ It works on all platforms (Linux/OSX/Windows), in the browser (via Emscripten), 
 
 The console is inspired from the awesome [Pico-8](http://www.lexaloffle.com/pico-8.php), so there is a [compatibility](https://github.com/Gigoteur/PX8/wiki/Pico-8-compatibility) mode available with Pico-8 console and cartridges (P8/PNG).
 
+![](http://i.imgur.com/tzoNZAa.gif)
 ![](https://j.gifs.com/0gMZ87.gif)
 ![](https://j.gifs.com/xGyM1n.gif)
 ![](https://j.gifs.com/vgw08V.gif)
@@ -32,6 +33,16 @@ The console is inspired from the awesome [Pico-8](http://www.lexaloffle.com/pico
 ![](http://i.imgur.com/GDC6WzW.gif)
 ![](http://i.imgur.com/ZxNgWrt.gif)
 ![](http://i.imgur.com/lFB2UPw.gif)
+
+More advanced examples:
+
+* Advanced Micro Platformer - Starter Kit http://www.lexaloffle.com/bbs/?tid=28793 in Python
+https://github.com/Gigoteur/PX8/tree/master/games/amp
+![](http://i.imgur.com/fKvyRnP.gif)
+
+* 2D Terrain Generation (http://www.lexaloffle.com/bbs/?uid=12213) in Python
+https://github.com/Gigoteur/PX8/tree/master/games/terrain
+![](http://i.imgur.com/ORElunz.gif)
 
 - [PX8](#px8)
   * [Download](#download)
