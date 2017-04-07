@@ -551,6 +551,54 @@ class Tweetjam_13(object):
             c=pget(x+3*cos(a),y+3*sin(a))
             circ(x,y,1,(c+rnd(1.05))%8+8)
 
+# https://twitter.com/topkeki69/status/850029638843854850
+class Tweetjam_14(object):
+    def __init__(self):
+        pass
+
+    def init(self):
+        cls()
+        self.t = 0
+
+    def update(self):
+        pass
+
+    def draw(self):
+        cls()
+        self.t += 1
+        for x in range(0,127):
+            a=sin(x/44+self.t/50)
+            b=sin(x/32+self.t/70)
+            pset(x,20+8*a,8)
+            pset(x,100+8*b,8)
+            pset(x,63+8*(a+b),12)
+
+
+# https://twitter.com/imakecoolstuff/status/849950317001273344
+class Tweetjam_15(object):
+    def __init__(self):
+        pass
+
+    def init(self):
+        cls()
+        self.t=0
+        self.z=0
+        self.l=16
+
+    def update(self):
+        pass
+
+    def draw(self):
+
+        x=self.l*(sin(self.t/3)+1)
+        self.t+=.01
+        r=self.l*(1+sin(self.t*2))
+        self.z+=1
+        for k in range(-2,2):
+            for l in range(-2,2):
+                circfill(64+x*k,64+x*l,r,self.z%8+7)
+
+
 idx_demo = 0
 demos = [
     ["Hello", [HelloWorld()]],
@@ -573,6 +621,8 @@ demos = [
     ["Tweetjam_11", [Tweetjam_11()]],
     ["Tweetjam_12", [Tweetjam_12()]],
     ["Tweetjam_13", [Tweetjam_13()]],
+    ["Tweetjam_14", [Tweetjam_14()]],
+    ["Tweetjam_15", [Tweetjam_15()]],
 ]
 
 buttons = []
