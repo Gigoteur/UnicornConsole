@@ -593,7 +593,7 @@ impl Px8New {
     }
 
     pub fn screenshot(&mut self, filename: String) {
-        info!("Taking screenshot");
+        info!("Taking screenshot in {:?}", filename);
 
         let mut buffer: Vec<u8> = Vec::new();
 
@@ -611,7 +611,7 @@ impl Px8New {
         let image = image::ImageBuffer::from_raw(SCREEN_WIDTH as u32,
                                                  SCREEN_HEIGHT as u32,
                                                  buffer).unwrap();
-        let image = image::DynamicImage::ImageRgb8(image).rotate90().resize(
+        let image = image::DynamicImage::ImageRgb8(image).rotate270().resize(
             (SCREEN_WIDTH * 4) as u32,
             (SCREEN_WIDTH * 4) as u32,
             image::FilterType::Nearest).flipv();
