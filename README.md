@@ -1,8 +1,27 @@
 [![Build Status](https://travis-ci.org/Gigoteur/PX8.svg?branch=master)](https://travis-ci.org/Gigoteur/PX8)
 [![](http://meritbadge.herokuapp.com/px8)](https://crates.io/crates/px8)
 
+
 # PX8
 
+  * [Demos](#demos)
+  * [Download](#download)
+    + [Binaries](#binaries)
+  * [Requirements](#requirements)
+  * [Build](#build)
+  * [Resolution](#resolution)
+  * [Coordinate System](#coordinate-system)
+  * [Keyboard Shortcut](#keyboard-shortcut)
+  * [Run a cartridge](#run-a-cartridge)
+  * [Edit a cartridge](#edit-a-cartridge)
+  * [Display options](#display-options)
+  * [How to create a new cartridge](#how-to-create-a-new-cartridge)
+    + [Python](#python)
+    + [Lua](#lua)
+  * [Cartridge format](#cartridge-format)
+  * [API documentation](#api-documentation)
+  
+  
 PX8 is an Open Source Fantasy Console (128x128 pixels) in Rust, by using a cartridge that contains the code/gfx/music. The code could be in Python/Lua, or you could create directly everything in pure Rust by using it as a library.
 
 It is still in development, but it is usable and the main features are:
@@ -22,24 +41,6 @@ It is still in development, but it is usable and the main features are:
 It works on all platforms (Linux/OSX/Windows), in the browser (via Emscripten), and on tiny hardware like Raspberry Pi 2/3.
 
 The console is inspired from the awesome [Pico-8](http://www.lexaloffle.com/pico-8.php), so there is a [compatibility](https://github.com/Gigoteur/PX8/wiki/Pico-8-compatibility) mode (not 100%) available with Pico-8 console and cartridges (P8/PNG).
-
-- [PX8](#px8)
-  * [Demos](#demos)
-  * [Download](#download)
-    + [Binaries](#binaries)
-  * [Requirements](#requirements)
-  * [Build](#build)
-  * [Resolution](#resolution)
-  * [Coordinate System](#coordinate-system)
-  * [Keyboard Shortcut](#keyboard-shortcut)
-  * [Run a cartridge](#run-a-cartridge)
-  * [Edit a cartridge](#edit-a-cartridge)
-  * [Display options](#display-options)
-  * [How to create a new cartridge](#how-to-create-a-new-cartridge)
-    + [Python](#python)
-    + [Lua](#lua)
-  * [Cartridge format](#cartridge-format)
-  * [API documentation](#api-documentation)
   
 ## Demos
 **The time for each frame is slow (10ms) in the GIF, and doesn't correspond to the speed of the game.**
