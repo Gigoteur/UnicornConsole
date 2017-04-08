@@ -1,5 +1,15 @@
-[![Build Status](https://travis-ci.org/Gigoteur/PX8.svg?branch=master)](https://travis-ci.org/Gigoteur/PX8)
-[![](http://meritbadge.herokuapp.com/px8)](https://crates.io/crates/px8)
+<p align="center">
+
+</p>
+
+<p align="center">
+  <a href="https://travis-ci.org/Gigoteur/PX8">
+      <img src="https://travis-ci.org/Gigoteur/PX8.svg?branch=master" alt="Travis for PX8">
+  </a>
+  <a href="https://crates.io/crates/px8">
+      <img src="http://meritbadge.herokuapp.com/px8" alt="PX8 Crate">
+  </a>
+</p>
 
 
 # PX8
