@@ -23,16 +23,38 @@ It works on all platforms (Linux/OSX/Windows), in the browser (via Emscripten), 
 
 The console is inspired from the awesome [Pico-8](http://www.lexaloffle.com/pico-8.php), so there is a [compatibility](https://github.com/Gigoteur/PX8/wiki/Pico-8-compatibility) mode (not 100%) available with Pico-8 console and cartridges (P8/PNG).
 
+- [PX8](#px8)
+  * [Demos](#demos)
+  * [Download](#download)
+    + [Binaries](#binaries)
+  * [Requirements](#requirements)
+  * [Build](#build)
+  * [Resolution](#resolution)
+  * [Coordinate System](#coordinate-system)
+  * [Keyboard Shortcut](#keyboard-shortcut)
+  * [Run a cartridge](#run-a-cartridge)
+  * [Edit a cartridge](#edit-a-cartridge)
+  * [Display options](#display-options)
+  * [How to create a new cartridge](#how-to-create-a-new-cartridge)
+    + [Python](#python)
+    + [Lua](#lua)
+  * [Cartridge format](#cartridge-format)
+  * [API documentation](#api-documentation)
+  
+## Demos
 **The time for each frame is slow (10ms) in the GIF, and doesn't correspond to the speed of the game.**
 
 ![](http://i.imgur.com/tzoNZAa.gif)
 
 ![](http://i.imgur.com/lFB2UPw.gif)
+
 ![](https://j.gifs.com/0gMZ87.gif)
+
 ![](https://j.gifs.com/xGyM1n.gif)
+
 ![](https://j.gifs.com/vgw08V.gif)
+
 ![](https://j.gifs.com/k5gVw5.gif)
-![](http://i.imgur.com/GDC6WzW.gif)
 
 Editor mode:
 
@@ -47,21 +69,6 @@ https://github.com/Gigoteur/PX8/tree/master/games/amp
 * 2D Terrain Generation (http://www.lexaloffle.com/bbs/?uid=12213) in Python
 https://github.com/Gigoteur/PX8/tree/master/games/terrain
 ![](http://i.imgur.com/ORElunz.gif)
-
-- [PX8](#px8)
-  * [Download](#download)
-    + [Binaries](#binaries)
-  * [Requirements](#requirements)
-  * [Build](#build)
-  * [Run a cartridge](#run-a-cartridge)
-  * [Edit a cartridge](#edit-a-cartridge)
-  * [Keyboard Shortcut](#keyboard-shortcut)
-  * [Display options](#display-options)
-  * [How to create a new cartridge](#how-to-create-a-new-cartridge)
-    + [Python](#python)
-    + [Lua](#lua)
-  * [Cartridge format](#cartridge-format)
-  * [API documentation](#api-documentation)
 
 ## Download
 
