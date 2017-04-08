@@ -1,5 +1,5 @@
 <p align="center">
-
+  <img src="docs/px8.png">
 </p>
 
 <p align="center">
