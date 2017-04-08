@@ -3,36 +3,40 @@
 
 # PX8
 
-PX8 is an open source fantasy console (128x128 pixels) in Rust, by using a cartridge that contains the code/gfx/music. The code could be in Python/Lua, or you could create directly everything in pure Rust by using it as a library.
+PX8 is an Open Source Fantasy Console (128x128 pixels) in Rust, by using a cartridge that contains the code/gfx/music. The code could be in Python/Lua, or you could create directly everything in pure Rust by using it as a library.
 
 It is still in development, but it is usable and the main features are:
- * 128x128 pixels, predefined palettes (pico-8, c64, etc), or use any RGB colors
+ * 128x128 pixels default resolution
+ * Predefined palettes (pico-8, c64, etc), or use any RGB colors
  * Python 3 / Lua 5.X support for the cartridge without tokens limit
  * Desktop/Mobile/Browser (Emscripten) support
  * Controls with dpad + 2 buttons (gamecontroller/joystick support)
  * Unlimited sprites (8x8)
  * Map support (128x32)
  * Edition of the cartridge data
- * PX8 format to be able to use your favorite code editor
- * Change the screen definition
+ * PX8 format to be able to use your favorite code editor for Python/Lua/Rust
+ * Change the screen definition (128x128, 256x256, WIDTHxHEIGHT)
  * Screenshot (PNG) / Video recording (GIF)
  * Pico-8 compatibility + cartridge (P8/P8.PNG) format support
  
 It works on all platforms (Linux/OSX/Windows), in the browser (via Emscripten), and on tiny hardware like Raspberry Pi 2/3.
 
-The console is inspired from the awesome [Pico-8](http://www.lexaloffle.com/pico-8.php), so there is a [compatibility](https://github.com/Gigoteur/PX8/wiki/Pico-8-compatibility) mode available with Pico-8 console and cartridges (P8/PNG).
+The console is inspired from the awesome [Pico-8](http://www.lexaloffle.com/pico-8.php), so there is a [compatibility](https://github.com/Gigoteur/PX8/wiki/Pico-8-compatibility) mode (not 100%) available with Pico-8 console and cartridges (P8/PNG).
+
+**The time for each frame is slow (10ms) in the GIF, and doesn't correspond to the speed of the game.**
 
 ![](http://i.imgur.com/tzoNZAa.gif)
+
+![](http://i.imgur.com/lFB2UPw.gif)
 ![](https://j.gifs.com/0gMZ87.gif)
 ![](https://j.gifs.com/xGyM1n.gif)
 ![](https://j.gifs.com/vgw08V.gif)
 ![](https://j.gifs.com/k5gVw5.gif)
-
-**The time for each frame is slow (10ms) in the GIF, and doesn't correspond to the speed of the game.**
-
 ![](http://i.imgur.com/GDC6WzW.gif)
+
+Editor mode:
+
 ![](http://i.imgur.com/ZxNgWrt.gif)
-![](http://i.imgur.com/lFB2UPw.gif)
 
 More advanced examples:
 
@@ -149,6 +153,22 @@ You can see example of PX8 + Emscripten in the demos [repository](https://github
 Each pixel can be access from 0 to 128 (or the new defined width/height) :
 ![](https://github.com/libgdx/libgdx/wiki/images/screenpixels.png)
 
+## Keyboard Shortcut
+
+Player 1:
+  * cursors, Z,X / C,V / N,M
+
+Player 2:
+  * ESDF, LSHIFT,A / TAB,Q,E
+
+System shortcut:
+  * F2: FPS debug
+  * F3: Take a screenshot
+  * F4: Take a video
+  * F5: Save the current cartridge
+  * F6: Switch between editor/play mode
+  * F7: Switch to the next available palette
+  
 ## Run a cartridge
 
 You should be able to run it directly by providing the path of the cartridge:
@@ -171,32 +191,11 @@ or some fancy demos:
 
 ## Edit a cartridge
 
-You can edit the cartridge by using the specific '-e' option:
+You can edit the GFX in the cartridge by using the specific '-e' option, and alternate between the run mode and the editor with 'F6':
 ```
 ./target/release/px8 -s 4 -e ./games/ski/ski.px8
 ```
-
-## Keyboard Shortcut
-
-Player 1:
-  * cursors, Z,X / C,V / N,M
-
-Player 2:
-  * ESDF, LSHIFT,A / TAB,Q,E
-
-System shortcut:
-  * F2: FPS debug
-  * F3: Take a screenshot
-  * F4: Take a video
-  * F5: Save the current cartridge
-  * F6: Switch between editor/play mode
-  * F7: Switch to the next available palette
-
-### Game controller  / Joystick
-
-### Change shortcuts
-
-### Add player
+and you can save the GFX with 'F5'.
 
 ## Display options
 
@@ -210,18 +209,20 @@ You can also use the fullscreen option by using '-f' option.
 
 You can add the '-o' option to force SDL to use OpenGL
 
-## Compatibility mode
+## Compatibility mode with PICO8
 
-You could load a PICO8 cartridge file by using the '-m pico8' option to convert the lua code.
+You could load a PICO8 cartridge file by using the '-m pico8' option to convert the Lua code.
 
 ## How to create a new cartridge
 
 PX8 will call 3 functions, at startup or during the runtime:
-  * _init : Called once on cartridge startup, mainly to initialize your variables
+  * _init : Called once on startup, mainly to initialize your variables
   * _update: Called once per visible frame, mainly to get keyboard input for example
   * _draw: Called once per visible frame, mainly to draw things on the screen :)
 
 After that you can use the API to do your game. There is no limitation of what you can do in Python or Lua languages.
+
+By default I don't do any modification in the Python or Lua interpreter, so you are free to create threads, load native files, etc
 
 ### Python
 
