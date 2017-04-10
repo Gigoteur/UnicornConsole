@@ -81,6 +81,10 @@ https://github.com/Gigoteur/PX8/tree/master/games/amp
 https://github.com/Gigoteur/PX8/tree/master/games/terrain
 ![](http://i.imgur.com/ORElunz.gif)
 
+* Voxel framework (http://www.lexaloffle.com/bbs/?tid=28308) in Python
+https://github.com/Gigoteur/PX8/tree/master/demos/voxel
+![](http://i.imgur.com/b1wE1cs.gif)
+
 ## Download
 
 You can get directly the latest version via git:
