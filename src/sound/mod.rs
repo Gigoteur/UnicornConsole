@@ -1,7 +1,8 @@
 use std::collections::HashMap;
 
 use sdl2;
-use sdl2::mixer::{AUDIO_S16};
+use sdl2::audio::{AudioCallback, AudioSpecDesired};
+
 
 pub struct Sound {
 
@@ -14,8 +15,20 @@ impl Sound {
     }
 
     pub fn init(&mut self) {
-        let _ = sdl2::mixer::open_audio(22050, AUDIO_S16, 2, 1024).unwrap();
-        sdl2::mixer::allocate_channels(8);
+        let audio_subsystem = sdl_context.audio().unwrap();
+
+        let desired_spec = AudioSpecDesired {
+            freq: Some(44100),
+            channels: Some(2),  // mono
+            samples: 1024       // default sample size
+        };
+
+        let device = audio_subsystem.open_playback(None, &desired_spec, |spec| {
+            // Show obtained AudioSpec
+            println!("{:?}", spec);
+
+        }).unwrap();
+
     }
 
     pub fn load(&mut self, filename: String) {

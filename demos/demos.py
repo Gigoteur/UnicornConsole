@@ -589,7 +589,6 @@ class Tweetjam_15(object):
         pass
 
     def draw(self):
-
         x=self.l*(sin(self.t/3)+1)
         self.t+=.01
         r=self.l*(1+sin(self.t*2))
@@ -598,6 +597,85 @@ class Tweetjam_15(object):
             for l in range(-2,2):
                 circfill(64+x*k,64+x*l,r,self.z%8+7)
 
+# https://twitter.com/lexaloffle/status/850776046467035136
+class Tweetjam_16(object):
+    def __init__(self):
+        pass
+
+    def init(self):
+        cls()
+        self.r=64
+        self.t=self.r
+
+    def update(self):
+        pass
+
+    def draw(self):
+        cls()
+        for y in range(-self.r,self.r,5):
+            for x in range(-self.r,self.r,5):
+                d=x+y
+                q=x/self.r+self.t/9
+                z=cos(q)*y+5*cos(d/self.r+self.t)
+                circ(self.r+z,self.r+sin(q)*y,1,q)
+        self.t+=2/self.r
+
+# https://twitter.com/adam_sporka/status/851181799879434244
+class Tweetjam_17(object):
+    def __init__(self):
+        pass
+
+    def init(self):
+        cls()
+        self.c=0
+        self.l=8
+
+    def update(self):
+        pass
+
+    def draw(self):
+        a=self.c
+        self.c=(self.c+flr(rnd(16))*2)%128
+        for x in range(a,self.c,3):
+            rect(x,x,self.c,self.c,self.l+1)
+            rect(126-x,x,126-self.c,self.c,self.l+1)
+        self.l=(self.l+1)%15
+
+def sqr(a):
+    return a*a
+
+# http://www.lexaloffle.com/bbs/?tid=28308
+class Metaballs(object):
+    def __init__(self):
+        pass
+
+    def init(self):
+        cls()
+        self.t = 0
+
+    def update(self):
+        pass
+
+    def draw(self):
+        self.t+=0.01
+
+        x1=64+128*cos(self.t/4)
+        y1=64+16*sin(self.t)
+
+        x2=64-128*cos(self.t/4)
+        y2=64-16*sin(self.t)
+
+        for i in range(0, 999):
+            x=rnd(128)
+            y=rnd(128)
+
+            l1=sqr((x-x1)/128)+sqr((y-y1)/128)
+            v1=sqr(1-l1)
+            l2=sqr((x-x2)/128)+sqr((y-y2)/128)
+            v2=sqr(1-l2)
+
+            v=v1+v2
+            circ(x,y,1,min(v,1)*15.999)
 
 idx_demo = 0
 demos = [
@@ -623,6 +701,9 @@ demos = [
     ["Tweetjam_13", [Tweetjam_13()]],
     ["Tweetjam_14", [Tweetjam_14()]],
     ["Tweetjam_15", [Tweetjam_15()]],
+    ["Tweetjam_16", [Tweetjam_16()]],
+    ["Tweetjam_17", [Tweetjam_17()]],
+    ["Metaballs", [Metaballs()]],
 ]
 
 buttons = []

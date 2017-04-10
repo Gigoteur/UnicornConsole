@@ -273,6 +273,19 @@ class Memcpy(object):
             self.distort_orig(self.dist_amt)
 
 
+class Audio(object):
+    def __init__(self):
+        self.T = 0
+
+    def init(self):
+        sound_load("./demos/assets/dub.song")
+
+    def update(self):
+        self.T += 1
+
+    def draw(self):
+        cls()
+
 idx_demo = 0
 demos = [
     ["rect", [Rect()]],
@@ -288,7 +301,7 @@ demos = [
     ["palette", [Palette()]],
     ["map", [Map()]],
     ["memcpy", [Memcpy()]],
-
+    ["audio", [Audio()]],
 ]
 
 def _init():
