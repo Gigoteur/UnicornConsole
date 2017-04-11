@@ -1,5 +1,5 @@
 <p align="center">
-
+  <img src="docs/px8.png">
 </p>
 
 <p align="center">
@@ -80,6 +80,10 @@ https://github.com/Gigoteur/PX8/tree/master/games/amp
 * 2D Terrain Generation (http://www.lexaloffle.com/bbs/?uid=12213) in Python
 https://github.com/Gigoteur/PX8/tree/master/games/terrain
 ![](http://i.imgur.com/ORElunz.gif)
+
+* Voxel framework (http://www.lexaloffle.com/bbs/?tid=28308) in Python
+https://github.com/Gigoteur/PX8/tree/master/demos/voxel
+![](http://i.imgur.com/b1wE1cs.gif)
 
 ## Download
 
