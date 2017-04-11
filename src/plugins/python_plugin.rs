@@ -17,8 +17,7 @@ pub mod plugin {
     data sound: Arc<Mutex<Sound>>;
 
     def sound_load(&self, filename: String) -> PyResult<i32> {
-        self.sound(py).lock().unwrap().load(filename);
-        Ok(0)
+        Ok(self.sound(py).lock().unwrap().load(filename))
     }
 
     def sound_play(&self, filename: String) -> PyResult<i32> {

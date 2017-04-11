@@ -278,7 +278,7 @@ class Audio(object):
         self.T = 0
 
     def init(self):
-        sound_load("./demos/assets/dub.song")
+        sound_load("./demos/assets/sine.wav")
 
     def update(self):
         self.T += 1

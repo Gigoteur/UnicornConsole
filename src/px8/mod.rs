@@ -589,7 +589,7 @@ impl Px8New {
             encoder.write_frame(&frame).unwrap();
         }
 
-        info!("GIF created");
+        info!("GIF created in {:?}", self.record.filename.clone());
     }
 
     pub fn screenshot(&mut self, filename: String) {

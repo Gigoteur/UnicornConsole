@@ -9,6 +9,7 @@ use sdl2::Sdl;
 use sdl2::EventPump;
 use std::time::{Duration};
 use sdl2::event::{Event, WindowEvent};
+use sdl2::audio::{AudioSpecDesired};
 
 use std::path::Path;
 
@@ -89,6 +90,7 @@ pub struct Frontend {
     pub px8: px8::Px8New,
     pub info: Arc<Mutex<px8::info::Info>>,
     pub players: Arc<Mutex<config::Players>>,
+    pub sound_interface: Arc<Mutex<sound::SoundInterface<f32>>>,
     pub sound: Arc<Mutex<sound::Sound>>,
     channels: Channels,
     start_time: time::Tm,
@@ -112,7 +114,9 @@ impl Frontend {
         let renderer = renderer::renderer::Renderer::new(sdl_video, fullscreen, opengl, scale).unwrap();
 
         info!("Frontend: SDL2 audio");
-        let audio_subsystem = try!(sdl_context.audio());
+        let mut sound_interface = sound::SoundInterface::new(sdl_context.clone(), 44100, 512, 1);
+        sound_interface.start();
+
         let sound = sound::Sound::new();
 
         // Disable mouse in the window
@@ -122,6 +126,7 @@ impl Frontend {
             sdl: sdl_context,
             event_pump: event_pump,
             renderer: renderer,
+            sound_interface: Arc::new(Mutex::new(sound_interface)),
             sound: Arc::new(Mutex::new(sound)),
             controllers: controllers::Controllers::new(),
             times: frametimes::FrameTimes::new(Duration::from_secs(1) / 60),
