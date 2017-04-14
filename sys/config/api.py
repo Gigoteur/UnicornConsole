@@ -175,7 +175,7 @@ globals()["mset"] = mset
 
 # Math
 def atan2(x, y):
-    v = math.atan2(y,x)
+    v = math.atan2(x,y)
     return (((v - math.pi) / (math.pi*2)) + 0.25) % 1.0
 
 def cos(x):
