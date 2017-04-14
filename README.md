@@ -209,6 +209,8 @@ You could run the API demos:
 or some fancy demos:
 ```
 ./target/release/px8 -s 4 ./demos/demos.py
+./target/release/px8 -s 4 ./demos/voxel/voxel.px8
+./target/release/px8 -s 4 ./demos/pong/pong.px8
 ```
 
 ## Edit a cartridge
