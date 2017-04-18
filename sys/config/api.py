@@ -22,7 +22,7 @@ globals()["sound_stop"] = sound_stop
 # Graphics
 
 def camera(x=-1, y=-1):
-    px8_graphic.camera(x, y)
+    px8_graphic.camera(flr(x), flr(y))
 
 def circ(x, y, r, color=-1):
     px8_graphic.circ(math.floor(x), math.floor(y), math.floor(r), math.floor(color))
@@ -84,10 +84,10 @@ def sget(x, y):
     return px8_graphic.sget(x, y)
 
 def spr(n, x, y,  w=1, h=1, flip_x=False, flip_y=False):
-    px8_graphic.spr(n, x, y, w, h, flip_x, flip_y)
+    px8_graphic.spr(math.floor(n), math.floor(x), math.floor(y), math.floor(w), math.floor(h), flip_x, flip_y)
 
 def spr_dyn(id, x, y, flip_x=False, flip_y=False):
-    return px8_graphic.spr_dyn(id, x, y, flip_x, flip_y)
+    return px8_graphic.spr_dyn(math.floor(id), math.floor(x), math.floor(y), flip_x, flip_y)
 
 def spr_dyn_load(data, width, height):
     return px8_graphic.spr_dyn_load(data, width, height)
@@ -189,6 +189,9 @@ def flr(x):
 
 def rnd(x):
     return random.random() * x
+
+def srand(x):
+    return random.seed(x)
 
 def mid(x,y,z):
     x = x or 0
