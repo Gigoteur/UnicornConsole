@@ -50,6 +50,7 @@ class Vec2(object):
 
 
 SHADOW_OFFSET=Vec2(2, 3).normalize().mul(0.2)
+PERSPECTIVE_OFFSET = Vec2(64, 80)
 
 class Biome(object):
     def __init__(self, colour, tree_range, bush_props, transition, footprints, foot_sfx):
@@ -152,14 +153,17 @@ class Camera(object):
         self.offset = Vec2(64, 64)
         self.sway=[0.15,0.15,50,50]
         self.pos_o = Vec2(self.pos.x, self.pos.y)
+        self.v = Vec2(0, 0)
 
     def update(self, p_p_vec, p_v_vec):
 
         self.offset = p_v_vec.mul(-15).add(Vec2(64,64))
-      #  self.pos_o = Vec2(self.pos.x, self.pos.y)
+        self.pos_o = Vec2(self.pos.x, self.pos.y)
         sway=Vec2(self.sway[0]*cos(px8_time()/self.sway[2]),
                   self.sway[1]*sin(px8_time()/self.sway[3]))
         self.pos = self.pos.lerp(p_p_vec.sub(self.offset),0.1).add(sway)
+
+        self.v = self.pos.sub(self.pos_o)
 
     def update2(self, p_p_vec, p_v_vec):
         self.pos.x = p_p_vec.x - 64
@@ -228,6 +232,81 @@ class Cells(object):
 
                         cell.edges[u][v] = cell.edges[u][v] or 1
 
+def myrange(x):
+    return random.randint(flr(x[0]), flr(x[1]))
+
+class Cloud(object):
+    def __init__(self, x, y, r, height):
+        self.p = Vec2(x, y)
+        self.s = Vec2(x, y)
+        self.ps = Vec2(x, y)
+        self.r = r
+        self.height = height
+
+class Clouds(object):
+    def __init__(self):
+        self.count_range = random.randint(20, 40)
+        self.height_range= [45,50]
+        self.radius_range=[5,15]
+        self.cluster_range=[5,7]
+        self.size=256
+        self.height_mult=0.015
+
+
+        self.clouds = []
+
+        for _ in range(0, self.count_range):
+            x = rnd(self.size*2)
+            y = rnd(self.size*2)
+            r = 0
+
+            for _ in range(0, random.randint(self.cluster_range[0], self.cluster_range[1])):
+                c_r = myrange(self.radius_range)
+                c_p=[x+myrange([1,(c_r+r)/2])-myrange([1,(c_r+r)/2]),
+                     y+myrange([1,(c_r+r)/2])-myrange([1,(c_r+r)/2])]
+
+
+                if rnd(1) > 0.5:
+                    x=c_p[0]
+                    y=c_p[1]
+                    r=c_r
+
+                self.clouds.append(Cloud(
+                    c_p[0],
+                    c_p[1],
+                    c_r,
+                    myrange(self.height_range)
+                ))
+
+
+    def update(self, cam):
+        for cloud in self.clouds:
+            cloud.p.x += 0.1-cam.v.x
+            cloud.p.y += 0.1-cam.v.y
+
+            if cloud.p.x > self.size+self.radius_range[1]:
+                cloud.p.x -= self.size*2+self.radius_range[1]
+            elif cloud.p.x < -self.size-self.radius_range[1]:
+                cloud.p.x += self.size*2+self.radius_range[1]
+
+            if cloud.p.y > self.size+self.radius_range[1]:
+                cloud.p.y -= self.size*2+self.radius_range[1]
+            elif cloud.p.y < -self.size-self.radius_range[1]:
+                cloud.p.y += self.size*2+self.radius_range[1]
+
+            cloud.s=cloud.p.sub(PERSPECTIVE_OFFSET)
+            cloud.s._mul(cloud.height*self.height_mult)
+            cloud.s._add(cloud.p)
+
+            cloud.ps = cloud.p.add(SHADOW_OFFSET.mul(cloud.height))
+
+    def draw_shadow(self):
+        for cloud in self.clouds:
+            circfill(cloud.ps.x, cloud.ps.y, cloud.r, 5)
+
+    def draw(self):
+        for cloud in self.clouds:
+            circfill(cloud.s.x, cloud.s.y, cloud.r, 7)
 
 class MapFormat(object):
     def __init__(self, mapstring):
@@ -246,6 +325,7 @@ class MapFormat(object):
 B = Biomes()
 P = Player(Vec2(82,16).mul(32))
 CAM = Camera(P.pos.sub(Vec2(64, 64+128)))
+CLOUDS = Clouds()
 M = MapFormat(MAP)
 
 P.pos.y -= 128
@@ -261,11 +341,16 @@ def _init():
     draw_player()
 
 def _update():
-    #pass
+    global PERSPECTIVE_OFFSET
+
     P.update()
+
+    PERSPECTIVE_OFFSET = Vec2(64+sin(px8_time()/9)*4, 80+sin(px8_time()/11)*4)
+
     CAM.update(P.pos, P.v)
     CELLS.set_pos(Vec2(flr(CAM.pos.x/CELL_SIZE),
                        flr(CAM.pos.y/CELL_SIZE)))
+    CLOUDS.update(CAM)
 
 def _draw2():
     camera(0, 0)
@@ -275,11 +360,24 @@ def _draw():
     camera(CAM.pos.x, CAM.pos.y)
 
     draw_background()
+
+    # shadow stuff
+    draw_clouds(True)
+
     draw_player()
+    draw_clouds()
 
     camera(0, 0)
     px8_print("P X %f Y %f" %(P.pos.x, P.pos.y), 0, 112)
     px8_print("C X %d Y %d" %(flr(CAM.pos.x), flr(CAM.pos.y)), 0, 120)
+
+
+def draw_clouds(shadow=False):
+    camera()
+    if shadow:
+        CLOUDS.draw_shadow()
+    else:
+        CLOUDS.draw()
 
 
 def draw_player():
