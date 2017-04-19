@@ -9,6 +9,10 @@ CELL_BOUNDS = 128
 CELL_FILL = flr(128/CELL_SIZE+1)
 SEED=rnd(1)
 
+
+def myrange(x):
+    return random.randint(flr(x[0]), flr(x[1]))
+
 def lerp(f,to,t):
     return f+t*(to-f)
 
@@ -149,14 +153,13 @@ class Player(object):
 class Camera(object):
     def __init__(self, vec2):
         self.pos = vec2
-        self.c = Vec2(0, 0)
+        self.c = Vec2(self.pos.x%CELL_SIZE, self.pos.y%CELL_SIZE)
         self.offset = Vec2(64, 64)
         self.sway=[0.15,0.15,50,50]
         self.pos_o = Vec2(self.pos.x, self.pos.y)
         self.v = Vec2(0, 0)
 
     def update(self, p_p_vec, p_v_vec):
-
         self.offset = p_v_vec.mul(-15).add(Vec2(64,64))
         self.pos_o = Vec2(self.pos.x, self.pos.y)
         sway=Vec2(self.sway[0]*cos(px8_time()/self.sway[2]),
@@ -165,10 +168,16 @@ class Camera(object):
 
         self.v = self.pos.sub(self.pos_o)
 
-    def update2(self, p_p_vec, p_v_vec):
-        self.pos.x = p_p_vec.x - 64
-        self.pos.y = p_p_vec.y - 64
+        self.c.x = self.pos.x%CELL_SIZE
+        self.c.y = self.pos.y%CELL_SIZE
 
+class Tree(object):
+    def __init__(self, pos, height, girth, leaves):
+        self.pos = pos
+        self.height = height
+        self.girth = girth
+        self.leaves = leaves
+        self.s = Vec2(pos.x, pos.y)
 
 class Cell(object):
     def __init__(self, color):
@@ -179,15 +188,20 @@ class Cell(object):
         self.edges = {-1: {-1: 1, 0 : 1, 1 : 1},
                        0: {-1: 1, 0 : 1, 1 : 1},
                        1: {-1: 1, 0 : 1, 1 : 1}}
+        self.trees = []
+        self.init = False
 
 class Cells(object):
-    def __init__(self, x, y, mapdata):
+    def __init__(self, x, y, mapdata, config):
         self.pos = Vec2(x, y)
         self.mapdata = mapdata
+        self.config = config
 
         self.cells = []
+        self._cache_cells = {}
+
         for _ in range(0, CELL_FILL*CELL_FILL):
-            self.cells.append(Cell(1))
+            self.cells.append(None)
 
         self.set_cells()
 
@@ -200,18 +214,39 @@ class Cells(object):
             self.pos.y = pos.y
             self.set_cells()
 
-    def get(self, x, y):
+    def get_cache_size(self):
+        return len(self._cache_cells)
+
+    def get_current(self, x, y):
         return self.cells[x*CELL_FILL+y]
+
+    def get(self, x, y):
+        if self.get_cache_size() > 256:
+            self._cache_cells = {}
+
+        key = "%d-%d" % (x, y)
+        cell = self._cache_cells.get(key)
+        if cell:
+            return cell
+
+        cell = Cell(1)
+        self._cache_cells[key] = cell
+        return cell
 
     def set_cells(self):
         for a in range(0, CELL_FILL):
             for b in range(0, CELL_FILL):
-                cell = self.get(a, b)
                 x=flr(a+self.pos.x)
                 y=flr(b+self.pos.y)
 
+                cell = self.get(x, y)
+                self.cells[a*CELL_FILL+b] = cell
+                if cell.init:
+                    continue
+
                 cell.x = x
                 cell.y = y
+                cell.init = True
 
                 if x<0 or x>CELL_BOUNDS-1 or y<0 or y>CELL_BOUNDS-1:
                     cell.color = 1
@@ -232,8 +267,20 @@ class Cells(object):
 
                         cell.edges[u][v] = cell.edges[u][v] or 1
 
-def myrange(x):
-    return random.randint(flr(x[0]), flr(x[1]))
+                if cell.color == 14:
+                    cell.color = 3
+                    height = myrange(self.config.trees_height_range)
+                    girth=min(CELL_SIZE,CELL_SIZE)*2/5
+                    p = Vec2(CELL_SIZE/2,
+                             CELL_SIZE/2)
+                    leaves=[[0,0],[0,0],[0,0]]
+                    cell.trees.append(Tree(p, height, girth, leaves))
+
+class Configuration(object):
+    def __init__(self):
+        self.trees_height_range = [10,25]
+        self.tree_girth_range = [4,10]
+        self.tree_gap = 16
 
 class Cloud(object):
     def __init__(self, x, y, r, height):
@@ -321,7 +368,7 @@ class MapFormat(object):
                 self.mapdata[y][x] = int(self.mapstring[idx], 16)
                 idx += 1
 
-
+CONFIG = Configuration()
 B = Biomes()
 P = Player(Vec2(82,16).mul(32))
 CAM = Camera(P.pos.sub(Vec2(64, 64+128)))
@@ -330,7 +377,7 @@ M = MapFormat(MAP)
 
 P.pos.y -= 128
 
-CELLS = Cells(flr(CAM.pos.x/CELL_SIZE), flr(CAM.pos.y/CELL_SIZE), M.mapdata)
+CELLS = Cells(flr(CAM.pos.x/CELL_SIZE), flr(CAM.pos.y/CELL_SIZE), M.mapdata, CONFIG)
 
 def _init():
     print("CAMERA", CAM.pos.x, CAM.pos.y)
@@ -339,6 +386,29 @@ def _init():
 
     draw_background()
     draw_player()
+
+def update_trees():
+    for x in range(0, CELL_FILL):
+        for y in range(0, CELL_FILL):
+            cell = CELLS.get_current(x, y)
+            trees = cell.trees
+            cellp = Vec2(
+                CAM.pos.x%CELL_SIZE-x*CELL_SIZE,
+                CAM.pos.y%CELL_SIZE-y*CELL_SIZE
+            )
+
+            for tree in trees:
+                tree.s = tree.pos.sub(cellp.add(PERSPECTIVE_OFFSET))
+                tree.s._mul(tree.height*0.015)
+                tree.s._add(tree.pos)
+
+                leaves_0 = tree.pos.lerp(tree.s,0.5)
+                leaves_1 = tree.pos.lerp(tree.s,0.75)
+                leaves_2 = tree.s
+                tree.leaves[0] = [leaves_0.x, leaves_0.y]
+                tree.leaves[1] = [leaves_1.x, leaves_1.y]
+                tree.leaves[2] = [leaves_2.x, leaves_2.y]
+
 
 def _update():
     global PERSPECTIVE_OFFSET
@@ -350,6 +420,8 @@ def _update():
     CAM.update(P.pos, P.v)
     CELLS.set_pos(Vec2(flr(CAM.pos.x/CELL_SIZE),
                        flr(CAM.pos.y/CELL_SIZE)))
+
+    update_trees()
     CLOUDS.update(CAM)
 
 def _draw2():
@@ -365,12 +437,32 @@ def _draw():
     draw_clouds(True)
 
     draw_player()
+    draw_trees()
     draw_clouds()
 
     camera(0, 0)
-    px8_print("P X %f Y %f" %(P.pos.x, P.pos.y), 0, 112)
-    px8_print("C X %d Y %d" %(flr(CAM.pos.x), flr(CAM.pos.y)), 0, 120)
+    px8_print("P X %f Y %f" % (P.pos.x, P.pos.y), 0, 112)
+    px8_print("%d C X %d Y %d" % (CELLS.get_cache_size(), flr(CAM.pos.x), flr(CAM.pos.y)), 0, 120)
 
+def draw_trees():
+    for a in range(0, CELL_FILL):
+        for b in range(0, CELL_FILL):
+            cell = CELLS.get_current(a, b)
+            camera(
+                CAM.c.x-a*CELL_SIZE,
+                CAM.c.y-b*CELL_SIZE
+            )
+            if cell.trees:
+                for tree in cell.trees:
+                    for x in range(-1,2):
+                        for y in range(-1,2):
+                            if abs(x)+abs(y)!=2:
+                                line(tree.pos.x+x, tree.pos.y+y, tree.s.x, tree.s.y, 4)
+
+                c=[[3,1],[11,0.7],[7,0.4]]
+                for i in range(0, 3):
+                    for tree in cell.trees:
+                        circfill(tree.leaves[i][0], tree.leaves[i][1], tree.girth*c[i][1], c[i][0])
 
 def draw_clouds(shadow=False):
     camera()
@@ -396,12 +488,7 @@ def draw_background():
             x = (CELLS.pos.x+a)*CELL_SIZE
             y = (CELLS.pos.y+b)*CELL_SIZE
 
-            #x = CAM.pos.x+a*CELL_SIZE
-            #y = CAM.pos.y+b*CELL_SIZE
-
-            #print("RECT ", x, y)
-
-            cell = CELLS.get(a, b)
+            cell = CELLS.get_current(a, b)
             rectfill(x, y, x+CELL_SIZE, y+CELL_SIZE, cell.color)
 
             if cell.color in B.biomes:
