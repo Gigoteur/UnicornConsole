@@ -56,3 +56,6 @@ class Vec2(object):
 
     def normalize(self):
         return self.div(self.len())
+
+    def dist(self, b):
+        return self.sub(b).len()

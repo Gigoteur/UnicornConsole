@@ -13,65 +13,26 @@ CELL_FILL = flr(128/CELL_SIZE+1)
 SEED=rnd(1)
 
 import utils
+import cells
+import trees
+import bushes
+import buildings
 utils.addglobals(globals())
+cells.addglobals(globals())
+trees.addglobals(globals())
+bushes.addglobals(globals())
+buildings.addglobals(globals())
+
 
 from utils import myrange, myrange_f, ease, Vec2, frange
-
+from biomes import Biomes
+from cells import Cells
+from bushes import Bushes
+from trees import Trees
+from buildings import Buildings
 
 SHADOW_OFFSET=Vec2(2, 3).normalize().mul(0.2)
 PERSPECTIVE_OFFSET = Vec2(64, 80)
-
-class Biome(object):
-    def __init__(self, colour, tree_range, bush_props, transition, footprints, foot_sfx):
-        self.set(colour, tree_range, bush_props, transition, footprints, foot_sfx)
-        self.building_freq = 0.0
-
-    def set(self, colour, tree_range, bush_props, transition, footprints, foot_sfx):
-        self.colour = colour
-        self.tree_range = tree_range
-        self.bush_props = bush_props
-        self.transition = transition
-        self.footprints = footprints
-        self.foot_sfx = foot_sfx
-
-class Biomes(object):
-    def __init__(self):
-        self.biomes = {}
-        for i in range(0, 16):
-            self.biomes[i] = Biome(i, [0, 0], [0, 0, [0, 0, 0, 0]], False, True, 3)
-
-        # Biome 3
-        self.biomes[3].transition = True
-        self.biomes[3].tree_range = [0.25,0.3]
-        self.biomes[3].bush_props = [0.5, 0.5,[8,12,13,10]]
-
-        # Biome 4
-        self.biomes[4].transition = True
-
-        # Biome 7
-        self.biomes[7].transition = True
-        self.biomes[7].tree_range = [0.0, 0.1]
-
-        # Biome 10
-        self.biomes[10].transition = True
-        self.biomes[10].building_freq = 0.8
-
-        # Biome 11
-        self.biomes[11].transition = True
-        self.biomes[11].tree_range = [0.1, 0.3]
-        self.biomes[11].bush_props = [0.5,0.8,[8,12,13,10]]
-
-        # Biome 14
-        self.biomes[14].transition = True
-
-        # Biome 15
-        self.biomes[15].transition = True
-        self.biomes[15].tree_range = [0,0.2]
-        self.biomes[15].building_freq = 0.01
-
-    def get(self, color):
-        return self.biomes.get(color)
-
 
 class Player(object):
     def __init__(self, vec2):
@@ -176,166 +137,12 @@ class Camera(object):
         self.c.x = self.pos.x%CELL_SIZE
         self.c.y = self.pos.y%CELL_SIZE
 
-class Cell(object):
-    def __init__(self, color):
-        self.x = 0
-        self.y = 0
-        self.color = color
-        self.seed = 0.0
-        self.edges = {-1: {-1: 1, 0 : 1, 1 : 1},
-                       0: {-1: 1, 0 : 1, 1 : 1},
-                       1: {-1: 1, 0 : 1, 1 : 1}}
-        self.trees = []
-        self.bushes = []
-        self.building = None
-        self.init = False
-
-class Cells(object):
-    def __init__(self, x, y, mapdata, config):
-        self.pos = Vec2(x, y)
-        self.mapdata = mapdata
-        self.config = config
-
-        self.cells = []
-        self._cache_cells = {}
-
-        for _ in range(0, CELL_FILL*CELL_FILL):
-            self.cells.append(None)
-
-        self.set_cells()
-
-    def set_pos(self, pos):
-        if self.pos.x != pos.x or self.pos.y != pos.y:
-            self.pos.x = pos.x
-            self.pos.y = pos.y
-            self.set_cells()
-
-    def get_cache_size(self):
-        return len(self._cache_cells)
-
-    def get_current(self, x, y):
-        return self.cells[x*CELL_FILL+y]
-
-    def get(self, x, y):
-        if self.get_cache_size() > 256:
-            self._cache_cells = {}
-
-        key = "%d-%d" % (x, y)
-        cell = self._cache_cells.get(key)
-        if cell:
-            return cell
-
-        cell = Cell(1)
-        self._cache_cells[key] = cell
-        return cell
-
-    def set_cells(self):
-        for a in range(0, CELL_FILL):
-            for b in range(0, CELL_FILL):
-                x=flr(a+self.pos.x)
-                y=flr(b+self.pos.y)
-
-                cell = self.get(x, y)
-                self.cells[a*CELL_FILL+b] = cell
-                if cell.init:
-                    continue
-
-                cell.x = x
-                cell.y = y
-                cell.init = True
-
-                self.set_bounds(x, y, cell)
-
-                biome = self.config.biomes.get(cell.color)
-                self.set_trees(cell, biome)
-                self.set_bushes(cell, biome)
-                self.set_buildings(cell, biome)
-
-    def set_bounds(self, x, y, cell):
-                if x<0 or x>CELL_BOUNDS-1 or y<0 or y>CELL_BOUNDS-1:
-                    cell.color = 1
-                else:
-                    cell.color = self.mapdata[y][x]
-
-                cell.seed=SEED+x*(CELL_BOUNDS*2)+y
-                srand(cell.seed)
-
-                for u in range(-1, 2):
-                    for v in range(-1, 2):
-                        if x+u<0 or x+u>CELL_BOUNDS-1 or y+v<0 or y+v>CELL_BOUNDS-1:
-                            cell.edges[u][v]=1
-                        else:
-                            cell.edges[u][v]=self.mapdata[y+v][x+u]
-
-                        if cell.edges[u][v]==14:
-                            cell.edges[u][v]=3
-
-                        cell.edges[u][v] = cell.edges[u][v] or 1
-
-    def set_trees(self, cell, biome):
-        tree_freq=ease(myrange_f(biome.tree_range))
-
-        if cell.color == 14:
-            cell.color = 3
-            height = myrange(self.config.trees_height_range)
-            girth=min(CELL_SIZE,CELL_SIZE)*2/5
-            p = Vec2(CELL_SIZE/2,
-                     CELL_SIZE/2)
-            leaves=[[0,0],[0,0],[0,0]]
-            cell.trees.append(Tree(p, height, girth, leaves))
-        else:
-            # Trees
-            for x in range(0, CELL_SIZE-self.config.trees_gap, self.config.trees_gap):
-                for y in range(0, CELL_SIZE-self.config.trees_gap, self.config.trees_gap):
-                    if rnd(1) < tree_freq:
-                        height = myrange(self.config.trees_height_range)
-                        girth = myrange(self.config.trees_girth_range)
-                        p = Vec2(x+rnd(self.config.trees_gap),
-                                 y+rnd(self.config.trees_gap))
-                        leaves=[[0,0],[0,0],[0,0]]
-                        tree = Tree(p, height, girth, leaves)
-                        cell.trees.append(tree)
-                        tree.p = Vec2(mid(tree.girth, tree.pos.x, CELL_SIZE-tree.girth),
-                                      mid(tree.girth, tree.pos.y, CELL_SIZE - tree.girth))
-
-    def set_bushes(self, cell, biome):
-        # Bushes
-        if rnd(1) < biome.bush_props[0]:
-            x = rnd(CELL_SIZE)
-            y = rnd(CELL_SIZE)
-            r_add = 0
-            bloom_colours = biome.bush_props[2]
-            colour=bloom_colours[flr(rnd(len(bloom_colours)))%len(bloom_colours)]
-            for j in range(0, myrange(self.config.bushes_cluster_range)):
-                r = myrange_f(self.config.bushes_radius_range)
-                height=myrange_f(self.config.bushes_height_range)
-                p=Vec2(x+myrange_f([1,(r+r_add)])-myrange_f([1,(r+r_add)/2]),
-                       y+myrange_f([1,(r+r_add)])-myrange_f([1,(r+r_add)/2])
-                       )
-
-                bloom = None
-                if rnd(1) < biome.bush_props[1]:
-                    a=rnd(1)
-                    r_add=rnd(r/2.0)+r/4.0
-                    bloom = Vec2(r*cos(a), r*sin(a))
-
-
-                bush = Bush(p, r, height, colour, bloom)
-                cell.bushes.append(bush)
-
-    def set_buildings(self, cell, biome):
-        if (len(cell.trees) + len(cell.bushes) == 0) and rnd(1) < biome.building_freq:
-            cell.building = Building(
-                myrange(self.config.buildings_w_range),
-                myrange(self.config.buildings_h_range),
-                Vec2(CELL_SIZE/2,CELL_SIZE/2),
-                myrange(self.config.buildings_height_range),
-                self.config.buildings_colours[flr(rnd(16))%len(self.config.buildings_colours)]
-            )
-
 class Blobs(object):
     def __init__(self):
         self.blobs = {}
+
+    def len(self):
+        return len(self.blobs)
 
     def add_blob(self, p, r):
         key = "%d-%d-%d" % (p.x, p.y, r)
@@ -373,175 +180,10 @@ class Configuration(object):
         self.buildings_h_range = [8,16]
         self.buildings_colours = [8,9,6]
 
-class Building(object):
-    def __init__(self, w, h, pos, height, color):
-        self.w = w
-        self.h = h
-        self.pos = pos
-        self.height = height
-        self.color = color
-        self.s = Vec2(0, 0)
-
-class Buildings(object):
-    def __init__(self):
-        pass
-
-    def update(self, x, y, cell, cam, cells, blobs):
-        building = cell.building
-        if building:
-            cellp = Vec2(
-                cam.pos.x%CELL_SIZE-x*CELL_SIZE,
-                cam.pos.y%CELL_SIZE-y*CELL_SIZE
-            )
-            building.s = building.pos.sub(cellp.add(PERSPECTIVE_OFFSET))
-
-            s1=max(building.w,building.h)
-            s2=min(building.w,building.h)
-            for i in frange(-s1+s2/2,s1-s2/2,s2):
-                p = Vec2((cells.pos.x+x)*CELL_SIZE, (cells.pos.y+y)*CELL_SIZE).add(building.pos)
-                if s1 == building.w:
-                    p.x += i
-                else:
-                    p.y += i
-                blobs.add_blob(
-                    p,
-                    s2
-                )
-
-    def draw(self, a, b, cell, cam, shadow):
-        building = cell.building
-        if building:
-            camera(
-                cam.c.x-a*CELL_SIZE,
-                cam.c.y-b*CELL_SIZE
-            )
-
-            if shadow:
-                for i in frange(0,building.height/2,4):
-                    t = Vec2(building.s.x,building.s.y)
-                    t._mul(i*0.015)
-                    t._add(building.pos)
-
-                    rectfill(t.x-building.w, t.y-building.h, t.x+building.w, t.y+building.h, 5)
-            else:
-                for i in frange(building.height/2,building.height-1,4):
-                    t = Vec2(building.s.x,building.s.y)
-                    t._mul(i*0.015)
-                    t._add(building.pos)
-
-                    rectfill(t.x-building.w, t.y-building.h, t.x+building.w, t.y+building.h, 5)
-
-                    s = building.s.mul(building.height*0.015)
-                    s._add(building.pos)
-                    rectfill(s.x-building.w, s.y-building.h, s.x+building.w, s.y+building.h, building.color)
-
-class Tree(object):
-    def __init__(self, pos, height, girth, leaves):
-        self.pos = pos
-        self.height = height
-        self.girth = girth
-        self.leaves = leaves
-        self.s = Vec2(pos.x, pos.y)
-
-class Trees(object):
-    def __init__(self):
-        self.trees = {}
-
-    def update(self, x, y, cell, cam, cells, blobs):
-        trees = cell.trees
-        cellp = Vec2(
-            cam.pos.x%CELL_SIZE-x*CELL_SIZE,
-            cam.pos.y%CELL_SIZE-y*CELL_SIZE
-        )
-
-        for tree in trees:
-            tree.s = tree.pos.sub(cellp.add(PERSPECTIVE_OFFSET))
-            tree.s._mul(tree.height*0.015)
-            tree.s._add(tree.pos)
-
-            leaves_0 = tree.pos.lerp(tree.s,0.5)
-            leaves_1 = tree.pos.lerp(tree.s,0.75)
-            leaves_2 = tree.s
-            tree.leaves[0] = [leaves_0.x, leaves_0.y]
-            tree.leaves[1] = [leaves_1.x, leaves_1.y]
-            tree.leaves[2] = [leaves_2.x, leaves_2.y]
-
-            blobs.add_blob(Vec2((cells.pos.x+x) * CELL_SIZE, (cells.pos.y+y)*CELL_SIZE).add(tree.pos), tree.girth)
-
-    def draw(self, a, b, cell, cam, shadow):
-        camera(
-            cam.c.x-a*CELL_SIZE,
-            cam.c.y-b*CELL_SIZE
-        )
-        if cell.trees:
-            if shadow:
-                for tree in cell.trees:
-                    circfill(
-                        tree.pos.x+SHADOW_OFFSET.x*tree.height/2,
-                        tree.pos.y+SHADOW_OFFSET.y*tree.height/2,
-                        tree.girth,
-                        5)
-            else:
-                for tree in cell.trees:
-                    for x in range(-1,2):
-                        for y in range(-1,2):
-                            if abs(x)+abs(y)!=2:
-                                line(tree.pos.x+x, tree.pos.y+y, tree.s.x, tree.s.y, 4)
-
-                c=[[3,1],[11,0.7],[7,0.4]]
-                for i in range(0, 3):
-                    for tree in cell.trees:
-                        circfill(tree.leaves[i][0], tree.leaves[i][1], tree.girth*c[i][1], c[i][0])
-
-class Bush(object):
-    def __init__(self, p, r, height, colour, bloom):
-        self.pos = p
-        self.r = r
-        self.height = height
-        self.colour = colour
-        self.bloom = bloom
-        self.s = Vec2(p.x, p.y)
-
-class Bushes(object):
-    def __init__(self):
-        pass
-
-    def update(self, x, y, cell, cam, cells, blobs):
-        bushes = cell.bushes
-        cellp = Vec2(
-            cam.pos.x%CELL_SIZE-x*CELL_SIZE,
-            cam.pos.y%CELL_SIZE-y*CELL_SIZE
-        )
-        for bush in bushes:
-            bush.s = bush.pos.sub(cellp.add(PERSPECTIVE_OFFSET))
-            bush.s = bush.s.mul(bush.height*0.015)
-            bush.s._add(bush.pos)
-
-
-    def draw(self, a, b, cell, cam, shadow):
-        bushes = cell.bushes
-        if bushes:
-            camera(
-                cam.c.x-a*CELL_SIZE,
-                cam.c.y-b*CELL_SIZE
-            )
-
-            if shadow:
-                for bush in bushes:
-                    circfill(
-                        bush.pos.x+SHADOW_OFFSET.x*bush.height,
-                        bush.pos.y+SHADOW_OFFSET.y*bush.height,
-                        bush.r,
-                        5)
-            else:
-                for bush in bushes:
-                    circfill(bush.s.x, bush.s.y, bush.r, 3)
-                for bush in bushes:
-                    if bush.bloom:
-                        p=bush.s.add(bush.bloom)
-                        pset(p.x,p.y,bush.colour)
-
-
+        self.cell_fill = CELL_FILL
+        self.cell_size = CELL_SIZE
+        self.shadow_offset = SHADOW_OFFSET
+        self.perspective_offset = PERSPECTIVE_OFFSET
 
 class Cloud(object):
     def __init__(self, x, y, r, height):
@@ -636,9 +278,9 @@ CONFIG = Configuration(B, BLOBS)
 P = Player(Vec2(82,16).mul(32))
 CAM = Camera(P.pos.sub(Vec2(64, 64+128)))
 CLOUDS = Clouds()
-TREES = Trees()
-BUSHES = Bushes()
-BUILDINGS = Buildings()
+TREES = Trees(CONFIG)
+BUSHES = Bushes(CONFIG)
+BUILDINGS = Buildings(CONFIG)
 M = MapFormat(MAP)
 #M = MapFormat(CreateRandomWorld())
 
@@ -711,7 +353,7 @@ def _draw():
 
     camera(0, 0)
     px8_print("P X %.2f Y %.2f" % (P.pos.x, P.pos.y), 0, 112)
-    px8_print("C X %d Y %d" % (flr(CAM.pos.x), flr(CAM.pos.y)), 0, 120)
+    px8_print("B %d C X %d Y %d" % (BLOBS.len(), flr(CAM.pos.x), flr(CAM.pos.y)), 0, 120)
 
 def draw_clouds(shadow=False):
     camera()
