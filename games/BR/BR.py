@@ -15,7 +15,7 @@ SEED=rnd(1)
 import utils
 utils.addglobals(globals())
 
-from utils import myrange, myrange_f, lerp, ease, Vec2
+from utils import myrange, myrange_f, ease, Vec2, frange
 
 
 SHADOW_OFFSET=Vec2(2, 3).normalize().mul(0.2)
@@ -54,6 +54,7 @@ class Biomes(object):
 
         # Biome 10
         self.biomes[10].transition = True
+        self.biomes[10].building_freq = 0.8
 
         # Biome 11
         self.biomes[11].transition = True
@@ -66,6 +67,7 @@ class Biomes(object):
         # Biome 15
         self.biomes[15].transition = True
         self.biomes[15].tree_range = [0,0.2]
+        self.biomes[15].building_freq = 0.01
 
     def get(self, color):
         return self.biomes.get(color)
@@ -185,6 +187,7 @@ class Cell(object):
                        1: {-1: 1, 0 : 1, 1 : 1}}
         self.trees = []
         self.bushes = []
+        self.building = None
         self.init = False
 
 class Cells(object):
@@ -246,6 +249,7 @@ class Cells(object):
                 biome = self.config.biomes.get(cell.color)
                 self.set_trees(cell, biome)
                 self.set_bushes(cell, biome)
+                self.set_buildings(cell, biome)
 
     def set_bounds(self, x, y, cell):
                 if x<0 or x>CELL_BOUNDS-1 or y<0 or y>CELL_BOUNDS-1:
@@ -319,6 +323,15 @@ class Cells(object):
                 bush = Bush(p, r, height, colour, bloom)
                 cell.bushes.append(bush)
 
+    def set_buildings(self, cell, biome):
+        if (len(cell.trees) + len(cell.bushes) == 0) and rnd(1) < biome.building_freq:
+            cell.building = Building(
+                myrange(self.config.buildings_w_range),
+                myrange(self.config.buildings_h_range),
+                Vec2(CELL_SIZE/2,CELL_SIZE/2),
+                myrange(self.config.buildings_height_range),
+                self.config.buildings_colours[flr(rnd(16))%len(self.config.buildings_colours)]
+            )
 
 class Blobs(object):
     def __init__(self):
@@ -354,6 +367,73 @@ class Configuration(object):
         self.bushes_radius_range = [1,2.5]
         self.bushes_cluster_range = [2,4]
 
+
+        self.buildings_height_range = [10,35]
+        self.buildings_w_range = [8,16]
+        self.buildings_h_range = [8,16]
+        self.buildings_colours = [8,9,6]
+
+class Building(object):
+    def __init__(self, w, h, pos, height, color):
+        self.w = w
+        self.h = h
+        self.pos = pos
+        self.height = height
+        self.color = color
+        self.s = Vec2(0, 0)
+
+class Buildings(object):
+    def __init__(self):
+        pass
+
+    def update(self, x, y, cell, cam, cells, blobs):
+        building = cell.building
+        if building:
+            cellp = Vec2(
+                cam.pos.x%CELL_SIZE-x*CELL_SIZE,
+                cam.pos.y%CELL_SIZE-y*CELL_SIZE
+            )
+            building.s = building.pos.sub(cellp.add(PERSPECTIVE_OFFSET))
+
+            s1=max(building.w,building.h)
+            s2=min(building.w,building.h)
+            for i in frange(-s1+s2/2,s1-s2/2,s2):
+                p = Vec2((cells.pos.x+x)*CELL_SIZE, (cells.pos.y+y)*CELL_SIZE).add(building.pos)
+                if s1 == building.w:
+                    p.x += i
+                else:
+                    p.y += i
+                blobs.add_blob(
+                    p,
+                    s2
+                )
+
+    def draw(self, a, b, cell, cam, shadow):
+        building = cell.building
+        if building:
+            camera(
+                cam.c.x-a*CELL_SIZE,
+                cam.c.y-b*CELL_SIZE
+            )
+
+            if shadow:
+                for i in frange(0,building.height/2,4):
+                    t = Vec2(building.s.x,building.s.y)
+                    t._mul(i*0.015)
+                    t._add(building.pos)
+
+                    rectfill(t.x-building.w, t.y-building.h, t.x+building.w, t.y+building.h, 5)
+            else:
+                for i in frange(building.height/2,building.height-1,4):
+                    t = Vec2(building.s.x,building.s.y)
+                    t._mul(i*0.015)
+                    t._add(building.pos)
+
+                    rectfill(t.x-building.w, t.y-building.h, t.x+building.w, t.y+building.h, 5)
+
+                    s = building.s.mul(building.height*0.015)
+                    s._add(building.pos)
+                    rectfill(s.x-building.w, s.y-building.h, s.x+building.w, s.y+building.h, building.color)
 
 class Tree(object):
     def __init__(self, pos, height, girth, leaves):
@@ -446,12 +526,20 @@ class Bushes(object):
                 cam.c.y-b*CELL_SIZE
             )
 
-            for bush in bushes:
-                circfill(bush.s.x, bush.s.y, bush.r, 3)
-            for bush in bushes:
-                if bush.bloom:
-                    p=bush.s.add(bush.bloom)
-                    pset(p.x,p.y,bush.colour)
+            if shadow:
+                for bush in bushes:
+                    circfill(
+                        bush.pos.x+SHADOW_OFFSET.x*bush.height,
+                        bush.pos.y+SHADOW_OFFSET.y*bush.height,
+                        bush.r,
+                        5)
+            else:
+                for bush in bushes:
+                    circfill(bush.s.x, bush.s.y, bush.r, 3)
+                for bush in bushes:
+                    if bush.bloom:
+                        p=bush.s.add(bush.bloom)
+                        pset(p.x,p.y,bush.colour)
 
 
 
@@ -550,6 +638,7 @@ CAM = Camera(P.pos.sub(Vec2(64, 64+128)))
 CLOUDS = Clouds()
 TREES = Trees()
 BUSHES = Bushes()
+BUILDINGS = Buildings()
 M = MapFormat(MAP)
 #M = MapFormat(CreateRandomWorld())
 
@@ -585,6 +674,7 @@ def _update():
             cell = CELLS.get_current(x, y)
             TREES.update(x, y, cell, CAM, CELLS, BLOBS)
             BUSHES.update(x, y, cell, CAM, CELLS, BLOBS)
+            BUILDINGS.update(x, y, cell, CAM, CELLS, BLOBS)
 
     CLOUDS.update(CAM)
     BLOBS.update(P)
@@ -603,6 +693,9 @@ def _draw():
         for b in range(0, CELL_FILL):
             cell = CELLS.get_current(a, b)
             TREES.draw(a, b, cell, CAM, True)
+            BUSHES.draw(a, b, cell, CAM, True)
+            BUILDINGS.draw(a, b, cell, CAM, True)
+
     draw_clouds(True)
 
     # Non shadow stuff
@@ -611,9 +704,9 @@ def _draw():
             cell = CELLS.get_current(a, b)
             TREES.draw(a, b, cell, CAM, False)
             BUSHES.draw(a, b, cell, CAM, False)
+            BUILDINGS.draw(a, b, cell, CAM, False)
+
     draw_player()
-
-
     draw_clouds()
 
     camera(0, 0)

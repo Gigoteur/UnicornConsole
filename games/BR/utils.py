@@ -1,5 +1,9 @@
 addglobals = lambda x: globals().update(x)
 
+def frange(start, stop, step):
+    return [x*step+start for x in range(0,round(abs((stop-start)/step)+0.5001),
+                                        int((stop-start)/step<0)*-2+1)]
+
 def myrange(x):
     return random.randint(flr(x[0]), flr(x[1]))
 
