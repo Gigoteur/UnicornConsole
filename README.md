@@ -249,6 +249,9 @@ After that you can use the API to do your game. There is no limitation of what y
 
 By default I don't do any modification in the Python or Lua interpreter, so you are free to create threads, load native files, etc
 
+
+You will be able to find more technical documentation in the [wiki](https://github.com/Gigoteur/PX8/wiki)
+
 ### Python
 
 You can create a classical Python program, all you need is to define the previous functions (_init, _update, _draw), and you can import any packages.
@@ -280,6 +283,7 @@ function _draw()
   print("DRAW")
 end
 ```
+
 
 ## Cartridge format
 
