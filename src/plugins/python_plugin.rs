@@ -10,7 +10,7 @@ pub mod plugin {
     use px8::info::Info;
     use px8::Palettes;
     use gfx::Screen;
-    use sound::Sound;
+    use sound::sound::Sound;
 
     // Audio
     py_class!(class PX8Audio |py| {

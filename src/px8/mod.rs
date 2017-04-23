@@ -29,7 +29,7 @@ use config::Players;
 use self::info::Info;
 use gfx;
 use cartridge::{Cartridge, CartridgeFormat};
-use sound::Sound;
+use sound::sound::Sound;
 
 include!(concat!(env!("OUT_DIR"), "/parameters.rs"));
 

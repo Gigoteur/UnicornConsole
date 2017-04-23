@@ -90,8 +90,8 @@ pub struct Frontend {
     pub px8: px8::Px8New,
     pub info: Arc<Mutex<px8::info::Info>>,
     pub players: Arc<Mutex<config::Players>>,
-    pub sound_interface: Arc<Mutex<sound::SoundInterface<f32>>>,
-    pub sound: Arc<Mutex<sound::Sound>>,
+    pub sound_interface: Arc<Mutex<sound::sound::SoundInterface<f32>>>,
+    pub sound: Arc<Mutex<sound::sound::Sound>>,
     channels: Channels,
     start_time: time::Tm,
     elapsed_time: f64,
@@ -114,10 +114,10 @@ impl Frontend {
         let renderer = renderer::renderer::Renderer::new(sdl_video, fullscreen, opengl, scale).unwrap();
 
         info!("Frontend: SDL2 audio");
-        let mut sound_interface = sound::SoundInterface::new(sdl_context.clone(), 44100, 512, 1);
+        let mut sound_interface = sound::sound::SoundInterface::new(sdl_context.clone(), 44100, 512, 1);
         sound_interface.start();
 
-        let sound = sound::Sound::new();
+        let sound = sound::sound::Sound::new();
 
         // Disable mouse in the window
         sdl_context.mouse().show_cursor(true);
