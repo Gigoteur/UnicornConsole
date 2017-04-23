@@ -257,7 +257,7 @@ You will be able to find more technical documentation in the [wiki](https://gith
 You can create a classical Python program, all you need is to define the previous functions (_init, _update, _draw), and you can import any packages.
 
 
-```
+```py
 def _init():
   px8_print("INIT")
   
@@ -270,7 +270,7 @@ def _draw():
 
 ### Lua
 
-```
+```lua
 function _init()
   print("INIT")
 end
