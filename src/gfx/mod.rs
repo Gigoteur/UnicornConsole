@@ -1184,7 +1184,9 @@ impl Screen {
                 let map_x = cel_x as i32 + idx_x;
                 let map_y = cel_y as i32 + idx_y;
 
-                let idx_sprite = self.map[map_x as usize][map_y as usize];
+                debug!("MAP X {:?} MAP Y {:?}", map_x, map_y);
+
+                let idx_sprite = self.map[(map_x as usize) % SCREEN_WIDTH][(map_y as usize) % 32];
 
                 // Skip the sprite 0
                 if idx_sprite != 0 {
