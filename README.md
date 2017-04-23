@@ -47,6 +47,7 @@ It is still in development, but it is usable and the main features are:
  * Change the screen definition (128x128, 256x256, WIDTHxHEIGHT)
  * Screenshot (PNG) / Video recording (GIF)
  * Pico-8 compatibility + cartridge (P8/P8.PNG) format support
+ * Audio support is in progress
  
 It works on all platforms (Linux/OSX/Windows), in the browser (via Emscripten), and on tiny hardware like Raspberry Pi 2/3.
 
