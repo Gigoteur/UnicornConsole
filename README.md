@@ -96,12 +96,13 @@ cd PX8
 
 ### Binaries
 
-Or you can get binaries for multiples platforms directly on [itch.io](https://hallucino.itch.io/px8):
+Or you can get latest binaries for multiples platforms directly on [itch.io](https://hallucino.itch.io/px8):
   * Raspberry Pi (available)
+  * OSX (available)
   * Windows (Work in progress)
   * Linux (Work in progress)
-  * Mac (Work in progress)
 
+and old binaries could be obtain for free.
 
 ## Requirements
 
@@ -112,7 +113,7 @@ You will need multiple things:
 
 #### Linux
 
-Packages:
+Packages for Debian/Ubuntu:
   * libsdl2-dev
   * libreadline-dev
   * libpython3-dev
@@ -125,6 +126,15 @@ sudo raspi-config
 ```
 
 #### OSX
+
+Install external dependencies via brew:
+   * brew install python3
+   * brew install sdl2
+   * brew install readline
+   
+Right now you need to export the DYLD_FALLBACK_LIBRARY_PATH env variable for the python support, e.g:
+   * export DYLD_FALLBACK_LIBRARY_PATH=/usr/local/Cellar/python3/3.5.1/Frameworks/Python.framework/Versions/3.5/lib
+
 
 ## Build
 
