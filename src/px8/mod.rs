@@ -787,7 +787,7 @@ impl Px8New {
             self.code_type = Code::PYTHON;
         }
 
-        println!("CODE -> {:?}", data);
+        debug!("CODE -> {:?}", data);
 
         match self.code_type {
             Code::LUA => {
@@ -844,7 +844,7 @@ impl Px8New {
             data = self.cartridges[idx].code.get_data().clone();
         }
 
-        println!("CODE -> {:?}", data);
+        debug!("CODE -> {:?}", data);
 
         match self.code_type {
             Code::LUA => {

@@ -810,13 +810,6 @@ pub mod plugin {
                 let data = extra.as_ref().unwrap().downcast_ref::<ExtraData>().unwrap();
                 data.tx_input.clone()
             });
-            println!("{:?}", extra);
-
-
-            /*state2.with_extra(|extra| {
-              let data = extra.as_mut().unwrap().downcast_mut::<ExtraData>().unwrap();
-              println!("{:?}", data.tx_input);
-            });*/
 
             // construct new userdata in lua space and initialize it
             *state.new_userdata_typed::<PX8Lua>() = PX8Lua::new();

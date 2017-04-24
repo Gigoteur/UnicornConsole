@@ -2,6 +2,8 @@
 #  - duckduckontheloose (https://github.com/seleb/DuckDuckOnTheLoose)
 #  - dark tomb (http://www.lexaloffle.com/bbs/?tid=28785)
 
+from opensimplex import OpenSimplex
+
 import sys
 sys.path.append("./games/BR/")
 
@@ -33,6 +35,26 @@ from buildings import Buildings
 
 SHADOW_OFFSET=Vec2(2, 3).normalize().mul(0.2)
 PERSPECTIVE_OFFSET = Vec2(64, 80)
+
+def noise(gen, nx, ny, freq=10):
+    # Rescale from -1.0:+1.0 to 0.0:1.0
+    return gen.noise2d(freq*nx, freq*ny) / 2.0 + 0.5
+
+def CreateRandomWorld():
+    gen = OpenSimplex()
+    print(gen)
+    dynamic_map = [""] * (CELL_BOUNDS*CELL_BOUNDS)
+
+    freq = random.randrange(5, 10)
+    for x in range(0, CELL_BOUNDS):
+        for y in range(0, CELL_BOUNDS):
+            nx = float(x)/CELL_BOUNDS - 0.5
+            ny = float(y)/CELL_BOUNDS - 0.5
+            value = noise(gen, nx, ny, freq)
+            dynamic_map[x+y*CELL_BOUNDS] = "%x" % flr(value/0.06666666666666667)
+
+    return ''.join(dynamic_map)
+
 
 class Player(object):
     def __init__(self, vec2):
@@ -281,8 +303,8 @@ CLOUDS = Clouds()
 TREES = Trees(CONFIG)
 BUSHES = Bushes(CONFIG)
 BUILDINGS = Buildings(CONFIG)
-M = MapFormat(MAP)
-#M = MapFormat(CreateRandomWorld())
+#M = MapFormat(MAP)
+M = MapFormat(CreateRandomWorld())
 
 
 P.pos.y -= 128

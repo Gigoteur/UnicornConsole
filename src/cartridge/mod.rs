@@ -209,7 +209,6 @@ impl CartridgeLua {
 
             let mut code_str: String = "".to_string();
             code_str = code.into_iter().collect();
-            println!("{:?}", code_str);
 
             let mut lines = code_str.lines();
             for line in lines {
@@ -394,6 +393,12 @@ impl fmt::Debug for CartridgeGFX {
 
 
 impl CartridgeGFX {
+    pub fn empty() -> CartridgeGFX {
+        CartridgeGFX {
+            sprites: Vec::new(),
+        }
+    }
+
     pub fn new(lines: &mut Vec<String>) -> CartridgeGFX {
         info!("CartridgeGFX");
         let mut sprites: Vec<Sprite> = Vec::new();
@@ -515,6 +520,12 @@ pub struct CartridgeGFF {
 }
 
 impl CartridgeGFF {
+    pub fn empty() -> CartridgeGFF {
+        CartridgeGFF {
+            flags: Vec::new(),
+        }
+    }
+
     pub fn new(lines: &mut Vec<String>) -> CartridgeGFF {
         let mut v = Vec::new();
 
@@ -584,12 +595,16 @@ pub struct CartridgeMusic {}
 impl CartridgeMusic {
     pub fn new(lines: &mut Vec<String>) -> CartridgeMusic {
         info!("CartridgeMusic");
-        return CartridgeMusic {};
+        CartridgeMusic {}
     }
 
     pub fn new_from_bytes(v: Vec<u8>) -> CartridgeMusic {
         info!("MUSIC {:?} {:?}", v, v.len());
-        return CartridgeMusic {};
+        CartridgeMusic {}
+    }
+
+    pub fn empty() -> CartridgeMusic {
+        CartridgeMusic {}
     }
 }
 
@@ -598,6 +613,10 @@ pub struct CartridgeMap {
 }
 
 impl CartridgeMap {
+    pub fn empty() -> CartridgeMap {
+        CartridgeMap { map: [[0; 32]; gfx::SCREEN_WIDTH] }
+    }
+
     pub fn new(lines: &mut Vec<String>) -> CartridgeMap {
         info!("CartridgeMap");
 
@@ -837,20 +856,6 @@ fn read_from_p8format<R: io::BufRead>(filename: String, buf: &mut R) -> Result<C
     let mut cartridge_gff;
     let mut cartridge_music;
 
-    match sections.get_mut("__gfx__") {
-        Some(vec_section) => cartridge_gfx = CartridgeGFX::new(vec_section),
-        _ => return Err(Error::Err("NO GFX DATA".to_string())),
-    }
-
-    match sections.get_mut("__map__") {
-        Some(vec_section) => cartridge_map = CartridgeMap::new(vec_section),
-        _ => return Err(Error::Err("NO MAP DATA".to_string())),
-    }
-
-    match sections.get_mut("__gff__") {
-        Some(vec_section) => cartridge_gff = CartridgeGFF::new(vec_section),
-        _ => return Err(Error::Err("NO GFF DATA".to_string())),
-    }
 
     if sections.contains_key("__lua__") {
         cartridge_code = CartridgeCode::new("lua".to_string(), sections.get_mut("__lua__").unwrap());
@@ -860,9 +865,24 @@ fn read_from_p8format<R: io::BufRead>(filename: String, buf: &mut R) -> Result<C
         return Err(Error::Err("NO CODE DATA".to_string()));
     }
 
+    match sections.get_mut("__gfx__") {
+        Some(vec_section) => cartridge_gfx = CartridgeGFX::new(vec_section),
+        _ => cartridge_gfx = CartridgeGFX::empty(),
+    }
+
+    match sections.get_mut("__map__") {
+        Some(vec_section) => cartridge_map = CartridgeMap::new(vec_section),
+        _ => cartridge_map = CartridgeMap::empty(),
+    }
+
+    match sections.get_mut("__gff__") {
+        Some(vec_section) => cartridge_gff = CartridgeGFF::new(vec_section),
+        _ => cartridge_gff = CartridgeGFF::empty(),
+    }
+
     match sections.get_mut("__music__") {
         Some(vec_section) => cartridge_music = CartridgeMusic::new(vec_section),
-        _ => return Err(Error::Err("NO MUSIC DATA".to_string())),
+        _ => cartridge_music = CartridgeMusic::empty(),
     }
 
 
@@ -984,22 +1004,22 @@ impl Cartridge {
 
         match sections.get_mut("__gfx__") {
             Some(vec_section) => cartridge_gfx = CartridgeGFX::new(vec_section),
-            _ => return Err(Error::Err("NO GFX DATA".to_string())),
+            _ => cartridge_gfx = CartridgeGFX::empty(),
         }
 
         match sections.get_mut("__map__") {
             Some(vec_section) => cartridge_map = CartridgeMap::new(vec_section),
-            _ => return Err(Error::Err("NO MAP DATA".to_string())),
+            _ => cartridge_map = CartridgeMap::empty(),
         }
 
         match sections.get_mut("__gff__") {
             Some(vec_section) => cartridge_gff = CartridgeGFF::new(vec_section),
-            _ => return Err(Error::Err("NO GFF DATA".to_string())),
+            _ => cartridge_gff = CartridgeGFF::empty(),
         }
 
         match sections.get_mut("__music__") {
             Some(vec_section) => cartridge_music = CartridgeMusic::new(vec_section),
-            _ => return Err(Error::Err("NO MUSIC DATA".to_string())),
+            _ => cartridge_music = CartridgeMusic::empty(),
         }
 
 
