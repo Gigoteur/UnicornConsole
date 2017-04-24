@@ -9,23 +9,16 @@ class Button(object):
         self.y2 = y2
         self.color = color
         self.text = text
-        self.clicked = False
-
-        if highlight:
-            self.clicked = True
+        self.clicked = True if highlight else False
 
     def update(self, x, y):
-        self.clicked = False
-        if x >= self.x1 and x <= self.x2:
-            if y >= self.y1 and y <= self.y2:
-                self.clicked = True
+        self.clicked = (self.x1 <= x <= self.x2 and
+                        self.y1 <= y <= self.y2)
 
     def draw(self):
         rectfill(self.x1, self.y1, self.x2, self.y2, self.color)
-        if self.clicked:
-            px8_print(self.text, self.x1 + 1, self.y1, 3)
-        else:
-            px8_print(self.text, self.x1 + 1, self.y1, 1)
+        i = 3 if self.clicked else 1
+        px8_print(self.text, self.x1 + 1, self.y1, i)
 
     def is_click(self):
         return self.clicked
@@ -48,23 +41,18 @@ class State(object):
 
 def pointInRectangle(x, y, coord):
     print(x, y, coord)
-    if x >= coord[0] and x <= coord[2]:
-        if y >= coord[1] and y <= coord[3]:
-            return True
-    return False
+    return (coord[0] <= x <= coord[2] and
+            coord[1] <= y <= coord[3])
 
 class SpritesMap(object):
     def __init__(self, pp):
         self.pp = pp
-
         self.state = State()
-        self.buttons_map = []
-
         self.buttons = [96, 79, 115, 87]
-        self.buttons_map.append(Button(96, 79, 100, 87, 2, "1", True))
-        self.buttons_map.append(Button(101, 79, 105, 87, 2, "2"))
-        self.buttons_map.append(Button(106, 79, 110, 87, 2, "3"))
-        self.buttons_map.append(Button(111, 79, 115, 87, 2, "4"))
+        self.buttons_map = [Button(96, 79, 100, 87, 2, "1", True),
+                            Button(101, 79, 105, 87, 2, "2"),
+                            Button(106, 79, 110, 87, 2, "3"),
+                            Button(111, 79, 115, 87, 2, "4")]
 
     def update(self):
         self.state.mouse_state = mouse_state()
@@ -75,12 +63,10 @@ class SpritesMap(object):
             print(self.state.mouse_x, self.state.mouse_y)
 
             if pointInRectangle(self.state.mouse_x, self.state.mouse_y, self.buttons):
-                btn_idx = 0
-                for button in self.buttons_map:
+                for btn_idx, button in enumerate(self.buttons_map):
                     button.update(self.state.mouse_x, self.state.mouse_y)
                     if button.is_click():
                         self.state.idx_map = btn_idx
-                    btn_idx += 1
 
             if pointInRectangle(self.state.mouse_x, self.state.mouse_y, [self.state.idx_x_zoom_sprite,
                                                                          self.state.idx_y_zoom_sprite,
