@@ -222,6 +222,10 @@ or some fancy demos:
 ./target/release/px8 -s 4 ./demos/demos.py
 ./target/release/px8 -s 4 ./demos/voxel/voxel.px8
 ./target/release/px8 -s 4 ./demos/pong/pong.px8
+./target/release/px8 -s 4 ./games/ski/ski.px8
+./target/release/px8 -s 4 ./games/amp/amp.px8
+./target/release/px8 -s 4 ./games/terrain/terrain.px8
+./target/release/px8 -s 4 ./games/BR/BR.px8
 ```
 
 ## Edit a cartridge
