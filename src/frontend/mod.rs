@@ -302,7 +302,7 @@ impl Frontend {
                         } else if keycode == Keycode::F5 {
                             if editor {
                                 let dt = Local::now();
-                                self.px8.save_current_cartridge(dt.format("%Y-%m-%d-%H-%M-%S").to_string());
+                                self.px8.save_current_cartridge();
                             }
                         } else if keycode == Keycode::F6 && editor {
                             self.px8.switch_code();

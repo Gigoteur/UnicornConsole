@@ -40,7 +40,6 @@ class State(object):
         self.idx_map = 0
 
 def pointInRectangle(x, y, coord):
-    print(x, y, coord)
     return (coord[0] <= x <= coord[2] and
             coord[1] <= y <= coord[3])
 
@@ -60,8 +59,6 @@ class SpritesMap(object):
             self.state.mouse_x = mouse_x()
             self.state.mouse_y = mouse_y()
 
-            print(self.state.mouse_x, self.state.mouse_y)
-
             if pointInRectangle(self.state.mouse_x, self.state.mouse_y, self.buttons):
                 for btn_idx, button in enumerate(self.buttons_map):
                     button.update(self.state.mouse_x, self.state.mouse_y)
@@ -75,10 +72,7 @@ class SpritesMap(object):
                 idx_x = math.floor((self.state.mouse_x - self.state.idx_x_zoom_sprite) / 8)
                 idx_y = math.floor((self.state.mouse_y - self.state.idx_y_zoom_sprite) / 8)
 
-                print(self.state.x_zoom_sprite, self.state.y_zoom_sprite, idx_x, idx_y)
-
                 sset(self.state.x_zoom_sprite + idx_x, self.state.y_zoom_sprite + idx_y, self.pp.get_current_color())
-              #  rect(current_sprite_x, current_sprite_y, current_sprite_x+8, current_sprite_y+8, 7)
 
 
         if self.state.mouse_y >= self.state.idx_sprites_batch and self.state.mouse_y < 120:
@@ -163,7 +157,6 @@ class PalettePicker(object):
             if pointInRectangle(_mouse_x, _mouse_y, [self.idx_x, self.idx_y, self.idx_x+4*8, self.idx_y+4*8]):
                 idx_x = math.floor((_mouse_x - self.idx_x) / 8)
                 idx_y = math.floor((_mouse_y - self.idx_y) / 8)
-                print(idx_x, idx_y, idx_x+idx_y*4)
 
                 self.current_color = idx_x+idx_y*4
                 self.current_selection_x = idx_x

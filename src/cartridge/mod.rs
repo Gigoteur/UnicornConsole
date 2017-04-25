@@ -1055,7 +1055,7 @@ impl Cartridge {
             },
             _ => {
                 f.write_all("Saved by PX8\n".as_bytes());
-                f.write_all("Version 0.1\n".as_bytes());
+                f.write_all("Version 0.0.3\n".as_bytes());
             }
         }
 

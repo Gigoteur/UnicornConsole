@@ -620,10 +620,10 @@ impl Px8New {
         image.save(&mut output, image::ImageFormat::PNG).unwrap();
     }
 
-    pub fn save_current_cartridge(&mut self, suffix: String) {
+    pub fn save_current_cartridge(&mut self) {
         let ref mut cartridge = self.cartridges[self.current_cartridge];
 
-        let output_filename = cartridge.filename.clone() + "-" + &suffix + ".p8";
+        let output_filename = cartridge.filename.clone();
         info!("Saving the current cartridge in {:?}", output_filename);
 
         cartridge.gfx.set_sprites(self.screen.lock().unwrap().sprites.clone());
