@@ -49,29 +49,63 @@ def pointInRectangle(x, y, coord):
             coord[1] <= y <= coord[3])
 
 class Widget(object):
-    def __init__(self, x, y, data):
-        self.x = x
-        self.y = y
+    def __init__(self, name, x, y, data):
+        self.name = name
+        self.x1 = x
+        self.y1 = y
         self.data = data
+        self.clicked = False
+
+        self.x2 = x
+        self.y2 = self.y1 + len(data)
+        if self.data:
+            self.x2 = self.x1 + len(data[0])
+
+    def is_click(self):
+        return self.clicked
+
+    def reset(self):
+        self.clicked = False
+
+    def update(self, x, y):
+        self.clicked = (self.x1 <= x <= self.x2 and
+                        self.y1 <= y <= self.y2)
 
     def draw(self):
         for y, row in enumerate(self.data):
             for idx, pixel in enumerate(row):
-                pset(self.x+idx, self.y+y, pixel)
+                pset(self.x1+idx, self.y1+y, pixel)
 
 class SpritesMap(object):
     def __init__(self, pp):
         self.pp = pp
         self.state = State()
 
+        self.message = None
         self.widgets = [
-            Widget(0, 80, [
+            Widget("ERASE", 0, 80, [
                 [5, 6, 5, 5, 5, 5, 6, 5],
                 [5, 5, 6, 5, 5, 6, 5, 5],
                 [5, 5, 5, 6, 6, 5, 5, 5],
                 [5, 5, 5, 6, 6, 5, 5, 5],
                 [5, 5, 6, 5, 5, 6, 5, 5],
                 [5, 6, 5, 5, 5, 5, 6, 5],
+            ]),
+            Widget("COPY", 8, 80, [
+                [5, 5, 5, 6, 6, 6, 6, 6],
+                [5, 6, 6, 6, 5, 5, 5, 6],
+                [5, 6, 5, 6, 5, 5, 5, 6],
+                [5, 6, 5, 6, 5, 5, 5, 6],
+                [5, 6, 5, 6, 5, 5, 5, 6],
+                [5, 6, 6, 6, 6, 6, 6, 6],
+            ]),
+            Widget("PASTE", 16, 80, [
+                [5, 6, 6, 6, 6, 5, 5, 5],
+                [5, 6, 5, 5, 6, 5, 5, 5],
+                [5, 6, 5, 5, 6, 5, 5, 5],
+                [5, 6, 5, 5, 6, 5, 5, 5],
+                [5, 6, 5, 5, 6, 5, 5, 5],
+                [5, 6, 6, 6, 6, 5, 5, 5],
             ])
         ]
         self.buttons = [96, 79, 115, 87]
@@ -80,13 +114,19 @@ class SpritesMap(object):
                             Button(106, 79, 110, 87, 2, "3"),
                             Button(111, 79, 115, 87, 2, "4")]
 
+        self.buffer_copy = []
+
     def update(self):
+        self.message = None
         self.state.on_current_sprite = False
         self.state.mouse_state = mouse_state()
         self.state.mouse_x = mouse_x()
         self.state.mouse_y = mouse_y()
 
         if self.state.mouse_state == 1:
+            for widget in self.widgets:
+                widget.update(self.state.mouse_x, self.state.mouse_y)
+
             if pointInRectangle(self.state.mouse_x, self.state.mouse_y, self.buttons):
                 for btn_idx, button in enumerate(self.buttons_map):
                     button.update(self.state.mouse_x, self.state.mouse_y)
@@ -119,6 +159,32 @@ class SpritesMap(object):
             self.state.on_current_sprite_x = self.state.x_zoom_sprite + idx_x
             self.state.on_current_sprite_y = self.state.y_zoom_sprite + idx_y
             self.state.on_current_sprite = True
+
+        for widget in self.widgets:
+            if widget.is_click():
+                if widget.name == "ERASE":
+                    self.message = "erasing ..."
+                    for x in range(0, 8):
+                        for y in range(0, 8):
+                            sset(self.state.x_zoom_sprite + x, self.state.y_zoom_sprite + y, 0)
+                if widget.name == "COPY":
+                    self.message = "copying ..."
+
+                    if not self.buffer_copy:
+                        self.buffer_copy = [0] * (8*8)
+
+                    for x in range(0, 8):
+                        for y in range(0, 8):
+                            self.buffer_copy[x+y*8] = sget(self.state.x_zoom_sprite + x, self.state.y_zoom_sprite + y)
+
+                if widget.name == "PASTE":
+                    self.message = "pasting ..."
+
+                    for x in range(0, 8):
+                        for y in range(0, 8):
+                            sset(self.state.x_zoom_sprite + x, self.state.y_zoom_sprite + y, self.buffer_copy[x+y*8])
+
+            widget.reset()
 
     def draw_zoom_sprite(self):
         sspr(self.state.x_zoom_sprite,
@@ -185,6 +251,10 @@ class SpritesMap(object):
     def draw_information(self):
         if self.state.on_current_sprite:
             px8_print("x %d y %d" % (self.state.on_current_sprite_x, self.state.on_current_sprite_y), 0, 120, 5)
+        else:
+            if self.message:
+                px8_print(self.message, 0, 120, 5)
+
 
 class PalettePicker(object):
     def __init__(self):
