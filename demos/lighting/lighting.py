@@ -1,3 +1,4 @@
+# Demo of lighting engine from http://www.lexaloffle.com/bbs/?tid=28785
 def _init():
     pass
 

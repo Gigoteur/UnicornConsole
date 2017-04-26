@@ -39,14 +39,41 @@ class State(object):
 
         self.idx_map = 0
 
+        self.on_current_sprite_x = 0
+        self.on_current_sprite_y = 0
+        self.on_current_sprite = False
+
+
 def pointInRectangle(x, y, coord):
     return (coord[0] <= x <= coord[2] and
             coord[1] <= y <= coord[3])
+
+class Widget(object):
+    def __init__(self, x, y, data):
+        self.x = x
+        self.y = y
+        self.data = data
+
+    def draw(self):
+        for y, row in enumerate(self.data):
+            for idx, pixel in enumerate(row):
+                pset(self.x+idx, self.y+y, pixel)
 
 class SpritesMap(object):
     def __init__(self, pp):
         self.pp = pp
         self.state = State()
+
+        self.widgets = [
+            Widget(0, 80, [
+                [5, 6, 5, 5, 5, 5, 6, 5],
+                [5, 5, 6, 5, 5, 6, 5, 5],
+                [5, 5, 5, 6, 6, 5, 5, 5],
+                [5, 5, 5, 6, 6, 5, 5, 5],
+                [5, 5, 6, 5, 5, 6, 5, 5],
+                [5, 6, 5, 5, 5, 5, 6, 5],
+            ])
+        ]
         self.buttons = [96, 79, 115, 87]
         self.buttons_map = [Button(96, 79, 100, 87, 2, "1", True),
                             Button(101, 79, 105, 87, 2, "2"),
@@ -54,11 +81,12 @@ class SpritesMap(object):
                             Button(111, 79, 115, 87, 2, "4")]
 
     def update(self):
+        self.state.on_current_sprite = False
         self.state.mouse_state = mouse_state()
-        if self.state.mouse_state == 1:
-            self.state.mouse_x = mouse_x()
-            self.state.mouse_y = mouse_y()
+        self.state.mouse_x = mouse_x()
+        self.state.mouse_y = mouse_y()
 
+        if self.state.mouse_state == 1:
             if pointInRectangle(self.state.mouse_x, self.state.mouse_y, self.buttons):
                 for btn_idx, button in enumerate(self.buttons_map):
                     button.update(self.state.mouse_x, self.state.mouse_y)
@@ -75,12 +103,22 @@ class SpritesMap(object):
                 sset(self.state.x_zoom_sprite + idx_x, self.state.y_zoom_sprite + idx_y, self.pp.get_current_color())
 
 
-        if self.state.mouse_y >= self.state.idx_sprites_batch and self.state.mouse_y < 120:
+            if self.state.mouse_y >= self.state.idx_sprites_batch and self.state.mouse_y < 120:
                 y = math.floor((self.state.mouse_y - self.state.idx_sprites_batch) / 8)
                 x = math.floor(self.state.mouse_x / 8)
                 self.state.current_sprite = (x + y * 16) + 64 * self.state.idx_map
                 self.state.x_zoom_sprite = (self.state.current_sprite % 16) * 8
                 self.state.y_zoom_sprite = math.floor(self.state.current_sprite / 16) * 8
+
+        if pointInRectangle(self.state.mouse_x, self.state.mouse_y, [self.state.idx_x_zoom_sprite,
+                                                                     self.state.idx_y_zoom_sprite,
+                                                                     self.state.idx_x_zoom_sprite+8*8,
+                                                                     self.state.idx_y_zoom_sprite+8*8]):
+            idx_x = math.floor((self.state.mouse_x - self.state.idx_x_zoom_sprite) / 8)
+            idx_y = math.floor((self.state.mouse_y - self.state.idx_y_zoom_sprite) / 8)
+            self.state.on_current_sprite_x = self.state.x_zoom_sprite + idx_x
+            self.state.on_current_sprite_y = self.state.y_zoom_sprite + idx_y
+            self.state.on_current_sprite = True
 
     def draw_zoom_sprite(self):
         sspr(self.state.x_zoom_sprite,
@@ -124,18 +162,29 @@ class SpritesMap(object):
             if flag:
                 color = 7
 
-            circfill(80 + idx, 74, 1, color)
+            circfill(80 + idx, 74, 2, color)
 
-            idx += 4
+            idx += 6
 
     def draw(self):
         self.draw_zoom_sprite()
         self.draw_map()
         self.draw_sprite_info()
+        self.draw_button()
+        self.draw_widgets()
+        self.draw_information()
+
+    def draw_widgets(self):
+        for widget in self.widgets:
+            widget.draw()
 
     def draw_button(self):
         for button in self.buttons_map:
             button.draw()
+
+    def draw_information(self):
+        if self.state.on_current_sprite:
+            px8_print("x %d y %d" % (self.state.on_current_sprite_x, self.state.on_current_sprite_y), 0, 120, 5)
 
 class PalettePicker(object):
     def __init__(self):
@@ -220,5 +269,4 @@ def _draw():
 
     draw_mouse()
 
-    sm.draw_button()
     pp.draw()
