@@ -138,6 +138,8 @@ Right now you need to export the DYLD_FALLBACK_LIBRARY_PATH env variable for the
 
 ## Build
 
+**The first thing to do is to install Rust, so please go to [rustup](https://www.rustup.rs/) and follow all instructions.**
+
 You could build PX8 with cargo directly, in release mode for example, with the support of Python and Lua.
 
 ```
