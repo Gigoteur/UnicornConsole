@@ -459,13 +459,13 @@ impl Px8New {
         if self.show_info_overlay {
             self.screen.lock().unwrap().rectfill(0, 0, SCREEN_WIDTH as i32, 8, 0);
 
-            self.screen.lock().unwrap().print(format!("{:.0}FPS {:.2} {:.2} {:?}",
-                                                      self.fps,
-                                                      self.draw_time,
-                                                      self.update_time,
-                                                      &self.palettes.lock().unwrap().name).to_string(),
-                                              0, 0,
-                                              7);
+            self.screen.lock().unwrap().force_print(format!("{:.0}FPS {:.2} {:.2} {:?}",
+                                                            self.fps,
+                                                            self.draw_time,
+                                                            self.update_time,
+                                                            &self.palettes.lock().unwrap().name).to_string(),
+                                                    0, 0,
+                                                    7);
         }
     }
 

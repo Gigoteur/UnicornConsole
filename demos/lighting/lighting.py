@@ -35,32 +35,46 @@ class Palette(object):
     def get(self, value, level):
         return self.palettes[value][level]
 
+class Player(object):
+    def __init__(self):
+        self.x = 0
+        self.y = 0
+
+    def update(self, x, y):
+        self.x = x
+        self.y = y
+
+    def draw(self):
+        circ(self.x, self.y, 2, 7)
+
+PLAYER = Player()
 PALETTE1 = Palette([0, 16], 6)
 
 def _init():
     pass
 
 def _update():
-    pass
+    _mouse_x = mouse_x()
+    _mouse_y = mouse_y()
+    PLAYER.update(_mouse_x, _mouse_y)
 
 def _draw():
     cls()
     palt()
     palt(0,False)
 
-
     spr_map(0,0,0,0,16,16)
     spr_map(0,0,0,0,16,16,128)
 
-    _mouse_x = mouse_x()
-    _mouse_y = mouse_y()
+    r = flr(42*1)
+    xl, yt, xr, yb = PLAYER.x - r, PLAYER.y - r, PLAYER.x + r, PLAYER.y + r
+    print(xl, yt, xr, yb)
+    clip(xl, yt, xr-xl+1, yb-yt+1)
+    PLAYER.draw()
 
-    light_rect = [_mouse_x - 20, _mouse_y - 20, _mouse_x + 20, _mouse_y + 20]
+    #for x in range(0, 128):
+    #    for y in range(0, 128):
+    #        #pset(x, y, PALETTE1.get(pget(x, y), 4))
+    #        if not pointInRectangle(x, y, light_rect):
+    #            pset(x, y, 0)
 
-    for x in range(0, 128):
-        for y in range(0, 128):
-            #pset(x, y, PALETTE1.get(pget(x, y), 4))
-            if not pointInRectangle(x, y, light_rect):
-                pset(x, y, 0)
-
-    circ(_mouse_x, _mouse_y, 2, 7)

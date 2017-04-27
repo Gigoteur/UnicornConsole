@@ -374,10 +374,10 @@ impl Camera {
 }
 
 pub struct Clipping {
-    pub x: u32,
-    pub y: u32,
-    pub w: u32,
-    pub h: u32,
+    pub x: i32,
+    pub y: i32,
+    pub w: i32,
+    pub h: i32,
     pub clipped: bool,
 }
 
@@ -496,7 +496,22 @@ impl Screen {
         self.map = map;
     }
 
+    pub fn putpixel_direct(&mut self, x: i32, y: i32, col: u32) {
+        let x = x as usize;
+        let y = y as usize;
+
+        self.back_buffer[x + y * SCREEN_WIDTH] = col;
+
+        let col_rgb = px8::PALETTE.lock().unwrap().get_rgb(col);
+        self.buffer_rgb[(x + y * SCREEN_WIDTH) * 3] = col_rgb.b;
+        self.buffer_rgb[(x + y * SCREEN_WIDTH) * 3 + 1] = col_rgb.g;
+        self.buffer_rgb[(x + y * SCREEN_WIDTH) * 3 + 2] = col_rgb.r;
+    }
+
     pub fn putpixel_(&mut self, x: i32, y: i32, col: u32) {
+        let x_i = x - self.camera.x;
+        let y_i = y - self.camera.y;
+
         // Camera
         let x = (x as i32 - self.camera.x) as usize;
         let y = (y as i32 - self.camera.y) as usize;
@@ -508,13 +523,10 @@ impl Screen {
 
         // Clipped
         if self.clipping.clipped {
-            let x = x as u32;
-            let y = y as u32;
-
-            if !(x >= self.clipping.x && x <= self.clipping.x + self.clipping.w) {
+            if !(x_i >= self.clipping.x && x_i <= self.clipping.x + self.clipping.w) {
                 return;
             }
-            if !(y >= self.clipping.y && y <= self.clipping.y + self.clipping.h) {
+            if !(y_i >= self.clipping.y && y_i <= self.clipping.y + self.clipping.h) {
                 return;
             }
         }
@@ -613,7 +625,16 @@ impl Screen {
         self.buffer_rgb = Box::new([0; px8::SCREEN_PIXELS_RGB]);
     }
 
+
+    pub fn force_print(&mut self, string: String, x: i32, y: i32, col: i32) {
+        self._print(string, x, y, col, true);
+    }
+
     pub fn print(&mut self, string: String, x: i32, y: i32, col: i32) {
+        self._print(string, x, y, col, false);
+    }
+
+    pub fn _print(&mut self, string: String, x: i32, y: i32, col: i32, force: bool) {
         let mut x = x;
         let y = y;
 
@@ -633,7 +654,11 @@ impl Screen {
 
             for i in 0..32 {
                 if (data[idx] & (0x1 << idx_1)) != 0 {
-                    self.pset(x, y + i % 8, col)
+                    if force {
+                        self.putpixel_direct(x, y + i % 8, col as u32);
+                    } else {
+                        self.pset(x, y + i % 8, col);
+                    }
                 }
 
                 idx_1 += 1;
@@ -732,14 +757,10 @@ impl Screen {
             return;
         }
 
-        if x < 0 || y < 0 || w < 0 || h < 0 {
-            return;
-        }
-
-        self.clipping.x = x as u32;
-        self.clipping.y = y as u32;
-        self.clipping.w = w as u32;
-        self.clipping.h = h as u32;
+        self.clipping.x = x;
+        self.clipping.y = y;
+        self.clipping.w = w;
+        self.clipping.h = h;
 
         self.clipping.clipped = true;
     }
