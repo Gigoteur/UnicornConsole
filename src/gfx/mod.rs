@@ -523,10 +523,8 @@ impl Screen {
 
         // Clipped
         if self.clipping.clipped {
-            if !(x_i >= self.clipping.x && x_i <= self.clipping.x + self.clipping.w) {
-                return;
-            }
-            if !(y_i >= self.clipping.y && y_i <= self.clipping.y + self.clipping.h) {
+            if !(x_i >= (self.clipping.x - self.camera.x) && x_i < (self.clipping.x + self.clipping.w - self.camera.x) &&
+                 y_i >= (self.clipping.y - self.camera.y) && y_i < (self.clipping.y + self.clipping.h - self.camera.y)) {
                 return;
             }
         }
@@ -555,6 +553,9 @@ impl Screen {
     }
 
     pub fn getpixel(&mut self, x: usize, y: usize) -> u32 {
+        let x = (x as i32 - self.camera.x) as usize;
+        let y = (y as i32 - self.camera.y) as usize;
+
         if x >= SCREEN_WIDTH || y >= SCREEN_HEIGHT {
             return 0;
         }
@@ -750,10 +751,6 @@ impl Screen {
         // reset
         if x == -1 && y == -1 && w == -1 && h == -1 {
             self.clipping.clipped = false;
-        }
-
-        // invalid clipping value
-        if x == -1 || y == -1 || w == -1 || h == -1 {
             return;
         }
 

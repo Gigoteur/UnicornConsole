@@ -2,14 +2,11 @@
 
 import math
 
-def pointInRectangle(x, y, coord):
-    return (coord[0] <= x <= coord[2] and
-            coord[1] <= y <= coord[3])
-
 class Palette(object):
     def __init__(self, sprites, size):
         self.palettes = [[]] * (len(sprites)*8)
         self.light_rng=[
+            -1000,
             10*42,18*42,
             26*42,34*42,
             42*42,
@@ -19,7 +16,6 @@ class Palette(object):
 
         idx = 0
         for sprite in sprites:
-
             sprite_x = (sprite % 16) * 8
             sprite_y = math.floor(sprite / 16) * 8
             for y in range(0, 8):
@@ -45,10 +41,49 @@ class Player(object):
         self.y = y
 
     def draw(self):
+        # Draw a simple circle
         circ(self.x, self.y, 2, 7)
+
+class Lighting(object):
+    def __init__(self, pallettes):
+        self.palettes = pallettes
+
+    def apply(self, lx, ly, xl, yt, xr, yb):
+        for y in range(yt, yb):
+            #print(y)
+            ysq = (y - ly) * (y - ly)
+            brkpts = {}
+            for lv in range(5, -1, -1):
+                 lrng = self.palettes.light_rng[lv]
+                 xsq = lrng - ysq
+                 if xsq > 0:
+                    brkpts[lv] = lx - flr(sqrt(xsq))
+
+            if brkpts:
+                bright_level = 6 - len(brkpts)
+                if bright_level == 5:
+                    bright_level = 6
+
+                for x in range(lx, xl-1, -1):
+                    x_opp = xr - (x - xl)
+
+                    if brkpts.get(bright_level):
+                        value = brkpts[bright_level]
+                        if value > x:
+                            bright_level += 1
+
+                        pset(x, y, self.palettes.get(pget(x, y), bright_level-1))
+                        pset(x_opp, y, self.palettes.get(pget(x_opp, y), bright_level-1))
+
+                    else:
+                        pset(x, y, 0)
+                        pset(x_opp, y, 0)
+
+        line(xl, yt, xr, yt, 0)
 
 PLAYER = Player()
 PALETTE1 = Palette([0, 16], 6)
+LIGHT = Lighting(PALETTE1)
 
 def _init():
     pass
@@ -63,18 +98,10 @@ def _draw():
     palt()
     palt(0,False)
 
-    spr_map(0,0,0,0,16,16)
-    spr_map(0,0,0,0,16,16,128)
-
     r = flr(42*1)
     xl, yt, xr, yb = PLAYER.x - r, PLAYER.y - r, PLAYER.x + r, PLAYER.y + r
-    print(xl, yt, xr, yb)
-    clip(xl, yt, xr-xl+1, yb-yt+1)
+    clip(xl, yt, xr-xl, yb-yt)
+    spr_map(0,0,0,0,16,16)
+
+    LIGHT.apply(PLAYER.x, PLAYER.y, xl, yt, xr, yb)
     PLAYER.draw()
-
-    #for x in range(0, 128):
-    #    for y in range(0, 128):
-    #        #pset(x, y, PALETTE1.get(pget(x, y), 4))
-    #        if not pointInRectangle(x, y, light_rect):
-    #            pset(x, y, 0)
-
