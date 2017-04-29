@@ -323,7 +323,6 @@ cursor | :red_circle: | :red_circle: | :red_circle:
 ellipse | :white_check_mark: | :white_check_mark: | :white_check_mark:
 ellipsefill | :white_check_mark: | :white_check_mark: | :white_check_mark:
 fget | :white_check_mark: | :white_check_mark: | :white_check_mark:
-flip | :red_circle: | :red_circle: | :red_circle:
 fset | :white_check_mark: | :white_check_mark: | :white_check_mark:
 line | :white_check_mark: | :white_check_mark: | :white_check_mark:
 pal | :white_check_mark: | :white_check_mark: | :white_check_mark:
