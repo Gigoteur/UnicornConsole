@@ -86,6 +86,11 @@ https://github.com/Gigoteur/PX8/tree/master/games/terrain
 https://github.com/Gigoteur/PX8/tree/master/demos/voxel
 ![](http://i.imgur.com/b1wE1cs.gif)
 
+* BR: Mix between duckduckontheloose (https://github.com/seleb/DuckDuckOnTheLoose) and dark tomb (http://www.lexaloffle.com/bbs/?tid=28785):
+https://github.com/Gigoteur/PX8/tree/master/games/BR
+![](http://i.imgur.com/Xp3v1Lj.gif)
+
+
 ## Download
 
 You can get directly the latest version via git:
