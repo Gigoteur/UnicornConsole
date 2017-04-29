@@ -197,11 +197,11 @@ Player 2:
   * ESDF, LSHIFT,A / TAB,Q,E
 
 System shortcut:
-  * F2: FPS debug
-  * F3: Take a screenshot
-  * F4: Take a video
+  * F2: Information debug (FPS, time execution (draw,update), palette name)
+  * F3: Take a screenshot (png)
+  * F4: Take a video (gif)
   * F5: Save the current cartridge
-  * F6: Switch between editor/play mode
+  * F6: Switch between editor/play mode (if opened with editor)
   * F7: Switch to the next available palette
   
 ## Run a cartridge
