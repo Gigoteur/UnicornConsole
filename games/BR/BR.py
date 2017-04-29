@@ -340,84 +340,9 @@ def _update():
     CLOUDS.update(CAM)
     BLOBS.update(P)
 
-def _draw2():
-    camera(0, 0)
-    px8_print("X: %d Y %d" %(P.pos.x, P.pos.y), 0, 120)
-
-class Palette(object):
-    def __init__(self, sprites, size):
-        self.palettes = [[]] * (len(sprites)*8)
-        self.light_rng=[
-            -1000,
-            10*42,18*42,
-            26*42,34*42,
-            42*42,
-            ]
-
-        print(self.light_rng)
-
-        idx = 0
-        for sprite in sprites:
-            sprite_x = (sprite % 16) * 8
-            sprite_y = math.floor(sprite / 16) * 8
-            for y in range(0, 8):
-                self.palettes[idx] = [0] * size
-
-                for x in range(0, size):
-                    self.palettes[idx][x] = sget(sprite_x+x, sprite_y+y)
-                idx += 1
-
-        for col in self.palettes:
-            print(col)
-
-    def get(self, value, level):
-        return self.palettes[value][level]
-
-class Lighting(object):
-    def __init__(self, palettes):
-        self.palettes = palettes
-
-    def apply(self, lx, ly, xl, yt, xr, yb):
-        for y in range(yt, yb):
-            ysq = (y - ly) * (y - ly)
-            brkpts = {}
-            for lv in range(5, -1, -1):
-                lrng = self.palettes.light_rng[lv]
-                xsq = lrng - ysq
-                if xsq > 0:
-                    brkpts[lv] = lx - flr(sqrt(xsq))
-
-            if brkpts:
-                bright_level = 6 - len(brkpts)
-                if bright_level == 5:
-                    bright_level = 6
-
-                for x in range(lx, xl-1, -1):
-                    x_opp = xr - (x - xl)
-
-                    if brkpts.get(bright_level):
-                        value = brkpts[bright_level]
-                        if value > x:
-                            bright_level += 1
-
-                        pset(x, y, self.palettes.get(pget(x, y), bright_level-1))
-                        pset(x_opp, y, self.palettes.get(pget(x_opp, y), bright_level-1))
-                    else:
-                        pset(x, y, 0)
-                        pset(x_opp, y, 0)
-
-        line(xl, yt, xr, yt, 0)
-
-PALETTE1 = Palette([64, 80], 6)
-LIGHT = Lighting(PALETTE1)
-
 def _draw():
     cls()
     camera(CAM.pos.x, CAM.pos.y)
-
-    #r = flr(42*1)
-    #xl, yt, xr, yb = P.pos.x - r, P.pos.y - r, P.pos.x + r, P.pos.y + r
-    #clip(xl, yt, xr-xl, yb-yt)
 
     draw_background()
 
@@ -459,10 +384,6 @@ def draw_player():
 
     P.draw_shadow()
     P.draw()
-
-    #r = flr(42*1)
-    #xl, yt, xr, yb = P.pos.x - r, P.pos.y - r, P.pos.x + r, P.pos.y + r
-    #LIGHT.apply(flr(P.pos.x), flr(P.pos.y), flr(xl), flr(yt), flr(xr), flr(yb))
 
 def draw_background():
     camera(CAM.pos.x, CAM.pos.y)
