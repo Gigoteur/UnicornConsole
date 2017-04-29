@@ -1,6 +1,6 @@
-#[cfg(feature = "audio")]
 pub mod song;
 
+#[cfg(feature = "audio")]
 pub mod sound {
     use std::collections::HashMap;
 
