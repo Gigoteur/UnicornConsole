@@ -39,7 +39,6 @@ image = "0.11.0"
 gif = "0.9.0"
 rustc-serialize = "0.3.22"
 chrono = "0.2.25"
-futures = "0.1"
 lazy_static = "0.1.*"
 gfx = "0.14"
 
