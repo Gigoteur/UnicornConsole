@@ -486,7 +486,7 @@ pub mod plugin {
 
     use gfx::Screen;
     use px8::Palettes;
-    use sound::Sound;
+    use sound::sound::Sound;
 
     pub struct PythonPlugin {}
 
