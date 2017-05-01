@@ -15,7 +15,8 @@ use std::collections::HashMap;
 use std::u32;
 use std::iter::FromIterator;
 use std::str;
-use rustc_serialize::json::Json;
+
+use serde_json;
 
 use regex::Regex;
 
@@ -901,6 +902,13 @@ fn read_from_p8format<R: io::BufRead>(filename: String, buf: &mut R) -> Result<C
     })
 }
 
+#[derive(Serialize, Deserialize)]
+struct PX8Format {
+    code: String,
+    data: String,
+}
+
+
 impl Cartridge {
     pub fn from_png_raw(filename: String, data: Vec<u8>) -> Result<Cartridge, Error> {
         let mut buf_reader = Cursor::new(data);
@@ -934,11 +942,10 @@ impl Cartridge {
         let mut data = String::new();
         f.read_to_string(&mut data).unwrap();
 
-        let json = Json::from_str(&data).unwrap();
+        let json:PX8Format = serde_json::from_str(&data).unwrap();
 
-        info!("JSON {:?}", json);
+        let file_code = json.code.clone();
 
-        let file_code = json.find("code").unwrap().as_string().unwrap();
         let f1 = try!(File::open(file_code.clone()));
         let mut buf_reader = BufReader::new(f1);
 
@@ -949,7 +956,7 @@ impl Cartridge {
             code_section.push(l);
         }
 
-        let file_data = json.find("data").unwrap().as_string().unwrap();
+        let file_data = json.data.clone();
         let f2 = try!(File::open(file_data.clone()));
         let mut buf_reader = BufReader::new(f2);
 

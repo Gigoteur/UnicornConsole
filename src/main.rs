@@ -10,6 +10,7 @@ extern crate getopts;
 
 extern crate nalgebra;
 
+#[cfg(feature = "gfx_rs_renderer")]
 #[macro_use]
 extern crate gfx as gfx_rs;
 
@@ -35,7 +36,11 @@ extern crate fern;
 #[macro_use]
 extern crate lazy_static;
 
-extern crate rustc_serialize;
+extern crate serde;
+extern crate serde_json;
+
+#[macro_use]
+extern crate serde_derive;
 
 use std::env;
 use getopts::Options;
