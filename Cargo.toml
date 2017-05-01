@@ -43,6 +43,8 @@ gfx = "0.14"
 serde = "1.0"
 serde_derive = "1.0"
 serde_json = "1.0"
+noise = "0.4.0"
+num-traits = "0.1"
 
 cpython = {version = "0.1.0", optional = true}
 lua = {version = "0.0.10", optional = true }

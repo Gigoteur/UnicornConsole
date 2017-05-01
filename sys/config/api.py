@@ -233,14 +233,16 @@ globals()["set_palette_color"] = set_palette_color
 globals()["reset_palette"] = reset_palette
 globals()["switch_palette"] = switch_palette
 
-# Peek/Poke
 
-def stat(x):
-    return 0
+# Noise
+def noise(x, y, z):
+    return px8_noise.get(x, y, z)
+globals()["noise"] = noise
 
 # Others
 def px8_time():
     return px8_sys.time()
+
 
 globals()["px8_time"] = px8_time
 

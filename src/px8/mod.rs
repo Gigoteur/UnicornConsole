@@ -1,6 +1,7 @@
 pub mod info;
 pub mod cartdata;
 pub mod emscripten;
+pub mod noise;
 
 use std::collections::HashMap;
 use std::io::BufReader;
@@ -27,6 +28,7 @@ use plugins::python_plugin::plugin::PythonPlugin;
 
 use config::Players;
 use self::info::Info;
+use self::noise::Noise;
 use gfx;
 use cartridge::{Cartridge, CartridgeFormat};
 use sound::sound::Sound;
@@ -395,6 +397,7 @@ impl Palettes {
 pub struct Px8New {
     pub screen: Arc<Mutex<gfx::Screen>>,
     pub palettes: Arc<Mutex<Palettes>>,
+    pub noise: Arc<Mutex<Noise>>,
     pub cartridges: Vec<Cartridge>,
     pub current_cartridge: usize,
     pub lua_plugin: LuaPlugin,
@@ -419,6 +422,7 @@ impl Px8New {
         Px8New {
             screen: Arc::new(Mutex::new(gfx::Screen::new())),
             palettes: Arc::new(Mutex::new(Palettes::new())),
+            noise: Arc::new(Mutex::new(Noise::new())),
             cartridges: Vec::new(),
             current_cartridge: 0,
             lua_plugin: LuaPlugin::new(),
@@ -865,7 +869,8 @@ impl Px8New {
                                         players.clone(),
                                         info.clone(),
                                         self.screen.clone(),
-                                        sound.clone());
+                                        sound.clone(),
+                                        self.noise.clone());
 
                 return self.python_plugin.load_code(data)
             },

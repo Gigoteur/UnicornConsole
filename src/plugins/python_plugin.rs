@@ -9,6 +9,7 @@ pub mod plugin {
     use config::Players;
     use px8::info::Info;
     use px8::Palettes;
+    use px8::noise::Noise;
     use gfx::Screen;
     use sound::sound::Sound;
 
@@ -275,7 +276,6 @@ pub mod plugin {
     py_class!(class PX8Memory |py| {
     data screen: Arc < Mutex < Screen > >;
 
-    // Others
     def memcpy(&self, dest_addr: u32, source_addr: u32, len: u32) -> PyResult<u32> {
         self.screen(py).lock().unwrap().memcpy(dest_addr, source_addr, len);
         Ok(0)
@@ -283,15 +283,22 @@ pub mod plugin {
 
     });
 
-    // Peek/Poke
+    // Noise
+    py_class!(class PX8Noise |py| {
+    data noise: Arc < Mutex < Noise > >;
+        def get(&self, x: f64, y: f64, z: f64) -> PyResult<f64> {
+            Ok(self.noise(py).lock().unwrap().get(x, y, z))
+        }
+    });
 
+
+    // Others
     py_class!(class PX8Sys |py| {
     data info: Arc < Mutex <Info > >;
 
-    // Others
-    def time(&self) -> PyResult<f64> {
-        Ok(self.info(py).lock().unwrap().elapsed_time)
-    }
+        def time(&self) -> PyResult<f64> {
+            Ok(self.info(py).lock().unwrap().elapsed_time)
+        }
 
     });
 
@@ -316,7 +323,8 @@ pub mod plugin {
                     players: Arc<Mutex<Players>>,
                     info: Arc<Mutex<Info>>,
                     screen: Arc<Mutex<Screen>>,
-                    sound: Arc<Mutex<Sound>>) {
+                    sound: Arc<Mutex<Sound>>,
+                    noise: Arc<Mutex<Noise>>) {
             info!("INIT PYTHON plugin");
 
             let gil = Python::acquire_gil();
@@ -345,9 +353,14 @@ pub mod plugin {
             let px8_sys_obj = PX8Sys::create_instance(py,
                                                       info.clone()).unwrap();
             self.mydict.set_item(py, "px8_sys", px8_sys_obj).unwrap();
+
             let px8_mem_obj = PX8Memory::create_instance(py,
                                                          screen.clone()).unwrap();
             self.mydict.set_item(py, "px8_mem", px8_mem_obj).unwrap();
+
+            let px8_noise_obj = PX8Noise::create_instance(py,
+                                                          noise.clone()).unwrap();
+            self.mydict.set_item(py, "px8_noise", px8_noise_obj).unwrap();
 
             py.run(r###"globals()["px8_graphic"] = px8_graphic;"###, None, Some(&self.mydict)).unwrap();
             py.run(r###"globals()["px8_audio"] = px8_audio;"###, None, Some(&self.mydict)).unwrap();
@@ -356,6 +369,7 @@ pub mod plugin {
             py.run(r###"globals()["px8_map"] = px8_map;"###, None, Some(&self.mydict)).unwrap();
             py.run(r###"globals()["px8_sys"] = px8_sys;"###, None, Some(&self.mydict)).unwrap();
             py.run(r###"globals()["px8_mem"] = px8_mem;"###, None, Some(&self.mydict)).unwrap();
+            py.run(r###"globals()["px8_noise"] = px8_noise;"###, None, Some(&self.mydict)).unwrap();
 
             let mut f = File::open("./sys/config/api.py").unwrap();
             let mut data = String::new();
@@ -487,6 +501,7 @@ pub mod plugin {
     use gfx::Screen;
     use px8::Palettes;
     use sound::sound::Sound;
+    use px8::noise::Noise;
 
     pub struct PythonPlugin {}
 
@@ -501,7 +516,8 @@ pub mod plugin {
                     players: Arc<Mutex<Players>>,
                     info: Arc<Mutex<Info>>,
                     screen: Arc<Mutex<Screen>>,
-                    sound: Arc<Mutex<Sound>>) {
+                    sound: Arc<Mutex<Sound>>,
+                    noise: Arc<Mutex<Noise>>) {
             panic!("PYTHON plugin disabled");
         }
         pub fn init(&mut self) {}
