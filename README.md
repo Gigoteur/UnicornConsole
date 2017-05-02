@@ -11,7 +11,6 @@
   </a>
 </p>
 
-
 # PX8
 
   * [Demos](#demos)
@@ -53,6 +52,8 @@ It works on all platforms (Linux/OSX/Windows), in the browser (via Emscripten), 
 
 The console is inspired from the awesome [Pico-8](http://www.lexaloffle.com/pico-8.php), so there is a [compatibility](https://github.com/Gigoteur/PX8/wiki/Pico-8-compatibility) mode (not 100%, and it is not the goal of the project) available with Pico-8 console and cartridges (P8/PNG).
   
+[![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=T9NLJWMVWRMVU&lc=FR&item_name=Gigoteur&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted)
+
 ## Demos
 **The time for each frame is slow (10ms) in the GIF, and doesn't correspond to the speed of the game.**
 
