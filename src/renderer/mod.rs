@@ -15,9 +15,9 @@ pub mod renderer {
 
     #[derive(Clone, Debug)]
     pub enum RendererError {
-        Sdl(String),
-        Renderer(String),
-        Other(String),
+//        Sdl(String),
+//        Renderer(String),
+//        Other(String),
     }
 
     pub type RendererResult<T> = Result<T, RendererError>;
@@ -72,7 +72,7 @@ pub mod renderer {
                                 px8::SCREEN_WIDTH * 3).unwrap();
 
             self.renderer.clear();
-            self.renderer.copy(&self.texture, None, None);
+            self.renderer.copy(&self.texture, None, None).unwrap();
             self.renderer.present();
         }
 

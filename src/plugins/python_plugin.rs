@@ -1,4 +1,5 @@
 #[cfg(feature = "cpython")]
+#[allow(unused_variables)]
 pub mod plugin {
     use cpython::*;
 
@@ -289,6 +290,11 @@ pub mod plugin {
         def get(&self, x: f64, y: f64, z: f64) -> PyResult<f64> {
             Ok(self.noise(py).lock().unwrap().get(x, y, z))
         }
+
+        def set_seed(&self, seed: u32) -> PyResult<u32> {
+            self.noise(py).lock().unwrap().set_seed(seed);
+            Ok(0)
+        }
     });
 
 
@@ -325,7 +331,7 @@ pub mod plugin {
                     screen: Arc<Mutex<Screen>>,
                     sound: Arc<Mutex<Sound>>,
                     noise: Arc<Mutex<Noise>>) {
-            info!("INIT PYTHON plugin");
+            info!("[PLUGIN][PYTHON] Init plugin");
 
             let gil = Python::acquire_gil();
             let py = gil.python();
@@ -378,17 +384,17 @@ pub mod plugin {
             let result = py.run(&data, None, None);
             match result {
                 Err(v) => {
-                    panic!("FAILED TO LOAD PYTHON API = {:?}", v);
+                    panic!("[PLUGIN][PYTHON] Failed to load the plugin = {:?}", v);
                 }
                 Ok(v) => {
-                    info!("SUCCESSFULLY LOAD PYTHON API = {:?}", v);
+                    info!("[PLUGIN][PYTHON] Successfully loaded = {:?}", v);
                 }
             }
         }
 
 
         pub fn init(&mut self) {
-            info!("CALL INIT");
+            info!("[PLUGIN][PYTHON] Call INIT");
 
             if !self.loaded_code {
                 return;
@@ -398,12 +404,12 @@ pub mod plugin {
             let py = gil.python();
 
             let result = py.run(r###"_init()"###, None, Some(&self.mydict));
-            info!("RES INIT = {:?}", result);
+            info!("[PLUGIN][PYTHON] INIT -> {:?}", result);
         }
 
         pub fn draw(&mut self) -> bool {
             let mut return_draw_value = true;
-            debug!("CALL DRAW");
+            debug!("[PLUGIN][PYTHON] Call DRAW");
 
             if ! self.loaded_code {
                 return false;
@@ -417,7 +423,7 @@ pub mod plugin {
             match result {
                 Err(v) => {
                     return_draw_value = false;
-                    warn!("DRAW = {:?}", v);
+                    warn!("[PLUGIN][PYTHON] DRAW = {:?}", v);
                 },
                 Ok(v) => {
                     match v.extract(py) {
@@ -434,7 +440,7 @@ pub mod plugin {
 
         pub fn update(&mut self) -> bool {
             let mut return_update_value = true;
-            debug!("CALL UPDATE");
+            debug!("[PLUGIN][PYTHON] Call UPDATE");
 
             if !self.loaded_code {
                 return false;
@@ -448,7 +454,7 @@ pub mod plugin {
             match result {
                 Err(v) => {
                     return_update_value = false;
-                    warn!("UPDATE = {:?}", v);
+                    warn!("[PLUGIN][PYTHON] UPDATE = {:?}", v);
                 },
                 Ok(v) => {
                     match v.extract(py) {
@@ -465,21 +471,20 @@ pub mod plugin {
 
 
         pub fn load_code(&mut self, data: String) -> bool {
-            info!("LOAD CODE");
+            info!("[PLUGIN][PYTHON] Load the code");
             let gil = Python::acquire_gil();
             let py = gil.python();
 
 
             let result = py.run(&data, None, None);
-            debug!("RES CODE = {:?}", result);
 
             match result {
                 Ok(_) => {
-                    debug!("Code loaded successfully");
+                    debug!("[PLUGIN][PYTHON] Code loaded successfully");
                     self.loaded_code = true
                 },
                 Err(err) => {
-                    error!("Load code error => {:?}", err);
+                    error!("[PLUGIN][PYTHON] Load code error => {:?}", err);
                     self.loaded_code = false
                 },
             }
@@ -518,7 +523,7 @@ pub mod plugin {
                     screen: Arc<Mutex<Screen>>,
                     sound: Arc<Mutex<Sound>>,
                     noise: Arc<Mutex<Noise>>) {
-            panic!("PYTHON plugin disabled");
+            panic!("[PLUGIN][PYTHON] plugin disabled");
         }
         pub fn init(&mut self) {}
         pub fn draw(&mut self) -> bool { return false; }

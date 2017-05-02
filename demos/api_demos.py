@@ -286,6 +286,26 @@ class Audio(object):
     def draw(self):
         cls()
 
+
+def local_noise(nx, ny, freq=10, zoom=300.0):
+    return noise((freq*nx)/zoom, (freq*ny)/zoom, 0.0) / 2.0 + 1.0
+
+class Noise(object):
+    def __init__(self):
+        self.T = 0
+
+    def init(self):
+        noise_set_seed(1)
+
+    def update(self):
+        self.T += 1
+
+    def draw(self):
+        for x in range(0, 128):
+            for y in range(0, 128):
+                val = local_noise(x, y)
+                pset(x, y, min(15, flr(val/0.06666666666666667)))
+
 idx_demo = 0
 demos = [
     ["rect", [Rect()]],
@@ -302,6 +322,7 @@ demos = [
     ["map", [Map()]],
     ["memcpy", [Memcpy()]],
     ["audio", [Audio()]],
+    ["noise", [Noise()]],
 ]
 
 def _init():

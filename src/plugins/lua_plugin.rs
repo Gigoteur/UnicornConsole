@@ -1,10 +1,6 @@
 #[cfg(feature = "lua")]
 pub mod plugin {
-    use chan;
-    use chan::{Receiver, Sender};
     use std::sync::{Arc, Mutex};
-
-    use std::borrow::BorrowMut;
 
     use rand;
     use rand::Rng;
@@ -14,19 +10,14 @@ pub mod plugin {
     use lua::{State, Function, ThreadStatus};
     use libc::c_int;
 
-    use gfx::Sprite;
     use config::Players;
 
-    use px8;
     use px8::info::Info;
 
     use gfx::{SCREEN_WIDTH, SCREEN_HEIGHT};
     use gfx::Screen;
 
     pub struct ExtraData {
-        pub tx_input: Sender<Vec<u8>>,
-        pub rx_output: Receiver<Vec<u8>>,
-
         /* External objects */
         pub players: Arc<Mutex<Players>>,
         pub screen: Arc<Mutex<Screen>>,
@@ -51,19 +42,14 @@ pub mod plugin {
             }
         }
 
-
+        #[allow(unused)]
         pub fn load(&mut self,
-                    tx_input: Sender<Vec<u8>>,
-                    rx_output: Receiver<Vec<u8>>,
                     players: Arc<Mutex<Players>>,
                     info: Arc<Mutex<Info>>,
                     screen: Arc<Mutex<Screen>>) {
-            info!("Init LUA struct");
+            info!("[PLUGIN][LUA] Init plugin");
 
             let extra = ExtraData {
-              tx_input: tx_input.clone(),
-              rx_output: rx_output.clone(),
-
               players: players.clone(),
               info: info.clone(),
 
@@ -89,10 +75,8 @@ pub mod plugin {
 
             /* Create the PX8Lua object */
             lua_state.do_string("s = PX8Lua.new()");
-            lua_state.do_string("print(s)");
 
             lua_state.do_string(r#"debug_print = print"#);
-
 
             lua_state.do_string(r#"camera = function(x, y)
 
@@ -750,7 +734,7 @@ pub mod plugin {
 
             let value = lua_state.do_string("_draw()");
             if value != ThreadStatus::Ok {
-                error!("DRAW = {:?}", value);
+                error!("[PLUGIN][LUA] DRAW = {:?}", value);
             }
 
             return true;
@@ -803,13 +787,6 @@ pub mod plugin {
         #[allow(non_snake_case)]
         unsafe extern "C" fn lua_new(lua_context: *mut lua_State) -> c_int {
             let mut state = State::from_ptr(lua_context);
-
-            let mut state2 = State::from_ptr(lua_context);
-
-            let extra = state2.with_extra(|extra| {
-                let data = extra.as_ref().unwrap().downcast_ref::<ExtraData>().unwrap();
-                data.tx_input.clone()
-            });
 
             // construct new userdata in lua space and initialize it
             *state.new_userdata_typed::<PX8Lua>() = PX8Lua::new();
@@ -869,7 +846,7 @@ pub mod plugin {
 
             let i = state.check_integer(3);
 
-            let mut players_data = players.lock().unwrap();
+            let players_data = players.lock().unwrap();
 
             let value = players_data.get_value(player as u8, i as u8);
 
@@ -1128,7 +1105,7 @@ pub mod plugin {
 
             let c0 = state.check_integer(2);
             let c1 = state.check_integer(3);
-            let p = state.check_integer(4);
+//            let p = state.check_integer(4);
 
             let screen = state.with_extra(|extra| {
                 let data = extra.as_ref().unwrap().downcast_ref::<ExtraData>().unwrap();
@@ -1250,7 +1227,7 @@ pub mod plugin {
                 data.screen.clone()
             });
 
-            let value = screen.lock().unwrap().sset(x as u32, y as u32, col as i32);
+            screen.lock().unwrap().sset(x as u32, y as u32, col as i32);
 
             1
         }
@@ -1495,7 +1472,7 @@ pub mod plugin {
                 data.screen.clone()
             });
 
-            let value = screen.lock().unwrap().mset(x as i32, y as i32, v as u32);
+            screen.lock().unwrap().mset(x as i32, y as i32, v as u32);
 
             1
         }
@@ -1567,34 +1544,36 @@ pub mod plugin {
 
 
         /***** CARTDATA *****/
-        unsafe extern "C" fn lua_cartdata(lua_context: *mut lua_State) -> c_int {
+        unsafe extern "C" fn lua_cartdata(_lua_context: *mut lua_State) -> c_int {
             debug!("LUA CARTDATA");
 
+            /*
             let mut state = State::from_ptr(lua_context);
-
             let x = state.check_integer(2);
-
+            */
 
             1
         }
 
-        unsafe extern "C" fn lua_dget(lua_context: *mut lua_State) -> c_int {
+        unsafe extern "C" fn lua_dget(_lua_context: *mut lua_State) -> c_int {
             debug!("LUA DGET");
 
+            /*
             let mut state = State::from_ptr(lua_context);
-
             let x = state.check_integer(2);
+            */
 
             1
         }
 
 
-        unsafe extern "C" fn lua_dset(lua_context: *mut lua_State) -> c_int {
+        unsafe extern "C" fn lua_dset(_lua_context: *mut lua_State) -> c_int {
             debug!("LUA DSET");
 
+            /*
             let mut state = State::from_ptr(lua_context);
-
             let x = state.check_integer(2);
+            */
 
             1
         }
@@ -1663,8 +1642,6 @@ pub mod plugin {
 
 #[cfg(not(feature = "lua"))]
 pub mod plugin {
-    use chan;
-    use chan::{Receiver, Sender};
     use std::sync::{Arc, Mutex};
 
     use gfx::Sprite;
@@ -1686,10 +1663,7 @@ pub mod plugin {
         }
 
         // Keep the compatibility
-
         pub fn load(&mut self,
-                    tx_input: Sender<Vec<u8>>,
-                    rx_output: Receiver<Vec<u8>>,
                     players: Arc<Mutex<Players>>,
                     info: Arc<Mutex<Info>>,
                     screen: Arc<Mutex<Screen>>) {

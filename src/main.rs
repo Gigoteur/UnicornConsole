@@ -184,12 +184,9 @@ fn main() {
             fullscreen = true;
         }
 
-        let mut opengl = true;
-        if cfg!(feature = "sdl_renderer") {
-            opengl = false;
-            if matches.opt_present("o") {
-                opengl = true;
-            }
+        let mut opengl = false;
+        if matches.opt_present("o") {
+            opengl = true;
         }
 
         let mut mode = px8::PX8Mode::PX8;

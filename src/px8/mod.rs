@@ -9,8 +9,6 @@ use std::io::Cursor;
 use std::sync::{Arc, Mutex};
 use time;
 
-use chan::{Receiver, Sender};
-
 use nalgebra::clamp;
 
 use image;
@@ -518,7 +516,7 @@ impl Px8New {
     }
 
     pub fn start_record(&mut self, filename: String) {
-        info!("Start to record the frame");
+        info!("[PX8] Start to record the frame");
 
         self.record.recording = true;
         self.record.images.clear();
@@ -526,7 +524,7 @@ impl Px8New {
     }
 
     pub fn record(&mut self) {
-        info!("Recording the frame");
+        info!("[PX8] Recording the frame");
 
         if self.record.nb % 4 == 0 {
             let mut buffer: Vec<u8> = Vec::new();
@@ -548,7 +546,7 @@ impl Px8New {
     }
 
     pub fn stop_record(&mut self, scale: usize) {
-        info!("Stop to record the frame {:?}", self.record.images.len());
+        info!("[PX8] Stop to record the frame {:?}", self.record.images.len());
 
         self.record.recording = false;
 
@@ -559,12 +557,12 @@ impl Px8New {
 
         let mut idx = 0;
         for i in 0..self.record.images.len() / (SCREEN_WIDTH * SCREEN_HEIGHT * 3) {
-            info!("Generate frame {:?} {:?}/{:?}", i, self.record.images.len(), idx);
+            info!("[PX8] Generate frame {:?} {:?}/{:?}", i, self.record.images.len(), idx);
 
             let mut buffer: Vec<u8> = Vec::new();
 
-            for x in 0..SCREEN_WIDTH {
-                for y in 0..SCREEN_HEIGHT {
+            for _ in 0..SCREEN_WIDTH {
+                for _ in 0..SCREEN_HEIGHT {
                     buffer.push(*self.record.images.get(idx).unwrap());
                     buffer.push(*self.record.images.get(idx + 1).unwrap());
                     buffer.push(*self.record.images.get(idx + 2).unwrap());
@@ -572,19 +570,19 @@ impl Px8New {
                 }
             }
 
-            info!("Creating ImageBuffer {:?}", buffer.len());
+            info!("[PX8] Creating ImageBuffer {:?}", buffer.len());
 
             let image = image::ImageBuffer::from_raw(SCREEN_WIDTH as u32,
                                                      SCREEN_HEIGHT as u32,
                                                      buffer).unwrap();
 
-            info!("Rotating image");
+            info!("[PX8] Rotating image");
             let image = image::DynamicImage::ImageRgb8(image).rotate90().resize(
                 (SCREEN_WIDTH * scale) as u32,
                 (SCREEN_HEIGHT * scale) as u32,
                 image::FilterType::Nearest).fliph();
 
-            info!("Creating gif Frame");
+            info!("[PX8] Creating gif Frame");
             let mut frame = gif::Frame::from_rgb((SCREEN_WIDTH * scale) as u16,
                                                  (SCREEN_HEIGHT * scale) as u16,
                                                  &mut *image.raw_pixels());
@@ -593,11 +591,11 @@ impl Px8New {
             encoder.write_frame(&frame).unwrap();
         }
 
-        info!("GIF created in {:?}", self.record.filename.clone());
+        info!("[PX8] GIF created in {:?}", self.record.filename.clone());
     }
 
     pub fn screenshot(&mut self, filename: String) {
-        info!("Taking screenshot in {:?}", filename);
+        info!("[PX8] Taking screenshot in {:?}", filename);
 
         let mut buffer: Vec<u8> = Vec::new();
 
@@ -628,7 +626,7 @@ impl Px8New {
         let ref mut cartridge = self.cartridges[self.current_cartridge];
 
         let output_filename = cartridge.filename.clone();
-        info!("Saving the current cartridge in {:?}", output_filename);
+        info!("[PX8] Saving the current cartridge in {:?}", output_filename);
 
         cartridge.gfx.set_sprites(self.screen.lock().unwrap().sprites.clone());
 
@@ -665,16 +663,12 @@ impl Px8New {
 
     pub fn load_cartridge(&mut self,
                           filename: String,
-                          tx_input: Sender<Vec<u8>>,
-                          rx_output: Receiver<Vec<u8>>,
                           players: Arc<Mutex<Players>>,
                           info: Arc<Mutex<Info>>,
                           sound: Arc<Mutex<Sound>>,
                           editor: bool,
                           mode: PX8Mode) -> bool {
         let idx = self.cartridges.len();
-
-        info!("IDX CARTRIDGE {:?}", idx);
 
         if filename.contains(".png") {
             match Cartridge::from_png_file(filename.clone()) {
@@ -697,7 +691,7 @@ impl Px8New {
                 Err(e) => panic!("Impossible to load the px8 cartridge {:?}", e),
             }
         } else {
-            panic!("Unknown file format !");
+            panic!("[PX8] Unknown file format !");
         }
 
         self.current_cartridge = idx;
@@ -709,14 +703,12 @@ impl Px8New {
 
         self.screen.lock().unwrap().set_map(self.cartridges[idx].map.map);
 
-        self.load_plugin(idx, tx_input, rx_output, players, info, sound, editor)
+        self.load_plugin(idx, players, info, sound, editor)
     }
 
     pub fn load_cartridge_raw(&mut self,
                               filename: String,
                               data: Vec<u8>,
-                              tx_input: Sender<Vec<u8>>,
-                              rx_output: Receiver<Vec<u8>>,
                               players: Arc<Mutex<Players>>,
                               info: Arc<Mutex<Info>>,
                               sound: Arc<Mutex<Sound>>,
@@ -724,25 +716,23 @@ impl Px8New {
                               mode: PX8Mode) -> bool {
         let idx = self.cartridges.len();
 
-        info!("IDX CARTRIDGE {:?}", idx);
-
         if filename.contains(".png") {
             match Cartridge::from_png_raw(filename.clone(), data) {
                 Ok(c) => self.cartridges.push(c),
-                Err(e) => panic!("Impossible to load the png cartridge"),
+                Err(e) => panic!("Impossible to load the png cartridge {:?}", e),
             }
         } else if filename.contains(".p8") {
             match Cartridge::from_p8_raw(filename.clone(), data) {
                 Ok(c) => self.cartridges.push(c),
-                Err(e) => panic!("Impossible to load the p8 cartridge"),
+                Err(e) => panic!("Impossible to load the p8 cartridge {:?}", e),
             }
         } else if filename.contains(".py") {
             match Cartridge::from_p8_raw(filename.clone(), data) {
                 Ok(c) => self.cartridges.push(c),
-                Err(e) => panic!("Impossible to load the p8 cartridge"),
+                Err(e) => panic!("Impossible to load the p8 cartridge {:?}", e),
             }
         } else {
-            panic!("Unknown file");
+            panic!("[PX8] Unknown file");
         }
 
         self.current_cartridge = idx;
@@ -752,7 +742,7 @@ impl Px8New {
         self.screen.lock().unwrap().set_sprites(self.cartridges[idx].gfx.sprites.clone());
         self.screen.lock().unwrap().set_map(self.cartridges[idx].map.map);
 
-        self.load_plugin(idx, tx_input, rx_output, players, info, sound, editor)
+        self.load_plugin(idx, players, info, sound, editor)
     }
 
     pub fn _get_code_type(&mut self, idx: usize) -> Code {
@@ -770,13 +760,13 @@ impl Px8New {
     pub fn switch_code(&mut self) {
         let idx = self.current_cartridge;
 
-        let mut data;
+        let data;
 
         if self.cartridges[idx].edit {
             // Reload the code for the px8 format
             match self.cartridges[idx].format {
                 CartridgeFormat::Px8Format => {
-                    info!("Reloading code section for the cartridge");
+                    info!("[PX8] Reloading code section for the cartridge");
                     self.cartridges[idx].code.reload();
                 }
                 _ => ()
@@ -790,8 +780,6 @@ impl Px8New {
             self.cartridges[idx].edit = true;
             self.code_type = Code::PYTHON;
         }
-
-        debug!("CODE -> {:?}", data);
 
         match self.code_type {
             Code::LUA => {
@@ -811,18 +799,13 @@ impl Px8New {
 
     pub fn load_plugin(&mut self,
                        idx: usize,
-                       tx_input: Sender<Vec<u8>>,
-                       rx_output: Receiver<Vec<u8>>,
                        players: Arc<Mutex<Players>>,
                        info: Arc<Mutex<Info>>,
                        sound: Arc<Mutex<Sound>>,
                        editor: bool) -> bool {
-        let mut data;
+        let data;
 
-        info!("START TO LOAD THE PLUGIN");
-
-        let gfx_sprites = self.cartridges[idx].gfx.sprites.clone();
-        let gfx_map = self.cartridges[idx].map.map;
+        info!("[PX8] Load the plugin");
 
         self.code_type = self._get_code_type(idx);
 
@@ -830,11 +813,9 @@ impl Px8New {
             // Editor mode and original code type is different from Python
             match self.code_type {
                 Code::LUA => {
-                    info!("Loading LUA Plugin");
+                    info!("[PX8] Loading LUA Plugin");
                     // load the lua plugin
-                    self.lua_plugin.load(tx_input.clone(),
-                                         rx_output.clone(),
-                                         players.clone(),
+                    self.lua_plugin.load(players.clone(),
                                          info.clone(),
                                          self.screen.clone());
                 }
@@ -848,22 +829,18 @@ impl Px8New {
             data = self.cartridges[idx].code.get_data().clone();
         }
 
-        debug!("CODE -> {:?}", data);
-
         match self.code_type {
             Code::LUA => {
-                info!("Loading LUA Plugin");
+                info!("[PX8] Loading LUA Plugin");
 
-                self.lua_plugin.load(tx_input.clone(),
-                                     rx_output.clone(),
-                                     players.clone(),
+                self.lua_plugin.load(players.clone(),
                                      info.clone(),
                                      self.screen.clone());
 
                 return self.lua_plugin.load_code(data)
             },
             Code::PYTHON => {
-                info!("Loading PYTHON Plugin");
+                info!("[PX8] Loading PYTHON Plugin");
 
                 self.python_plugin.load(self.palettes.clone(),
                                         players.clone(),
@@ -884,7 +861,7 @@ impl Px8New {
         let mut data = "".to_string();
 
         let f = File::open(filename.clone()).unwrap();
-        let mut buf_reader = BufReader::new(f);
+        let buf_reader = BufReader::new(f);
 
         for line in buf_reader.lines() {
             let l = line.unwrap();

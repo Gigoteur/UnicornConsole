@@ -170,12 +170,12 @@ pub mod sound {
             Sound {}
         }
 
-        pub fn load(&mut self, filename: String) -> i32 {
+        pub fn load(&mut self, _filename: String) -> i32 {
             0
         }
-        pub fn play(&mut self, id: u32) {}
+        pub fn play(&mut self, _id: u32) {}
 
-        pub fn stop(&mut self, id: u32) {}
+        pub fn stop(&mut self, _id: u32) {}
     }
 
     pub struct SoundInterface<T: 'static + Send> {
@@ -184,10 +184,10 @@ pub mod sound {
 
     impl<T> SoundInterface<T>
         where T: Send {
-        pub fn new(sdl_context: sdl2::Sdl,
-                   sample_rate: u32,
-                   buffer_size: usize,
-                   channel_count: u16) -> SoundInterface<T> {
+        pub fn new(_sdl_context: sdl2::Sdl,
+                   _sample_rate: u32,
+                   _buffer_size: usize,
+                   _channel_count: u16) -> SoundInterface<T> {
             SoundInterface {
                 phantom: PhantomData,
             }

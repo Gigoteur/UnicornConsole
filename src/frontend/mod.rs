@@ -9,7 +9,6 @@ use sdl2::Sdl;
 use sdl2::EventPump;
 use std::time::{Duration};
 use sdl2::event::{Event, WindowEvent};
-use sdl2::audio::{AudioSpecDesired};
 
 use std::path::Path;
 
@@ -17,9 +16,6 @@ use chrono::Local;
 
 use sdl2::controller::{Axis};
 use sdl2::keyboard::Keycode;
-
-use chan;
-use chan::{Receiver, Sender};
 
 use renderer;
 use sound;
@@ -60,27 +56,6 @@ impl From<String> for FrontendError {
     }
 }
 
-pub struct Channels {
-    tx_input: Sender<Vec<u8>>,
-    rx_input: Receiver<Vec<u8>>,
-    tx_output: Sender<Vec<u8>>,
-    rx_output: Receiver<Vec<u8>>,
-}
-
-impl Channels {
-    pub fn new() -> Channels {
-        let (tx_input, rx_input): (Sender<Vec<u8>>, Receiver<Vec<u8>>) = chan::sync(0);
-        let (tx_output, rx_output): (Sender<Vec<u8>>, Receiver<Vec<u8>>) = chan::sync(0);
-
-        Channels {
-            tx_input: tx_input,
-            rx_input: rx_input,
-            tx_output: tx_output,
-            rx_output: rx_output,
-        }
-    }
-}
-
 pub struct Frontend {
     sdl: Sdl,
     event_pump: EventPump,
@@ -92,7 +67,6 @@ pub struct Frontend {
     pub players: Arc<Mutex<config::Players>>,
     pub sound_interface: Arc<Mutex<sound::sound::SoundInterface<f32>>>,
     pub sound: Arc<Mutex<sound::sound::Sound>>,
-    channels: Channels,
     start_time: time::Tm,
     elapsed_time: f64,
     scale: Scale,
@@ -101,19 +75,19 @@ pub struct Frontend {
 
 impl Frontend {
     pub fn init(scale: Scale, fullscreen: bool, opengl: bool) -> FrontendResult<Frontend> {
-        info!("Frontend: SDL2 init");
+        info!("[Frontend] SDL2 init");
         let sdl_context = try!(sdl2::init());
 
-        info!("Frontend: SDL2 Video init");
+        info!("[Frontend] SDL2 Video init");
         let sdl_video = try!(sdl_context.video());
 
-        info!("Frontend: SDL2 event pump");
+        info!("[Frontend] SDL2 event pump");
         let event_pump = try!(sdl_context.event_pump());
 
-        info!("Frontend: creating renderer");
+        info!("[Frontend] creating renderer");
         let renderer = renderer::renderer::Renderer::new(sdl_video, fullscreen, opengl, scale).unwrap();
 
-        info!("Frontend: SDL2 audio");
+        info!("[Frontend] SDL2 audio");
         let mut sound_interface = sound::sound::SoundInterface::new(sdl_context.clone(), 44100, 512, 1);
         sound_interface.start();
 
@@ -133,7 +107,6 @@ impl Frontend {
             px8: px8::Px8New::new(),
             info: Arc::new(Mutex::new(px8::info::Info::new())),
             players: Arc::new(Mutex::new(config::Players::new())),
-            channels: Channels::new(),
             start_time: time::now(),
             elapsed_time: 0.,
             scale: scale,
@@ -145,10 +118,10 @@ impl Frontend {
         self.start_time = time::now();
         self.times.reset();
 
-        info!("Frontend: initialise controllers");
+        info!("[Frontend] initialise controllers");
         self.init_controllers(pathdb);
 
-        info!("Frontend: initialise PX8");
+        info!("[Frontend] initialise PX8");
         self.px8.init();
     }
 
@@ -165,39 +138,39 @@ impl Frontend {
     }
 
     pub fn init_controllers(&mut self, pathdb: String) {
-        info!("Init Controllers");
+        info!("[Frontend] Init Controllers");
 
         let game_controller_subsystem = self.sdl.game_controller().unwrap();
 
-        info!("Loading the database of Game Controller");
-        info!("-> {:?}", game_controller_subsystem.load_mappings(Path::new(&pathdb)));
+        info!("[Frontend] Loading the database of Game Controller");
+        info!("[Frontend] -> {:?}", game_controller_subsystem.load_mappings(Path::new(&pathdb)));
 
         let available =
         match game_controller_subsystem.num_joysticks() {
             Ok(n) => n,
-            Err(e) => panic!("can't enumerate joysticks: {}", e),
+            Err(e) => panic!("[Frontend] can't enumerate joysticks: {}", e),
         };
 
-        info!("[CONTROLLER] {} joysticks available", available);
+        info!("[Frontend][CONTROLLER] {} joysticks available", available);
 
         for id in 0..available {
             if game_controller_subsystem.is_game_controller(id) {
-                info!("Attempting to open controller {}", id);
+                info!("[Frontend][CONTROLLER] Attempting to open controller {}", id);
 
                 match game_controller_subsystem.open(id) {
                     Ok(c) => {
                         // We managed to find and open a game controller,
                         // exit the loop
-                        info!("[CONTROLLER] Success: opened \"{}\"", c.name());
-                        info!("[CONTROLLER] Success: opened \"{}\"", c.mapping());
+                        info!("[Frontend][CONTROLLER] Success: opened \"{}\"", c.name());
+                        info!("[Frontend][CONTROLLER] Success: opened \"{}\"", c.mapping());
 
                         self.controllers.push_controller(id, Some(c).unwrap());
                         break;
                     },
-                    Err(e) => error!("failed: {:?}", e),
+                    Err(e) => error!("[Frontend][CONTROLLER] failed: {:?}", e),
                 }
             } else {
-                info!("[CONTROLLER] {} is not a game controller", id);
+                info!("[Frontend][CONTROLLER] {} is not a game controller", id);
             }
         }
 
@@ -206,24 +179,25 @@ impl Frontend {
         let available =
         match joystick_subsystem.num_joysticks() {
             Ok(n) => n,
-            Err(e) => panic!("can't enumerate joysticks: {}", e),
+            Err(e) => panic!("[Frontend][JOYSTICK] can't enumerate joysticks: {}", e),
         };
 
-        info!("[JOYSTICK] {} joysticks available", available);
+        info!("[Frontend][JOYSTICK] {} joysticks available", available);
 
         // Iterate over all available joysticks and stop once we manage to
         // open one.
         for id in 0..available {
             match joystick_subsystem.open(id) {
                 Ok(c) => {
-                    info!("[JOYSTICK] Success: opened \"{}\"", c.name());
+                    info!("[Frontend][JOYSTICK] Success: opened \"{}\"", c.name());
                     self.controllers.push_joystick(id, Some(c).unwrap());
                 },
-                Err(e) => error!("failed: {:?}", e),
+                Err(e) => error!("[Frontend][JOYSTICK] failed: {:?}", e),
             }
         }
     }
 
+    #[allow(dead_code)]
     pub fn run_native_cartridge(&mut self) {
         self.px8.code_type = px8::Code::RUST;
         self.px8.init_time = self.px8.call_init() * 1000.0;
@@ -233,8 +207,6 @@ impl Frontend {
 
     pub fn run_cartridge(&mut self, filename: String, editor: bool, mode: px8::PX8Mode) {
         let success = self.px8.load_cartridge(filename.clone(),
-                                              self.channels.tx_input.clone(),
-                                              self.channels.rx_output.clone(),
                                               self.players.clone(),
                                               self.info.clone(),
                                               self.sound.clone(),
@@ -242,19 +214,17 @@ impl Frontend {
                                               mode);
 
         if success {
-            info!("Successfully loaded the cartridge");
+            info!("[Frontend] Successfully loaded the cartridge");
             // Call the init of the cartridge
             self.px8.init_time = self.px8.call_init() * 1000.0;
             self.handle_event(editor);
         } else {
-            error!("Failed to load the cartridge");
+            error!("[Frontend] Failed to load the cartridge");
         }
     }
 
     #[cfg(not(target_os = "emscripten"))]
     fn handle_event(&mut self, editor: bool) {
-        info!("Handle Event");
-
         'main: loop {
             self.times.update();
 
@@ -275,10 +245,10 @@ impl Frontend {
                     Event::Window { win_event: WindowEvent::SizeChanged(_, _), .. } => {
                         self.renderer.update_dimensions();
                     },
-                    Event::MouseButtonDown {x, y, mouse_btn, ..} => {
+                    Event::MouseButtonDown {mouse_btn, ..} => {
                         self.players.lock().unwrap().mouse_button_down(mouse_btn, self.elapsed_time);
                     },
-                    Event::MouseButtonUp {x, y, mouse_btn, ..} => {
+                    Event::MouseButtonUp {mouse_btn, ..} => {
                         self.players.lock().unwrap().mouse_button_up(mouse_btn, self.elapsed_time);
                     },
                     Event::KeyDown { keycode: Some(keycode), repeat, .. } => {
@@ -301,7 +271,6 @@ impl Frontend {
                             }
                         } else if keycode == Keycode::F5 {
                             if editor {
-                                let dt = Local::now();
                                 self.px8.save_current_cartridge();
                             }
                         } else if keycode == Keycode::F6 && editor {
@@ -327,7 +296,6 @@ impl Frontend {
                             break;
                         }
 
-                        info!("ID [{:?}] Controller button Down {:?}", id, button);
                         if let Some(key) = map_button(button) {
                             self.players.lock().unwrap().key_down(0, key, false, self.elapsed_time)
                         }
@@ -338,7 +306,6 @@ impl Frontend {
                             break;
                         }
 
-                        info!("ID [{:?}] Controller button UP {:?}", id, button);
                         if let Some(key) = map_button(button) {
                             self.players.lock().unwrap().key_up(0, key)
                         }
@@ -349,12 +316,7 @@ impl Frontend {
                             break;
                         }
 
-                        info!("ID [{:?}] Controller Axis Motion {:?} {:?}", id, axis, value);
-
                         if let Some((key, state)) = map_axis(axis, value) {
-                            info!("Key {:?} State {:?}", key, state);
-
-
                             if axis == Axis::LeftX && value == 128 {
                                 self.players.lock().unwrap().key_direc_hor_up(0);
                             } else if axis == Axis::LeftY && value == -129 {
@@ -374,11 +336,7 @@ impl Frontend {
                             break;
                         }
 
-                        info!("ID [{:?}] Joystick Axis Motion {:?} {:?}", id, axis_idx, value);
-
                         if let Some((key, state)) = map_axis_joystick(axis_idx, value) {
-                            info!("Joystick Key {:?} State {:?}", key, state);
-
                             if axis_idx == 0 && value == 128 {
                                 self.players.lock().unwrap().key_direc_hor_up(0);
                             } else if axis_idx == 1 && value == -129 {
@@ -398,7 +356,6 @@ impl Frontend {
                             break;
                         }
 
-                        info!("ID [{:?}] Joystick button DOWN {:?}", id, button_idx);
                         if let Some(key) = map_button_joystick(button_idx) {
                             self.players.lock().unwrap().key_down(0, key, false, self.elapsed_time)
                         }
@@ -409,7 +366,6 @@ impl Frontend {
                             break;
                         }
 
-                        info!("ID [{:?}] Joystick Button UP {:?}", id, button_idx);
                         if let Some(key) = map_button_joystick(button_idx) {
                             self.players.lock().unwrap().key_up(0, key)
                         }
@@ -420,7 +376,7 @@ impl Frontend {
             }
 
             if !self.px8.update(self.players.clone()) {
-                info!("End of PX8 requested");
+                info!("[Frontend] End of PX8 requested");
                 break 'main;
             }
 

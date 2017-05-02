@@ -1,10 +1,6 @@
 use std::fs::File;
 use std::io::BufReader;
-use std::io::Cursor;
 use std::io;
-use std::io::BufRead;
-use std::io::Read;
-use std::io::prelude::*;
 
 pub struct Song {
     pub parsing: bool
@@ -14,8 +10,8 @@ impl Song {
     pub fn new(buf: &mut io::BufRead) -> Song {
         let mut buffer = Vec::new();
 
-        buf.read_to_end(&mut buffer);
-        
+        buf.read_to_end(&mut buffer).unwrap();
+
         Song {
             parsing: false,
         }

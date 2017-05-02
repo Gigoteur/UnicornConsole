@@ -2,7 +2,7 @@ pub mod keys;
 pub mod controllers;
 
 use self::keys::PX8Key;
-use sdl2::mouse::{MouseState, MouseButton};
+use sdl2::mouse::{MouseButton};
 use std::collections::HashMap;
 
 pub struct Mouse {
@@ -106,7 +106,7 @@ impl Players {
         self.mouse.delay = elapsed;
     }
 
-    pub fn mouse_button_up(&mut self, mouse_btn: MouseButton, elapsed: f64) {
+    pub fn mouse_button_up(&mut self, _mouse_btn: MouseButton, _elapsed: f64) {
         self.mouse.state = 0;
     }
 
