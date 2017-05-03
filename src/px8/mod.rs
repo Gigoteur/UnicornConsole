@@ -429,7 +429,7 @@ impl Px8New {
             code_type: Code::UNKNOWN,
             state: PX8State::RUN,
             menu: Menu::new(),
-            show_info_overlay: true,
+            show_info_overlay: false,
             fps: 0.0,
             draw_time: 0.0,
             init_time: 0.0,
