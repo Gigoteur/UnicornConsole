@@ -32,17 +32,18 @@ from buildings import Buildings
 SHADOW_OFFSET=Vec2(2, 3).normalize().mul(0.2)
 PERSPECTIVE_OFFSET = Vec2(64, 80)
 
-def local_noise(nx, ny, freq=10, zoom=300.0):
-    return noise((freq*nx)/zoom, (freq*ny)/zoom, 0.0) / 2.0 + 1.0
+def local_noise(nx, ny, nz=0.0, freq=10, zoom=300.0):
+    return noise((freq*nx)/zoom, (freq*ny)/zoom, nz) / 2.0 + 1.0
 
 def CreateRandomWorld():
     noise_set_seed(1)
 
     dynamic_map = [""] * (CELL_BOUNDS*CELL_BOUNDS)
 
+    z = rnd(5)
     for x in range(0, CELL_BOUNDS):
         for y in range(0, CELL_BOUNDS):
-            value = min(15, flr(local_noise(x, y)/0.06666666666666667))
+            value = min(15, flr(local_noise(x, y, z)/0.06666666666666667))
             dynamic_map[x+y*CELL_BOUNDS] = "%x" % value
 
     return ''.join(dynamic_map)

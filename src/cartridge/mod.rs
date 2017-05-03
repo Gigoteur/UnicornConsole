@@ -589,7 +589,7 @@ pub struct CartridgeMusic {}
 
 impl CartridgeMusic {
     pub fn new(_lines: &mut Vec<String>) -> CartridgeMusic {
-        info!("CartridgeMusic");
+        info!("[CARTRIDGE] CartridgeMusic");
         CartridgeMusic {}
     }
 

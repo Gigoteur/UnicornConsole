@@ -685,6 +685,49 @@ class Tweetjam_19(object):
             y=cos(b)+cos(e/2)
             circfill(64+4*x/a,64+4*y/a,1,16*a)
 
+# https://twitter.com/guerragames/status/859226718225268741
+class Tweetjam_20(object):
+    def __init__(self):
+        pass
+
+    def init(self):
+        cls()
+        self.t=0
+        self.s=32
+
+    def update(self):
+        pass
+
+    def draw(self):
+        cls()
+        self.t+=.01
+
+        for y in range(-self.s,self.s,2):
+            for x in range(-self.s,self.s,2):
+                q=x+y+64
+                circfill(q+16*cos(y/64+self.t),q+16*cos(x/64+self.t),3,5+x*y%16)
+
+# https://twitter.com/guerragames/status/859191654678499328
+class Tweetjam_21(object):
+    def __init__(self):
+        pass
+
+    def init(self):
+        cls()
+        self.t=0
+        self.s=64
+
+    def update(self):
+        pass
+
+    def draw(self):
+        cls()
+        self.t+=.01
+
+        for y in range(-self.s,self.s,3):
+            for x in range(-self.s,self.s,2):
+                pset(self.s+x+16*cos(y/self.s+self.t)+y,self.s+y+16*sin(x/self.s+self.t)+x,7+x/8%8)
+
 def sqr(a):
     return a*a
 
@@ -749,6 +792,8 @@ demos = [
     ["Tweetjam_17", [Tweetjam_17()]],
     ["Tweetjam_18", [Tweetjam_18()]],
     ["Tweetjam_19", [Tweetjam_19()]],
+    ["Tweetjam_20", [Tweetjam_20()]],
+    ["Tweetjam_21", [Tweetjam_21()]],
     ["Metaballs", [Metaballs()]],
 ]
 

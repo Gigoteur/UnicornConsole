@@ -287,22 +287,48 @@ class Audio(object):
         cls()
 
 
-def local_noise(nx, ny, freq=10, zoom=300.0):
-    return noise((freq*nx)/zoom, (freq*ny)/zoom, 0.0) / 2.0 + 1.0
+def local_noise(nx, ny, nz=0.0, freq=10, zoom=300.0):
+    return noise((freq*nx)/zoom, (freq*ny)/zoom, nz) / 2.0 + 1.0
 
 class Noise(object):
     def __init__(self):
         self.T = 0
 
     def init(self):
-        noise_set_seed(random.randint(0, 10))
+        self.reset()
+
+    def reset(self):
+        noise_set_seed(1)
+        z = rnd(5)
         for x in range(0, 128):
             for y in range(0, 128):
-                val = local_noise(x, y)
+                val = local_noise(x, y, z)
                 pset(x, y, min(15, flr(val/0.06666666666666667)))
 
     def update(self):
         self.T += 1
+        if self.T > 0 and self.T % 50 == 0:
+            self.reset()
+
+    def draw(self):
+        pass
+
+class Noise2(object):
+    def __init__(self):
+        self.T = 0
+
+    def init(self):
+        self.reset()
+
+    def reset(self):
+        noise_set_seed(1)
+        for x in range(0, 128):
+            for y in range(0, 128):
+                val = local_noise(x, y, 0.0)
+                pset(x, y, min(15, flr(val/0.06666666666666667)))
+
+    def update(self):
+        pass
 
     def draw(self):
         pass
@@ -324,6 +350,7 @@ demos = [
     ["memcpy", [Memcpy()]],
     ["audio", [Audio()]],
     ["noise", [Noise()]],
+    ["noise2", [Noise2()]],
 ]
 
 def _init():
