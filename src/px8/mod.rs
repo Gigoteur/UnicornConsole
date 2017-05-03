@@ -657,6 +657,7 @@ impl Px8New {
         }
     }
 
+    #[allow(dead_code)]
     pub fn register<F: RustPlugin + 'static>(&mut self, callback: F) {
         self.rust_plugin.push(Box::new(callback));
     }
@@ -706,6 +707,7 @@ impl Px8New {
         self.load_plugin(idx, players, info, sound, editor)
     }
 
+    #[allow(dead_code)]
     pub fn load_cartridge_raw(&mut self,
                               filename: String,
                               data: Vec<u8>,
@@ -792,6 +794,7 @@ impl Px8New {
         }
     }
 
+    #[allow(dead_code)]
     pub fn is_editing_current_cartridge(&mut self) -> bool {
         let idx = self.current_cartridge;
         return self.cartridges[idx].edit;

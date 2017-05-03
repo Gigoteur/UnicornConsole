@@ -26,8 +26,8 @@ pub mod plugin {
 
     #[derive(Clone, Debug)]
     pub enum LuaPluginError {
-        ThreadStatus(String),
-        Other(String),
+        //ThreadStatus(String),
+        //Other(String),
     }
 
     pub struct LuaPlugin {

@@ -25,7 +25,6 @@ impl Noise {
 
     pub fn set_seed(&mut self, seed: u32) {
         debug!("Change seed to {:?}", seed);
-
         self.perlin.set_seed(seed as usize);
     }
 }

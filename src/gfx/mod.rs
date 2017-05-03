@@ -809,8 +809,6 @@ impl Screen {
 
             h = (ix + 32) >> 6;
             i = (iy + 32) >> 6;
-            j = (h * ry) / rx;
-            k = (i * ry) / rx;
 
             while i > h {
                 h = (ix + 32) >> 6;
@@ -861,8 +859,6 @@ impl Screen {
 
             h = (ix + 32) >> 6;
             i = (iy + 32) >> 6;
-            j = (h * rx) / ry;
-            k = (i * rx) / ry;
 
             while i > h {
                 h = (ix + 32) >> 6;
@@ -945,8 +941,6 @@ impl Screen {
 
             h = (ix + 32) >> 6;
             i = (iy + 32) >> 6;
-            j = (h * ry) / rx;
-            k = (i * ry) / rx;
 
             while i > h {
                 h = (ix + 32) >> 6;
@@ -986,8 +980,6 @@ impl Screen {
 
             h = (ix + 32) >> 6;
             i = (iy + 32) >> 6;
-            j = (h * rx) / ry;
-            k = (i * rx) / ry;
 
             while i > h {
                 h = (ix + 32) >> 6;

@@ -297,6 +297,8 @@ pub struct CartridgeCode {
 
 impl CartridgeCode {
     pub fn new(code_type: String, lines: &mut Vec<String>) -> CartridgeCode {
+        info!("[CARTRIDGE] CartridgeCode");
+
         CartridgeCode {
             raw: false,
             lines: lines.clone(),
@@ -309,6 +311,8 @@ impl CartridgeCode {
     }
 
     pub fn new_from_bytes(code_type: String, data: &mut Vec<u8>, version: u8) -> CartridgeCode {
+        info!("[CARTRIDGE] CartridgeCode");
+
         CartridgeCode {
             raw: true,
             lines: Vec::new(),
@@ -387,7 +391,8 @@ impl CartridgeGFX {
     }
 
     pub fn new(lines: &mut Vec<String>) -> CartridgeGFX {
-        info!("CartridgeGFX");
+        info!("[CARTRIDGE] CartridgeGFX");
+
         let mut sprites: Vec<Sprite> = Vec::new();
 
         if lines.len() > 0 {
@@ -438,6 +443,8 @@ impl CartridgeGFX {
     }
 
     pub fn new_from_bytes(v: Vec<u8>) -> CartridgeGFX {
+        info!("[CARTRIDGE] CartridgeGFX");
+
         let mut sprites: Vec<Sprite> = Vec::new();
 
         if v.len() > 0 {
@@ -515,6 +522,8 @@ impl CartridgeGFF {
     }
 
     pub fn new(lines: &mut Vec<String>) -> CartridgeGFF {
+        info!("[CARTRIDGE] CartridgeGFF");
+
         let mut v = Vec::new();
 
         for line in lines {
@@ -603,13 +612,11 @@ impl CartridgeMap {
     }
 
     pub fn new(lines: &mut Vec<String>) -> CartridgeMap {
-        info!("CartridgeMap");
+        info!("[CARTRIDGE] CartridgeMap");
 
         let mut map: [[u32; 32]; gfx::SCREEN_WIDTH] = [[0; 32]; gfx::SCREEN_WIDTH];
         let mut x;
         let mut y = 0;
-
-        info!("LINE = {:?}", lines.len());
 
         for line in lines {
             let mut i = 0;
@@ -891,6 +898,7 @@ struct PX8Format {
 
 
 impl Cartridge {
+    #[allow(dead_code)]
     pub fn from_png_raw(filename: String, data: Vec<u8>) -> Result<Cartridge, Error> {
         let mut buf_reader = Cursor::new(data);
         let cartridge = try!(read_from_pngformat(filename.clone(), &mut buf_reader));
@@ -904,6 +912,7 @@ impl Cartridge {
         Ok(cartridge)
     }
 
+    #[allow(dead_code)]
     pub fn from_p8_raw(filename: String, data: Vec<u8>) -> Result<Cartridge, Error> {
         let mut buf_reader = Cursor::new(data);
         let cartridge = try!(read_from_p8format(filename.clone(), &mut buf_reader));

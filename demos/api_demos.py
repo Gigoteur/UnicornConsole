@@ -295,16 +295,17 @@ class Noise(object):
         self.T = 0
 
     def init(self):
-        noise_set_seed(1)
+        noise_set_seed(random.randint(0, 10))
+        for x in range(0, 128):
+            for y in range(0, 128):
+                val = local_noise(x, y)
+                pset(x, y, min(15, flr(val/0.06666666666666667)))
 
     def update(self):
         self.T += 1
 
     def draw(self):
-        for x in range(0, 128):
-            for y in range(0, 128):
-                val = local_noise(x, y)
-                pset(x, y, min(15, flr(val/0.06666666666666667)))
+        pass
 
 idx_demo = 0
 demos = [

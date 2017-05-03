@@ -2,10 +2,12 @@ use std::fs::File;
 use std::io::BufReader;
 use std::io;
 
+#[allow(dead_code)]
 pub struct Song {
     pub parsing: bool
 }
 
+#[allow(dead_code)]
 impl Song {
     pub fn new(buf: &mut io::BufRead) -> Song {
         let mut buffer = Vec::new();
