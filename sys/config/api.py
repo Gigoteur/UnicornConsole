@@ -236,9 +236,9 @@ globals()["switch_palette"] = switch_palette
 
 # Noise
 def noise(x, y, z):
-    return px8_noise.get(x, y, z)
+    return px8_noise.noise(x, y, z)
 def noise_set_seed(seed):
-    return px8_noise.set_seed(seed)
+    return px8_noise.noise_set_seed(seed)
 globals()["noise"] = noise
 globals()["noise_set_seed"] = noise_set_seed
 

@@ -286,13 +286,13 @@ pub mod plugin {
 
     // Noise
     py_class!(class PX8Noise |py| {
-    data noise: Arc < Mutex < Noise > >;
-        def get(&self, x: f64, y: f64, z: f64) -> PyResult<f64> {
-            Ok(self.noise(py).lock().unwrap().get(x, y, z))
+    data _noise: Arc < Mutex < Noise > >;
+        def noise(&self, x: f64, y: f64, z: f64) -> PyResult<f64> {
+            Ok(self._noise(py).lock().unwrap().get(x, y, z))
         }
 
-        def set_seed(&self, seed: u32) -> PyResult<u32> {
-            self.noise(py).lock().unwrap().set_seed(seed);
+        def noise_set_seed(&self, seed: u32) -> PyResult<u32> {
+            self._noise(py).lock().unwrap().set_seed(seed);
             Ok(0)
         }
     });
