@@ -69,6 +69,8 @@ The console is inspired from the awesome [Pico-8](http://www.lexaloffle.com/pico
 
 ![](https://j.gifs.com/k5gVw5.gif)
 
+![](http://i.imgur.com/um3gmWh.gif)
+
 Editor mode:
 
 ![](http://i.imgur.com/ZxNgWrt.gif)
@@ -336,6 +338,8 @@ palt | :white_check_mark: | :white_check_mark: | :white_check_mark:
 pget | :white_check_mark: | :white_check_mark: | :white_check_mark:
 print | :white_check_mark: | :white_check_mark: | :white_check_mark:
 pset | :white_check_mark: | :white_check_mark: | :white_check_mark:
+noise | :white_check_mark: | :white_check_mark: | :red_circle:
+noise_set_feed | :white_check_mark: | :white_check_mark: | :red_circle:
 rect | :white_check_mark: | :white_check_mark: | :white_check_mark:
 rectfill | :white_check_mark: | :white_check_mark: | :white_check_mark:
 sget | :white_check_mark: | :white_check_mark: | :white_check_mark:
