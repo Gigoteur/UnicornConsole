@@ -707,7 +707,7 @@ pub mod plugin {
             sub = string.sub
             "#);
 
-            error!("SMALL FUNCTIONS = {:?}", value);
+            info!("[PLUGIN][LUA] LOADED FUNCTIONS = {:?}", value);
         }
 
         pub fn init(&mut self) {
@@ -719,9 +719,9 @@ pub mod plugin {
 
             let value = lua_state.do_string("_init()");
             if value != ThreadStatus::Ok {
-                error!("INIT = {:?}", value);
+                error!("[PLUGIN][LUA] INIT = {:?}", value);
             } else {
-                info!("INIT SUCCESS");
+                info!("[PLUGIN][LUA] INIT SUCCESS");
             }
         }
 
@@ -751,7 +751,7 @@ pub mod plugin {
             if value != ThreadStatus::Ok {
                 let value = lua_state.do_string("_update60()");
                 if value != ThreadStatus::Ok {
-                    error!("UPDATE = {:?}", value);
+                    error!("[PLUGIN][LUA] UPDATE = {:?}", value);
                 }
             }
 
@@ -760,14 +760,14 @@ pub mod plugin {
         }
 
         pub fn load_code(&mut self, data: String) -> bool {
-            info!("LOAD CODE");
+            info!("[PLUGIN][LUA] LOAD CODE");
             let mut lua_state = self.lua_state.lock().unwrap();
 
             self.loaded_code = true;
 
             let value = lua_state.do_string(&data);
             if value != ThreadStatus::Ok {
-                error!("LOAD CODE = {:?}", value);
+                error!("[PLUGIN][LUA] LOAD CODE = {:?}", value);
                 self.loaded_code = false;
             }
 
@@ -780,7 +780,6 @@ pub mod plugin {
 
     impl PX8Lua {
         fn new() -> PX8Lua {
-            info!("PX8LUA NEW");
             return PX8Lua{};
         }
 

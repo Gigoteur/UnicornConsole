@@ -296,6 +296,20 @@ pub struct CartridgeCode {
 }
 
 impl CartridgeCode {
+    pub fn empty() -> CartridgeCode {
+        info!("[CARTRIDGE] CartridgeCode");
+
+        CartridgeCode {
+            raw: true,
+            lines: Vec::new(),
+            data: Vec::new(),
+            version: 0,
+            code_type: "".to_string(),
+            filename: "".to_string(),
+            mode: false
+        }
+    }
+
     pub fn new(code_type: String, lines: &mut Vec<String>) -> CartridgeCode {
         info!("[CARTRIDGE] CartridgeCode");
 
@@ -898,6 +912,106 @@ struct PX8Format {
 
 
 impl Cartridge {
+    #[allow(dead_code)]
+    pub fn parse(filename: String, code: bool) -> Result<Cartridge, Error> {
+        let f = try!(File::open(filename.clone()));
+        let mut buf = BufReader::new(f);
+        let mut header = String::new();
+        let mut version = String::new();
+
+        if code {
+            try!(buf.read_line(&mut header));
+            try!(buf.read_line(&mut version));
+        }
+
+        let re_delim_section = Regex::new(SECTION_DELIM_RE).unwrap();
+
+        let mut sections: HashMap<String, Vec<(String)>> = HashMap::new();
+
+        let mut section_name = "".to_string();
+
+        let mut new_section;
+
+        for line in buf.lines() {
+            let l = line.unwrap();
+            if re_delim_section.is_match(l.as_str()) {
+                debug!("NEW SECTION {:?}", l);
+                section_name = l.clone();
+
+                let vec_section = Vec::new();
+                sections.insert(section_name.clone(), vec_section);
+                new_section = false;
+            } else {
+                new_section = true;
+            }
+
+            if new_section {
+                match sections.get_mut(&section_name) {
+                    Some(vec_section2) => vec_section2.push(l),
+                    _ => debug!("Impossible to find section {:?}", section_name),
+                }
+            }
+        }
+
+        for (section_name, section) in &sections {
+            debug!("{}: \"{}\"", section_name, section.len());
+        }
+
+        let cartridge_gfx;
+        let cartridge_code;
+        let cartridge_map;
+        let cartridge_gff;
+        let cartridge_music;
+
+
+        if sections.contains_key("__lua__") {
+            cartridge_code = CartridgeCode::new("lua".to_string(), sections.get_mut("__lua__").unwrap());
+        } else if sections.contains_key("__python__") {
+            cartridge_code = CartridgeCode::new("python".to_string(), sections.get_mut("__python__").unwrap());
+        } else {
+            if code {
+                return Err(Error::Err("NO CODE DATA".to_string()));
+            } else {
+                cartridge_code = CartridgeCode::empty();
+            }
+        }
+
+        match sections.get_mut("__gfx__") {
+            Some(vec_section) => cartridge_gfx = CartridgeGFX::new(vec_section),
+            _ => cartridge_gfx = CartridgeGFX::empty(),
+        }
+
+        match sections.get_mut("__map__") {
+            Some(vec_section) => cartridge_map = CartridgeMap::new(vec_section),
+            _ => cartridge_map = CartridgeMap::empty(),
+        }
+
+        match sections.get_mut("__gff__") {
+            Some(vec_section) => cartridge_gff = CartridgeGFF::new(vec_section),
+            _ => cartridge_gff = CartridgeGFF::empty(),
+        }
+
+        match sections.get_mut("__music__") {
+            Some(vec_section) => cartridge_music = CartridgeMusic::new(vec_section),
+            _ => cartridge_music = CartridgeMusic::empty(),
+        }
+
+
+        Ok(Cartridge {
+            filename: filename.clone(),
+            data_filename: "".to_string(),
+            header: header.clone(),
+            version: version.clone(),
+            gfx: cartridge_gfx,
+            code: cartridge_code,
+            map: cartridge_map,
+            gff: cartridge_gff,
+            music: cartridge_music,
+            format: CartridgeFormat::P8Format,
+            edit: false,
+        })
+    }
+
     #[allow(dead_code)]
     pub fn from_png_raw(filename: String, data: Vec<u8>) -> Result<Cartridge, Error> {
         let mut buf_reader = Cursor::new(data);

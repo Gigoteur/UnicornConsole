@@ -2,6 +2,7 @@ pub mod info;
 pub mod cartdata;
 pub mod emscripten;
 pub mod noise;
+pub mod math;
 
 use std::collections::HashMap;
 use std::io::BufReader;
