@@ -13,6 +13,7 @@ pub mod plugin {
     use config::Players;
 
     use px8::info::Info;
+    use px8::noise::Noise;
 
     use gfx::{SCREEN_WIDTH, SCREEN_HEIGHT};
     use gfx::Screen;
@@ -22,6 +23,7 @@ pub mod plugin {
         pub players: Arc<Mutex<Players>>,
         pub screen: Arc<Mutex<Screen>>,
         pub info: Arc<Mutex<Info>>,
+        pub noise: Arc<Mutex<Noise>>,
     }
 
     #[derive(Clone, Debug)]
@@ -46,14 +48,15 @@ pub mod plugin {
         pub fn load(&mut self,
                     players: Arc<Mutex<Players>>,
                     info: Arc<Mutex<Info>>,
-                    screen: Arc<Mutex<Screen>>) {
+                    screen: Arc<Mutex<Screen>>,
+                    noise: Arc<Mutex<Noise>>) {
             info!("[PLUGIN][LUA] Init plugin");
 
             let extra = ExtraData {
-              players: players.clone(),
-              info: info.clone(),
-
-              screen: screen.clone(),
+                players: players.clone(),
+                info: info.clone(),
+                screen: screen.clone(),
+                noise: noise.clone(),
             };
 
             let mut lua_state = self.lua_state.lock().unwrap();
@@ -374,6 +377,16 @@ pub mod plugin {
               color = math.floor(color)
 
               s:sset(x, y, c)
+              end
+              "#);
+
+            lua_state.do_string(r#"noise = function(x, y, z)
+              return s:noise(x, y, z)
+              end
+              "#);
+
+            lua_state.do_string(r#"noise_set_seed = function(seed)
+              return s:noise_set_seed(seed)
               end
               "#);
 
@@ -1231,6 +1244,47 @@ pub mod plugin {
             1
         }
 
+        unsafe extern "C" fn lua_noise(lua_context: *mut lua_State) -> c_int {
+            debug!("LUA NOISE");
+
+            let mut state = State::from_ptr(lua_context);
+
+            let x = state.check_number(2);
+            let y = state.check_number(3);
+            let z = state.check_number(4);
+
+            debug!("LUA NOISE {:?} {:?} {:?}", x, y, z);
+
+            let noise = state.with_extra(|extra| {
+                let data = extra.as_ref().unwrap().downcast_ref::<ExtraData>().unwrap();
+                data.noise.clone()
+            });
+
+            let value = noise.lock().unwrap().get(x, y, z);
+            state.push_number(value);
+
+            1
+        }
+
+        unsafe extern "C" fn lua_noise_set_seed(lua_context: *mut lua_State) -> c_int {
+            debug!("LUA NOISE SET SEED");
+
+            let mut state = State::from_ptr(lua_context);
+
+            let seed = state.check_integer(2);
+
+            debug!("LUA NOISE SET SEED {:?}", seed);
+
+            let noise = state.with_extra(|extra| {
+                let data = extra.as_ref().unwrap().downcast_ref::<ExtraData>().unwrap();
+                data.noise.clone()
+            });
+
+            noise.lock().unwrap().set_seed(seed as u32);
+
+            1
+        }
+
         unsafe extern "C" fn lua_line(lua_context: *mut lua_State) -> c_int {
             debug!("LUA LINE");
 
@@ -1579,7 +1633,7 @@ pub mod plugin {
 
     }
 
-    pub const PX8LUA_LIB: [(&'static str, Function); 37] = [
+    pub const PX8LUA_LIB: [(&'static str, Function); 39] = [
         ("new", Some(PX8Lua::lua_new)),
 
         ("camera", Some(PX8Lua::lua_camera)),
@@ -1624,6 +1678,9 @@ pub mod plugin {
         ("sget", Some(PX8Lua::lua_sget)),
         ("sset", Some(PX8Lua::lua_sset)),
 
+        ("noise", Some(PX8Lua::lua_noise)),
+        ("noise_set_seed", Some(PX8Lua::lua_noise_set_seed)),
+
         ("rnd", Some(PX8Lua::lua_rnd)),
 
         ("print", Some(PX8Lua::lua_print)),
@@ -1647,6 +1704,7 @@ pub mod plugin {
     use config::Players;
 
     use px8;
+    use px8::noise::Noise;
     use px8::info::Info;
 
     use gfx::{SCREEN_WIDTH, SCREEN_HEIGHT};
@@ -1665,7 +1723,8 @@ pub mod plugin {
         pub fn load(&mut self,
                     players: Arc<Mutex<Players>>,
                     info: Arc<Mutex<Info>>,
-                    screen: Arc<Mutex<Screen>>) {
+                    screen: Arc<Mutex<Screen>>,
+                    noise: Arc<Mutex<Noise>>) {
             panic!("LUA plugin disabled");
         }
         pub fn load_code(&mut self, data: String) -> bool { false }

@@ -821,7 +821,8 @@ impl Px8New {
                     // load the lua plugin
                     self.lua_plugin.load(players.clone(),
                                          info.clone(),
-                                         self.screen.clone());
+                                         self.screen.clone(),
+                                         self.noise.clone());
                 }
                 _ => (),
             }
@@ -839,7 +840,8 @@ impl Px8New {
 
                 self.lua_plugin.load(players.clone(),
                                      info.clone(),
-                                     self.screen.clone());
+                                     self.screen.clone(),
+                                     self.noise.clone());
 
                 return self.lua_plugin.load_code(data)
             },
