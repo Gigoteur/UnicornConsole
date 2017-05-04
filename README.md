@@ -86,7 +86,7 @@ https://github.com/Gigoteur/PX8/tree/master/games/terrain
 ![](http://i.imgur.com/ORElunz.gif)
 
 * Voxel framework (http://www.lexaloffle.com/bbs/?tid=28308) in Python
-https://github.com/Gigoteur/PX8/tree/master/demos/voxel
+https://github.com/Gigoteur/PX8/tree/master/examples/voxel
 ![](http://i.imgur.com/b1wE1cs.gif)
 
 * BR: Mix between duckduckontheloose (https://github.com/seleb/DuckDuckOnTheLoose) and dark tomb (http://www.lexaloffle.com/bbs/?tid=28785)
@@ -224,14 +224,14 @@ You should be able to run it directly by providing the path of the cartridge:
 
 You could run the API demos:
 ```
-./target/release/px8 -s 4 ./demos/api_demos.py 
+./target/release/px8 -s 4 ./examples/api_demos.py 
 ```
 
 or some fancy demos:
 ```
-./target/release/px8 -s 4 ./demos/demos.py
-./target/release/px8 -s 4 ./demos/voxel/voxel.px8
-./target/release/px8 -s 4 ./demos/pong/pong.px8
+./target/release/px8 -s 4 ./examples/demos.py
+./target/release/px8 -s 4 ./examples/voxel/voxel.px8
+./target/release/px8 -s 4 ./examples/pong/pong.px8
 ./target/release/px8 -s 4 ./games/ski/ski.px8
 ./target/release/px8 -s 4 ./games/amp/amp.px8
 ./target/release/px8 -s 4 ./games/terrain/terrain.px8
@@ -338,8 +338,8 @@ palt | :white_check_mark: | :white_check_mark: | :white_check_mark:
 pget | :white_check_mark: | :white_check_mark: | :white_check_mark:
 print | :white_check_mark: | :white_check_mark: | :white_check_mark:
 pset | :white_check_mark: | :white_check_mark: | :white_check_mark:
-noise | :white_check_mark: | :white_check_mark: | :red_circle:
-noise_set_feed | :white_check_mark: | :white_check_mark: | :red_circle:
+noise | :white_check_mark: | :white_check_mark: | :white_check_mark:
+noise_set_feed | :white_check_mark: | :white_check_mark: | :white_check_mark:
 rect | :white_check_mark: | :white_check_mark: | :white_check_mark:
 rectfill | :white_check_mark: | :white_check_mark: | :white_check_mark:
 sget | :white_check_mark: | :white_check_mark: | :white_check_mark:
