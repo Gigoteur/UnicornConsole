@@ -56,7 +56,7 @@ pub struct SongPattern {
 
 impl SongPattern {
     pub fn new(buf: &mut Cursor<Vec<u8>>) -> SongPattern {
-
+        SongPattern {}
     }
 }
 
@@ -141,7 +141,7 @@ impl SongSection {
         println!("RE {:?}", read_string(buf, 4));
         println!("SIZE {:?}", read_u32(buf));
 
-        let patterns = Vec::new();
+        let mut patterns = Vec::new();
         let count_pattern = read_u8(buf).unwrap();
         println!("COUNT {:?}", count_pattern);
 

@@ -246,11 +246,23 @@ class MapEditor(object):
     def __init__(self, state):
         self.state = state
 
+        self._cache = [0] * (128*32)
+
+        for y in range(0, 32):
+            for x in range(0, 128):
+                self._cache[x + y * 32] = mget(x, y)
+
     def update(self):
         pass
 
     def draw(self):
-        pass
+        rectfill(0, 8, 128, 78, 0)
+
+        for y in range(0, 8):
+            for x in range(0, 16):
+                sprite_number = self._cache[x + y * 32]
+                if sprite_number != 0:
+                    spr(self._cache[x + y * 32], x * 8, y * 8 + 9)
 
 class ToolsEditor(object):
     def __init__(self, state):
@@ -326,20 +338,20 @@ class Editor(object):
 
         self.widgets = [
             Widget("SPRITE EDITOR", 110, 1, [
-                [5, 6, 5, 5, 5, 5, 6, 5],
-                [5, 5, 6, 5, 5, 6, 5, 5],
-                [5, 5, 5, 6, 6, 5, 5, 5],
-                [5, 5, 5, 6, 6, 5, 5, 5],
-                [5, 5, 6, 5, 5, 6, 5, 5],
-                [5, 6, 5, 5, 5, 5, 6, 5],
+                [6, 8, 8, 8, 8, 8, 8, 6],
+                [8, 6, 6, 6, 6, 6, 6, 8],
+                [8, 6, 8, 8, 8, 8, 6, 8],
+                [8, 6, 8, 8, 8, 8, 6, 8],
+                [8, 6, 6, 6, 6, 6, 6, 8],
+                [6, 8, 8, 8, 8, 8, 8, 6],
             ]),
             Widget("MAP EDITOR", 119, 1, [
-                [5, 6, 5, 5, 5, 5, 6, 5],
-                [5, 5, 6, 5, 5, 6, 5, 5],
-                [5, 5, 5, 6, 6, 5, 5, 5],
-                [5, 5, 5, 6, 6, 5, 5, 5],
-                [5, 5, 6, 5, 5, 6, 5, 5],
-                [5, 6, 5, 5, 5, 5, 6, 5],
+                [8, 8, 8, 8, 8, 8, 8, 8],
+                [8, 6, 6, 6, 6, 6, 6, 8],
+                [8, 6, 8, 8, 8, 8, 6, 8],
+                [8, 6, 8, 8, 8, 8, 6, 8],
+                [8, 6, 6, 6, 6, 6, 6, 8],
+                [8, 8, 8, 8, 8, 8, 8, 8],
             ])
         ]
 

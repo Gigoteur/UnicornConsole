@@ -1,3 +1,4 @@
+#[cfg(feature = "audio")]
 pub mod song;
 
 #[cfg(feature = "audio")]
