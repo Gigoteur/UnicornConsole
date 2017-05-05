@@ -1,4 +1,4 @@
 {
-    "code": "./demos/voxel/voxel.py",
-    "data": "./demos/voxel/voxel.dpx8"
+    "code": "./examples/voxel/voxel.py",
+    "data": "./examples/voxel/voxel.dpx8"
 }

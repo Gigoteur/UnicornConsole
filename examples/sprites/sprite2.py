@@ -6,7 +6,7 @@ __python__
 def _init():
     cls()
 
-    data, width, height = img_to_rgb("./demos/assets/Tux.png")
+    data, width, height = img_to_rgb("./examples/assets/Tux.png")
     id_sprite = spr_dyn_load(data, width, height)
 
     spr_dyn(id_sprite, 0, 0)

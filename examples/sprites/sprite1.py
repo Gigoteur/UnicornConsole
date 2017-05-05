@@ -7,7 +7,7 @@ from PIL import Image
 # Get a PNG and display it directly by adding the color
 def _init():
     cls()
-    im = Image.open("./demos/assets/Tux.png")
+    im = Image.open("./examples/assets/Tux.png")
     print(im)
     pix = im.load()
     width, height = im.size

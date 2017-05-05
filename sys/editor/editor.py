@@ -243,7 +243,14 @@ class SpriteEditor(object):
              8*8, 8*8)
 
 class MapEditor(object):
-    pass
+    def __init__(self, state):
+        self.state = state
+
+    def update(self):
+        pass
+
+    def draw(self):
+        pass
 
 class ToolsEditor(object):
     def __init__(self, state):
@@ -312,9 +319,29 @@ class Editor(object):
     def __init__(self):
         self.state = State()
 
-        self.current_window = SpriteEditor(self.state)
+        self.windows = [SpriteEditor(self.state), MapEditor(self.state)]
+        self.current_window = self.windows[0]
         self.tools = ToolsEditor(self.state)
         self.sm = SpritesMap(self.state)
+
+        self.widgets = [
+            Widget("SPRITE EDITOR", 110, 1, [
+                [5, 6, 5, 5, 5, 5, 6, 5],
+                [5, 5, 6, 5, 5, 6, 5, 5],
+                [5, 5, 5, 6, 6, 5, 5, 5],
+                [5, 5, 5, 6, 6, 5, 5, 5],
+                [5, 5, 6, 5, 5, 6, 5, 5],
+                [5, 6, 5, 5, 5, 5, 6, 5],
+            ]),
+            Widget("MAP EDITOR", 119, 1, [
+                [5, 6, 5, 5, 5, 5, 6, 5],
+                [5, 5, 6, 5, 5, 6, 5, 5],
+                [5, 5, 5, 6, 6, 5, 5, 5],
+                [5, 5, 5, 6, 6, 5, 5, 5],
+                [5, 5, 6, 5, 5, 6, 5, 5],
+                [5, 6, 5, 5, 5, 5, 6, 5],
+            ])
+        ]
 
     def draw_contour(self):
         rectfill(0, 0, 128, 8, 8)
@@ -328,6 +355,16 @@ class Editor(object):
         self.sm.update()
         self.tools.update()
         self.current_window.update()
+        if self.state.mouse_state == 1:
+            for widget in self.widgets:
+                widget.update(self.state.mouse_x, self.state.mouse_y)
+
+            for widget in self.widgets:
+                if widget.is_click():
+                    if widget.name == "MAP EDITOR":
+                        self.current_window = self.windows[1]
+                    elif widget.name == "SPRITE EDITOR":
+                        self.current_window = self.windows[0]
 
     def draw(self):
         cls()
@@ -336,6 +373,8 @@ class Editor(object):
         self.sm.draw()
         self.tools.draw()
         self.current_window.draw()
+        for widget in self.widgets:
+            widget.draw()
 
 E = Editor()
 

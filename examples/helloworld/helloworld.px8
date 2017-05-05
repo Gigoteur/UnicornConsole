@@ -1,4 +1,4 @@
 {
-    "code": "./demos/helloworld/helloworld.py",
-    "data": "./demos/helloworld/helloworld.dpx8"
+    "code": "./examples/helloworld/helloworld.py",
+    "data": "./examples/helloworld/helloworld.dpx8"
 }
