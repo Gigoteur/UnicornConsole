@@ -245,24 +245,45 @@ class SpriteEditor(object):
 class MapEditor(object):
     def __init__(self, state):
         self.state = state
+        self.offset_x = 0
+        self.offset_y = 0
 
         self._cache = [0] * (128*32)
 
         for y in range(0, 32):
             for x in range(0, 128):
-                self._cache[x + y * 32] = mget(x, y)
+                self._cache[x + y * 128] = mget(x, y)
 
     def update(self):
-        pass
+        if btn(0):
+            self.offset_x -= 1
+            self.offset_x = max(-5, self.offset_x)
+        if btn(1):
+            self.offset_x += 1
+            self.offset_x = min(112, self.offset_x)
+        if btn(2):
+            self.offset_y -= 1
+            self.offset_y = max(-5, self.offset_y)
+        if btn(3):
+            self.offset_y += 1
+            self.offset_y = min(24, self.offset_y)
+
 
     def draw(self):
         rectfill(0, 8, 128, 78, 0)
 
-        for y in range(0, 8):
-            for x in range(0, 16):
-                sprite_number = self._cache[x + y * 32]
+        idx_y = 0
+        for y in range(self.offset_y, self.offset_y + 8):
+            idx_x = 0
+            for x in range(self.offset_x, self.offset_x + 16):
+                offset = x + y * 128
+                sprite_number = self._cache[offset]
                 if sprite_number != 0:
-                    spr(self._cache[x + y * 32], x * 8, y * 8 + 9)
+                    spr(self._cache[offset], idx_x * 8, idx_y * 8 + 9)
+                idx_x += 1
+            idx_y += 1
+
+        px8_print("%d %d" % (self.offset_x, self.offset_y), 0, 120, 5)
 
 class ToolsEditor(object):
     def __init__(self, state):
