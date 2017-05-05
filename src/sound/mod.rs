@@ -1,9 +1,8 @@
 pub mod song;
 
 #[cfg(feature = "audio")]
+#[allow(dead_code, unused_must_use, unused_variables)]
 pub mod sound {
-    use std::collections::HashMap;
-
     use sdl2;
     use sdl2::audio::{AudioCallback, AudioSpecDesired, AudioSpec, AudioDevice, AudioSpecWAV, AudioCVT, AudioFormat};
     use std::sync::mpsc::{Sender, Receiver};
@@ -152,9 +151,9 @@ pub mod sound {
             0
         }
 
-        pub fn play(&mut self, id: u32) {}
+        pub fn play(&mut self, _id: u32) {}
 
-        pub fn stop(&mut self, id: u32) {}
+        pub fn stop(&mut self, _id: u32) {}
     }
 }
 
