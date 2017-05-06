@@ -271,19 +271,28 @@ class MapEditor(object):
 
     def draw(self):
         rectfill(0, 8, 128, 78, 0)
+        self.draw_with_zoom()
+        px8_print("%d %d" % (self.offset_x, self.offset_y), 0, 120, 5)
+
+    def draw_with_zoom(self):
+        zoom = 1
 
         idx_y = 0
-        for y in range(self.offset_y, self.offset_y + 8):
+        for y in range(self.offset_y, self.offset_y + flr(8/zoom)):
             idx_x = 0
-            for x in range(self.offset_x, self.offset_x + 16):
+            for x in range(self.offset_x, self.offset_x + flr(16/zoom)):
                 offset = x + y * 128
                 sprite_number = self._cache[offset]
                 if sprite_number != 0:
-                    spr(self._cache[offset], idx_x * 8, idx_y * 8 + 9)
+                    sprite_x = (sprite_number%16) * 8
+                    sprite_y = flr(sprite_number / 16) * 8
+
+                    dx = idx_x * (8*zoom)
+                    dy = idx_y * (8*zoom) + 9
+                    sspr(sprite_x, sprite_y, 8, 8, dx, dy, zoom*8, zoom*8)
+
                 idx_x += 1
             idx_y += 1
-
-        px8_print("%d %d" % (self.offset_x, self.offset_y), 0, 120, 5)
 
 class ToolsEditor(object):
     def __init__(self, state):

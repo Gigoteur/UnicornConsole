@@ -15,7 +15,7 @@ pub mod plugin {
     use px8::info::Info;
     use px8::noise::Noise;
 
-    use gfx::{SCREEN_WIDTH, SCREEN_HEIGHT};
+    use px8::{SCREEN_WIDTH, SCREEN_HEIGHT};
     use gfx::Screen;
 
     pub struct ExtraData {

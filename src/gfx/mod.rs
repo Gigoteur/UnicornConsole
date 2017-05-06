@@ -4,11 +4,6 @@ use nalgebra::{Dynamic, Matrix, MatrixVec};
 
 use px8;
 
-/// Screen width in pixels
-pub const SCREEN_WIDTH: usize = px8::SCREEN_WIDTH;
-///  Screen height in pixels
-pub const SCREEN_HEIGHT: usize = px8::SCREEN_HEIGHT;
-
 pub const GLYPH : [[u16; 2]; 95]  = [
     [0x0000, 0x0000], // space
     [0x0000, 0x1700], // !
@@ -393,7 +388,7 @@ pub struct Screen {
     pub sprites: Vec<Sprite>,
     pub dyn_sprites: Vec<DynSprite>,
 
-    pub map: [[u32; 32]; px8::SCREEN_WIDTH],
+    pub map: [[u32; px8::MAP_HEIGHT]; px8::MAP_WIDTH],
 
     pub transparency: HashMap<u32, u8>,
 
@@ -416,7 +411,7 @@ impl Screen {
 
             sprites: Vec::new(),
             dyn_sprites: Vec::new(),
-            map: [[0; 32]; px8::SCREEN_WIDTH],
+            map: [[0; px8::MAP_HEIGHT]; px8::MAP_WIDTH],
 
             transparency: HashMap::new(),
             colors: HashMap::new(),
@@ -490,7 +485,7 @@ impl Screen {
         }
     }
 
-    pub fn set_map(&mut self, map: [[u32; 32]; px8::SCREEN_WIDTH]) {
+    pub fn set_map(&mut self, map: [[u32; px8::MAP_HEIGHT]; px8::MAP_WIDTH]) {
         self.map = map;
     }
 
@@ -498,12 +493,12 @@ impl Screen {
         let x = x as usize;
         let y = y as usize;
 
-        self.back_buffer[x + y * SCREEN_WIDTH] = col;
+        self.back_buffer[x + y * px8::SCREEN_WIDTH] = col;
 
         let col_rgb = px8::PALETTE.lock().unwrap().get_rgb(col);
-        self.buffer_rgb[(x + y * SCREEN_WIDTH) * 3] = col_rgb.b;
-        self.buffer_rgb[(x + y * SCREEN_WIDTH) * 3 + 1] = col_rgb.g;
-        self.buffer_rgb[(x + y * SCREEN_WIDTH) * 3 + 2] = col_rgb.r;
+        self.buffer_rgb[(x + y * px8::SCREEN_WIDTH) * 3] = col_rgb.b;
+        self.buffer_rgb[(x + y * px8::SCREEN_WIDTH) * 3 + 1] = col_rgb.g;
+        self.buffer_rgb[(x + y * px8::SCREEN_WIDTH) * 3 + 2] = col_rgb.r;
     }
 
     pub fn putpixel_(&mut self, x: i32, y: i32, col: u32) {
@@ -515,7 +510,7 @@ impl Screen {
         let y = (y as i32 - self.camera.y) as usize;
         let mut col = col;
 
-        if x >= SCREEN_WIDTH || y >= SCREEN_HEIGHT {
+        if x >= px8::SCREEN_WIDTH || y >= px8::SCREEN_HEIGHT {
             return;
         }
 
@@ -532,12 +527,12 @@ impl Screen {
             None => (),
         }
 
-        self.back_buffer[x + y * SCREEN_WIDTH] = col;
+        self.back_buffer[x + y * px8::SCREEN_WIDTH] = col;
 
         let col_rgb = px8::PALETTE.lock().unwrap().get_rgb(col);
-        self.buffer_rgb[(x + y * SCREEN_WIDTH) * 3] = col_rgb.b;
-        self.buffer_rgb[(x + y * SCREEN_WIDTH) * 3 + 1] = col_rgb.g;
-        self.buffer_rgb[(x + y * SCREEN_WIDTH) * 3 + 2] = col_rgb.r;
+        self.buffer_rgb[(x + y * px8::SCREEN_WIDTH) * 3] = col_rgb.b;
+        self.buffer_rgb[(x + y * px8::SCREEN_WIDTH) * 3 + 1] = col_rgb.g;
+        self.buffer_rgb[(x + y * px8::SCREEN_WIDTH) * 3 + 2] = col_rgb.r;
     }
 
     pub fn color(&mut self, col: i32) {
@@ -554,11 +549,11 @@ impl Screen {
         let x = (x as i32 - self.camera.x) as usize;
         let y = (y as i32 - self.camera.y) as usize;
 
-        if x >= SCREEN_WIDTH || y >= SCREEN_HEIGHT {
+        if x >= px8::SCREEN_WIDTH || y >= px8::SCREEN_HEIGHT {
             return 0;
         }
 
-        return self.back_buffer[x + y * SCREEN_WIDTH] as u32;
+        return self.back_buffer[x + y * px8::SCREEN_WIDTH] as u32;
     }
 
     pub fn pget(&mut self, x: u32, y: u32) -> u32 {
@@ -1170,13 +1165,13 @@ impl Screen {
         let mut idx_y: i32 = 0;
 
         let mut cel_w = cel_w;
-        if cel_w > SCREEN_WIDTH as u32 {
-            cel_w = SCREEN_WIDTH as u32;
+        if cel_w > px8::MAP_WIDTH as u32 {
+            cel_w = px8::MAP_WIDTH as u32;
         }
 
         let mut cel_h = cel_h;
-        if cel_h > 32 {
-            cel_h = 32;
+        if cel_h > px8::MAP_HEIGHT as u32 {
+            cel_h = px8::MAP_HEIGHT as u32;
         }
 
         debug!("MAP cel_x {:?} cel_y {:?} sx {:?} sy {:?} cel_w {:?} cel_h {:?} layer {:?}", cel_x, cel_y, sx, sy, cel_w, cel_h, layer);
@@ -1194,7 +1189,7 @@ impl Screen {
 
                 debug!("MAP X {:?} MAP Y {:?}", map_x, map_y);
 
-                let idx_sprite = self.map[(map_x as usize) % SCREEN_WIDTH][(map_y as usize) % 32];
+                let idx_sprite = self.map[(map_x as usize) % px8::MAP_WIDTH][(map_y as usize) % px8::MAP_HEIGHT];
 
                 // Skip the sprite 0
                 if idx_sprite != 0 {
@@ -1296,7 +1291,6 @@ impl Screen {
         }
 
         debug!("SSPR OUTPUT RET {:?} {:?}", ret.len(), ret);
-
 
         if flip_x {
             for i in 0..w2 / 2 {
