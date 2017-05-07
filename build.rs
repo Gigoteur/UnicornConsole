@@ -29,7 +29,6 @@ fn prebuild() -> io::Result<()> {
         None => "32".to_string(),
     };
 
-
     let mut f = File::create(&dest_path).unwrap();
 
     f.write_all(format!("pub const SCREEN_WIDTH: usize = {:?};\n", screen_width.parse::<u32>().unwrap()).as_bytes()).unwrap();

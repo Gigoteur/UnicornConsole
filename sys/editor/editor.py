@@ -245,8 +245,14 @@ class SpriteEditor(object):
 class MapEditor(object):
     def __init__(self, state):
         self.state = state
+
+        self.coord = [0, 8, 128, 78]
         self.offset_x = 0
         self.offset_y = 0
+        self.available_zooms = [1, 1/2]
+        self.idx_zoom = 0
+        self.zoom = self.available_zooms[self.idx_zoom]
+        self.select_field = [0, 8]
 
         self._cache = [0] * (128*32)
 
@@ -255,27 +261,36 @@ class MapEditor(object):
                 self._cache[x + y * 128] = mget(x, y)
 
     def update(self):
-        if btn(0):
-            self.offset_x -= 1
-            self.offset_x = max(-5, self.offset_x)
-        if btn(1):
-            self.offset_x += 1
-            self.offset_x = min(112, self.offset_x)
-        if btn(2):
-            self.offset_y -= 1
-            self.offset_y = max(-5, self.offset_y)
-        if btn(3):
-            self.offset_y += 1
-            self.offset_y = min(24, self.offset_y)
+        if btnp(0):
+            self.offset_x -= 8
+            self.offset_x = max(0, self.offset_x)
+        if btnp(1):
+            self.offset_x += 8
+            self.offset_x = min(flr((128 - 16*self.zoom) * self.zoom), self.offset_x)
+        if btnp(2):
+            self.offset_y -= 8
+            self.offset_y = max(0, self.offset_y)
+        if btnp(3):
+            self.offset_y += 8
+            self.offset_y = min(flr((32 - 8*self.zoom) * self.zoom), self.offset_y)
+
+        if btnp(4):
+            self.idx_zoom = (self.idx_zoom + 1) % len(self.available_zooms)
+            self.zoom = self.available_zooms[self.idx_zoom]
+
+        if point_in_rect(self.state.mouse_x, self.state.mouse_y, self.coord):
+            self.select_field = [self.state.mouse_x - self.state.mouse_x % 8 * self.zoom,
+                                 self.state.mouse_y - self.state.mouse_y % 8 * self.zoom]
 
 
     def draw(self):
-        rectfill(0, 8, 128, 78, 0)
+        rectfill(self.coord[0], self.coord[1], self.coord[2], self.coord[3], 0)
         self.draw_with_zoom()
+        self.draw_select_field()
         px8_print("%d %d" % (self.offset_x, self.offset_y), 0, 120, 5)
 
     def draw_with_zoom(self):
-        zoom = 1
+        zoom = self.zoom
 
         idx_y = 0
         for y in range(self.offset_y, self.offset_y + flr(8/zoom)):
@@ -289,10 +304,18 @@ class MapEditor(object):
 
                     dx = idx_x * (8*zoom)
                     dy = idx_y * (8*zoom) + 9
-                    sspr(sprite_x, sprite_y, 8, 8, dx, dy, zoom*8, zoom*8)
+                    sspr(sprite_x, sprite_y, 8, 8, dx, dy, flr(zoom*8), flr(zoom*8))
 
                 idx_x += 1
             idx_y += 1
+
+    def draw_select_field(self):
+        rect(self.select_field[0],
+             self.select_field[1],
+             self.select_field[0] + 8 * self.zoom,
+             self.select_field[1] + 8 * self.zoom,
+             7)
+
 
 class ToolsEditor(object):
     def __init__(self, state):
