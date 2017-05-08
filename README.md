@@ -208,8 +208,8 @@ System shortcut:
   * F2: Information debug (FPS, time execution (draw,update), palette name)
   * F3: Take a screenshot (png)
   * F4: Take a video (gif)
-  * F5: Save the current cartridge
-  * F6: Switch between editor/play mode (if opened with editor)
+  * F5: Save the current cartridge's data (if opened with editor mode)
+  * F6: Switch between editor/play mode (if opened with editor mode)
   * F7: Switch to the next available palette
   
 ## Run a cartridge
