@@ -220,7 +220,6 @@ class PalettePicker(object):
         current_selection_y = (self.idx_y + 8*self.current_selection_y) - 1
         rect(current_selection_x, current_selection_y, current_selection_x+9, current_selection_y+9, 7)
 
-
 class SpriteEditor(object):
     def __init__(self, state):
         self.state = state
@@ -249,9 +248,10 @@ class MapEditor(object):
         self.coord = [0, 8, 128, 78]
         self.offset_x = 0
         self.offset_y = 0
-        self.available_zooms = [1, 1/2]
+        self.available_zooms = [1, 1/2, 1/4]
         self.idx_zoom = 0
         self.zoom = self.available_zooms[self.idx_zoom]
+        self.size_sprite = 8 * self.zoom
         self.select_field = [0, 8]
 
         self._cache = [0] * (128*32)
@@ -277,11 +277,17 @@ class MapEditor(object):
         if btnp(4):
             self.idx_zoom = (self.idx_zoom + 1) % len(self.available_zooms)
             self.zoom = self.available_zooms[self.idx_zoom]
+            self.size_sprite = 8 * self.zoom
 
         if point_in_rect(self.state.mouse_x, self.state.mouse_y, self.coord):
             self.select_field = [self.state.mouse_x - self.state.mouse_x % 8 * self.zoom,
                                  self.state.mouse_y - self.state.mouse_y % 8 * self.zoom]
 
+            if self.state.mouse_state == 1:
+                new_x = (self.select_field[0] + self.offset_x * self.size_sprite) / 8
+                new_y = (self.select_field[1] + self.offset_y * self.size_sprite - 8) / 8
+                idx = flr(new_x + new_y * 128)
+                self._cache[idx] = self.state.current_sprite
 
     def draw(self):
         rectfill(self.coord[0], self.coord[1], self.coord[2], self.coord[3], 0)
