@@ -426,6 +426,7 @@ impl Screen {
     pub fn init(&mut self) {
         self._reset_colors();
         self._reset_transparency();
+        self._reset_clip();
     }
 
     pub fn _reset_transparency(&mut self) {
@@ -435,6 +436,10 @@ impl Screen {
 
     pub fn _reset_colors(&mut self) {
         self.colors.clear();
+    }
+
+    pub fn _reset_clip(&mut self) {
+        self.clipping.clipped = false;
     }
 
     pub fn save(&mut self) {

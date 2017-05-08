@@ -48,11 +48,12 @@ def point_in_rect(x, y, coord):
             coord[1] <= y <= coord[3])
 
 class Widget(object):
-    def __init__(self, name, x, y, data):
+    def __init__(self, name, x, y, data, highlight=None):
         self.name = name
         self.x1 = x
         self.y1 = y
         self.data = data
+        self.highlight = highlight
         self.clicked = False
 
         self.x2 = x
@@ -71,9 +72,18 @@ class Widget(object):
                         self.y1 <= y <= self.y2)
 
     def draw(self):
-        for y, row in enumerate(self.data):
-            for idx, pixel in enumerate(row):
-                pset(self.x1+idx, self.y1+y, pixel)
+        if self.highlight and self.clicked:
+            for y, row in enumerate(self.data):
+                for idx, pixel in enumerate(row):
+                    p = self.highlight.get(pixel)
+                    if p:
+                        pset(self.x1+idx, self.y1+y, p)
+                    else:
+                        pset(self.x1+idx, self.y1+y, pixel)
+        else:
+            for y, row in enumerate(self.data):
+                for idx, pixel in enumerate(row):
+                    pset(self.x1+idx, self.y1+y, pixel)
 
 class SpritesMap(object):
     def __init__(self, state):
@@ -404,7 +414,7 @@ class Editor(object):
                 [8, 6, 8, 8, 8, 8, 6, 8],
                 [8, 6, 6, 6, 6, 6, 6, 8],
                 [6, 8, 8, 8, 8, 8, 8, 6],
-            ]),
+            ], {6: 10}),
             Widget("MAP EDITOR", 119, 1, [
                 [8, 8, 8, 8, 8, 8, 8, 8],
                 [8, 6, 6, 6, 6, 6, 6, 8],
@@ -412,7 +422,7 @@ class Editor(object):
                 [8, 6, 8, 8, 8, 8, 6, 8],
                 [8, 6, 6, 6, 6, 6, 6, 8],
                 [8, 8, 8, 8, 8, 8, 8, 8],
-            ])
+            ], {6: 10})
         ]
 
     def draw_contour(self):

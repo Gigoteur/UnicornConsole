@@ -794,6 +794,8 @@ impl Px8New {
             },
             _ => ()
         }
+
+        self.init();
     }
 
     #[allow(dead_code)]
