@@ -290,12 +290,12 @@ class MapEditor(object):
             self.size_sprite = 8 * self.zoom
 
         if point_in_rect(self.state.mouse_x, self.state.mouse_y, self.coord):
-            self.select_field = [self.state.mouse_x - self.state.mouse_x % 8 * self.zoom,
-                                 self.state.mouse_y - self.state.mouse_y % 8 * self.zoom]
+            self.select_field = [self.state.mouse_x - self.state.mouse_x % self.size_sprite,
+                                 self.state.mouse_y - self.state.mouse_y % self.size_sprite]
 
             if self.state.mouse_state == 1:
-                new_x = (self.select_field[0] + self.offset_x * self.size_sprite) / 8
-                new_y = (self.select_field[1] + self.offset_y * self.size_sprite - 8) / 8
+                new_x = flr((self.select_field[0] + self.offset_x * self.size_sprite) / self.size_sprite)
+                new_y = flr((self.select_field[1] - self.coord[1] + self.offset_y * self.size_sprite) / self.size_sprite)
                 idx = flr(new_x + new_y * 128)
                 self._cache[idx] = self.state.current_sprite
                 mset(new_x, new_y, self.state.current_sprite)
