@@ -41,7 +41,7 @@ It is still in development, but it is usable and the main features are:
  * Controls with dpad + 2 buttons (gamecontroller/joystick support)
  * Unlimited sprites (8x8)
  * Map support (128x32)
- * Edition of the cartridge data
+ * Editor for the sprite and map data
  * PX8 format to be able to use your favorite code editor for Python/Lua/Rust
  * Change the screen definition (128x128, 256x256, WIDTHxHEIGHT)
  * Screenshot (PNG) / Video recording (GIF)
@@ -208,8 +208,8 @@ System shortcut:
   * F2: Information debug (FPS, time execution (draw,update), palette name)
   * F3: Take a screenshot (png)
   * F4: Take a video (gif)
-  * F5: Save the current cartridge
-  * F6: Switch between editor/play mode (if opened with editor)
+  * F5: Save the current cartridge's data (if opened with editor mode)
+  * F6: Switch between editor/play mode (if opened with editor mode)
   * F7: Switch to the next available palette
   
 ## Run a cartridge
