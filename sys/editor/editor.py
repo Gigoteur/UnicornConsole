@@ -288,6 +288,7 @@ class MapEditor(object):
                 new_y = (self.select_field[1] + self.offset_y * self.size_sprite - 8) / 8
                 idx = flr(new_x + new_y * 128)
                 self._cache[idx] = self.state.current_sprite
+                mset(new_x, new_y, self.state.current_sprite)
 
     def draw(self):
         rectfill(self.coord[0], self.coord[1], self.coord[2], self.coord[3], 0)

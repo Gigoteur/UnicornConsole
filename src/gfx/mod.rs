@@ -472,6 +472,11 @@ impl Screen {
         self.sprites = sprites;
     }
 
+
+    pub fn set_map(&mut self, map: [[u32; px8::MAP_HEIGHT]; px8::MAP_WIDTH]) {
+        self.map = map;
+    }
+
     pub fn set_sprites_flags(&mut self, flags: Vec<u8>) {
         if flags.len() != self.sprites.len() {
             error!("Invalid number of flags {:?} --> {:?}", flags.len(), self.sprites.len());
@@ -483,10 +488,6 @@ impl Screen {
             self.sprites[idx].set_flags(flags[idx]);
             idx += 1;
         }
-    }
-
-    pub fn set_map(&mut self, map: [[u32; px8::MAP_HEIGHT]; px8::MAP_WIDTH]) {
-        self.map = map;
     }
 
     pub fn putpixel_direct(&mut self, x: i32, y: i32, col: u32) {
@@ -1225,11 +1226,13 @@ impl Screen {
     }
 
     pub fn mget(&mut self, x: i32, y: i32) -> u32 {
+        debug!("MGET x {:?} y {:?}", x, y);
+
         if x < 0 || y < 0 {
             return 0;
         }
 
-        if x as usize > px8::SCREEN_WIDTH || y as usize >= 32 {
+        if x as usize > px8::MAP_WIDTH || y as usize >= px8::MAP_HEIGHT {
             return 0;
         }
 
@@ -1239,11 +1242,13 @@ impl Screen {
     }
 
     pub fn mset(&mut self, x: i32, y: i32, v: u32) {
+        debug!("MSET x {:?} y {:?} v {:?}", x, y, v);
+
         if x < 0 || y < 0 {
             return;
         }
 
-        if x as usize > px8::SCREEN_WIDTH || y as usize >= 32 {
+        if x as usize > px8::MAP_WIDTH || y as usize >= px8::MAP_HEIGHT {
             return;
         }
 

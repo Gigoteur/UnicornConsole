@@ -630,6 +630,7 @@ impl Px8New {
         info!("[PX8] Saving the current cartridge in {:?}", output_filename);
 
         cartridge.gfx.set_sprites(self.screen.lock().unwrap().sprites.clone());
+        cartridge.map.set_map(self.screen.lock().unwrap().map);
 
         match cartridge.format {
             CartridgeFormat::P8Format => {
