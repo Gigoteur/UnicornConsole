@@ -41,7 +41,7 @@ It is still in development, but it is usable and the main features are:
  * Controls with dpad + 2 buttons (gamecontroller/joystick support)
  * Unlimited sprites (8x8)
  * Map support (128x32)
- * Edition of the cartridge data
+ * Editor for the sprite and map data
  * PX8 format to be able to use your favorite code editor for Python/Lua/Rust
  * Change the screen definition (128x128, 256x256, WIDTHxHEIGHT)
  * Screenshot (PNG) / Video recording (GIF)
