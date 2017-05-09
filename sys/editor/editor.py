@@ -96,6 +96,30 @@ class Widget(object):
                 for idx, pixel in enumerate(row):
                     pset(self.x1+idx, self.y1+y, pixel)
 
+class Flags(object):
+    def __init__(self):
+        self.values = [1, 2, 4, 8, 16, 32, 64, 128]
+        self.flags = {}
+        for i in self.values:
+            self.flags[i] = 0
+
+    def update(self, idx_sprite):
+        for i in [1, 2, 4, 8, 16, 32, 64, 128]:
+            flag = fget(idx_sprite, i)
+            color = 0
+            if flag:
+                color = 7
+
+            self.flags[i] = color
+
+    def draw(self):
+        idx = 0
+        for k in self.values:
+            color = self.flags[k]
+            rectfill(80 + idx, 74, 82 + idx, 76, color)
+            idx += 6
+
+
 class SpritesMap(object):
     def __init__(self, state):
         self.state = state
@@ -105,6 +129,7 @@ class SpritesMap(object):
                             Button(101, 79, 105, 87, 2, "2"),
                             Button(106, 79, 110, 87, 2, "3"),
                             Button(111, 79, 115, 87, 2, "4")]
+        self.flags = Flags()
 
     def update(self):
         self.state.on_current_sprite = False
@@ -122,6 +147,8 @@ class SpritesMap(object):
                 self.state.current_sprite = (x + y * 16) + 64 * self.state.idx_map
                 self.state.x_zoom_sprite = (self.state.current_sprite % 16) * 8
                 self.state.y_zoom_sprite = math.floor(self.state.current_sprite / 16) * 8
+
+        self.flags.update(self.state.current_sprite)
 
     def draw_sprite_map(self):
         zoom = self.state.zoom_sprite
@@ -146,16 +173,7 @@ class SpritesMap(object):
         rect(current_sprite_x - 1, current_sprite_y - 1, current_sprite_x+1+8*zoom, current_sprite_y+1+8*zoom, 0)
 
     def draw_sprite_flags(self):
-        idx = 0
-        for i in [1, 2, 4, 8, 16, 32, 64, 128]:
-            flag = fget(self.state.current_sprite, i)
-            color = 0
-            if flag:
-                color = 7
-
-            circfill(80 + idx, 74, 2, color)
-
-            idx += 6
+        self.flags.draw()
 
     def draw(self):
         self.draw_sprite_map()
@@ -307,9 +325,11 @@ class MapEditor(object):
             new_x = flr((self.select_field[0] + self.offset_x * self.size_sprite) / self.size_sprite)
             new_y = flr((self.select_field[1] - self.coord[1] + self.offset_y * self.size_sprite) / self.size_sprite)
             if self.state.mouse_state == 1:
-                idx = flr(new_x + new_y * 128)
-                self._cache[idx] = self.state.current_sprite
-                mset(new_x, new_y, self.state.current_sprite)
+                for x in range(0, self.state.zoom_sprite):
+                    for y in range(0, self.state.zoom_sprite):
+                        idx = flr((new_x + x) + (new_y + y) * 128)
+                        self._cache[idx] = self.state.current_sprite + x + y * 16
+                        mset(new_x+x, new_y+y, self.state.current_sprite)
 
             self.current_sprite[0] = new_x
             self.current_sprite[1] = new_y
@@ -343,8 +363,8 @@ class MapEditor(object):
     def draw_select_field(self):
         rect(self.select_field[0],
              self.select_field[1],
-             self.select_field[0] + 8 * self.zoom,
-             self.select_field[1] + 8 * self.zoom,
+             self.select_field[0] + 8 * self.zoom * self.state.zoom_sprite,
+             self.select_field[1] + 8 * self.zoom * self.state.zoom_sprite,
              7)
 
 
@@ -391,8 +411,9 @@ class ToolsEditor(object):
                     for x in range(0, 8*self.state.zoom_sprite):
                         for y in range(0, 8*self.state.zoom_sprite):
                             sset(self.state.x_zoom_sprite + x, self.state.y_zoom_sprite + y, 0)
+
                 if widget.name == "COPY":
-                    self.buffer_copy = [0] * (8*self.state.zoom_sprite*8**self.state.zoom_sprite)
+                    self.buffer_copy = [0] * (8*self.state.zoom_sprite*8*self.state.zoom_sprite)
 
                     for x in range(0, 8*self.state.zoom_sprite):
                         for y in range(0, 8*self.state.zoom_sprite):
