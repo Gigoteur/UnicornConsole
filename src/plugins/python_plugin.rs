@@ -234,12 +234,17 @@ pub mod plugin {
     }
 
     def btn_mouse(&self, x: i32) -> PyResult<i32> {
-        let value = self.players(py).lock().unwrap().get_mouse(x as u8);
+        let value = self.players(py).lock().unwrap().mouse_coordinate(x as u8);
         Ok(value)
     }
 
     def btn_mouse_state(&self) -> PyResult<u32> {
-        let value = self.players(py).lock().unwrap().get_mouse_state();
+        let value = self.players(py).lock().unwrap().mouse_state();
+        Ok(value)
+    }
+
+    def btn_mouse_statep(&self) -> PyResult<u32> {
+        let value = self.players(py).lock().unwrap().mouse_state_quick();
         Ok(value)
     }
 

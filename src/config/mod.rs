@@ -9,12 +9,13 @@ pub struct Mouse {
     pub x: i32,
     pub y: i32,
     pub state: u32,
+    pub state_quick: u32,
     pub delay: f64,
 }
 
 impl Mouse {
     pub fn new() -> Mouse {
-        Mouse{x: 0, y: 0, state: 0, delay: 0.}
+        Mouse{x: 0, y: 0, state: 0, state_quick: 0, delay: 0.}
     }
 
 }
@@ -103,11 +104,13 @@ impl Players {
             self.mouse.state = 0;
         }
 
+        self.mouse.state_quick = self.mouse.state;
         self.mouse.delay = elapsed;
     }
 
     pub fn mouse_button_up(&mut self, _mouse_btn: MouseButton, _elapsed: f64) {
         self.mouse.state = 0;
+        self.mouse.state_quick = 0;
     }
 
     pub fn update(&mut self, elapsed: f64) {
@@ -401,7 +404,7 @@ impl Players {
         self.get_value_quick(player, index) == 1
     }
 
-    pub fn get_mouse(&mut self, index: u8) -> i32 {
+    pub fn mouse_coordinate(&mut self, index: u8) -> i32 {
         match index {
             0 => self.mouse.x,
             1 => self.mouse.y,
@@ -409,8 +412,11 @@ impl Players {
         }
     }
 
-    pub fn get_mouse_state(&mut self) -> u32 {
+    pub fn mouse_state(&mut self) -> u32 {
         self.mouse.state
     }
 
+    pub fn mouse_state_quick(&mut self) -> u32 {
+        self.mouse.state_quick
+    }
 }

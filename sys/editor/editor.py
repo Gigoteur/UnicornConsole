@@ -27,6 +27,8 @@ class State(object):
     def __init__(self):
         self.mouse_x = 0
         self.mouse_y = 0
+        self.mouse_state = 0
+        self.mouse_statep = 0
 
         self.idx_sprites_batch = 88
         self.current_sprite = 0
@@ -42,6 +44,12 @@ class State(object):
         self.on_current_sprite_x = 0
         self.on_current_sprite_y = 0
         self.on_current_sprite = False
+
+    def update(self):
+        self.mouse_state = mouse_state()
+        self.mouse_statep = mouse_statep()
+        self.mouse_x = mouse_x()
+        self.mouse_y = mouse_y()
 
 def point_in_rect(x, y, coord):
     return (coord[0] <= x <= coord[2] and
@@ -97,10 +105,6 @@ class SpritesMap(object):
 
     def update(self):
         self.state.on_current_sprite = False
-        self.state.mouse_state = mouse_state()
-        self.state.mouse_x = mouse_x()
-        self.state.mouse_y = mouse_y()
-
         if self.state.mouse_state == 1:
             if point_in_rect(self.state.mouse_x, self.state.mouse_y, self.buttons):
                 for btn_idx, button in enumerate(self.buttons_map):
@@ -189,10 +193,9 @@ class PalettePicker(object):
         return self.current_color
 
     def update(self):
-        _mouse_state = mouse_state()
-        if _mouse_state == 1:
-            _mouse_x = mouse_x()
-            _mouse_y = mouse_y()
+        if self.state.mouse_statep:
+            _mouse_x = self.state.mouse_x
+            _mouse_y = self.state.mouse_y
 
             if point_in_rect(self.state.mouse_x, self.state.mouse_y, [self.state.idx_x_zoom_sprite,
                                                                          self.state.idx_y_zoom_sprite,
@@ -434,6 +437,7 @@ class Editor(object):
         rectfill(75, 9, 128, 76, 5)
 
     def update(self):
+        self.state.update()
         self.sm.update()
         self.tools.update()
         self.current_window.update()

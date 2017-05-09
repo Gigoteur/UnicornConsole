@@ -150,6 +150,8 @@ def mouse_y():
 def mouse_state():
     return px8_input.btn_mouse_state()
 
+def mouse_statep():
+    return px8_input.btn_mouse_statep()
 
 globals()["btn"] = btn
 globals()["btnp"] = btnp
@@ -157,6 +159,7 @@ globals()["btnp"] = btnp
 globals()["mouse_x"] = mouse_x
 globals()["mouse_y"] = mouse_y
 globals()["mouse_state"] = mouse_state
+globals()["mouse_statep"] = mouse_statep
 
 # Map
 
