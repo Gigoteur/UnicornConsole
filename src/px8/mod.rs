@@ -225,23 +225,56 @@ impl Menu {
             let idx_x = (SCREEN_WIDTH / 2 - 20) as i32;
             let idx_y = (SCREEN_WIDTH / 2 - 10) as i32;
 
-            screen.lock().unwrap().rectfill(idx_x, idx_y,
-                                            idx_x + 10 * self.items.len() as i32,
-                                            idx_y + 15 * self.items.len() as i32,
-                                            0);
+            screen.lock().unwrap().rectfill(idx_x, idx_y - 5,
+                                            idx_x + 40,
+                                            idx_y + 10 * self.items.len() as i32,
+                                            11);
 
             screen.lock().unwrap().pset(idx_x, idx_y + (self.idx as i32) * 10, 7);
+
+            self.draw_logo(screen.clone());
 
             let mut pos = 0;
             for item in &self.items {
                 screen.lock().unwrap().print(item.to_string(), idx_x + 5, idx_y + pos * 10, 7);
                 pos += 1;
             }
+
         }
 
         if self.selected_idx == 1 {
             screen.lock().unwrap().cls();
-            // screen.lock().unwrap().print(item.to_string(), 50, 55 + pos * 10, Color::White);
+        }
+    }
+
+    pub fn draw_logo(&mut self, screen: Arc<Mutex<gfx::Screen>>) {
+        let logo = vec![0, 0, 0, 0, 0, 0, 0, 0,
+                        8, 0, 0, 0, 0, 0, 0, 8,
+                        0, 8, 8, 8, 8, 8, 8, 0,
+                        8, 8, 8, 9, 8, 8, 9, 8,
+                        0, 8, 8, 8, 8, 8, 8, 0,
+                        8, 0, 0, 0, 0, 0, 0, 8,
+                        0, 0, 0, 0, 0, 0, 0, 0,
+                        0, 0, 0, 0, 0, 0, 0, 0,
+        ];
+
+        screen.lock().unwrap().print("Powered by PX8".to_string(), 64, 112, 7);
+        let idx_x = 114;
+        let idx_y = 120;
+
+        let mut x = 0;
+        let mut y = 0;
+
+        for c in logo {
+            if x > 0 && x % 8 == 0 {
+                x = 0;
+                y += 1;
+            }
+
+            if c != 0 {
+                screen.lock().unwrap().pset(idx_x + x, idx_y + y, c);
+            }
+            x += 1;
         }
 
     }
