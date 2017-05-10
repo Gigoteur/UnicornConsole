@@ -97,13 +97,15 @@ class Widget(object):
                     pset(self.x1+idx, self.y1+y, pixel)
 
 class Flags(object):
-    def __init__(self):
+    def __init__(self, state):
+        self.state = state
         self.values = [1, 2, 4, 8, 16, 32, 64, 128]
         self.flags = {}
         for i in self.values:
             self.flags[i] = 0
 
     def update(self, idx_sprite):
+        idx = 0
         for i in [1, 2, 4, 8, 16, 32, 64, 128]:
             flag = fget(idx_sprite, i)
             color = 0
@@ -111,6 +113,12 @@ class Flags(object):
                 color = 7
 
             self.flags[i] = color
+
+
+            if self.state.mouse_state and point_in_rect(self.state.mouse_x, self.state.mouse_y, [80+idx, 74, 82+idx, 76]):
+                fset(idx_sprite, i, not flag)
+
+            idx += 6
 
     def draw(self):
         idx = 0
@@ -129,7 +137,7 @@ class SpritesMap(object):
                             Button(101, 79, 105, 87, 2, "2"),
                             Button(106, 79, 110, 87, 2, "3"),
                             Button(111, 79, 115, 87, 2, "4")]
-        self.flags = Flags()
+        self.flags = Flags(state)
 
     def update(self):
         self.state.on_current_sprite = False
@@ -207,9 +215,9 @@ class PalettePicker(object):
             _mouse_y = self.state.mouse_y
 
             if point_in_rect(self.state.mouse_x, self.state.mouse_y, [self.state.idx_x_zoom_sprite,
-                                                                         self.state.idx_y_zoom_sprite,
-                                                                         self.state.idx_x_zoom_sprite+8*8,
-                                                                         self.state.idx_y_zoom_sprite+8*8]):
+                                                                      self.state.idx_y_zoom_sprite,
+                                                                      self.state.idx_x_zoom_sprite+8*8,
+                                                                      self.state.idx_y_zoom_sprite+8*8]):
                 idx_x = math.floor((self.state.mouse_x - self.state.idx_x_zoom_sprite) / 8*self.state.zoom_sprite)
                 idx_y = math.floor((self.state.mouse_y - self.state.idx_y_zoom_sprite) / 8*self.state.zoom_sprite)
 
@@ -242,9 +250,23 @@ class PalettePicker(object):
         current_selection_y = (self.idx_y + 8*self.current_selection_y) - 1
         rect(current_selection_x, current_selection_y, current_selection_x+9, current_selection_y+9, 7)
 
+def shift(direction, count, myList):
+    myLen = len(myList)
+    if direction == "up":
+        return [myList[i % myLen] for i in range(count, count + myLen)]
+    elif direction == "down":
+        return [myList[-i] for i in range(count, count - myLen, -1)]
+    elif direction == "left":
+        tlist = list(zip(*myList))
+        return list(map(list, zip(*[tlist[i % myLen] for i in range(count, count + myLen)])))
+    elif direction == "right":
+        tlist = list(zip(*myList))
+        return map(list, zip(*[tlist[-i] for i in range(count, count - myLen, -1)]))
+
 class SpriteEditor(object):
-    def __init__(self, state):
+    def __init__(self, state, tools):
         self.state = state
+        self.tools = tools
         self.pp = PalettePicker(state)
 
     def update(self):
@@ -253,6 +275,26 @@ class SpriteEditor(object):
         if btnp(4):
             self.state.idx_zoom_sprite = (self.state.idx_zoom_sprite + 1) % len(self.state.sprite_available_zooms)
             self.state.zoom_sprite = self.state.sprite_available_zooms[self.state.idx_zoom_sprite]
+
+        if btnp(0):
+            buffer = self.tools.get_current_formatted_buffer()
+            shift_buffer = shift("left", 1, buffer)
+            self.tools.paste_formatted_buffer(shift_buffer)
+
+        if btnp(1):
+            buffer = self.tools.get_current_formatted_buffer()
+            shift_buffer = shift("right", 1, buffer)
+            self.tools.paste_formatted_buffer(shift_buffer)
+
+        if btnp(2):
+            buffer = self.tools.get_current_formatted_buffer()
+            shift_buffer = shift("up", 1, buffer)
+            self.tools.paste_formatted_buffer(shift_buffer)
+
+        if btnp(3):
+            buffer = self.tools.get_current_formatted_buffer()
+            shift_buffer = shift("down", 1, buffer)
+            self.tools.paste_formatted_buffer(shift_buffer)
 
         if point_in_rect(self.state.mouse_x, self.state.mouse_y, [self.state.idx_x_zoom_sprite,
                                                                   self.state.idx_y_zoom_sprite,
@@ -400,6 +442,47 @@ class ToolsEditor(object):
             ])
         ]
 
+    def get_current_buffer(self):
+        buffer_copy = [0] * (8*self.state.zoom_sprite*8*self.state.zoom_sprite)
+
+        for x in range(0, 8*self.state.zoom_sprite):
+            for y in range(0, 8*self.state.zoom_sprite):
+                buffer_copy[x+y*8*self.state.zoom_sprite] = sget(self.state.x_zoom_sprite + x,
+                                                                 self.state.y_zoom_sprite + y)
+
+        return buffer_copy
+
+    def get_current_formatted_buffer(self):
+        buffer_copy = [[]] * (8*self.state.zoom_sprite)
+        for i in range(0, 8*self.state.zoom_sprite):
+            buffer_copy[i] = [0] * (8*self.state.zoom_sprite)
+
+        for y in range(0, 8*self.state.zoom_sprite):
+            for x in range(0, 8*self.state.zoom_sprite):
+                buffer_copy[y][x] = sget(self.state.x_zoom_sprite + x,
+                                         self.state.y_zoom_sprite + y)
+
+        return buffer_copy
+
+    def copy_buffer(self):
+        self.buffer_copy = self.get_current_buffer()
+
+    def paste_formatted_buffer(self, buffer):
+        l = []
+        for i in buffer:
+            l.extend(i)
+        self.paste_buffer(l)
+
+    def paste_buffer(self, buffer_copy=None):
+        if not buffer_copy:
+            buffer_copy = self.buffer_copy
+
+        for x in range(0, 8*self.state.zoom_sprite):
+            for y in range(0, 8*self.state.zoom_sprite):
+                sset(self.state.x_zoom_sprite + x,
+                     self.state.y_zoom_sprite + y,
+                     buffer_copy[x+y*8*self.state.zoom_sprite])
+
     def update(self):
         if self.state.mouse_state == 1:
             for widget in self.widgets:
@@ -413,19 +496,10 @@ class ToolsEditor(object):
                             sset(self.state.x_zoom_sprite + x, self.state.y_zoom_sprite + y, 0)
 
                 if widget.name == "COPY":
-                    self.buffer_copy = [0] * (8*self.state.zoom_sprite*8*self.state.zoom_sprite)
-
-                    for x in range(0, 8*self.state.zoom_sprite):
-                        for y in range(0, 8*self.state.zoom_sprite):
-                            self.buffer_copy[x+y*8*self.state.zoom_sprite] = sget(self.state.x_zoom_sprite + x,
-                                                                                  self.state.y_zoom_sprite + y)
+                    self.copy_buffer()
 
                 if widget.name == "PASTE":
-                    for x in range(0, 8*self.state.zoom_sprite):
-                        for y in range(0, 8*self.state.zoom_sprite):
-                            sset(self.state.x_zoom_sprite + x,
-                                 self.state.y_zoom_sprite + y,
-                                 self.buffer_copy[x+y*8*self.state.zoom_sprite])
+                    self.paste_buffer()
 
             widget.reset()
 
@@ -437,11 +511,12 @@ class ToolsEditor(object):
 class Editor(object):
     def __init__(self):
         self.state = State()
-
-        self.windows = [SpriteEditor(self.state), MapEditor(self.state)]
-        self.current_window = self.windows[0]
         self.tools = ToolsEditor(self.state)
         self.sm = SpritesMap(self.state)
+
+        self.windows = [SpriteEditor(self.state, self.tools), MapEditor(self.state)]
+        self.current_window = self.windows[0]
+
 
         self.widgets = [
             Widget("SPRITE EDITOR", 110, 1, [
