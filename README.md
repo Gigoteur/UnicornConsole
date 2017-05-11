@@ -325,7 +325,6 @@ circfill | :white_check_mark: | :white_check_mark: | :white_check_mark:
 clip | :white_check_mark: | :white_check_mark: | :white_check_mark:
 cls | :white_check_mark: | :white_check_mark: | :white_check_mark:
 color | :white_check_mark: | :white_check_mark: | :white_check_mark:
-cursor | :red_circle: | :red_circle: | :red_circle:
 ellipse | :white_check_mark: | :white_check_mark: | :white_check_mark:
 ellipsefill | :white_check_mark: | :white_check_mark: | :white_check_mark:
 fget | :white_check_mark: | :white_check_mark: | :white_check_mark:
