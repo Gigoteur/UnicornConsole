@@ -67,13 +67,11 @@ The console is inspired from the awesome [Pico-8](http://www.lexaloffle.com/pico
 
 ![](https://j.gifs.com/vgw08V.gif)
 
-![](https://j.gifs.com/k5gVw5.gif)
-
 ![](http://i.imgur.com/um3gmWh.gif)
 
 Editor mode:
 
-![](http://i.imgur.com/ZxNgWrt.gif)
+![](http://i.imgur.com/pM1lIGS.gif)
 
 More advanced examples:
 
