@@ -1706,7 +1706,6 @@ pub mod plugin {
     use px8::noise::Noise;
     use px8::info::Info;
 
-    use gfx::{SCREEN_WIDTH, SCREEN_HEIGHT};
     use gfx::Screen;
 
 
