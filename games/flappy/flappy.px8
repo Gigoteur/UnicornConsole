@@ -1,0 +1,4 @@
+{
+    "code": "./games/flappy/flappy.py",
+    "data": "./games/flappy/flappy.dpx8"
+}

@@ -119,6 +119,16 @@ fn main() {
         }
     }
 
+
+    let mut mode = px8::PX8Mode::PX8;
+
+    if matches.opt_present("m") {
+        let mode_str = matches.opt_str("m").unwrap();
+        if mode_str == "pico8" {
+            mode = px8::PX8Mode::PICO8;
+        }
+    }
+
     if matches.opt_present("c") {
         if input.contains(".png") {
             match Cartridge::from_png_file(input) {
@@ -137,6 +147,7 @@ fn main() {
                     println!("{:?}", c);
 
                     if matches.opt_present("d") {
+                        c.set_mode(mode == px8::PX8Mode::PICO8);
                         c.dump(matches.opt_str("d").unwrap());
                     }
                 },
@@ -187,15 +198,6 @@ fn main() {
         let mut opengl = false;
         if matches.opt_present("o") {
             opengl = true;
-        }
-
-        let mut mode = px8::PX8Mode::PX8;
-
-        if matches.opt_present("m") {
-            let mode_str = matches.opt_str("m").unwrap();
-            if mode_str == "pico8" {
-                mode = px8::PX8Mode::PICO8;
-            }
         }
 
         start_px8(scale, fullscreen, opengl, input, matches.opt_present("e"), mode);

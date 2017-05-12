@@ -77,8 +77,7 @@ pub mod plugin {
             lua_state.pop(2);
 
             /* Create the PX8Lua object */
-            lua_state.do_string("s = PX8Lua.new()");
-
+            lua_state.do_string("PX8Object = PX8Lua.new()");
             lua_state.do_string(r#"debug_print = print"#);
 
             lua_state.do_string(r#"camera = function(x, y)
@@ -86,7 +85,7 @@ pub mod plugin {
               x = math.floor(x)
               y = math.floor(y)
 
-              s:camera(x, y)
+              PX8Object:camera(x, y)
               end
               "#);
 
@@ -98,7 +97,7 @@ pub mod plugin {
                 p = 0
               end
 
-              return s:btn(p, x) == 1
+              return PX8Object:btn(p, x) == 1
               end
               "#);
             lua_state.do_string(r#"btnp = function(x, p)
@@ -109,7 +108,7 @@ pub mod plugin {
                 p = 0
               end
 
-              return s:btnp(p, x) == 1
+              return PX8Object:btnp(p, x) == 1
               end
               "#);
 
@@ -127,7 +126,7 @@ pub mod plugin {
 
               color = math.floor(color)
 
-              s:rect(x0, y0, x1, y1, color)
+              PX8Object:rect(x0, y0, x1, y1, color)
               end
               "#);
             lua_state.do_string(r#"rectfill = function(x0, y0, x1, y1, color)
@@ -143,7 +142,7 @@ pub mod plugin {
 
               color = math.floor(color)
 
-              s:rectfill(x0, y0, x1, y1, color)
+              PX8Object:rectfill(x0, y0, x1, y1, color)
               end
               "#);
             lua_state.do_string(r#"circ = function(x, y, r, color)
@@ -157,7 +156,7 @@ pub mod plugin {
 
               color = math.floor(color)
 
-              s:circ(x, y, r, color)
+              PX8Object:circ(x, y, r, color)
               end
               "#);
             lua_state.do_string(r#"circfill = function(x, y, r, color)
@@ -171,7 +170,7 @@ pub mod plugin {
 
               color = math.floor(color)
 
-              s:circfill(x, y, r, color)
+              PX8Object:circfill(x, y, r, color)
               end
               "#);
             lua_state.do_string(r#"clip = function(x, y, w, h)
@@ -193,7 +192,7 @@ pub mod plugin {
               w = math.floor(w)
               h = math.floor(h)
 
-              s:clip(x, y, w, h)
+              PX8Object:clip(x, y, w, h)
               end
               "#);
             lua_state.do_string(r#"ellipse = function(x, y, rx, ry, color)
@@ -208,7 +207,7 @@ pub mod plugin {
 
               color = math.floor(color)
 
-              s:ellipse(x, y, rx, ry, color)
+              PX8Object:ellipse(x, y, rx, ry, color)
               end
               "#);
             lua_state.do_string(r#"ellipsefill = function(x, y, rx, ry, color)
@@ -223,7 +222,7 @@ pub mod plugin {
 
               color = math.floor(color)
 
-              s:ellipsefill(x, y, rx, ry, color)
+              PX8Object:ellipsefill(x, y, rx, ry, color)
               end
               "#);
             lua_state.do_string(r#"fget = function(idx, flag)
@@ -231,10 +230,10 @@ pub mod plugin {
               flag = math.floor(flag)
 
               if flag == nil then
-                return s:fget_all(idx)
+                return PX8Object:fget_all(idx)
               end
 
-              return s:fget(idx, flag)
+              return PX8Object:fget(idx, flag)
 
               end
               "#);
@@ -243,12 +242,12 @@ pub mod plugin {
               flag = math.floor(flag)
 
               if value == nil then
-                s:fset_all(idx, flag)
+                PX8Object:fset_all(idx, flag)
               else
                 if value == true then
-                    s:fset(idx, flag, 1)
+                    PX8Object:fset(idx, flag, 1)
                 else
-                    s:fset(idx, flag, 0)
+                    PX8Object:fset(idx, flag, 0)
                 end
               end
 
@@ -267,7 +266,7 @@ pub mod plugin {
 
               color = math.floor(color)
 
-              s:line(x0, y0, x1, y1, color)
+              PX8Object:line(x0, y0, x1, y1, color)
               end
               "#);
             lua_state.do_string(r#"trigon = function(x1, y1, x2, y2, x3, y3, color)
@@ -284,13 +283,13 @@ pub mod plugin {
 
               color = math.floor(color)
 
-              s:trigon(x1, y1, x2, y2, x3, y3, color)
+              PX8Object:trigon(x1, y1, x2, y2, x3, y3, color)
               end
               "#);
 
             lua_state.do_string(r#"rnd = function(x)
               x = math.floor(x)
-              return s:rnd(x)
+              return PX8Object:rnd(x)
               end
               "#);
 
@@ -300,7 +299,7 @@ pub mod plugin {
               "#);
 
             lua_state.do_string(r#"cls = function()
-              s:cls()
+              PX8Object:cls()
               end
               "#);
 
@@ -313,7 +312,7 @@ pub mod plugin {
                 t = 0
               end
 
-              s:palt(c, t)
+              PX8Object:palt(c, t)
               end
               "#);
 
@@ -330,7 +329,7 @@ pub mod plugin {
                 p = -1
               end
 
-              s:pal(c0, c1, p)
+              PX8Object:pal(c0, c1, p)
               end
               "#);
 
@@ -344,7 +343,7 @@ pub mod plugin {
 
               color = math.floor(color)
 
-              s:pset(x, y, color)
+              PX8Object:pset(x, y, color)
 
               end
               "#);
@@ -353,7 +352,7 @@ pub mod plugin {
               x = math.floor(x)
               y = math.floor(y)
 
-              return s:pget(x, y)
+              return PX8Object:pget(x, y)
               end
               "#);
 
@@ -361,7 +360,7 @@ pub mod plugin {
               x = math.floor(x)
               y = math.floor(y)
 
-              return s:sget(x, y)
+              return PX8Object:sget(x, y)
               end
               "#);
 
@@ -376,17 +375,17 @@ pub mod plugin {
 
               color = math.floor(color)
 
-              s:sset(x, y, c)
+              PX8Object:sset(x, y, c)
               end
               "#);
 
             lua_state.do_string(r#"noise = function(x, y, z)
-              return s:noise(x, y, z)
+              return PX8Object:noise(x, y, z)
               end
               "#);
 
             lua_state.do_string(r#"noise_set_seed = function(seed)
-              return s:noise_set_seed(seed)
+              return PX8Object:noise_set_seed(seed)
               end
               "#);
 
@@ -404,7 +403,7 @@ pub mod plugin {
                 layer = 0
               end
 
-              s:map(cel_x, cel_y, sx, sy, cel_w, cel_h, layer)
+              PX8Object:map(cel_x, cel_y, sx, sy, cel_w, cel_h, layer)
               end
               "#);
 
@@ -417,7 +416,7 @@ pub mod plugin {
               x = math.floor(x)
               y = math.floor(y)
 
-              return s:mget(x, y)
+              return PX8Object:mget(x, y)
               end
               "#);
 
@@ -426,7 +425,7 @@ pub mod plugin {
               y = math.floor(y)
               v = math.floor(v)
 
-              s:mset(x, y, v)
+              PX8Object:mset(x, y, v)
               end
               "#);
 
@@ -460,7 +459,7 @@ pub mod plugin {
                 flip_y = 0
               end
 
-              s:spr(n, x, y, w, h, flip_x, flip_y)
+              PX8Object:spr(n, x, y, w, h, flip_x, flip_y)
               end
               "#);
 
@@ -497,7 +496,7 @@ pub mod plugin {
                 flip_y = 0
               end
 
-              s:sspr(sx, sy, sw, sh, dx, dy, dw, dh, flip_x, flip_y)
+              PX8Object:sspr(sx, sy, sw, sh, dx, dy, dw, dh, flip_x, flip_y)
               end
               "#);
 
@@ -519,13 +518,13 @@ pub mod plugin {
               y = math.floor(y)
               col = math.floor(col)
 
-              s:print(str, x, y, col)
+              PX8Object:print(str, x, y, col)
 
               end
               "#);
 
             lua_state.do_string(r#"time = function()
-                v  = s:time()
+                v  = PX8Object:time()
                 return v
               end
               "#);
@@ -544,7 +543,7 @@ pub mod plugin {
 
             lua_state.do_string(r#"color = function(c)
                 c = math.floor(c)
-                s:color(c)
+                PX8Object:color(c)
               end
               "#);
 
@@ -558,7 +557,7 @@ pub mod plugin {
               "#);
 
             lua_state.do_string(r#"stat = function(x)
-                v = s:stat(x)
+                v = PX8Object:stat(x)
                 return v
               end
               "#);
@@ -567,13 +566,13 @@ pub mod plugin {
             /* CARTDATA */
             lua_state.do_string(r#"cartdata = function(x)
               x = math.floor(x)
-              s:cartdata(x)
+              PX8Object:cartdata(x)
               end
               "#);
 
             lua_state.do_string(r#"dget = function(x)
               x = math.floor(x)
-              return s:dget(x)
+              return PX8Object:dget(x)
               end
               "#);
 
@@ -581,7 +580,7 @@ pub mod plugin {
               x = math.floor(x)
               y = math.floor(y)
 
-              s:dset(x, y)
+              PX8Object:dset(x, y)
               end
               "#);
 

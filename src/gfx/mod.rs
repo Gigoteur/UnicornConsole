@@ -1063,53 +1063,52 @@ impl Screen {
     }
 
     pub fn spr(&mut self, n: u32, x: i32, y: i32, w: u32, h: u32, flip_x: bool, flip_y: bool) {
-        let sprites_number = w * h;
-
-        debug!("PRINT SPRITE = {:?} x:{:?} y:{:?} n:{:?} w:{:?} h:{:?} flip_x:{:?} flip_y:{:?}", sprites_number, x, y, n, w, h, flip_x, flip_y);
-
-        let mut idx_w = 0;
+        debug!("PRINT SPRITE = x:{:?} y:{:?} n:{:?} w:{:?} h:{:?} flip_x:{:?} flip_y:{:?}", x, y, n, w, h, flip_x, flip_y);
 
         let mut orig_x = x;
         let mut orig_y = y;
 
-        for i in 0..sprites_number {
-            let mut sprite = self.sprites[(n + i) as usize].clone();
-            if flip_x {
-                sprite = sprite.flip_x();
-            }
-            if flip_y {
-                sprite = sprite.flip_y();
-            }
-
-            let mut new_x = orig_x;
-            let mut new_y = orig_y;
-
-            debug!("SPRITE = {:?} x:{:?} y:{:?} {:?}", (n + i) as usize, new_x, new_y, sprite);
-
-            let mut index = 0;
-            for c in &sprite.data {
-                if !self.is_transparent(*c as u32) {
-                    self.putpixel_(new_x, new_y, *c as u32);
+        for i in 0..h {
+            for j in 0..w {
+                let sprite_offset = ((j + n)+i*16) as usize;
+                if sprite_offset > self.sprites.len() {
+                    break;
                 }
 
-                index = index + 1;
+                let mut sprite = self.sprites[sprite_offset].clone();
 
-                if index != 0 && index % 8 == 0 {
-                    new_y = new_y + 1;
-                    new_x = orig_x;
-                } else {
-                    new_x = new_x + 1;
+                if flip_x {
+                    sprite = sprite.flip_x();
                 }
-            }
+                if flip_y {
+                    sprite = sprite.flip_y();
+                }
 
-            idx_w += 1;
-            orig_x += 8;
+                let mut new_x = orig_x;
+                let mut new_y = orig_y;
 
-            if idx_w == w {
-                orig_y += 8;
-                idx_w = 0;
-                orig_x = 0;
+                debug!("SPRITE = {:?} x:{:?} y:{:?} {:?}", sprite_offset, new_x, new_y, sprite);
+
+                let mut index = 0;
+                for c in &sprite.data {
+                    if !self.is_transparent(*c as u32) {
+                        self.putpixel_(new_x, new_y, *c as u32);
+                    }
+
+                    index = index + 1;
+
+                    if index != 0 && index % 8 == 0 {
+                        new_y = new_y + 1;
+                        new_x = orig_x;
+                    } else {
+                        new_x = new_x + 1;
+                    }
+                }
+
+                orig_x += 8;
             }
+            orig_y += 8;
+            orig_x = x;
         }
     }
 
