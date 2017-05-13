@@ -59,8 +59,6 @@ The console is inspired from the awesome [Pico-8](http://www.lexaloffle.com/pico
 
 ![](http://i.imgur.com/tzoNZAa.gif)
 
-![](http://i.imgur.com/lFB2UPw.gif)
-
 ![](https://j.gifs.com/0gMZ87.gif)
 
 ![](https://j.gifs.com/xGyM1n.gif)
@@ -91,6 +89,9 @@ https://github.com/Gigoteur/PX8/tree/master/examples/voxel
 https://github.com/Gigoteur/PX8/tree/master/games/BR
 ![](http://i.imgur.com/Xp3v1Lj.gif)
 
+* Flappy bird clone(http://p1xl.com/files/flappy.p8):
+https://github.com/Gigoteur/PX8/tree/master/games/flappy
+![](http://i.imgur.com/Wg5jR9t.gif)
 
 ## Download
 
