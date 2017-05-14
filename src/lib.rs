@@ -20,6 +20,7 @@ extern crate rand;
 extern crate time;
 extern crate chrono;
 extern crate libc;
+extern crate num;
 
 extern crate rusttype;
 

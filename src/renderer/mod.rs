@@ -14,6 +14,7 @@ pub mod renderer {
     use sdl2::rect::Point;
     use sdl2::pixels::PixelFormatEnum;
     use std::sync::{Arc, Mutex};
+    use num;
 
     #[derive(Clone, Debug)]
     pub enum RendererError {
@@ -118,6 +119,21 @@ pub mod renderer {
 
         pub fn get_dimensions(&mut self) -> (u32, u32) {
             self.renderer.window().unwrap().size()
+        }
+
+        pub fn window_coords_to_viewport_coords(&mut self,
+                                                window_x: i32,
+                                                window_y: i32)
+                                                -> (i32, i32) {
+            let viewport_x = ((window_x - self.viewport_offset.x()) as f32 /
+                              self.viewport_width as f32 *
+                              px8::SCREEN_WIDTH as f32) as i32;
+            let viewport_y = ((window_y - self.viewport_offset.y()) as f32 /
+                              self.viewport_height as f32 *
+                              px8::SCREEN_HEIGHT as f32) as i32;
+
+            (num::clamp(viewport_x, 0, (px8::SCREEN_WIDTH - 1) as i32),
+             num::clamp(viewport_y, 0, (px8::SCREEN_HEIGHT - 1) as i32))
         }
     }
 }
