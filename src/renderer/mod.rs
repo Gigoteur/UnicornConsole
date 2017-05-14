@@ -10,6 +10,8 @@ pub mod renderer {
 
     use sdl2::VideoSubsystem;
     use sdl2::render;
+    use sdl2::rect::Rect;
+    use sdl2::rect::Point;
     use sdl2::pixels::PixelFormatEnum;
     use std::sync::{Arc, Mutex};
 
@@ -25,6 +27,12 @@ pub mod renderer {
     pub struct Renderer {
         pub renderer: render::Renderer<'static>,
         pub texture: render::Texture,
+
+        window_width: u32,
+        window_height: u32,
+        viewport_width: u32,
+        viewport_height: u32,
+        viewport_offset: Point
     }
 
     impl Renderer {
@@ -35,20 +43,13 @@ pub mod renderer {
                                                       (px8::SCREEN_WIDTH as usize * scale.factor()) as u32,
                                                       (px8::SCREEN_HEIGHT as usize * scale.factor()) as u32);
 
-            let window;
-            if opengl {
-                if fullscreen {
-                    window = window_builder.fullscreen().opengl().build().unwrap();
-                } else {
-                    window = window_builder.resizable().position_centered().opengl().build().unwrap();
-                }
+            let wb = if fullscreen {
+               window_builder.fullscreen()
             } else {
-                if fullscreen {
-                    window = window_builder.fullscreen().build().unwrap();
-                } else {
-                    window = window_builder.resizable().position_centered().build().unwrap();
-                }
-            }
+               window_builder.resizable().position_centered()
+            };
+
+            let window = (if opengl { wb.opengl() } else { wb }).build().unwrap();
 
             info!("[SDL] Creating renderer");
             let renderer = window.renderer().accelerated().present_vsync().build().unwrap();
@@ -59,30 +60,64 @@ pub mod renderer {
                                                   px8::SCREEN_WIDTH as u32,
                                                   px8::SCREEN_HEIGHT as u32).unwrap();
 
-
             Ok(Renderer {
                 renderer: renderer,
                 texture: texture,
+                window_width: 0,
+                window_height: 0,
+                viewport_width: 0,
+                viewport_height: 0,
+                viewport_offset: Point::new(0, 0)
             })
         }
 
         pub fn blit(&mut self, screen: Arc<Mutex<Screen>>) {
+            if self.viewport_width == 0 {
+                self.update_dimensions();
+            }
             self.texture.update(None,
                                 &mut *screen.lock().unwrap().buffer_rgb,
                                 px8::SCREEN_WIDTH * 3).unwrap();
 
             self.renderer.clear();
-            self.renderer.copy(&self.texture, None, None).unwrap();
+            self.renderer.copy(
+                &self.texture,
+                Some(Rect::new(
+                    0, 0,
+                    px8::SCREEN_WIDTH as u32,
+                    px8::SCREEN_HEIGHT as u32)),
+                Some(Rect::new(
+                    self.viewport_offset.x(),
+                    self.viewport_offset.y(),
+                    self.viewport_width,
+                    self.viewport_height))).unwrap();
             self.renderer.present();
         }
 
         pub fn update_dimensions(&mut self) {
+            let (w, h) = self.get_dimensions();
+            self.window_width = w;
+            self.window_height = h;
+
+            let window_aspect_ratio = (w as f32) / (h as f32);
+            let viewport_aspect_ratio = (px8::SCREEN_WIDTH as f32) / (px8::SCREEN_HEIGHT as f32);
+
+            self.viewport_offset =
+                if viewport_aspect_ratio > window_aspect_ratio {
+                    // Need margin at top and bottom
+                    self.viewport_width = self.window_width;
+                    self.viewport_height = (self.viewport_width as f32 / viewport_aspect_ratio) as u32;
+                    Point::new(0, (self.window_height - self.viewport_height) as i32 / 2)
+                } else {
+                    // Need margin at left and right
+                    self.viewport_height = self.window_height;
+                    self.viewport_width = (self.viewport_height as f32 * viewport_aspect_ratio) as u32;
+                    Point::new((self.window_width - self.viewport_width) as i32 / 2, 0)
+                };
         }
 
         pub fn get_dimensions(&mut self) -> (u32, u32) {
-            let size = self.renderer.window().unwrap().size();
-
-            return (size.0, size.1)
+            self.renderer.window().unwrap().size()
         }
     }
 }
