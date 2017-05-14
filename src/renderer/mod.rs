@@ -129,7 +129,8 @@ pub mod renderer {
                               self.viewport_width as f32 *
                               px8::SCREEN_WIDTH as f32) as i32;
             let viewport_y = ((window_y - self.viewport_offset.y()) as f32 /
-                              self.viewport_height as f32 *px8::SCREEN_HEIGHT as f32) as i32;
+                              self.viewport_height as f32 *
+                              px8::SCREEN_HEIGHT as f32) as i32;
 
             (num::clamp(viewport_x, 0, (px8::SCREEN_WIDTH - 1) as i32),
              num::clamp(viewport_y, 0, (px8::SCREEN_HEIGHT - 1) as i32))

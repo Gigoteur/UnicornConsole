@@ -405,9 +405,8 @@ impl Frontend {
             let (width, height) = self.renderer.get_dimensions();
 
             let (mouse_viewport_x, mouse_viewport_y) = 
-                self.renderer.window_coords_to_viewport_coords(
-                    mouse_state.x(),
-                    mouse_state.y());
+                self.renderer
+                    .window_coords_to_viewport_coords(mouse_state.x(), mouse_state.y());
 
             self.players.lock().unwrap().set_mouse_x(mouse_viewport_x);
             self.players.lock().unwrap().set_mouse_y(mouse_viewport_y);
