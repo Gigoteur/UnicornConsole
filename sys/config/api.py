@@ -107,6 +107,9 @@ def sspr(sx, sy, sw, sh, dx, dy, dw=-1, dh=-1, flip_x=False, flip_y=False):
 def trigon(x1, y1, x2, y2, x3, y3, color):
     px8_graphic.trigon(math.floor(x1), math.floor(y1), math.floor(x2), math.floor(y2), math.floor(x3), math.floor(y3), color)
 
+def polygon(x, y, color):
+    px8_graphic.polygon(x, y, color)
+
 globals()["camera"] = camera
 globals()["circ"] = circ
 globals()["circfill"] = circfill
@@ -132,6 +135,7 @@ globals()["spr_dyn_load"] = spr_dyn_load
 globals()["sset"] = sset
 globals()["sspr"] = sspr
 globals()["trigon"] = trigon
+globals()["polygon"] = polygon
 
 # Input
 

@@ -217,6 +217,31 @@ pub mod plugin {
         Ok(0)
     }
 
+
+    def polygon(&self, x: PyList, y: PyList, color: i32) -> PyResult<i32> {
+        if x.len(py) != y.len(py) {
+            return Ok(-1);
+        }
+
+        if x.len(py) < 3 || y.len(py) < 3 {
+            return Ok(-1);
+        }
+
+        let mut vx: Vec<i32> = Vec::new();
+        let mut vy: Vec<i32> = Vec::new();
+
+        for lx in x.iter(py) {
+            vx.push(lx.extract::<i32>(py).unwrap());
+        }
+
+        for ly in y.iter(py) {
+            vy.push(ly.extract::<i32>(py).unwrap());
+        }
+
+        self.screen(py).lock().unwrap().polygon(vx, vy, color);
+        Ok(0)
+    }
+
     });
 
     // Input
