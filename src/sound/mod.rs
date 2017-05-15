@@ -7,6 +7,7 @@ pub mod sound {
     use sdl2;
     use sdl2::audio::{AudioCallback, AudioSpecDesired, AudioSpec, AudioDevice, AudioSpecWAV, AudioCVT, AudioFormat};
     use std::sync::mpsc::{Sender, Receiver};
+    use std::collections::HashMap;
 
     pub trait SoundPlayer: Send {
         fn get_samples(&mut self, sample_count: usize, result: &mut Vec<u8>);
@@ -87,7 +88,7 @@ pub mod sound {
         sample_rate: u32,
         channel_count: u16,
         sdl_device: AudioDevice<Player<T>>,
-        sender: Option<Sender<T>>,
+        pub sender: Option<Sender<T>>,
     }
 
     impl<T> SoundInterface<T>
@@ -111,7 +112,6 @@ pub mod sound {
             let sdl_device = sdl_audio_subsystem.open_playback(None,
                                                                &desired_spec,
                                                                |spec| Player::new(spec, buffer_size, sound_player, receiver)).unwrap();
-
             SoundInterface {
                 sample_rate: sample_rate,
                 channel_count: channel_count,
@@ -125,11 +125,15 @@ pub mod sound {
         }
     }
 
-    pub struct Sound {}
+    pub struct Sound {
+        pub sounds: HashMap<u32, Vec<u8>>,
+    }
 
     impl Sound {
         pub fn new() -> Sound {
-            Sound {}
+            Sound {
+                sounds: HashMap::new(),
+            }
         }
 
         pub fn load(&mut self, filename: String) -> i32 {
@@ -149,12 +153,21 @@ pub mod sound {
 
             let data = cvt.convert(wav.buffer().to_vec());
 
+            let length = self.sounds.len() as u32;
+            self.sounds.insert(length, data);
+
             0
         }
 
-        pub fn play(&mut self, _id: u32) {}
+        pub fn play(&mut self, id_sound: u32) {
+            info!("Play sound {:?}", id_sound);
 
-        pub fn stop(&mut self, _id: u32) {}
+          //  self.sender.unwrap().send(self.sounds.get(&id_sound).unwrap());
+        }
+
+        pub fn stop(&mut self, _id: u32) {
+
+        }
     }
 }
 

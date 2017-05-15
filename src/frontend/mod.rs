@@ -88,7 +88,7 @@ impl Frontend {
         let renderer = renderer::renderer::Renderer::new(sdl_video, fullscreen, opengl, scale).unwrap();
 
         info!("[Frontend] SDL2 audio");
-        let mut sound_interface = sound::sound::SoundInterface::new(sdl_context.clone(), 44100, 512, 1);
+        let mut sound_interface = sound::sound::SoundInterface::new(sdl_context.clone(), 44100, 512, 2);
         sound_interface.start();
 
         let sound = sound::sound::Sound::new();
