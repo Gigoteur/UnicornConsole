@@ -5,7 +5,8 @@ pub mod song;
 #[allow(dead_code, unused_must_use, unused_variables)]
 pub mod sound {
     use sdl2;
-    use sdl2::audio::{AudioCallback, AudioSpecDesired, AudioSpec, AudioDevice, AudioSpecWAV, AudioCVT, AudioFormat};
+    use sdl2::audio::{AudioCallback, AudioSpecDesired, AudioSpec, AudioDevice, AudioSpecWAV,
+                      AudioCVT, AudioFormat};
     use std::sync::mpsc::{Sender, Receiver};
 
     pub trait SoundPlayer: Send {
@@ -71,7 +72,8 @@ pub mod sound {
         type Channel = u8;
         /// Callback routine for SDL2
         fn callback(&mut self, out: &mut [u8]) {
-            self.generator.get_samples(self.frame_size, &mut self.generator_buffer);
+            self.generator
+                .get_samples(self.frame_size, &mut self.generator_buffer);
             let mut idx = 0;
             for item in self.generator_buffer.iter().take(self.frame_size) {
                 for _ in 0..(self.channel_count) {
@@ -91,11 +93,13 @@ pub mod sound {
     }
 
     impl<T> SoundInterface<T>
-        where T: Send {
+        where T: Send
+    {
         pub fn new(sdl_context: sdl2::Sdl,
                    sample_rate: u32,
                    buffer_size: usize,
-                   channel_count: u16) -> SoundInterface<T> {
+                   channel_count: u16)
+                   -> SoundInterface<T> {
             let sdl_audio_subsystem = sdl_context.audio().unwrap();
 
             let desired_spec = AudioSpecDesired {
@@ -108,9 +112,11 @@ pub mod sound {
 
             let (sender, receiver) = ::std::sync::mpsc::channel();
 
-            let sdl_device = sdl_audio_subsystem.open_playback(None,
-                                                               &desired_spec,
-                                                               |spec| Player::new(spec, buffer_size, sound_player, receiver)).unwrap();
+            let sdl_device = sdl_audio_subsystem
+                .open_playback(None,
+                               &desired_spec,
+                               |spec| Player::new(spec, buffer_size, sound_player, receiver))
+                .unwrap();
 
             SoundInterface {
                 sample_rate: sample_rate,
@@ -141,11 +147,14 @@ pub mod sound {
                 .ok()
                 .expect("Could not load test WAV file");
 
-            let cvt = AudioCVT::new(
-                wav.format, wav.channels, wav.freq,
-                AudioFormat::U8, 2, 44100)
-                .ok()
-                .expect("Could not convert WAV file");
+            let cvt = AudioCVT::new(wav.format,
+                                    wav.channels,
+                                    wav.freq,
+                                    AudioFormat::U8,
+                                    2,
+                                    44100)
+                    .ok()
+                    .expect("Could not convert WAV file");
 
             let data = cvt.convert(wav.buffer().to_vec());
 
@@ -183,14 +192,14 @@ pub mod sound {
     }
 
     impl<T> SoundInterface<T>
-        where T: Send {
+        where T: Send
+    {
         pub fn new(_sdl_context: sdl2::Sdl,
                    _sample_rate: u32,
                    _buffer_size: usize,
-                   _channel_count: u16) -> SoundInterface<T> {
-            SoundInterface {
-                phantom: PhantomData,
-            }
+                   _channel_count: u16)
+                   -> SoundInterface<T> {
+            SoundInterface { phantom: PhantomData }
         }
 
         pub fn start(&mut self) {}

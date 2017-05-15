@@ -20,17 +20,19 @@ impl convert::From<io::Error> for Error {
     }
 }
 
-pub fn read_string(buf: &mut Cursor<Vec<u8>>, len: usize) -> Result<String, Error>  {
+pub fn read_string(buf: &mut Cursor<Vec<u8>>, len: usize) -> Result<String, Error> {
     let mut ret = String::new();
     try!(buf.take(len as u64).read_to_string(&mut ret));
     Result::Ok(ret)
 }
 
-pub fn read_stringz(buf: &mut Cursor<Vec<u8>>) -> Result<String, Error>  {
+pub fn read_stringz(buf: &mut Cursor<Vec<u8>>) -> Result<String, Error> {
     let mut ret = String::new();
     let mut buf_ret = Vec::new();
     buf.read_until(0, &mut buf_ret);
-    try!(Cursor::new(buf_ret.clone()).take(buf_ret.len() as u64).read_to_string(&mut ret));
+    try!(Cursor::new(buf_ret.clone())
+             .take(buf_ret.len() as u64)
+             .read_to_string(&mut ret));
     Result::Ok(ret)
 }
 
@@ -50,9 +52,7 @@ pub fn skip_bytes(buf: &mut Cursor<Vec<u8>>, len: usize) {
 }
 
 #[derive(Clone)]
-pub struct SongPattern {
-
-}
+pub struct SongPattern {}
 
 impl SongPattern {
     pub fn new(buf: &mut Cursor<Vec<u8>>) -> SongPattern {
@@ -67,9 +67,7 @@ pub struct SongSequenceRow {
 
 impl SongSequenceRow {
     pub fn new() -> SongSequenceRow {
-        SongSequenceRow {
-            pattern: Vec::new(),
-        }
+        SongSequenceRow { pattern: Vec::new() }
     }
 }
 
@@ -97,9 +95,7 @@ impl SongSequence {
             }
         }
 
-        SongSequence {
-            rows: rows.clone(),
-        }
+        SongSequence { rows: rows.clone() }
     }
 }
 #[derive(Clone)]
@@ -166,7 +162,7 @@ impl SongSection {
 #[allow(dead_code)]
 pub struct Song {
     pub sections: Vec<SongSection>,
-    pub parsing: bool
+    pub parsing: bool,
 }
 
 #[allow(dead_code)]
