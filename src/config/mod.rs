@@ -2,7 +2,7 @@ pub mod keys;
 pub mod controllers;
 
 use self::keys::PX8Key;
-use sdl2::mouse::{MouseButton};
+use sdl2::mouse::MouseButton;
 use std::collections::HashMap;
 
 pub struct Mouse {
@@ -15,9 +15,14 @@ pub struct Mouse {
 
 impl Mouse {
     pub fn new() -> Mouse {
-        Mouse{x: 0, y: 0, state: 0, state_quick: 0, delay: 0.}
+        Mouse {
+            x: 0,
+            y: 0,
+            state: 0,
+            state_quick: 0,
+            delay: 0.,
+        }
     }
-
 }
 pub struct PlayerKeys {
     frames: HashMap<PX8Key, f64>,
@@ -48,7 +53,7 @@ pub struct PlayerKeys {
 
 impl PlayerKeys {
     pub fn new() -> PlayerKeys {
-        PlayerKeys{
+        PlayerKeys {
             frames: HashMap::new(),
             enter: false,
             enter_quick: false,
@@ -82,7 +87,10 @@ impl Players {
         keys.insert(0, PlayerKeys::new());
         keys.insert(1, PlayerKeys::new());
 
-        Players { keys: keys, mouse: Mouse::new() }
+        Players {
+            keys: keys,
+            mouse: Mouse::new(),
+        }
     }
 
     pub fn set_mouse_x(&mut self, x: i32) {
@@ -127,8 +135,10 @@ impl Players {
                         } else {
                             keys.left_quick = true;
                         }
-                    },
-                    _ => { keys.left_quick = true; }
+                    }
+                    _ => {
+                        keys.left_quick = true;
+                    }
                 }
             }
 
@@ -140,8 +150,10 @@ impl Players {
                         } else {
                             keys.right_quick = true;
                         }
-                    },
-                    _ => { keys.right_quick = true; }
+                    }
+                    _ => {
+                        keys.right_quick = true;
+                    }
                 }
             }
 
@@ -153,8 +165,10 @@ impl Players {
                         } else {
                             keys.up_quick = true;
                         }
-                    },
-                    _ => { keys.up_quick = true; }
+                    }
+                    _ => {
+                        keys.up_quick = true;
+                    }
                 }
             }
 
@@ -166,8 +180,10 @@ impl Players {
                         } else {
                             keys.down_quick = true;
                         }
-                    },
-                    _ => { keys.down_quick = true; }
+                    }
+                    _ => {
+                        keys.down_quick = true;
+                    }
                 }
             }
 
@@ -180,8 +196,10 @@ impl Players {
                         } else {
                             keys.o_quick = true;
                         }
-                    },
-                    _ => { keys.o_quick = true; }
+                    }
+                    _ => {
+                        keys.o_quick = true;
+                    }
                 }
             }
 
@@ -193,8 +211,10 @@ impl Players {
                         } else {
                             keys.x_quick = true;
                         }
-                    },
-                    _ => { keys.x_quick = true; }
+                    }
+                    _ => {
+                        keys.x_quick = true;
+                    }
                 }
             }
 
@@ -206,8 +226,10 @@ impl Players {
                         } else {
                             keys.pause_quick = true;
                         }
-                    },
-                    _ => { keys.pause_quick = true; }
+                    }
+                    _ => {
+                        keys.pause_quick = true;
+                    }
                 }
             }
 
@@ -219,65 +241,71 @@ impl Players {
                         } else {
                             keys.enter_quick = true;
                         }
-                    },
-                    _ => { keys.enter_quick = true; }
+                    }
+                    _ => {
+                        keys.enter_quick = true;
+                    }
                 }
             }
         }
     }
 
     pub fn key_down(&mut self, player: u8, key: PX8Key, repeat: bool, elapsed: f64) {
-        debug!("KEY {:?} {:?} {:?} Player {:?} -> DOWN", key, repeat, elapsed, player);
+        debug!("KEY {:?} {:?} {:?} Player {:?} -> DOWN",
+               key,
+               repeat,
+               elapsed,
+               player);
 
         match self.keys.get_mut(&player) {
             Some(keys) => {
                 match key {
                     PX8Key::Right => {
-                        if ! keys.right {
+                        if !keys.right {
                             keys.right_quick = true;
                         }
                         keys.right = true;
-                    },
+                    }
                     PX8Key::Left => {
-                        if ! keys.left {
+                        if !keys.left {
                             keys.left_quick = true;
                         }
                         keys.left = true;
-                    },
+                    }
                     PX8Key::Up => {
-                        if ! keys.up {
+                        if !keys.up {
                             keys.up_quick = true;
                         }
                         keys.up = true
-                    },
+                    }
                     PX8Key::Down => {
-                        if ! keys.down {
+                        if !keys.down {
                             keys.down_quick = true;
                         }
                         keys.down = true;
-                    },
+                    }
                     PX8Key::O => {
-                        if ! keys.o {
+                        if !keys.o {
                             keys.o_quick = true;
                         }
                         keys.o = true;
-                    },
+                    }
                     PX8Key::X => {
-                        if ! keys.x {
+                        if !keys.x {
                             keys.x_quick = true;
                         }
 
                         keys.x = true;
-                    },
+                    }
                     PX8Key::Enter => {
-                        if ! keys.enter {
+                        if !keys.enter {
                             keys.enter_quick = true;
                         }
 
                         keys.enter = true
-                    },
+                    }
                     PX8Key::Pause => {
-                        if ! keys.pause {
+                        if !keys.pause {
                             keys.pause_quick = true;
                         }
 
@@ -285,11 +313,11 @@ impl Players {
                     }
                 }
 
-                if ! repeat {
+                if !repeat {
                     keys.frames.insert(key, elapsed);
                 }
-            },
-            None => ()
+            }
+            None => (),
         }
     }
 
@@ -298,8 +326,8 @@ impl Players {
             Some(keys) => {
                 keys.right = false;
                 keys.left = false;
-            },
-            None => ()
+            }
+            None => (),
         }
     }
 
@@ -308,8 +336,8 @@ impl Players {
             Some(keys) => {
                 keys.up = false;
                 keys.down = false;
-            },
-            None => ()
+            }
+            None => (),
         }
     }
 
@@ -322,38 +350,38 @@ impl Players {
                     PX8Key::Right => {
                         keys.right = false;
                         keys.right_quick = false;
-                    },
+                    }
                     PX8Key::Left => {
                         keys.left = false;
                         keys.left_quick = false;
-                    },
+                    }
                     PX8Key::Up => {
                         keys.up = false;
                         keys.up_quick = false;
-                    },
+                    }
                     PX8Key::Down => {
                         keys.down = false;
                         keys.down_quick = false;
-                    },
+                    }
                     PX8Key::O => {
                         keys.o = false;
                         keys.o_quick = false;
-                    },
+                    }
                     PX8Key::X => {
                         keys.x = false;
                         keys.x_quick = false;
-                    },
+                    }
                     PX8Key::Enter => {
                         keys.enter = false;
                         keys.enter_quick = false;
-                    },
+                    }
                     PX8Key::Pause => {
                         keys.pause = false;
                         keys.pause_quick = false;
                     }
                 }
-            },
-            None => ()
+            }
+            None => (),
         }
     }
 
@@ -369,10 +397,10 @@ impl Players {
                     5 if keys.x => 1,
                     6 if keys.enter => 1,
                     7 if keys.pause => 1,
-                    _ => 0
+                    _ => 0,
                 }
-            },
-            None => 0
+            }
+            None => 0,
         }
     }
 
@@ -389,10 +417,10 @@ impl Players {
                     5 if keys.x_quick => 1,
                     6 if keys.enter_quick => 1,
                     7 if keys.pause_quick => 1,
-                    _ => 0
+                    _ => 0,
                 }
-            },
-            None => 0
+            }
+            None => 0,
         }
     }
 

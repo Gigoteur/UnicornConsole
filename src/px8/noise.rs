@@ -1,5 +1,5 @@
 use num_traits;
-use num_traits::{NumCast};
+use num_traits::NumCast;
 
 use noise::{NoiseModule, Perlin, Seedable};
 
@@ -13,13 +13,11 @@ pub struct Noise {
 
 impl Noise {
     pub fn new() -> Noise {
-        Noise {
-            perlin: Perlin::new()
-        }
+        Noise { perlin: Perlin::new() }
     }
 
     pub fn get(&mut self, x: f64, y: f64, z: f64) -> f64 {
-        let r : f64 = cast(self.perlin.get([x, y, z]));
+        let r: f64 = cast(self.perlin.get([x, y, z]));
         r
     }
 

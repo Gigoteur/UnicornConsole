@@ -4,7 +4,7 @@ use nalgebra::{Dynamic, Matrix, MatrixVec};
 
 use px8;
 
-pub const GLYPH : [[u16; 2]; 95]  = [
+pub const GLYPH: [[u16; 2]; 95] = [
     [0x0000, 0x0000], // space
     [0x0000, 0x1700], // !
     [0x0003, 0x0003], // "
@@ -121,24 +121,24 @@ impl DynSprite {
 
         let mut idx = 0;
 
-        debug!("WIDTH {:?} HEIGHT {:?} -> {:?} {:?}", width, height, d_mat.ncols(), d_mat.nrows());
+        debug!("WIDTH {:?} HEIGHT {:?} -> {:?} {:?}",
+               width,
+               height,
+               d_mat.ncols(),
+               d_mat.nrows());
 
         for i in 0..width {
             for j in 0..height {
-                d_mat[(i+j*width) as usize] = *data.get(idx).unwrap();
+                d_mat[(i + j * width) as usize] = *data.get(idx).unwrap();
                 idx += 1;
             }
         }
 
-        DynSprite {
-            data: d_mat.clone(),
-        }
+        DynSprite { data: d_mat.clone() }
     }
 
     pub fn new_from_matrix(d_mat: DMatrixu32) -> DynSprite {
-        DynSprite {
-            data: d_mat,
-        }
+        DynSprite { data: d_mat }
     }
 
 
@@ -148,11 +148,12 @@ impl DynSprite {
         let n_cols = r_mat.ncols();
         let n_rows = r_mat.nrows();
 
-        for i in 0..n_cols/2 {
+        for i in 0..n_cols / 2 {
             for j in 0..n_rows {
                 let tmp = r_mat[(i + j * n_cols) as usize];
-                r_mat[(i + j * n_cols) as usize] = r_mat[((n_cols - (i+1)) + j * n_cols) as usize];
-                r_mat[((n_cols - (i+1)) + j * n_cols) as usize] = tmp;
+                r_mat[(i + j * n_cols) as usize] = r_mat[((n_cols - (i + 1)) + j * n_cols) as
+                usize];
+                r_mat[((n_cols - (i + 1)) + j * n_cols) as usize] = tmp;
             }
         }
         return r_mat;
@@ -164,16 +165,16 @@ impl DynSprite {
         let n_cols = r_mat.ncols();
         let n_rows = r_mat.nrows();
 
-        for i in 0..n_rows/2 {
+        for i in 0..n_rows / 2 {
             for j in 0..n_cols {
                 let tmp = r_mat[(j + i * n_cols) as usize];
-                r_mat[(j + i * n_cols) as usize] = r_mat[(j + (n_rows - (i+1)) * n_cols) as usize];
-                r_mat[(j + (n_rows - (i+1)) * n_cols) as usize] = tmp;
+                r_mat[(j + i * n_cols) as usize] = r_mat[(j + (n_rows - (i + 1)) * n_cols) as
+                usize];
+                r_mat[(j + (n_rows - (i + 1)) * n_cols) as usize] = tmp;
             }
         }
         return r_mat;
     }
-
 }
 
 impl fmt::Debug for DynSprite {
@@ -183,7 +184,9 @@ impl fmt::Debug for DynSprite {
 
         for j in 0..self.data.nrows() {
             for i in 0..self.data.ncols() {
-                data_matrix.push_str(format!("{:?} ", self.data[(i+j*self.data.ncols()) as usize]).as_str());
+                data_matrix
+                    .push_str(format!("{:?} ", self.data[(i + j * self.data.ncols()) as usize])
+                                  .as_str());
             }
             data_matrix.push('\n');
 
@@ -257,7 +260,9 @@ impl Sprite {
 
         let mut data_clone = self.data.clone();
 
-        let data_line: Vec<_> = data_clone.drain((line*8) as usize..(line*8+8)as usize).collect();
+        let data_line: Vec<_> = data_clone
+            .drain((line * 8) as usize..(line * 8 + 8) as usize)
+            .collect();
 
         for c in data_line.clone() {
             data.push_str(&format!("{:x}", c));
@@ -273,8 +278,8 @@ impl Sprite {
         for i in 0..4 {
             for j in 0..8 {
                 let tmp = ret[(i + j * 8) as usize];
-                ret[(i + j * 8) as usize] = ret[((8 - (i+1)) + j * 8) as usize];
-                ret[((8 - (i+1)) + j * 8) as usize] = tmp;
+                ret[(i + j * 8) as usize] = ret[((8 - (i + 1)) + j * 8) as usize];
+                ret[((8 - (i + 1)) + j * 8) as usize] = tmp;
             }
         }
 
@@ -287,8 +292,8 @@ impl Sprite {
         for i in 0..4 {
             for j in 0..8 {
                 let tmp = ret[(j + i * 8) as usize];
-                ret[(j + i * 8) as usize] = ret[(j + (8 - (i+1)) * 8) as usize];
-                ret[(j + (8 - (i+1)) * 8) as usize] = tmp;
+                ret[(j + i * 8) as usize] = ret[(j + (8 - (i + 1)) * 8) as usize];
+                ret[(j + (8 - (i + 1)) * 8) as usize] = tmp;
             }
         }
 
@@ -303,8 +308,8 @@ impl Sprite {
         return Sprite::new(self.vertical_reflection());
     }
 
-    pub fn to_u8_64_array(&mut self) -> [u8;64] {
-        let mut arr = [0u8;64];
+    pub fn to_u8_64_array(&mut self) -> [u8; 64] {
+        let mut arr = [0u8; 64];
         for (place, element) in arr.iter_mut().zip(self.data.iter()) {
             *place = *element;
         }
@@ -318,7 +323,7 @@ impl fmt::Debug for Sprite {
         data_matrix.push('\n');
 
         for i in 0..8 {
-            data_matrix.push_str(format!("{:?}", &self.data[i*8..i*8+8]).as_str());
+            data_matrix.push_str(format!("{:?}", &self.data[i * 8..i * 8 + 8]).as_str());
             data_matrix.push('\n');
         }
 
@@ -362,7 +367,7 @@ pub struct Camera {
 
 impl Camera {
     pub fn new() -> Camera {
-        Camera {x: 0, y: 0}
+        Camera { x: 0, y: 0 }
     }
 }
 
@@ -376,7 +381,13 @@ pub struct Clipping {
 
 impl Clipping {
     pub fn new() -> Clipping {
-        Clipping {x: 0, y: 0, w: 0, h: 0, clipped: false}
+        Clipping {
+            x: 0,
+            y: 0,
+            w: 0,
+            h: 0,
+            clipped: false,
+        }
     }
 }
 
@@ -484,7 +495,9 @@ impl Screen {
 
     pub fn set_sprites_flags(&mut self, flags: Vec<u8>) {
         if flags.len() != self.sprites.len() {
-            error!("Invalid number of flags {:?} --> {:?}", flags.len(), self.sprites.len());
+            error!("Invalid number of flags {:?} --> {:?}",
+                   flags.len(),
+                   self.sprites.len());
             return;
         }
 
@@ -522,8 +535,10 @@ impl Screen {
 
         // Clipped
         if self.clipping.clipped {
-            if !(x_i >= (self.clipping.x - self.camera.x) && x_i < (self.clipping.x + self.clipping.w - self.camera.x) &&
-                 y_i >= (self.clipping.y - self.camera.y) && y_i < (self.clipping.y + self.clipping.h - self.camera.y)) {
+            if !(x_i >= (self.clipping.x - self.camera.x) &&
+                 x_i < (self.clipping.x + self.clipping.w - self.camera.x) &&
+                 y_i >= (self.clipping.y - self.camera.y) &&
+                 y_i < (self.clipping.y + self.clipping.h - self.camera.y)) {
                 return;
             }
         }
@@ -1045,11 +1060,7 @@ impl Screen {
         let mut idx = 0;
 
         while idx < vx.len() - 1 {
-            self.line(vx[idx],
-                      vy[idx],
-                      vx[idx + 1],
-                      vy[idx + 1],
-                      col);
+            self.line(vx[idx], vy[idx], vx[idx + 1], vy[idx + 1], col);
 
 
             idx += 1;
@@ -1063,14 +1074,21 @@ impl Screen {
     }
 
     pub fn spr(&mut self, n: u32, x: i32, y: i32, w: u32, h: u32, flip_x: bool, flip_y: bool) {
-        debug!("PRINT SPRITE = x:{:?} y:{:?} n:{:?} w:{:?} h:{:?} flip_x:{:?} flip_y:{:?}", x, y, n, w, h, flip_x, flip_y);
+        debug!("PRINT SPRITE = x:{:?} y:{:?} n:{:?} w:{:?} h:{:?} flip_x:{:?} flip_y:{:?}",
+               x,
+               y,
+               n,
+               w,
+               h,
+               flip_x,
+               flip_y);
 
         let mut orig_x = x;
         let mut orig_y = y;
 
         for i in 0..h {
             for j in 0..w {
-                let sprite_offset = ((j + n)+i*16) as usize;
+                let sprite_offset = ((j + n) + i * 16) as usize;
                 if sprite_offset > self.sprites.len() {
                     break;
                 }
@@ -1087,7 +1105,11 @@ impl Screen {
                 let mut new_x = orig_x;
                 let mut new_y = orig_y;
 
-                debug!("SPRITE = {:?} x:{:?} y:{:?} {:?}", sprite_offset, new_x, new_y, sprite);
+                debug!("SPRITE = {:?} x:{:?} y:{:?} {:?}",
+                       sprite_offset,
+                       new_x,
+                       new_y,
+                       sprite);
 
                 let mut index = 0;
                 for c in &sprite.data {
@@ -1116,7 +1138,7 @@ impl Screen {
         //debug!("SPR DYN {:?}: {:?} {:?}", id, x, y);
 
         if id as usize >= self.dyn_sprites.len() {
-            return
+            return;
         }
 
         let mut sprite = self.dyn_sprites[id as usize].clone();
@@ -1165,7 +1187,14 @@ impl Screen {
         (self.dyn_sprites.len() as i32) - 1
     }
 
-    pub fn map(&mut self, cel_x: u32, cel_y: u32, sx: i32, sy: i32, cel_w: u32, cel_h: u32, layer: u8) {
+    pub fn map(&mut self,
+               cel_x: u32,
+               cel_y: u32,
+               sx: i32,
+               sy: i32,
+               cel_w: u32,
+               cel_h: u32,
+               layer: u8) {
         let mut idx_x;
         let mut idx_y: i32 = 0;
 
@@ -1179,7 +1208,14 @@ impl Screen {
             cel_h = px8::MAP_HEIGHT as u32;
         }
 
-        debug!("MAP cel_x {:?} cel_y {:?} sx {:?} sy {:?} cel_w {:?} cel_h {:?} layer {:?}", cel_x, cel_y, sx, sy, cel_w, cel_h, layer);
+        debug!("MAP cel_x {:?} cel_y {:?} sx {:?} sy {:?} cel_w {:?} cel_h {:?} layer {:?}",
+               cel_x,
+               cel_y,
+               sx,
+               sy,
+               cel_w,
+               cel_h,
+               layer);
 
         while idx_y < cel_h as i32 {
             idx_x = 0;
@@ -1194,7 +1230,8 @@ impl Screen {
 
                 debug!("MAP X {:?} MAP Y {:?}", map_x, map_y);
 
-                let idx_sprite = self.map[(map_x as usize) % px8::MAP_WIDTH][(map_y as usize) % px8::MAP_HEIGHT];
+                let idx_sprite = self.map[(map_x as usize) % px8::MAP_WIDTH][(map_y as usize) %
+                px8::MAP_HEIGHT];
 
                 // Skip the sprite 0
                 if idx_sprite != 0 {
@@ -1259,8 +1296,28 @@ impl Screen {
         self.map[x as usize][y as usize] = v;
     }
 
-    pub fn sspr(&mut self, sx: u32, sy: u32, sw: u32, sh: u32, dx: i32, dy: i32, dw: u32, dh: u32, flip_x: bool, flip_y: bool) {
-        debug!("SSPR sx {:?} sy {:?} sw {:?} sh {:?} dx {:?} dy {:?} dw {:?} dh {:?} flip_x {:?} flip_y {:?}", sx, sy, sw, sh, dx, dy, dw, dh, flip_x, flip_y);
+    pub fn sspr(&mut self,
+                sx: u32,
+                sy: u32,
+                sw: u32,
+                sh: u32,
+                dx: i32,
+                dy: i32,
+                dw: u32,
+                dh: u32,
+                flip_x: bool,
+                flip_y: bool) {
+        debug!("SSPR sx {:?} sy {:?} sw {:?} sh {:?} dx {:?} dy {:?} dw {:?} dh {:?} flip_x {:?} flip_y {:?}",
+               sx,
+               sy,
+               sw,
+               sh,
+               dx,
+               dy,
+               dw,
+               dh,
+               flip_x,
+               flip_y);
 
         let mut v = Vec::new();
 
@@ -1289,13 +1346,20 @@ impl Screen {
         x_ratio = ((w1 << 16) / w2) + 1;
         y_ratio = ((h1 << 16) / h2) + 1;
 
-        debug!("SSPR H1 {:?} W1 {:?} H2 {:?} W2 {:?} X RATIO {:?} Y RATIO {:?}", h1, w1, h2, w2, x_ratio, y_ratio);
+        debug!("SSPR H1 {:?} W1 {:?} H2 {:?} W2 {:?} X RATIO {:?} Y RATIO {:?}",
+               h1,
+               w1,
+               h2,
+               w2,
+               x_ratio,
+               y_ratio);
 
         for i in 0..h2 {
             for j in 0..w2 {
                 x2 = (j * x_ratio) >> 16;
                 y2 = (i * y_ratio) >> 16;
-                ret.insert((i * w2 + j) as usize, *v.get((y2 * w1 + x2) as usize).unwrap());
+                ret.insert((i * w2 + j) as usize,
+                           *v.get((y2 * w1 + x2) as usize).unwrap());
             }
         }
 
@@ -1339,7 +1403,7 @@ impl Screen {
         match self.transparency.get(&(value as u32)) {
             Some(&1) => {
                 return true;
-            },
+            }
             Some(&_) => (),
             None => (),
         }
@@ -1374,7 +1438,10 @@ impl Screen {
         let dest_addr = dest_addr * 2;
         let source_addr = source_addr * 2;
 
-        debug!("MEMPCY dest_addr {:?}, source_addr {:?}, len {:?}", dest_addr, source_addr, len);
+        debug!("MEMPCY dest_addr {:?}, source_addr {:?}, len {:?}",
+               dest_addr,
+               source_addr,
+               len);
 
         let a = &self.back_buffer[source_addr as usize..(source_addr + len * 2) as usize].to_vec();
 
@@ -1392,5 +1459,4 @@ impl Screen {
     }
 
     pub fn memset(&mut self, _dest_addr: u32, _val: u32, _len: u32) {}
-
 }
