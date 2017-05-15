@@ -656,6 +656,7 @@ impl Px8New {
                                             SCREEN_HEIGHT as u16,
                                             &[])
                 .unwrap();
+
         encoder.set(gif::Repeat::Infinite).unwrap();
 
         let mut idx = 0;
