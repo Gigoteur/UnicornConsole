@@ -92,7 +92,9 @@ impl Palette {
 
     pub fn get_color(&mut self, color: u32) -> u32 {
         match self.colors.get(&color) {
-            Some(rgb_value) => return (rgb_value.r as u32) << 16 | (rgb_value.g as u32) << 8 | (rgb_value.b as u32),
+            Some(rgb_value) => {
+                return (rgb_value.r as u32) << 16 | (rgb_value.g as u32) << 8 | (rgb_value.b as u32)
+            }
             _ => return 0,
         }
     }
@@ -129,11 +131,7 @@ pub struct RGB {
 
 impl RGB {
     pub fn new(r: u8, g: u8, b: u8) -> RGB {
-        RGB {
-            r: r,
-            g: g,
-            b: b
-        }
+        RGB { r: r, g: g, b: b }
     }
 
     pub fn new_hexa(v: u32) -> RGB {
@@ -206,8 +204,7 @@ impl Menu {
             if self.selected_idx == self.items.len() as i32 {
                 return false;
             }
-        }
-        else {
+        } else {
             if players.lock().unwrap().btnp(0, 2) {
                 self.idx = clamp(self.idx - 1, 0, (self.items.len() as u32) - 1);
             }
@@ -225,18 +222,28 @@ impl Menu {
             let idx_x = (SCREEN_WIDTH / 2 - 20) as i32;
             let idx_y = (SCREEN_WIDTH / 2 - 10) as i32;
 
-            screen.lock().unwrap().rectfill(idx_x, idx_y - 5,
-                                            idx_x + 40,
-                                            idx_y + 10 * self.items.len() as i32,
-                                            11);
+            screen
+                .lock()
+                .unwrap()
+                .rectfill(idx_x,
+                          idx_y - 5,
+                          idx_x + 40,
+                          idx_y + 10 * self.items.len() as i32,
+                          11);
 
-            screen.lock().unwrap().pset(idx_x, idx_y + (self.idx as i32) * 10, 7);
+            screen
+                .lock()
+                .unwrap()
+                .pset(idx_x, idx_y + (self.idx as i32) * 10, 7);
 
             self.draw_logo(screen.clone());
 
             let mut pos = 0;
             for item in &self.items {
-                screen.lock().unwrap().print(item.to_string(), idx_x + 5, idx_y + pos * 10, 7);
+                screen
+                    .lock()
+                    .unwrap()
+                    .print(item.to_string(), idx_x + 5, idx_y + pos * 10, 7);
                 pos += 1;
             }
 
@@ -247,18 +254,23 @@ impl Menu {
         }
     }
 
+    #[cfg_attr(rustfmt, rustfmt_skip)]
     pub fn draw_logo(&mut self, screen: Arc<Mutex<gfx::Screen>>) {
-        let logo = vec![0, 0, 0, 0, 0, 0, 0, 0,
-                        8, 0, 0, 0, 0, 0, 0, 8,
-                        0, 8, 8, 8, 8, 8, 8, 0,
-                        8, 8, 8, 9, 8, 8, 9, 8,
-                        0, 8, 8, 8, 8, 8, 8, 0,
-                        8, 0, 0, 0, 0, 0, 0, 8,
-                        0, 0, 0, 0, 0, 0, 0, 0,
-                        0, 0, 0, 0, 0, 0, 0, 0,
-        ];
+        let logo = vec![
+            0, 0, 0, 0, 0, 0, 0, 0,
+            8, 0, 0, 0, 0, 0, 0, 8,
+            0, 8, 8, 8, 8, 8, 8, 0,
+            8, 8, 8, 9, 8, 8, 9, 8,
+            0, 8, 8, 8, 8, 8, 8, 0,
+            8, 0, 0, 0, 0, 0, 0, 8,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0 ];
 
-        screen.lock().unwrap().print("Powered by PX8".to_string(), 64, 112, 7);
+        screen
+            .lock()
+            .unwrap()
+            .print("Powered by PX8".to_string(), 64, 112, 7);
+
         let idx_x = 114;
         let idx_y = 120;
 
@@ -319,44 +331,82 @@ impl Palettes {
 
     pub fn init(&mut self) {
         // load palettes statically for emscripten
-        self.load("a64".to_string(), include_str!("../../sys/assets/palettes/a64.gpl").to_string());
-        self.load("apple-ii".to_string(), include_str!("../../sys/assets/palettes/apple-ii.gpl").to_string());
-        self.load("arne-paldac".to_string(), include_str!("../../sys/assets/palettes/arne-paldac.gpl").to_string());
-        self.load("arne16".to_string(), include_str!("../../sys/assets/palettes/arne16.gpl").to_string());
-        self.load("arne32".to_string(), include_str!("../../sys/assets/palettes/arne32.gpl").to_string());
-        self.load("atari2600-ntsc".to_string(), include_str!("../../sys/assets/palettes/atari2600-ntsc.gpl").to_string());
-        self.load("atari2600-pal".to_string(), include_str!("../../sys/assets/palettes/atari2600-pal.gpl").to_string());
-        self.load("cg-arne".to_string(), include_str!("../../sys/assets/palettes/cg-arne.gpl").to_string());
-        self.load("cga".to_string(), include_str!("../../sys/assets/palettes/cga.gpl").to_string());
-        self.load("commodore-plus4".to_string(), include_str!("../../sys/assets/palettes/commodore-plus4.gpl").to_string());
-        self.load("commodore-vic20".to_string(), include_str!("../../sys/assets/palettes/commodore-vic20.gpl").to_string());
-        self.load("commodore64".to_string(), include_str!("../../sys/assets/palettes/commodore64.gpl").to_string());
-        self.load("copper-tech".to_string(), include_str!("../../sys/assets/palettes/copper-tech.gpl").to_string());
-        self.load("cpc-boy".to_string(), include_str!("../../sys/assets/palettes/cpc-boy.gpl").to_string());
-        self.load("db16".to_string(), include_str!("../../sys/assets/palettes/db16.gpl").to_string());
-        self.load("db32".to_string(), include_str!("../../sys/assets/palettes/db32.gpl").to_string());
-        self.load("edg16".to_string(), include_str!("../../sys/assets/palettes/edg16.gpl").to_string());
-        self.load("edg32".to_string(), include_str!("../../sys/assets/palettes/edg32.gpl").to_string());
-        self.load("eroge-copper".to_string(), include_str!("../../sys/assets/palettes/eroge-copper.gpl").to_string());
-        self.load("gameboy-color-type1".to_string(), include_str!("../../sys/assets/palettes/gameboy-color-type1.gpl").to_string());
-        self.load("gameboy".to_string(), include_str!("../../sys/assets/palettes/gameboy.gpl").to_string());
-        self.load("google-ui".to_string(), include_str!("../../sys/assets/palettes/google-ui.gpl").to_string());
-        self.load("jmp".to_string(), include_str!("../../sys/assets/palettes/jmp.gpl").to_string());
-        self.load("mail24".to_string(), include_str!("../../sys/assets/palettes/mail24.gpl").to_string());
-        self.load("master-system".to_string(), include_str!("../../sys/assets/palettes/master-system.gpl").to_string());
-        self.load("monokai".to_string(), include_str!("../../sys/assets/palettes/monokai.gpl").to_string());
-        self.load("nes-ntsc".to_string(), include_str!("../../sys/assets/palettes/nes-ntsc.gpl").to_string());
-        self.load("nes".to_string(), include_str!("../../sys/assets/palettes/nes.gpl").to_string());
-        self.load("pico-8".to_string(), include_str!("../../sys/assets/palettes/pico-8.gpl").to_string());
-        self.load("psygnork".to_string(), include_str!("../../sys/assets/palettes/psygnork.gpl").to_string());
-        self.load("smile-basic".to_string(), include_str!("../../sys/assets/palettes/smile-basic.gpl").to_string());
-        self.load("solarized".to_string(), include_str!("../../sys/assets/palettes/solarized.gpl").to_string());
-        self.load("teletext".to_string(), include_str!("../../sys/assets/palettes/teletext.gpl").to_string());
-        self.load("vga-13h".to_string(), include_str!("../../sys/assets/palettes/vga-13h.gpl").to_string());
-        self.load("web-safe-colors".to_string(), include_str!("../../sys/assets/palettes/web-safe-colors.gpl").to_string());
-        self.load("win16".to_string(), include_str!("../../sys/assets/palettes/win16.gpl").to_string());
-        self.load("x11".to_string(), include_str!("../../sys/assets/palettes/x11.gpl").to_string());
-        self.load("zx-spectrum".to_string(), include_str!("../../sys/assets/palettes/zx-spectrum.gpl").to_string());
+        self.load("a64".to_string(),
+                  include_str!("../../sys/assets/palettes/a64.gpl").to_string());
+        self.load("apple-ii".to_string(),
+                  include_str!("../../sys/assets/palettes/apple-ii.gpl").to_string());
+        self.load("arne-paldac".to_string(),
+                  include_str!("../../sys/assets/palettes/arne-paldac.gpl").to_string());
+        self.load("arne16".to_string(),
+                  include_str!("../../sys/assets/palettes/arne16.gpl").to_string());
+        self.load("arne32".to_string(),
+                  include_str!("../../sys/assets/palettes/arne32.gpl").to_string());
+        self.load("atari2600-ntsc".to_string(),
+                  include_str!("../../sys/assets/palettes/atari2600-ntsc.gpl").to_string());
+        self.load("atari2600-pal".to_string(),
+                  include_str!("../../sys/assets/palettes/atari2600-pal.gpl").to_string());
+        self.load("cg-arne".to_string(),
+                  include_str!("../../sys/assets/palettes/cg-arne.gpl").to_string());
+        self.load("cga".to_string(),
+                  include_str!("../../sys/assets/palettes/cga.gpl").to_string());
+        self.load("commodore-plus4".to_string(),
+                  include_str!("../../sys/assets/palettes/commodore-plus4.gpl").to_string());
+        self.load("commodore-vic20".to_string(),
+                  include_str!("../../sys/assets/palettes/commodore-vic20.gpl").to_string());
+        self.load("commodore64".to_string(),
+                  include_str!("../../sys/assets/palettes/commodore64.gpl").to_string());
+        self.load("copper-tech".to_string(),
+                  include_str!("../../sys/assets/palettes/copper-tech.gpl").to_string());
+        self.load("cpc-boy".to_string(),
+                  include_str!("../../sys/assets/palettes/cpc-boy.gpl").to_string());
+        self.load("db16".to_string(),
+                  include_str!("../../sys/assets/palettes/db16.gpl").to_string());
+        self.load("db32".to_string(),
+                  include_str!("../../sys/assets/palettes/db32.gpl").to_string());
+        self.load("edg16".to_string(),
+                  include_str!("../../sys/assets/palettes/edg16.gpl").to_string());
+        self.load("edg32".to_string(),
+                  include_str!("../../sys/assets/palettes/edg32.gpl").to_string());
+        self.load("eroge-copper".to_string(),
+                  include_str!("../../sys/assets/palettes/eroge-copper.gpl").to_string());
+        self.load("gameboy-color-type1".to_string(),
+                  include_str!("../../sys/assets/palettes/gameboy-color-type1.gpl").to_string());
+        self.load("gameboy".to_string(),
+                  include_str!("../../sys/assets/palettes/gameboy.gpl").to_string());
+        self.load("google-ui".to_string(),
+                  include_str!("../../sys/assets/palettes/google-ui.gpl").to_string());
+        self.load("jmp".to_string(),
+                  include_str!("../../sys/assets/palettes/jmp.gpl").to_string());
+        self.load("mail24".to_string(),
+                  include_str!("../../sys/assets/palettes/mail24.gpl").to_string());
+        self.load("master-system".to_string(),
+                  include_str!("../../sys/assets/palettes/master-system.gpl").to_string());
+        self.load("monokai".to_string(),
+                  include_str!("../../sys/assets/palettes/monokai.gpl").to_string());
+        self.load("nes-ntsc".to_string(),
+                  include_str!("../../sys/assets/palettes/nes-ntsc.gpl").to_string());
+        self.load("nes".to_string(),
+                  include_str!("../../sys/assets/palettes/nes.gpl").to_string());
+        self.load("pico-8".to_string(),
+                  include_str!("../../sys/assets/palettes/pico-8.gpl").to_string());
+        self.load("psygnork".to_string(),
+                  include_str!("../../sys/assets/palettes/psygnork.gpl").to_string());
+        self.load("smile-basic".to_string(),
+                  include_str!("../../sys/assets/palettes/smile-basic.gpl").to_string());
+        self.load("solarized".to_string(),
+                  include_str!("../../sys/assets/palettes/solarized.gpl").to_string());
+        self.load("teletext".to_string(),
+                  include_str!("../../sys/assets/palettes/teletext.gpl").to_string());
+        self.load("vga-13h".to_string(),
+                  include_str!("../../sys/assets/palettes/vga-13h.gpl").to_string());
+        self.load("web-safe-colors".to_string(),
+                  include_str!("../../sys/assets/palettes/web-safe-colors.gpl").to_string());
+        self.load("win16".to_string(),
+                  include_str!("../../sys/assets/palettes/win16.gpl").to_string());
+        self.load("x11".to_string(),
+                  include_str!("../../sys/assets/palettes/x11.gpl").to_string());
+        self.load("zx-spectrum".to_string(),
+                  include_str!("../../sys/assets/palettes/zx-spectrum.gpl").to_string());
     }
 
     pub fn load(&mut self, name: String, data: String) {
@@ -378,7 +428,7 @@ impl Palettes {
 
             let l_b = l.as_bytes();
 
-            if ! (l_b[0] as char).is_digit(10) {
+            if !(l_b[0] as char).is_digit(10) {
                 continue;
             }
 
@@ -406,18 +456,21 @@ impl Palettes {
 
         let mut idx = 0;
         for rgb_value in values {
-            PALETTE.lock().unwrap().set_color(idx, rgb_value.r, rgb_value.g, rgb_value.b);
+            PALETTE
+                .lock()
+                .unwrap()
+                .set_color(idx, rgb_value.r, rgb_value.g, rgb_value.b);
             idx += 1;
         }
 
         self.name = name.clone();
     }
 
-    pub fn set_color(&mut self, color:u32, r: u8, g: u8, b: u8) {
+    pub fn set_color(&mut self, color: u32, r: u8, g: u8, b: u8) {
         PALETTE.lock().unwrap().set_color(color, r, g, b);
     }
 
-    pub fn get_color(&mut self, color:u32) -> u32 {
+    pub fn get_color(&mut self, color: u32) -> u32 {
         PALETTE.lock().unwrap().get_color(color)
     }
 
@@ -476,7 +529,10 @@ impl Px8New {
 
     pub fn init(&mut self) {
         self.palettes.lock().unwrap().init();
-        self.palettes.lock().unwrap().switch_to("pico-8".to_string());
+        self.palettes
+            .lock()
+            .unwrap()
+            .switch_to("pico-8".to_string());
 
         self.screen.lock().unwrap().init();
         self.update_return = true;
@@ -493,15 +549,23 @@ impl Px8New {
 
     pub fn debug_update(&mut self) {
         if self.show_info_overlay {
-            self.screen.lock().unwrap().rectfill(0, 0, SCREEN_WIDTH as i32, 8, 0);
+            self.screen
+                .lock()
+                .unwrap()
+                .rectfill(0, 0, SCREEN_WIDTH as i32, 8, 0);
 
-            self.screen.lock().unwrap().force_print(format!("{:.0}FPS {:.2} {:.2} {:?}",
-                                                            self.fps,
-                                                            self.draw_time,
-                                                            self.update_time,
-                                                            &self.palettes.lock().unwrap().name).to_string(),
-                                                    0, 0,
-                                                    7);
+            self.screen
+                .lock()
+                .unwrap()
+                .force_print(format!("{:.0}FPS {:.2} {:.2} {:?}",
+                                     self.fps,
+                                     self.draw_time,
+                                     self.update_time,
+                                     &self.palettes.lock().unwrap().name)
+                                     .to_string(),
+                             0,
+                             0,
+                             7);
         }
     }
 
@@ -513,7 +577,7 @@ impl Px8New {
                 }
 
                 return self.menu.update(players);
-            },
+            }
             PX8State::RUN => {
                 if self.is_end() {
                     return false;
@@ -530,7 +594,7 @@ impl Px8New {
         match self.state {
             PX8State::PAUSE => {
                 self.menu.draw(self.screen.clone());
-            },
+            }
             PX8State::RUN => {
                 self.draw_time = self.call_draw() * 1000.0;
 
@@ -580,18 +644,26 @@ impl Px8New {
     }
 
     pub fn stop_record(&mut self, scale: usize) {
-        info!("[PX8] Stop to record the frame {:?}", self.record.images.len());
+        info!("[PX8] Stop to record the frame {:?}",
+              self.record.images.len());
 
         self.record.recording = false;
 
         let mut filedata = File::create(self.record.filename.clone()).unwrap();
 
-        let mut encoder = gif::Encoder::new(&mut filedata, SCREEN_WIDTH as u16, SCREEN_HEIGHT as u16, &[]).unwrap();
+        let mut encoder = gif::Encoder::new(&mut filedata,
+                                            SCREEN_WIDTH as u16,
+                                            SCREEN_HEIGHT as u16,
+                                            &[])
+                .unwrap();
         encoder.set(gif::Repeat::Infinite).unwrap();
 
         let mut idx = 0;
         for i in 0..self.record.images.len() / (SCREEN_WIDTH * SCREEN_HEIGHT * 3) {
-            info!("[PX8] Generate frame {:?} {:?}/{:?}", i, self.record.images.len(), idx);
+            info!("[PX8] Generate frame {:?} {:?}/{:?}",
+                  i,
+                  self.record.images.len(),
+                  idx);
 
             let mut buffer: Vec<u8> = Vec::new();
 
@@ -606,15 +678,17 @@ impl Px8New {
 
             info!("[PX8] Creating ImageBuffer {:?}", buffer.len());
 
-            let image = image::ImageBuffer::from_raw(SCREEN_WIDTH as u32,
-                                                     SCREEN_HEIGHT as u32,
-                                                     buffer).unwrap();
+            let image =
+                image::ImageBuffer::from_raw(SCREEN_WIDTH as u32, SCREEN_HEIGHT as u32, buffer)
+                    .unwrap();
 
             info!("[PX8] Rotating image");
-            let image = image::DynamicImage::ImageRgb8(image).rotate90().resize(
-                (SCREEN_WIDTH * scale) as u32,
-                (SCREEN_HEIGHT * scale) as u32,
-                image::FilterType::Nearest).fliph();
+            let image = image::DynamicImage::ImageRgb8(image)
+                .rotate90()
+                .resize((SCREEN_WIDTH * scale) as u32,
+                        (SCREEN_HEIGHT * scale) as u32,
+                        image::FilterType::Nearest)
+                .fliph();
 
             info!("[PX8] Creating gif Frame");
             let mut frame = gif::Frame::from_rgb((SCREEN_WIDTH * scale) as u16,
@@ -644,13 +718,14 @@ impl Px8New {
             }
         }
 
-        let image = image::ImageBuffer::from_raw(SCREEN_WIDTH as u32,
-                                                 SCREEN_HEIGHT as u32,
-                                                 buffer).unwrap();
-        let image = image::DynamicImage::ImageRgb8(image).rotate270().resize(
-            (SCREEN_WIDTH * 4) as u32,
-            (SCREEN_WIDTH * 4) as u32,
-            image::FilterType::Nearest).flipv();
+        let image = image::ImageBuffer::from_raw(SCREEN_WIDTH as u32, SCREEN_HEIGHT as u32, buffer)
+            .unwrap();
+        let image = image::DynamicImage::ImageRgb8(image)
+            .rotate270()
+            .resize((SCREEN_WIDTH * 4) as u32,
+                    (SCREEN_WIDTH * 4) as u32,
+                    image::FilterType::Nearest)
+            .flipv();
 
         let mut output = File::create(&Path::new(&filename)).unwrap();
         image.save(&mut output, image::ImageFormat::PNG).unwrap();
@@ -660,18 +735,21 @@ impl Px8New {
         let ref mut cartridge = self.cartridges[self.current_cartridge];
 
         let output_filename = cartridge.filename.clone();
-        info!("[PX8] Saving the current cartridge in {:?}", output_filename);
+        info!("[PX8] Saving the current cartridge in {:?}",
+              output_filename);
 
-        cartridge.gfx.set_sprites(self.screen.lock().unwrap().sprites.clone());
+        cartridge
+            .gfx
+            .set_sprites(self.screen.lock().unwrap().sprites.clone());
         cartridge.map.set_map(self.screen.lock().unwrap().map);
 
         match cartridge.format {
             CartridgeFormat::P8Format => {
                 cartridge.save_in_p8(output_filename);
-            },
+            }
             CartridgeFormat::PngFormat => {
                 cartridge.save_in_p8(output_filename);
-            },
+            }
             CartridgeFormat::Px8Format => {
                 cartridge.save_data();
             }
@@ -683,7 +761,7 @@ impl Px8New {
             PX8State::PAUSE => {
                 self.state = PX8State::RUN;
                 self.screen.lock().unwrap().restore();
-            },
+            }
             PX8State::RUN => {
                 self.menu.reset();
                 self.state = PX8State::PAUSE;
@@ -703,7 +781,8 @@ impl Px8New {
                           info: Arc<Mutex<Info>>,
                           sound: Arc<Mutex<Sound>>,
                           editor: bool,
-                          mode: PX8Mode) -> bool {
+                          mode: PX8Mode)
+                          -> bool {
         let idx = self.cartridges.len();
 
         if filename.contains(".png") {
@@ -734,10 +813,20 @@ impl Px8New {
 
         self.cartridges[idx].set_mode(mode == PX8Mode::PICO8);
 
-        self.screen.lock().unwrap().set_sprites(self.cartridges[idx].gfx.sprites.clone());
-        self.screen.lock().unwrap().set_sprites_flags(self.cartridges[idx].gff.flags.clone());
+        self.screen
+            .lock()
+            .unwrap()
+            .set_sprites(self.cartridges[idx].gfx.sprites.clone());
 
-        self.screen.lock().unwrap().set_map(self.cartridges[idx].map.map);
+        self.screen
+            .lock()
+            .unwrap()
+            .set_sprites_flags(self.cartridges[idx].gff.flags.clone());
+
+        self.screen
+            .lock()
+            .unwrap()
+            .set_map(self.cartridges[idx].map.map);
 
         self.load_plugin(idx, players, info, sound, editor)
     }
@@ -750,7 +839,8 @@ impl Px8New {
                               info: Arc<Mutex<Info>>,
                               sound: Arc<Mutex<Sound>>,
                               editor: bool,
-                              mode: PX8Mode) -> bool {
+                              mode: PX8Mode)
+                              -> bool {
         let idx = self.cartridges.len();
 
         if filename.contains(".png") {
@@ -776,8 +866,15 @@ impl Px8New {
 
         self.cartridges[idx].set_mode(mode == PX8Mode::PICO8);
 
-        self.screen.lock().unwrap().set_sprites(self.cartridges[idx].gfx.sprites.clone());
-        self.screen.lock().unwrap().set_map(self.cartridges[idx].map.map);
+        self.screen
+            .lock()
+            .unwrap()
+            .set_sprites(self.cartridges[idx].gfx.sprites.clone());
+
+        self.screen
+            .lock()
+            .unwrap()
+            .set_map(self.cartridges[idx].map.map);
 
         self.load_plugin(idx, players, info, sound, editor)
     }
@@ -806,14 +903,15 @@ impl Px8New {
                     info!("[PX8] Reloading code section for the cartridge");
                     self.cartridges[idx].code.reload();
                 }
-                _ => ()
+                _ => (),
             }
 
             data = self.cartridges[idx].code.get_data().clone();
             self.cartridges[idx].edit = false;
             self.code_type = self._get_code_type(idx);
         } else {
-            data = self.load_editor("./sys/editor/editor.py".to_string()).clone();
+            data = self.load_editor("./sys/editor/editor.py".to_string())
+                .clone();
             self.cartridges[idx].edit = true;
             self.code_type = Code::PYTHON;
         }
@@ -821,11 +919,11 @@ impl Px8New {
         match self.code_type {
             Code::LUA => {
                 self.lua_plugin.load_code(data);
-            },
+            }
             Code::PYTHON => {
                 self.python_plugin.load_code(data);
-            },
-            _ => ()
+            }
+            _ => (),
         }
 
         self.init();
@@ -842,7 +940,8 @@ impl Px8New {
                        players: Arc<Mutex<Players>>,
                        info: Arc<Mutex<Info>>,
                        sound: Arc<Mutex<Sound>>,
-                       editor: bool) -> bool {
+                       editor: bool)
+                       -> bool {
         let data;
 
         info!("[PX8] Load the plugin");
@@ -855,15 +954,17 @@ impl Px8New {
                 Code::LUA => {
                     info!("[PX8] Loading LUA Plugin");
                     // load the lua plugin
-                    self.lua_plugin.load(players.clone(),
-                                         info.clone(),
-                                         self.screen.clone(),
-                                         self.noise.clone());
+                    self.lua_plugin
+                        .load(players.clone(),
+                              info.clone(),
+                              self.screen.clone(),
+                              self.noise.clone());
                 }
                 _ => (),
             }
 
-            data = self.load_editor("./sys/editor/editor.py".to_string()).clone();
+            data = self.load_editor("./sys/editor/editor.py".to_string())
+                .clone();
             self.cartridges[idx].edit = true;
             self.code_type = Code::PYTHON;
         } else {
@@ -874,26 +975,28 @@ impl Px8New {
             Code::LUA => {
                 info!("[PX8] Loading LUA Plugin");
 
-                self.lua_plugin.load(players.clone(),
-                                     info.clone(),
-                                     self.screen.clone(),
-                                     self.noise.clone());
+                self.lua_plugin
+                    .load(players.clone(),
+                          info.clone(),
+                          self.screen.clone(),
+                          self.noise.clone());
 
-                return self.lua_plugin.load_code(data)
-            },
+                return self.lua_plugin.load_code(data);
+            }
             Code::PYTHON => {
                 info!("[PX8] Loading PYTHON Plugin");
 
-                self.python_plugin.load(self.palettes.clone(),
-                                        players.clone(),
-                                        info.clone(),
-                                        self.screen.clone(),
-                                        sound.clone(),
-                                        self.noise.clone());
+                self.python_plugin
+                    .load(self.palettes.clone(),
+                          players.clone(),
+                          info.clone(),
+                          self.screen.clone(),
+                          sound.clone(),
+                          self.noise.clone());
 
-                return self.python_plugin.load_code(data)
-            },
-            _ => ()
+                return self.python_plugin.load_code(data);
+            }
+            _ => (),
         }
 
         false
@@ -918,20 +1021,21 @@ impl Px8New {
         let current_time = time::now();
 
         match self.code_type {
-            Code::LUA       => self.lua_plugin.init(),
-            Code::PYTHON    => self.python_plugin.init(),
+            Code::LUA => self.lua_plugin.init(),
+            Code::PYTHON => self.python_plugin.init(),
             Code::RUST => {
                 self.draw_return = true;
                 for callback in self.rust_plugin.iter_mut() {
                     callback.init(self.screen.clone());
                 }
             }
-            _   => (),
+            _ => (),
         }
 
-        let diff_time =  time::now() - current_time;
-        let nanoseconds = (diff_time.num_nanoseconds().unwrap() as f64) - (diff_time.num_seconds() * 1000000000) as f64;
-        let elapsed_time = diff_time.num_seconds() as f64 + nanoseconds/1000000000.0;
+        let diff_time = time::now() - current_time;
+        let nanoseconds = (diff_time.num_nanoseconds().unwrap() as f64) -
+                          (diff_time.num_seconds() * 1000000000) as f64;
+        let elapsed_time = diff_time.num_seconds() as f64 + nanoseconds / 1000000000.0;
 
         return elapsed_time;
     }
@@ -940,20 +1044,21 @@ impl Px8New {
         let current_time = time::now();
 
         match self.code_type {
-            Code::LUA       => self.draw_return = self.lua_plugin.draw(),
-            Code::PYTHON    => self.draw_return = self.python_plugin.draw(),
+            Code::LUA => self.draw_return = self.lua_plugin.draw(),
+            Code::PYTHON => self.draw_return = self.python_plugin.draw(),
             Code::RUST => {
                 self.draw_return = true;
                 for callback in self.rust_plugin.iter_mut() {
                     callback.draw(self.screen.clone());
                 }
             }
-            _   => (),
+            _ => (),
         }
 
-        let diff_time =  time::now() - current_time;
-        let nanoseconds = (diff_time.num_nanoseconds().unwrap() as f64) - (diff_time.num_seconds() * 1000000000) as f64;
-        let elapsed_time = diff_time.num_seconds() as f64 + nanoseconds/1000000000.0;
+        let diff_time = time::now() - current_time;
+        let nanoseconds = (diff_time.num_nanoseconds().unwrap() as f64) -
+                          (diff_time.num_seconds() * 1000000000) as f64;
+        let elapsed_time = diff_time.num_seconds() as f64 + nanoseconds / 1000000000.0;
 
         return elapsed_time;
     }
@@ -962,22 +1067,22 @@ impl Px8New {
         let current_time = time::now();
 
         match self.code_type {
-            Code::LUA       => self.update_return = self.lua_plugin.update(),
-            Code::PYTHON    => self.update_return = self.python_plugin.update(),
+            Code::LUA => self.update_return = self.lua_plugin.update(),
+            Code::PYTHON => self.update_return = self.python_plugin.update(),
             Code::RUST => {
                 self.update_return = true;
                 for callback in self.rust_plugin.iter_mut() {
                     callback.update(players.clone());
                 }
             }
-            _   => (),
+            _ => (),
         }
 
-        let diff_time =  time::now() - current_time;
-        let nanoseconds = (diff_time.num_nanoseconds().unwrap() as f64) - (diff_time.num_seconds() * 1000000000) as f64;
-        let elapsed_time = diff_time.num_seconds() as f64 + nanoseconds/1000000000.0;
+        let diff_time = time::now() - current_time;
+        let nanoseconds = (diff_time.num_nanoseconds().unwrap() as f64) -
+                          (diff_time.num_seconds() * 1000000000) as f64;
+        let elapsed_time = diff_time.num_seconds() as f64 + nanoseconds / 1000000000.0;
 
         return elapsed_time;
     }
-
 }

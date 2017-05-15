@@ -12,7 +12,7 @@ use px8::px8::math;
 use px8::frontend;
 use px8::gfx;
 use px8::cartridge;
-use px8::px8::{RustPlugin};
+use px8::px8::RustPlugin;
 use px8::config::Players;
 
 pub struct HelloWorld {
@@ -56,13 +56,17 @@ impl RustPlugin for HelloWorld {
             for j0 in 0..7 {
                 let j: i32 = 7 - j0;
                 let col: i32 = 7 + j - 1;
-                let t1:i32 = self.t + i * 4 - j * 2;
+                let t1: i32 = self.t + i * 4 - j * 2;
 
                 let x: i32 = (math::cos(j0 as f64) * 5.0).floor() as i32;
-                let y: i32 = ((38 + j) as f64 + math::cos((t1 as f64 / 50.0) as f64) * 5.0).floor() as i32;
+                let y: i32 = ((38 + j) as f64 + math::cos((t1 as f64 / 50.0) as f64) * 5.0)
+                    .floor() as i32;
 
                 screen.lock().unwrap().pal(7, col);
-                screen.lock().unwrap().spr(16 + i as u32, 8 + i * 8 + x, y, 1, 1, false, false);
+                screen
+                    .lock()
+                    .unwrap()
+                    .spr(16 + i as u32, 8 + i * 8 + x, y, 1, 1, false, false);
             }
         }
 
@@ -75,9 +79,13 @@ impl RustPlugin for HelloWorld {
 fn main() {
     let logger_config = fern::DispatchConfig {
         format: Box::new(|msg: &str, level: &log::LogLevel, _location: &log::LogLocation| {
-            format!("[{}][{}] {}", time::now().strftime("%Y-%m-%d][%H:%M:%S").unwrap(), level, msg)
-        }),
-        output: vec![fern::OutputConfig::stdout(), fern::OutputConfig::file("output.log")],
+                             format!("[{}][{}] {}",
+                                     time::now().strftime("%Y-%m-%d][%H:%M:%S").unwrap(),
+                                     level,
+                                     msg)
+                         }),
+        output: vec![fern::OutputConfig::stdout(),
+                     fern::OutputConfig::file("output.log")],
         level: log::LogLevelFilter::Trace,
     };
 
@@ -90,7 +98,7 @@ fn main() {
 
     let mut frontend = match frontend::Frontend::init(px8::gfx::Scale::Scale4x, false, true) {
         Err(error) => panic!("{:?}", error),
-        Ok(frontend) => frontend
+        Ok(frontend) => frontend,
     };
 
     frontend.px8.register(helloworld_example);

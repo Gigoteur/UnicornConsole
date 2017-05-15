@@ -50,7 +50,7 @@ fn read_u16(v: &mut Vec<u8>) -> usize {
     return x1 << 8 | x2;
 }
 
-pub struct CartridgePython{
+pub struct CartridgePython {
     pub data: String,
 }
 
@@ -69,7 +69,7 @@ impl CartridgePython {
     }
 }
 
-pub struct CartridgeLua{
+pub struct CartridgeLua {
     pub data: String,
 }
 
@@ -229,15 +229,22 @@ impl CartridgeLua {
 
             let mut idx: usize = 0;
 
-            let map_converter = "#\n 0123456789abcdefghijklmnopqrstuvwxyz!#%(){}[]<>+=/*:;.,~_".to_string().into_bytes();
+            let map_converter = "#\n 0123456789abcdefghijklmnopqrstuvwxyz!#%(){}[]<>+=/*:;.,~_"
+                .to_string()
+                .into_bytes();
 
             while code.len() < size_code as usize {
                 let x = (*code_raw.get(idx + 1).unwrap() << 4) | (*code_raw.get(idx).unwrap());
 
-                debug!("CURRENT {:?} {:?} ({:?} < {:?})", x, idx, code.len(), size_code);
+                debug!("CURRENT {:?} {:?} ({:?} < {:?})",
+                       x,
+                       idx,
+                       code.len(),
+                       size_code);
 
                 if x == 0x0 {
-                    let value = (*code_raw.get(idx + 2 + 1).unwrap() << 4) | (*code_raw.get(idx + 2).unwrap());
+                    let value = (*code_raw.get(idx + 2 + 1).unwrap() << 4) |
+                                (*code_raw.get(idx + 2).unwrap());
                     code.push(value as char);
                     idx += 2;
                 } else if x <= 0x3b {
@@ -245,7 +252,8 @@ impl CartridgeLua {
                     code.push(value);
                 } else {
                     let code1: usize = x as usize;
-                    let code2: usize = (*code_raw.get(idx + 2 + 1).unwrap() << 4) as usize | (*code_raw.get(idx + 2).unwrap()) as usize;
+                    let code2: usize = (*code_raw.get(idx + 2 + 1).unwrap() << 4) as usize |
+                                       (*code_raw.get(idx + 2).unwrap()) as usize;
                     idx += 2;
 
 
@@ -307,7 +315,7 @@ impl CartridgeCode {
             version: 0,
             code_type: "".to_string(),
             filename: "".to_string(),
-            mode: false
+            mode: false,
         }
     }
 
@@ -321,7 +329,7 @@ impl CartridgeCode {
             version: 0,
             code_type: code_type,
             filename: "".to_string(),
-            mode: false
+            mode: false,
         }
     }
 
@@ -335,7 +343,7 @@ impl CartridgeCode {
             version: version,
             code_type: code_type,
             filename: "".to_string(),
-            mode: false
+            mode: false,
         }
     }
 
@@ -400,9 +408,7 @@ impl fmt::Debug for CartridgeGFX {
 
 impl CartridgeGFX {
     pub fn empty() -> CartridgeGFX {
-        CartridgeGFX {
-            sprites: Vec::new(),
-        }
+        CartridgeGFX { sprites: Vec::new() }
     }
 
     pub fn new(lines: &mut Vec<String>) -> CartridgeGFX {
@@ -512,7 +518,7 @@ impl CartridgeGFX {
                 idx_sprites = idx_sprites + 16;
             }
 
-            for idx in idx_sprites..idx_sprites+16 {
+            for idx in idx_sprites..idx_sprites + 16 {
                 let mut gfx_sprites = self.sprites[idx].clone();
 
                 data.push_str(&gfx_sprites.get_line(line));
@@ -531,9 +537,7 @@ pub struct CartridgeGFF {
 
 impl CartridgeGFF {
     pub fn empty() -> CartridgeGFF {
-        CartridgeGFF {
-            flags: Vec::new(),
-        }
+        CartridgeGFF { flags: Vec::new() }
     }
 
     pub fn new(lines: &mut Vec<String>) -> CartridgeGFF {
@@ -550,7 +554,7 @@ impl CartridgeGFF {
         let mut v_order = Vec::new();
         let mut idx = 0;
         while idx < v.len() {
-            v_order.push(v[idx+1]);
+            v_order.push(v[idx + 1]);
             v_order.push(v[idx]);
 
             idx += 2;
@@ -576,9 +580,7 @@ impl CartridgeGFF {
             idx += 2;
         }
 
-        CartridgeGFF {
-            flags: flags.clone(),
-        }
+        CartridgeGFF { flags: flags.clone() }
     }
 
     pub fn get_data(&mut self) -> String {
@@ -629,7 +631,8 @@ impl CartridgeMap {
     pub fn new(lines: &mut Vec<String>) -> CartridgeMap {
         info!("[CARTRIDGE] CartridgeMap");
 
-        let mut map: [[u32; px8::MAP_HEIGHT]; px8::MAP_WIDTH] = [[0; px8::MAP_HEIGHT]; px8::MAP_WIDTH];
+        let mut map: [[u32; px8::MAP_HEIGHT]; px8::MAP_WIDTH] = [[0; px8::MAP_HEIGHT];
+                                                                 px8::MAP_WIDTH];
         let mut x;
         let mut y = 0;
 
@@ -660,7 +663,8 @@ impl CartridgeMap {
     }
 
     pub fn new_from_bytes(v: Vec<u8>) -> CartridgeMap {
-        let mut map: [[u32; px8::MAP_HEIGHT]; px8::MAP_WIDTH] = [[0; px8::MAP_HEIGHT]; px8::MAP_WIDTH];
+        let mut map: [[u32; px8::MAP_HEIGHT]; px8::MAP_WIDTH] = [[0; px8::MAP_HEIGHT];
+                                                                 px8::MAP_WIDTH];
 
         let mut idx_x;
         let mut idx_y = 0;
@@ -804,18 +808,18 @@ fn read_from_pngformat<R: io::BufRead>(filename: String, buf: &mut R) -> Result<
     let cartridge_music = CartridgeMusic::new_from_bytes(music_data);
 
     Ok(Cartridge {
-        filename: filename.clone(),
-        data_filename: "".to_string(),
-        header: "".to_string(),
-        version: "".to_string(),
-        gfx: cartridge_gfx,
-        code: cartridge_code,
-        map: cartridge_map,
-        gff: cartridge_gff,
-        music: cartridge_music,
-        format: CartridgeFormat::PngFormat,
-        edit: false,
-    })
+           filename: filename.clone(),
+           data_filename: "".to_string(),
+           header: "".to_string(),
+           version: "".to_string(),
+           gfx: cartridge_gfx,
+           code: cartridge_code,
+           map: cartridge_map,
+           gff: cartridge_gff,
+           music: cartridge_music,
+           format: CartridgeFormat::PngFormat,
+           edit: false,
+       })
 }
 
 fn read_from_p8format<R: io::BufRead>(filename: String, buf: &mut R) -> Result<Cartridge, Error> {
@@ -866,9 +870,11 @@ fn read_from_p8format<R: io::BufRead>(filename: String, buf: &mut R) -> Result<C
 
 
     if sections.contains_key("__lua__") {
-        cartridge_code = CartridgeCode::new("lua".to_string(), sections.get_mut("__lua__").unwrap());
+        cartridge_code = CartridgeCode::new("lua".to_string(),
+                                            sections.get_mut("__lua__").unwrap());
     } else if sections.contains_key("__python__") {
-        cartridge_code = CartridgeCode::new("python".to_string(), sections.get_mut("__python__").unwrap());
+        cartridge_code = CartridgeCode::new("python".to_string(),
+                                            sections.get_mut("__python__").unwrap());
     } else {
         return Err(Error::Err("NO CODE DATA".to_string()));
     }
@@ -895,18 +901,18 @@ fn read_from_p8format<R: io::BufRead>(filename: String, buf: &mut R) -> Result<C
 
 
     Ok(Cartridge {
-        filename: filename.clone(),
-        data_filename: "".to_string(),
-        header: header.clone(),
-        version: version.clone(),
-        gfx: cartridge_gfx,
-        code: cartridge_code,
-        map: cartridge_map,
-        gff: cartridge_gff,
-        music: cartridge_music,
-        format: CartridgeFormat::P8Format,
-        edit: false,
-    })
+           filename: filename.clone(),
+           data_filename: "".to_string(),
+           header: header.clone(),
+           version: version.clone(),
+           gfx: cartridge_gfx,
+           code: cartridge_code,
+           map: cartridge_map,
+           gff: cartridge_gff,
+           music: cartridge_music,
+           format: CartridgeFormat::P8Format,
+           edit: false,
+       })
 }
 
 #[derive(Serialize, Deserialize)]
@@ -970,9 +976,11 @@ impl Cartridge {
 
 
         if sections.contains_key("__lua__") {
-            cartridge_code = CartridgeCode::new("lua".to_string(), sections.get_mut("__lua__").unwrap());
+            cartridge_code = CartridgeCode::new("lua".to_string(),
+                                                sections.get_mut("__lua__").unwrap());
         } else if sections.contains_key("__python__") {
-            cartridge_code = CartridgeCode::new("python".to_string(), sections.get_mut("__python__").unwrap());
+            cartridge_code = CartridgeCode::new("python".to_string(),
+                                                sections.get_mut("__python__").unwrap());
         } else {
             if code {
                 return Err(Error::Err("NO CODE DATA".to_string()));
@@ -1003,18 +1011,18 @@ impl Cartridge {
 
 
         Ok(Cartridge {
-            filename: filename.clone(),
-            data_filename: "".to_string(),
-            header: header.clone(),
-            version: version.clone(),
-            gfx: cartridge_gfx,
-            code: cartridge_code,
-            map: cartridge_map,
-            gff: cartridge_gff,
-            music: cartridge_music,
-            format: CartridgeFormat::P8Format,
-            edit: false,
-        })
+               filename: filename.clone(),
+               data_filename: "".to_string(),
+               header: header.clone(),
+               version: version.clone(),
+               gfx: cartridge_gfx,
+               code: cartridge_code,
+               map: cartridge_map,
+               gff: cartridge_gff,
+               music: cartridge_music,
+               format: CartridgeFormat::P8Format,
+               edit: false,
+           })
     }
 
     #[allow(dead_code)]
@@ -1051,7 +1059,7 @@ impl Cartridge {
         let mut data = String::new();
         f.read_to_string(&mut data).unwrap();
 
-        let json:PX8Format = serde_json::from_str(&data).unwrap();
+        let json: PX8Format = serde_json::from_str(&data).unwrap();
 
         let file_code = json.code.clone();
 
@@ -1140,18 +1148,18 @@ impl Cartridge {
 
 
         Ok(Cartridge {
-            filename: filename.clone(),
-            data_filename: file_data.to_string(),
-            header: "".to_string(),
-            version: "".to_string(),
-            gfx: cartridge_gfx,
-            code: cartridge_code,
-            map: cartridge_map,
-            gff: cartridge_gff,
-            music: cartridge_music,
-            format: CartridgeFormat::Px8Format,
-            edit: false,
-        })
+               filename: filename.clone(),
+               data_filename: file_data.to_string(),
+               header: "".to_string(),
+               version: "".to_string(),
+               gfx: cartridge_gfx,
+               code: cartridge_code,
+               map: cartridge_map,
+               gff: cartridge_gff,
+               music: cartridge_music,
+               format: CartridgeFormat::Px8Format,
+               edit: false,
+           })
     }
 
     pub fn set_mode(&mut self, mode: bool) {
@@ -1168,7 +1176,7 @@ impl Cartridge {
             CartridgeFormat::P8Format => {
                 f.write_all(self.header.as_bytes()).unwrap();
                 f.write_all(self.version.as_bytes()).unwrap();
-            },
+            }
             _ => {
                 f.write_all("Saved by PX8\n".as_bytes()).unwrap();
                 f.write_all("Version 0.0.3\n".as_bytes()).unwrap();
@@ -1176,8 +1184,10 @@ impl Cartridge {
         }
 
 
-        f.write_all(format!("__{:}__\n", self.code.code_type).as_bytes()).unwrap();
-        f.write_all(self.code.get_data().clone().as_bytes()).unwrap();
+        f.write_all(format!("__{:}__\n", self.code.code_type).as_bytes())
+            .unwrap();
+        f.write_all(self.code.get_data().clone().as_bytes())
+            .unwrap();
 
         f.write_all("__gfx__\n".as_bytes()).unwrap();
         f.write_all(self.gfx.get_data().clone().as_bytes()).unwrap();
@@ -1211,8 +1221,8 @@ impl Cartridge {
                 f.write_all("__sfx__\n".as_bytes()).unwrap();
 
                 f.write_all("__music__\n".as_bytes()).unwrap();
-            },
-            _ => ()
+            }
+            _ => (),
         }
     }
 
@@ -1221,7 +1231,8 @@ impl Cartridge {
         info!("Dump the code in {:?}", filename);
 
         let mut f = File::create(filename).unwrap();
-        f.write_all(self.code.get_data().clone().as_bytes()).unwrap();
+        f.write_all(self.code.get_data().clone().as_bytes())
+            .unwrap();
     }
 }
 

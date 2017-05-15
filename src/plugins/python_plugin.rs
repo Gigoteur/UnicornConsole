@@ -325,7 +325,10 @@ pub mod plugin {
 
             let d = PyDict::new(py);
 
-            PythonPlugin{ mydict: d, loaded_code: false }
+            PythonPlugin {
+                mydict: d,
+                loaded_code: false,
+            }
         }
 
 
@@ -341,46 +344,72 @@ pub mod plugin {
             let gil = Python::acquire_gil();
             let py = gil.python();
 
-            let px8_graphic_obj = PX8Graphic::create_instance(py,
-                                                              screen.clone()).unwrap();
-            self.mydict.set_item(py, "px8_graphic", px8_graphic_obj).unwrap();
+            let px8_graphic_obj = PX8Graphic::create_instance(py, screen.clone()).unwrap();
+            self.mydict
+                .set_item(py, "px8_graphic", px8_graphic_obj)
+                .unwrap();
 
-            let px8_palette_obj = PX8Palette::create_instance(py,
-                                                              palettes.clone()).unwrap();
-            self.mydict.set_item(py, "px8_palette", px8_palette_obj).unwrap();
+            let px8_palette_obj = PX8Palette::create_instance(py, palettes.clone()).unwrap();
+            self.mydict
+                .set_item(py, "px8_palette", px8_palette_obj)
+                .unwrap();
 
-            let px8_audio_obj = PX8Audio::create_instance(py,
-                                                          sound.clone()).unwrap();
-            self.mydict.set_item(py, "px8_audio", px8_audio_obj).unwrap();
+            let px8_audio_obj = PX8Audio::create_instance(py, sound.clone()).unwrap();
+            self.mydict
+                .set_item(py, "px8_audio", px8_audio_obj)
+                .unwrap();
 
-            let px8_input_obj = PX8Input::create_instance(py,
-                                                          players.clone()).unwrap();
-            self.mydict.set_item(py, "px8_input", px8_input_obj).unwrap();
+            let px8_input_obj = PX8Input::create_instance(py, players.clone()).unwrap();
+            self.mydict
+                .set_item(py, "px8_input", px8_input_obj)
+                .unwrap();
 
-            let px8_map_obj = PX8Map::create_instance(py,
-                                                      screen.clone()).unwrap();
+            let px8_map_obj = PX8Map::create_instance(py, screen.clone()).unwrap();
             self.mydict.set_item(py, "px8_map", px8_map_obj).unwrap();
 
-            let px8_sys_obj = PX8Sys::create_instance(py,
-                                                      info.clone()).unwrap();
+            let px8_sys_obj = PX8Sys::create_instance(py, info.clone()).unwrap();
             self.mydict.set_item(py, "px8_sys", px8_sys_obj).unwrap();
 
-            let px8_mem_obj = PX8Memory::create_instance(py,
-                                                         screen.clone()).unwrap();
+            let px8_mem_obj = PX8Memory::create_instance(py, screen.clone()).unwrap();
             self.mydict.set_item(py, "px8_mem", px8_mem_obj).unwrap();
 
-            let px8_noise_obj = PX8Noise::create_instance(py,
-                                                          noise.clone()).unwrap();
-            self.mydict.set_item(py, "px8_noise", px8_noise_obj).unwrap();
+            let px8_noise_obj = PX8Noise::create_instance(py, noise.clone()).unwrap();
+            self.mydict
+                .set_item(py, "px8_noise", px8_noise_obj)
+                .unwrap();
 
-            py.run(r###"globals()["px8_graphic"] = px8_graphic;"###, None, Some(&self.mydict)).unwrap();
-            py.run(r###"globals()["px8_audio"] = px8_audio;"###, None, Some(&self.mydict)).unwrap();
-            py.run(r###"globals()["px8_palette"] = px8_palette;"###, None, Some(&self.mydict)).unwrap();
-            py.run(r###"globals()["px8_input"] = px8_input;"###, None, Some(&self.mydict)).unwrap();
-            py.run(r###"globals()["px8_map"] = px8_map;"###, None, Some(&self.mydict)).unwrap();
-            py.run(r###"globals()["px8_sys"] = px8_sys;"###, None, Some(&self.mydict)).unwrap();
-            py.run(r###"globals()["px8_mem"] = px8_mem;"###, None, Some(&self.mydict)).unwrap();
-            py.run(r###"globals()["px8_noise"] = px8_noise;"###, None, Some(&self.mydict)).unwrap();
+            py.run(r###"globals()["px8_graphic"] = px8_graphic;"###,
+                     None,
+                     Some(&self.mydict))
+                .unwrap();
+            py.run(r###"globals()["px8_audio"] = px8_audio;"###,
+                     None,
+                     Some(&self.mydict))
+                .unwrap();
+            py.run(r###"globals()["px8_palette"] = px8_palette;"###,
+                     None,
+                     Some(&self.mydict))
+                .unwrap();
+            py.run(r###"globals()["px8_input"] = px8_input;"###,
+                     None,
+                     Some(&self.mydict))
+                .unwrap();
+            py.run(r###"globals()["px8_map"] = px8_map;"###,
+                     None,
+                     Some(&self.mydict))
+                .unwrap();
+            py.run(r###"globals()["px8_sys"] = px8_sys;"###,
+                     None,
+                     Some(&self.mydict))
+                .unwrap();
+            py.run(r###"globals()["px8_mem"] = px8_mem;"###,
+                     None,
+                     Some(&self.mydict))
+                .unwrap();
+            py.run(r###"globals()["px8_noise"] = px8_noise;"###,
+                     None,
+                     Some(&self.mydict))
+                .unwrap();
 
             let mut f = File::open("./sys/config/api.py").unwrap();
             let mut data = String::new();
@@ -416,7 +445,7 @@ pub mod plugin {
             let mut return_draw_value = true;
             debug!("[PLUGIN][PYTHON] Call DRAW");
 
-            if ! self.loaded_code {
+            if !self.loaded_code {
                 return false;
             }
 
@@ -429,7 +458,7 @@ pub mod plugin {
                 Err(v) => {
                     return_draw_value = false;
                     warn!("[PLUGIN][PYTHON] DRAW = {:?}", v);
-                },
+                }
                 Ok(v) => {
                     match v.extract(py) {
                         Ok(draw_value) => {
@@ -437,7 +466,7 @@ pub mod plugin {
                         }
                         _ => (),
                     }
-                },
+                }
             }
 
             return return_draw_value;
@@ -460,7 +489,7 @@ pub mod plugin {
                 Err(v) => {
                     return_update_value = false;
                     warn!("[PLUGIN][PYTHON] UPDATE = {:?}", v);
-                },
+                }
                 Ok(v) => {
                     match v.extract(py) {
                         Ok(update_value) => {
@@ -468,7 +497,7 @@ pub mod plugin {
                         }
                         _ => (),
                     }
-                },
+                }
             }
 
             return return_update_value;
@@ -487,11 +516,11 @@ pub mod plugin {
                 Ok(_) => {
                     debug!("[PLUGIN][PYTHON] Code loaded successfully");
                     self.loaded_code = true
-                },
+                }
                 Err(err) => {
                     error!("[PLUGIN][PYTHON] Load code error => {:?}", err);
                     self.loaded_code = false
-                },
+                }
             }
 
             self.loaded_code
@@ -531,8 +560,14 @@ pub mod plugin {
             panic!("[PLUGIN][PYTHON] plugin disabled");
         }
         pub fn init(&mut self) {}
-        pub fn draw(&mut self) -> bool { return false; }
-        pub fn update(&mut self) -> bool { return false; }
-        pub fn load_code(&mut self, data: String) -> bool { false }
+        pub fn draw(&mut self) -> bool {
+            return false;
+        }
+        pub fn update(&mut self) -> bool {
+            return false;
+        }
+        pub fn load_code(&mut self, data: String) -> bool {
+            false
+        }
     }
 }
