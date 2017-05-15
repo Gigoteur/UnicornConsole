@@ -5,7 +5,7 @@ from sys import float_info
 
 # Audio
 def sound_load(filename):
-    px8_audio.sound_load(filename)
+    return px8_audio.sound_load(filename)
 
 def sound_play(id_sound):
     px8_audio.sound_play(id_sound)

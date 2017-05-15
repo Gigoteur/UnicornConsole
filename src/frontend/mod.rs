@@ -90,12 +90,11 @@ impl Frontend {
 
         info!("[Frontend] SDL2 audio");
         let mut sound_interface =
-            sound::sound::SoundInterface::new(sdl_context.clone(), 44100, 512, 1);
+            sound::sound::SoundInterface::new(sdl_context.clone(), 44100, 1024, 1);
         sound_interface.start();
 
-        let sound = sound::sound::Sound::new();
+        let sound = sound::sound::Sound::new(sound_interface.data_sender.clone());
 
-        // Disable mouse in the window
         sdl_context.mouse().show_cursor(true);
 
         Ok(Frontend {

@@ -7,23 +7,29 @@ pub mod sound {
     use sdl2;
     use sdl2::audio::{AudioCallback, AudioSpecDesired, AudioSpec, AudioDevice, AudioSpecWAV,
                       AudioCVT, AudioFormat};
+    use std::sync::mpsc;
     use std::sync::mpsc::{Sender, Receiver};
     use std::collections::HashMap;
+    use std::sync::{Arc, Mutex};
 
     pub trait SoundPlayer: Send {
-        fn get_samples(&mut self, sample_count: usize, result: &mut Vec<u8>);
+        fn get_samples(&mut self, sample_count: usize, result: &mut Vec<u8>) -> u32;
     }
 
     pub struct PX8Player {
         data: Vec<u8>,
         idx: u32,
+        tx: Sender<Vec<u8>>,
+        rx: Receiver<Vec<u8>>,
     }
 
     impl PX8Player {
-        pub fn new() -> PX8Player {
+        pub fn new(tx: Sender<Vec<u8>>, rx: Receiver<Vec<u8>>) -> PX8Player {
             PX8Player {
                 data: Vec::new(),
                 idx: 0,
+                tx: tx,
+                rx: rx,
             }
         }
     }
@@ -31,13 +37,22 @@ pub mod sound {
     unsafe impl Send for PX8Player {}
 
     impl SoundPlayer for PX8Player {
-        fn get_samples(&mut self, sample_count: usize, result: &mut Vec<u8>) {
+        fn get_samples(&mut self, sample_count: usize, result: &mut Vec<u8>) -> u32 {
+            self.idx = 0;
+
+            if let Ok(incoming_data) = self.rx.try_recv() {
+                self.data.append(&mut incoming_data.clone());
+            }
+
             if self.data.len() > 0 {
                 for item in result.iter_mut() {
-                    *item = (self.data.remove(0) as f32 * 0.25) as u8;
-                    self.idx += 1;
+                    if self.data.len() > 0 {
+                        *item = (self.data.remove(0) as f32 * 0.25) as u8;
+                        self.idx += 1;
+                    }
                 }
             }
+            self.idx
         }
     }
 
@@ -73,15 +88,16 @@ pub mod sound {
         type Channel = u8;
         /// Callback routine for SDL2
         fn callback(&mut self, out: &mut [u8]) {
-            self.generator
-                .get_samples(self.frame_size, &mut self.generator_buffer);
-            let mut idx = 0;
-            for item in self.generator_buffer.iter().take(self.frame_size) {
-                for _ in 0..(self.channel_count) {
-                    out[idx] = *item;
-                    idx += 1;
-                }
-            }
+           if self.generator
+                  .get_samples(self.frame_size, &mut self.generator_buffer) > 0 {
+               let mut idx = 0;
+               for item in self.generator_buffer.iter().take(self.frame_size) {
+                   for _ in 0..(self.channel_count) {
+                       out[idx] = *item;
+                       idx += 1;
+                   }
+               }
+           }
         }
     }
 
@@ -91,6 +107,7 @@ pub mod sound {
         channel_count: u16,
         sdl_device: AudioDevice<Player<T>>,
         pub sender: Option<Sender<T>>,
+        pub data_sender: Sender<Vec<u8>>,
     }
 
     impl<T> SoundInterface<T>
@@ -109,7 +126,9 @@ pub mod sound {
                 samples: Some((buffer_size as u16) * channel_count),
             };
 
-            let sound_player = Box::new(PX8Player::new());
+            let (tx, rx): (Sender<Vec<u8>>, Receiver<Vec<u8>>) = mpsc::channel();
+
+            let sound_player = Box::new(PX8Player::new(tx.clone(), rx));
 
             let (sender, receiver) = ::std::sync::mpsc::channel();
 
@@ -124,6 +143,7 @@ pub mod sound {
                 channel_count: channel_count,
                 sdl_device: sdl_device,
                 sender: Some(sender),
+                data_sender: tx.clone(),
             }
         }
 
@@ -134,12 +154,14 @@ pub mod sound {
 
     pub struct Sound {
         pub sounds: HashMap<u32, Vec<u8>>,
+        pub data_sender: Sender<Vec<u8>>,
     }
 
     impl Sound {
-        pub fn new() -> Sound {
+        pub fn new(data_sender: Sender<Vec<u8>>) -> Sound {
             Sound {
                 sounds: HashMap::new(),
+                data_sender: data_sender,
             }
         }
 
@@ -156,23 +178,24 @@ pub mod sound {
                                     wav.channels,
                                     wav.freq,
                                     AudioFormat::U8,
-                                    2,
+                                    1,
                                     44100)
                     .ok()
                     .expect("Could not convert WAV file");
 
-            let data = cvt.convert(wav.buffer().to_vec());
+            let mut data = cvt.convert(wav.buffer().to_vec());
+            info!("LOAD DATA {:?}", data.len());
 
             let length = self.sounds.len() as u32;
             self.sounds.insert(length, data);
 
-            0
+            length as i32
         }
 
         pub fn play(&mut self, id_sound: u32) {
             info!("Play sound {:?}", id_sound);
-
-          //  self.sender.unwrap().send(self.sounds.get(&id_sound).unwrap());
+            let data = (*self.sounds.get(&id_sound).unwrap()).clone();
+            self.data_sender.send(data);
         }
 
         pub fn stop(&mut self, _id: u32) {
@@ -189,7 +212,7 @@ pub mod sound {
     pub struct Sound {}
 
     impl Sound {
-        pub fn new() -> Sound {
+        pub fn new(_data_sender: PhantomData<f32>) -> Sound {
             Sound {}
         }
 
@@ -203,6 +226,7 @@ pub mod sound {
 
     pub struct SoundInterface<T: 'static + Send> {
         phantom: PhantomData<T>,
+        pub data_sender: PhantomData<T>,
     }
 
     impl<T> SoundInterface<T>
@@ -213,7 +237,7 @@ pub mod sound {
                    _buffer_size: usize,
                    _channel_count: u16)
                    -> SoundInterface<T> {
-            SoundInterface { phantom: PhantomData }
+            SoundInterface { phantom: PhantomData, data_sender: PhantomData }
         }
 
         pub fn start(&mut self) {}
