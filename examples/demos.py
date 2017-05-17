@@ -20,7 +20,7 @@ class Button(object):
 
     def draw(self):
         rectfill(self.x1, self.y1, self.x2, self.y2, self.color)
-        px8_print(self.text, self.x1+1, self.y1+1, 2)
+        px8_print(self.text, self.x1, self.y1+1, 2)
 
     def update(self, x, y):
         self.clicked = False
