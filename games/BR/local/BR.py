@@ -3,7 +3,8 @@
 #  - dark tomb (http://www.lexaloffle.com/bbs/?tid=28785)
 
 import sys
-sys.path.append("./games/BR/")
+sys.path.append("./games/BR/local")
+sys.path.append("./games/BR/common")
 
 CELL_SIZE = 32
 CELL_BOUNDS = 128
