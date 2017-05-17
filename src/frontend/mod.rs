@@ -95,7 +95,7 @@ impl Frontend {
 
         let sound = sound::sound::Sound::new(sound_interface.data_sender.clone());
 
-        sdl_context.mouse().show_cursor(true);
+        sdl_context.mouse().show_cursor(false);
 
         Ok(Frontend {
                sdl: sdl_context,

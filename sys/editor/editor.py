@@ -561,6 +561,22 @@ class Editor(object):
                     elif widget.name == "SPRITE EDITOR":
                         self.current_window = self.windows[0]
 
+    def draw_mouse(self):
+        data = [
+                [0, 1, 0, 0, 0, 0, 0, 0],
+                [1, 7, 1, 0, 0, 0, 0, 0],
+                [1, 7, 7, 1, 0, 0, 0, 0],
+                [1, 7, 7, 7, 1, 0, 0, 0],
+                [1, 7, 7, 7, 7, 1, 0, 0],
+                [1, 7, 7, 1, 1, 0, 0, 0],
+                [0, 1, 1, 7, 1, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0],
+        ]
+        for y, row in enumerate(data):
+            for idx, pixel in enumerate(row):
+                if pixel:
+                    pset(self.state.mouse_x+idx,  self.state.mouse_y+y, pixel)
+
     def draw(self):
         cls()
         self.draw_contour()
@@ -570,6 +586,9 @@ class Editor(object):
         self.current_window.draw()
         for widget in self.widgets:
             widget.draw()
+
+        self.draw_mouse()
+
 
 E = Editor()
 
