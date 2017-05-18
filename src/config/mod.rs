@@ -65,6 +65,9 @@ impl PlayerKeys {
 pub struct Players {
     pub pkeys: HashMap<u8, PlayerKeys>,
     pub mouse: Mouse,
+    pub akeys: HashMap<Keycode, bool>,
+    pub akeys_quick: HashMap<Keycode, bool>,
+    pub all_frames: HashMap<Keycode, f64>,
 }
 
 impl Players {
@@ -76,6 +79,9 @@ impl Players {
         Players {
             pkeys: keys,
             mouse: Mouse::new(),
+            akeys: HashMap::new(),
+            akeys_quick: HashMap::new(),
+            all_frames: HashMap::new(),
         }
     }
 
@@ -112,6 +118,23 @@ impl Players {
             self.mouse.state = 0;
         }
 
+        for (key_val, value) in self.akeys.iter_mut() {
+            if *value {
+                match self.all_frames.get(&key_val) {
+                    Some(&delay_value) => {
+                        if elapsed - delay_value >= 0.01 {
+                            self.akeys_quick.insert(*key_val, false);
+                        } else {
+                            self.akeys_quick.insert(*key_val, true);
+                        }
+                    }
+                    _ => {
+                        self.akeys_quick.insert(*key_val, true);
+                    }
+                }
+            }
+        }
+
         for (_, keys) in self.pkeys.iter_mut() {
             let ref mut current_keys = keys.keys;
 
@@ -145,6 +168,14 @@ impl Players {
                keycode,
                repeat,
                elapsed);
+
+        if self.akeys.contains_key(&keycode) {
+            if !self.akeys[&keycode] {
+                self.akeys_quick.insert(keycode, true);
+            }
+        }
+        self.akeys.insert(keycode, true);
+        self.all_frames.insert(keycode, elapsed);
 
         if let (Some(key), player) = self::keys::map_keycode(keycode) {
             self.key_down_direct(player, key, repeat, elapsed);
@@ -195,6 +226,9 @@ impl Players {
 
     pub fn key_up(&mut self, keycode: Keycode) {
         debug!("KEYCODE {:?} UP", keycode);
+
+        self.akeys.insert(keycode, false);
+        self.akeys_quick.insert(keycode, false);
 
         if let (Some(key), player) = self::keys::map_keycode(keycode) {
             self.key_up_direct(player, key);
@@ -256,8 +290,39 @@ impl Players {
         self.get_value(player, index) == 1
     }
 
+
+    pub fn btn2(&mut self, c: i32) -> bool {
+        match Keycode::from_i32(c as i32) {
+            Some(keycode) => {
+                match self.akeys.get(&keycode) {
+                    Some(v) => {
+                        return *v;
+                    }
+                    None => ()
+                }
+            }
+            None => ()
+        }
+        false
+    }
+
     pub fn btnp(&mut self, player: u8, index: u8) -> bool {
         self.get_value_quick(player, index) == 1
+    }
+
+    pub fn btnp2(&mut self, c: i32) -> bool {
+        match Keycode::from_i32(c as i32) {
+            Some(keycode) => {
+                match self.akeys_quick.get(&keycode) {
+                    Some(v) => {
+                        return *v;
+                    }
+                    None => ()
+                }
+            }
+            None => ()
+        }
+        false
     }
 
     pub fn mouse_coordinate(&mut self, index: u8) -> i32 {

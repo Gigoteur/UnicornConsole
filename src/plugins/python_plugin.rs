@@ -250,13 +250,23 @@ pub mod plugin {
     py_class!(class PX8Input |py| {
     data players: Arc < Mutex < Players> >;
 
-    def btn(&self, x: i32, p: i32) -> PyResult<u8> {
-        let value = self.players(py).lock().unwrap().get_value(p as u8, x as u8);
+    def btn(&self, x: i32, p: i32) -> PyResult<bool> {
+        let value = self.players(py).lock().unwrap().btn(p as u8, x as u8);
         Ok(value)
     }
 
-    def btnp(&self, x: i32, p: i32) -> PyResult<u8> {
-        let value = self.players(py).lock().unwrap().get_value_quick(p as u8, x as u8);
+    def btn2(&self, x: i32) -> PyResult<bool> {
+        let value = self.players(py).lock().unwrap().btn2(x);
+        Ok(value)
+    }
+
+    def btnp(&self, x: i32, p: i32) -> PyResult<bool> {
+        let value = self.players(py).lock().unwrap().btnp(p as u8, x as u8);
+        Ok(value)
+    }
+
+    def btnp2(&self, x: i32) -> PyResult<bool> {
+        let value = self.players(py).lock().unwrap().btnp2(x);
         Ok(value)
     }
 

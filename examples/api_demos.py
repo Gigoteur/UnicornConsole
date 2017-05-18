@@ -361,19 +361,28 @@ class Noise2(object):
 class Print(object):
     def __init__(self):
         self.T = 0
+        self.values = {}
 
     def init(self):
         pass
 
     def update(self):
-        pass
+        for i in range(32, 126):
+            if i >= 65 and i <= 90:
+                self.values[i] = btn(chr(i+32))
+            else:
+                self.values[i] = btn(chr(i))
+
 
     def draw(self):
         cls()
         x = 0
         y = 0
         for i in range(32, 126):
-            px8_print(chr(i), x, y, 7)
+            if self.values.get(i):
+                px8_print(chr(i), x, y, 7)
+            else:
+                px8_print(chr(i), x, y, 9)
             x += 8
             if x > 0 and x % 128 == 0:
                 x = 0
