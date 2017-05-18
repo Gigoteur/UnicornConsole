@@ -3,7 +3,7 @@ use std::fmt;
 use sdl2::controller::{Axis, Button};
 use sdl2::keyboard::Keycode;
 
-#[derive(Eq, PartialEq, Hash)]
+#[derive(Eq, PartialEq, Hash, Clone, Copy)]
 pub enum PX8Key {
     Right,
     Left,

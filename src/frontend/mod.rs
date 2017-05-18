@@ -21,7 +21,7 @@ use renderer;
 use sound;
 use px8;
 use config;
-use config::keys::{map_axis, map_button, map_keycode, map_button_joystick, map_axis_joystick};
+use config::keys::{map_axis, map_button, map_button_joystick, map_axis_joystick};
 use config::controllers;
 
 use gfx::Scale;
@@ -270,12 +270,10 @@ impl Frontend {
                         repeat,
                         ..
                     } => {
-                        if let (Some(key), player) = map_keycode(keycode) {
-                            self.players
-                                .lock()
-                                .unwrap()
-                                .key_down(player, key, repeat, self.elapsed_time);
-                        }
+                        self.players
+                            .lock()
+                            .unwrap()
+                            .key_down(keycode, repeat, self.elapsed_time);
 
                         if keycode == Keycode::F2 {
                             self.px8.toggle_info_overlay();
@@ -311,9 +309,7 @@ impl Frontend {
                         }
                     }
                     Event::KeyUp { keycode: Some(keycode), .. } => {
-                        if let (Some(key), player) = map_keycode(keycode) {
-                            self.players.lock().unwrap().key_up(player, key)
-                        }
+                        self.players.lock().unwrap().key_up(keycode);
                     }
 
                     Event::ControllerButtonDown { which: id, button, .. } => {
@@ -325,7 +321,7 @@ impl Frontend {
                             self.players
                                 .lock()
                                 .unwrap()
-                                .key_down(0, key, false, self.elapsed_time)
+                                .key_down_direct(0, key, false, self.elapsed_time)
                         }
                     }
 
@@ -335,7 +331,7 @@ impl Frontend {
                         }
 
                         if let Some(key) = map_button(button) {
-                            self.players.lock().unwrap().key_up(0, key)
+                            self.players.lock().unwrap().key_up_direct(0, key);
                         }
                     }
 
@@ -359,9 +355,9 @@ impl Frontend {
                                     self.players
                                         .lock()
                                         .unwrap()
-                                        .key_down(0, key, false, self.elapsed_time)
+                                        .key_down_direct(0, key, false, self.elapsed_time);
                                 } else {
-                                    self.players.lock().unwrap().key_up(0, key)
+                                    self.players.lock().unwrap().key_up_direct(0, key);
                                 }
                             }
                         }
@@ -387,9 +383,9 @@ impl Frontend {
                                     self.players
                                         .lock()
                                         .unwrap()
-                                        .key_down(0, key, false, self.elapsed_time)
+                                        .key_down_direct(0, key, false, self.elapsed_time);
                                 } else {
-                                    self.players.lock().unwrap().key_up(0, key)
+                                    self.players.lock().unwrap().key_up_direct(0, key);
                                 }
                             }
                         }
@@ -408,7 +404,7 @@ impl Frontend {
                             self.players
                                 .lock()
                                 .unwrap()
-                                .key_down(0, key, false, self.elapsed_time)
+                                .key_down_direct(0, key, false, self.elapsed_time);
                         }
                     }
 
@@ -422,7 +418,7 @@ impl Frontend {
                         }
 
                         if let Some(key) = map_button_joystick(button_idx) {
-                            self.players.lock().unwrap().key_up(0, key)
+                            self.players.lock().unwrap().key_up_direct(0, key);
                         }
                     }
 
@@ -484,12 +480,10 @@ impl Frontend {
                         repeat,
                         ..
                     } => {
-                        if let (Some(key), player) = map_keycode(keycode) {
-                            self.players
-                                .lock()
-                                .unwrap()
-                                .key_down(player, key, repeat, self.elapsed_time);
-                        }
+                        self.players
+                            .lock()
+                            .unwrap()
+                            .key_down(player, keycode, repeat, self.elapsed_time);
 
                         if keycode == Keycode::F2 {
                             self.px8.toggle_info_overlay();
@@ -526,9 +520,7 @@ impl Frontend {
                         }
                     }
                     Event::KeyUp { keycode: Some(keycode), .. } => {
-                        if let (Some(key), player) = map_keycode(keycode) {
-                            self.players.lock().unwrap().key_up(player, key)
-                        }
+                        self.players.lock().unwrap().key_up(keycode)
                     }
 
                     Event::ControllerButtonDown { which: id, button, .. } => {

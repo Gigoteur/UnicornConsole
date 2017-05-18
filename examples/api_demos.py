@@ -358,6 +358,27 @@ class Noise2(object):
     def draw(self):
         pass
 
+class Print(object):
+    def __init__(self):
+        self.T = 0
+
+    def init(self):
+        pass
+
+    def update(self):
+        pass
+
+    def draw(self):
+        cls()
+        x = 0
+        y = 0
+        for i in range(32, 126):
+            px8_print(chr(i), x, y, 7)
+            x += 8
+            if x > 0 and x % 128 == 0:
+                x = 0
+                y += 8
+
 idx_demo = 0
 demos = [
     ["rect", [Rect()]],
@@ -377,6 +398,7 @@ demos = [
     ["audio", [Audio()]],
     ["noise", [Noise()]],
     ["noise2", [Noise2()]],
+    ["print", [Print()]],
 ]
 
 def _init():
