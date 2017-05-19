@@ -1,10 +1,8 @@
-# BR is a mix game between
+# BR is an example from:
 #  - duckduckontheloose (https://github.com/seleb/DuckDuckOnTheLoose)
-#  - dark tomb (http://www.lexaloffle.com/bbs/?tid=28785)
 
 import sys
-sys.path.append("./games/BR/local")
-sys.path.append("./games/BR/common")
+sys.path.append("./games/BR")
 
 CELL_SIZE = 32
 CELL_BOUNDS = 128
