@@ -79,7 +79,7 @@ https://github.com/Gigoteur/PX8/tree/master/games/terrain
 https://github.com/Gigoteur/PX8/tree/master/examples/voxel
 ![](http://i.imgur.com/b1wE1cs.gif)
 
-* BR: Mix between duckduckontheloose (https://github.com/seleb/DuckDuckOnTheLoose) and dark tomb (http://www.lexaloffle.com/bbs/?tid=28785)
+* BR: it is an example from duckduckontheloose (https://github.com/seleb/DuckDuckOnTheLoose)
 https://github.com/Gigoteur/PX8/tree/master/games/BR
 ![](http://i.imgur.com/Xp3v1Lj.gif)
 
