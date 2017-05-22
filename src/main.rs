@@ -222,7 +222,7 @@ pub fn start_px8(scale: gfx::Scale,
                  filename: String,
                  editor: bool,
                  mode: px8::PX8Mode) {
-    let mut frontend = match frontend::Frontend::init(scale, fullscreen, opengl) {
+    let mut frontend = match frontend::Frontend::init(scale, fullscreen, opengl, false) {
         Err(error) => panic!("{:?}", error),
         Ok(frontend) => frontend,
     };

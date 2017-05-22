@@ -1179,7 +1179,7 @@ impl Cartridge {
             }
             _ => {
                 f.write_all("Saved by PX8\n".as_bytes()).unwrap();
-                f.write_all("Version 0.0.3\n".as_bytes()).unwrap();
+                f.write_all("Version 0.0.4\n".as_bytes()).unwrap();
             }
         }
 

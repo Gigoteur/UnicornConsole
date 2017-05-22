@@ -29,7 +29,6 @@ class Camera(object):
         self.shake_force=0
 
     def update(self):
-        #print("CAMERA UPDATE")
         self.shake_remaining=max(0,self.shake_remaining-1)
 
 #        --follow target outside of
@@ -292,11 +291,11 @@ class Actor(object):
             self.flipx,
             False)
 
-class Jelpi(Actor):
+class Pinguin(Actor):
     def __init__(self, x, y):
-        super(Jelpi, self).__init__(x, y)
+        super(Pinguin, self).__init__(x, y)
 
-P = Jelpi(64, 100)
+P = Pinguin(64, 100)
 C = Camera(P)
 
 def _init():

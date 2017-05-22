@@ -74,7 +74,7 @@ pub struct Frontend {
 }
 
 impl Frontend {
-    pub fn init(scale: Scale, fullscreen: bool, opengl: bool) -> FrontendResult<Frontend> {
+    pub fn init(scale: Scale, fullscreen: bool, opengl: bool, show_mouse: bool) -> FrontendResult<Frontend> {
         info!("[Frontend] SDL2 init");
         let sdl_context = try!(sdl2::init());
 
@@ -95,7 +95,7 @@ impl Frontend {
 
         let sound = sound::sound::Sound::new(sound_interface.data_sender.clone());
 
-        sdl_context.mouse().show_cursor(false);
+        sdl_context.mouse().show_cursor(show_mouse);
 
         Ok(Frontend {
                sdl: sdl_context,
@@ -276,7 +276,7 @@ impl Frontend {
                             .key_down(keycode, repeat, self.elapsed_time);
 
                         if keycode == Keycode::F2 {
-                            self.px8.toggle_info_overlay();
+                            self.px8.configuration.lock().unwrap().toggle_info_overlay();
                         } else if keycode == Keycode::F3 {
                             let dt = Local::now();
                             self.px8

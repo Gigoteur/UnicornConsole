@@ -479,9 +479,32 @@ impl Palettes {
     }
 }
 
+pub struct PX8Config {
+    pub show_info_overlay: bool,
+    pub show_mouse: bool,
+}
+
+impl PX8Config {
+    pub fn new() -> PX8Config {
+        PX8Config {
+            show_info_overlay: false,
+            show_mouse: false,
+        }
+    }
+
+    pub fn toggle_info_overlay(&mut self) {
+        self.show_info_overlay = !self.show_info_overlay;
+    }
+
+    pub fn toggle_mouse(&mut self) {
+        self.show_mouse = !self.show_mouse;
+    }
+}
+
 pub struct Px8New {
     pub screen: Arc<Mutex<gfx::Screen>>,
     pub palettes: Arc<Mutex<Palettes>>,
+    pub configuration: Arc<Mutex<PX8Config>>,
     pub noise: Arc<Mutex<Noise>>,
     pub cartridges: Vec<Cartridge>,
     pub current_cartridge: usize,
@@ -491,7 +514,6 @@ pub struct Px8New {
     pub code_type: Code,
     pub state: PX8State,
     pub menu: Menu,
-    pub show_info_overlay: bool,
     pub fps: f64,
     pub draw_time: f64,
     pub init_time: f64,
@@ -507,6 +529,7 @@ impl Px8New {
         Px8New {
             screen: Arc::new(Mutex::new(gfx::Screen::new())),
             palettes: Arc::new(Mutex::new(Palettes::new())),
+            configuration: Arc::new(Mutex::new(PX8Config::new())),
             noise: Arc::new(Mutex::new(Noise::new())),
             cartridges: Vec::new(),
             current_cartridge: 0,
@@ -516,7 +539,6 @@ impl Px8New {
             code_type: Code::UNKNOWN,
             state: PX8State::RUN,
             menu: Menu::new(),
-            show_info_overlay: false,
             fps: 0.0,
             draw_time: 0.0,
             init_time: 0.0,
@@ -543,12 +565,8 @@ impl Px8New {
         self.palettes.lock().unwrap().next();
     }
 
-    pub fn toggle_info_overlay(&mut self) {
-        self.show_info_overlay = !self.show_info_overlay;
-    }
-
     pub fn debug_update(&mut self) {
-        if self.show_info_overlay {
+        if self.configuration.lock().unwrap().show_info_overlay {
             self.screen
                 .lock()
                 .unwrap()

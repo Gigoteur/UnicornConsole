@@ -261,7 +261,7 @@ def px8_time():
 globals()["px8_time"] = px8_time
 
 
-# Useful functions
+########################### External functions ###########################
 def img_to_rgb(data):
     from PIL import Image
 
