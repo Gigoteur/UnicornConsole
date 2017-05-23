@@ -504,6 +504,7 @@ impl PX8Config {
 pub struct Px8New {
     pub screen: Arc<Mutex<gfx::Screen>>,
     pub palettes: Arc<Mutex<Palettes>>,
+    pub players: Arc<Mutex<Players>>,
     pub configuration: Arc<Mutex<PX8Config>>,
     pub noise: Arc<Mutex<Noise>>,
     pub cartridges: Vec<Cartridge>,
@@ -521,6 +522,7 @@ pub struct Px8New {
     pub record: Record,
     pub draw_return: bool,
     pub update_return: bool,
+    pub mouse_spr: Vec<u8>,
 }
 
 
@@ -529,6 +531,7 @@ impl Px8New {
         Px8New {
             screen: Arc::new(Mutex::new(gfx::Screen::new())),
             palettes: Arc::new(Mutex::new(Palettes::new())),
+            players: Arc::new(Mutex::new(Players::new())),
             configuration: Arc::new(Mutex::new(PX8Config::new())),
             noise: Arc::new(Mutex::new(Noise::new())),
             cartridges: Vec::new(),
@@ -546,6 +549,16 @@ impl Px8New {
             record: Record::new(),
             draw_return: true,
             update_return: true,
+            mouse_spr: vec![
+            0, 1, 0, 0, 0, 0, 0, 0,
+            1, 7, 1, 0, 0, 0, 0, 0,
+            1, 7, 7, 1, 0, 0, 0, 0,
+            1, 7, 7, 7, 1, 0, 0, 0,
+            1, 7, 7, 7, 7, 1, 0, 0,
+            1, 7, 7, 1, 1, 0, 0, 0,
+            0, 1, 1, 7, 1, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            ],
         }
     }
 
@@ -587,21 +600,21 @@ impl Px8New {
         }
     }
 
-    pub fn update(&mut self, players: Arc<Mutex<Players>>) -> bool {
+    pub fn update(&mut self) -> bool {
         match self.state {
             PX8State::PAUSE => {
                 if self.menu.stop() {
                     self.state = PX8State::RUN;
                 }
 
-                return self.menu.update(players);
+                return self.menu.update(self.players.clone());
             }
             PX8State::RUN => {
                 if self.is_end() {
                     return false;
                 }
 
-                self.update_time = self.call_update(players) * 1000.0;
+                self.update_time = self.call_update() * 1000.0;
             }
         }
 
@@ -618,6 +631,26 @@ impl Px8New {
 
                 if self.is_recording() {
                     self.record();
+                }
+            }
+        }
+
+        if self.configuration.lock().unwrap().show_mouse {
+
+            let mouse_x = self.players.lock().unwrap().mouse_coordinate(0);
+            let mouse_y = self.players.lock().unwrap().mouse_coordinate(1);
+
+            for y in 0..8 {
+                for x in 0..8 {
+                    let pixel = *self.mouse_spr.get(x + y * 8).unwrap();
+                    if pixel != 0 {
+                        self.screen
+                            .lock()
+                            .unwrap()
+                            .putpixel_direct(mouse_x + x  as i32,
+                                             mouse_y + y as i32,
+                                             pixel as u32);
+                    }
                 }
             }
         }
@@ -796,7 +829,6 @@ impl Px8New {
 
     pub fn load_cartridge(&mut self,
                           filename: String,
-                          players: Arc<Mutex<Players>>,
                           info: Arc<Mutex<Info>>,
                           sound: Arc<Mutex<Sound>>,
                           editor: bool,
@@ -847,14 +879,13 @@ impl Px8New {
             .unwrap()
             .set_map(self.cartridges[idx].map.map);
 
-        self.load_plugin(idx, players, info, sound, editor)
+        self.load_plugin(idx, info, sound, editor)
     }
 
     #[allow(dead_code)]
     pub fn load_cartridge_raw(&mut self,
                               filename: String,
                               data: Vec<u8>,
-                              players: Arc<Mutex<Players>>,
                               info: Arc<Mutex<Info>>,
                               sound: Arc<Mutex<Sound>>,
                               editor: bool,
@@ -895,7 +926,7 @@ impl Px8New {
             .unwrap()
             .set_map(self.cartridges[idx].map.map);
 
-        self.load_plugin(idx, players, info, sound, editor)
+        self.load_plugin(idx, info, sound, editor)
     }
 
     pub fn _get_code_type(&mut self, idx: usize) -> Code {
@@ -956,7 +987,6 @@ impl Px8New {
 
     pub fn load_plugin(&mut self,
                        idx: usize,
-                       players: Arc<Mutex<Players>>,
                        info: Arc<Mutex<Info>>,
                        sound: Arc<Mutex<Sound>>,
                        editor: bool)
@@ -974,7 +1004,7 @@ impl Px8New {
                     info!("[PX8] Loading LUA Plugin");
                     // load the lua plugin
                     self.lua_plugin
-                        .load(players.clone(),
+                        .load(self.players.clone(),
                               info.clone(),
                               self.screen.clone(),
                               self.noise.clone());
@@ -995,7 +1025,7 @@ impl Px8New {
                 info!("[PX8] Loading LUA Plugin");
 
                 self.lua_plugin
-                    .load(players.clone(),
+                    .load(self.players.clone(),
                           info.clone(),
                           self.screen.clone(),
                           self.noise.clone());
@@ -1007,7 +1037,7 @@ impl Px8New {
 
                 self.python_plugin
                     .load(self.palettes.clone(),
-                          players.clone(),
+                          self.players.clone(),
                           info.clone(),
                           self.screen.clone(),
                           sound.clone(),
@@ -1082,7 +1112,7 @@ impl Px8New {
         return elapsed_time;
     }
 
-    pub fn call_update(&mut self, players: Arc<Mutex<Players>>) -> f64 {
+    pub fn call_update(&mut self) -> f64 {
         let current_time = time::now();
 
         match self.code_type {
@@ -1091,7 +1121,7 @@ impl Px8New {
             Code::RUST => {
                 self.update_return = true;
                 for callback in self.rust_plugin.iter_mut() {
-                    callback.update(players.clone());
+                    callback.update(self.players.clone());
                 }
             }
             _ => (),
