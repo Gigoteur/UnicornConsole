@@ -37,7 +37,7 @@ include!(concat!(env!("OUT_DIR"), "/parameters.rs"));
 pub const SCREEN_PIXELS: usize = SCREEN_WIDTH * SCREEN_HEIGHT;
 pub const SCREEN_PIXELS_RGB: usize = SCREEN_PIXELS * 3;
 
-pub type ScreenBuffer = [u32; SCREEN_PIXELS];
+pub type ScreenBuffer = [u8; SCREEN_PIXELS];
 pub type ScreenBufferRGB = [u8; SCREEN_PIXELS_RGB];
 
 pub const SCREEN_EMPTY: ScreenBuffer = [0; SCREEN_PIXELS];

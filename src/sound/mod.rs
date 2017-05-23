@@ -88,16 +88,16 @@ pub mod sound {
         type Channel = u8;
         /// Callback routine for SDL2
         fn callback(&mut self, out: &mut [u8]) {
-           if self.generator
-                  .get_samples(self.frame_size, &mut self.generator_buffer) > 0 {
-               let mut idx = 0;
-               for item in self.generator_buffer.iter().take(self.frame_size) {
-                   for _ in 0..(self.channel_count) {
-                       out[idx] = *item;
-                       idx += 1;
-                   }
-               }
-           }
+            if self.generator
+                   .get_samples(self.frame_size, &mut self.generator_buffer) > 0 {
+                let mut idx = 0;
+                for item in self.generator_buffer.iter().take(self.frame_size) {
+                    for _ in 0..(self.channel_count) {
+                        out[idx] = *item;
+                        idx += 1;
+                    }
+                }
+            }
         }
     }
 
@@ -198,9 +198,7 @@ pub mod sound {
             self.data_sender.send(data);
         }
 
-        pub fn stop(&mut self, _id: u32) {
-
-        }
+        pub fn stop(&mut self, _id: u32) {}
     }
 }
 
@@ -237,7 +235,10 @@ pub mod sound {
                    _buffer_size: usize,
                    _channel_count: u16)
                    -> SoundInterface<T> {
-            SoundInterface { phantom: PhantomData, data_sender: PhantomData }
+            SoundInterface {
+                phantom: PhantomData,
+                data_sender: PhantomData,
+            }
         }
 
         pub fn start(&mut self) {}

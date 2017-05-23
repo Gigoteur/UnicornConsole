@@ -21,6 +21,7 @@ path       = "src/lib.rs"
 default = []
 gfx_rs_renderer = []
 audio = []
+blit_perf = []
 
 [dependencies]
 time = "0.1.35"
