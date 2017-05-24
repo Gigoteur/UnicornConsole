@@ -8,23 +8,6 @@ def frange(start, stop, step):
     return [x*step+start for x in range(0,round(abs((stop-start)/step)+0.5001),
                                         int((stop-start)/step<0)*-2+1)]
 
-def draw_mouse():
-    data = [
-        [0, 1, 0, 0, 0, 0, 0, 0],
-        [1, 7, 1, 0, 0, 0, 0, 0],
-        [1, 7, 7, 1, 0, 0, 0, 0],
-        [1, 7, 7, 7, 1, 0, 0, 0],
-        [1, 7, 7, 7, 7, 1, 0, 0],
-        [1, 7, 7, 1, 1, 0, 0, 0],
-        [0, 1, 1, 7, 1, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-    ]
-
-    for y, row in enumerate(data):
-        for idx, pixel in enumerate(row):
-            if pixel:
-                pset(mouse_x()+idx,  mouse_y()+y, pixel)
-
 class Button(object):
     def __init__(self, x, y, w, h, color, text):
         self.x1 = x
@@ -821,6 +804,7 @@ buttons.append(Button(90, 110, 16, 8, 9, "prev"))
 def _init():
     global demos, idx_demo
     cls()
+    show_mouse(True)
 
     for demo in demos[idx_demo][1]:
         demo.init()
@@ -870,8 +854,6 @@ def _draw():
         button.draw()
 
     px8_print("Demos " + demos[idx_demo][0], 0, 120, 2)
-
-    draw_mouse()
 
 __gfx__
 10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000

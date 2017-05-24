@@ -499,6 +499,10 @@ impl PX8Config {
     pub fn toggle_mouse(&mut self) {
         self.show_mouse = !self.show_mouse;
     }
+
+    pub fn show_mouse(&mut self, value: bool) {
+        self.show_mouse = value;
+    }
 }
 
 pub struct Px8New {
@@ -1041,7 +1045,8 @@ impl Px8New {
                           info.clone(),
                           self.screen.clone(),
                           sound.clone(),
-                          self.noise.clone());
+                          self.noise.clone(),
+                          self.configuration.clone());
 
                 return self.python_plugin.load_code(data);
             }
