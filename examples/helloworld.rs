@@ -31,12 +31,12 @@ impl HelloWorld {
 
 impl RustPlugin for HelloWorld {
     fn init(&mut self, screen: Arc<Mutex<gfx::Screen>>) -> f64 {
-        match cartridge::Cartridge::parse(self.sprite_filename.clone(), false) {
+        match cartridge::Cartridge::parse(&self.sprite_filename, false) {
             Ok(c) => screen.lock().unwrap().set_sprites(c.gfx.sprites),
             Err(e) => panic!("Impossible to load the assets {:?}", e),
         }
 
-        return 0.;
+        0.0
     }
 
     fn update(&mut self, _players: Arc<Mutex<Players>>) -> f64 {
@@ -44,7 +44,7 @@ impl RustPlugin for HelloWorld {
 
         self.t += 1;
 
-        return 0.;
+        0.0
     }
 
     fn draw(&mut self, screen: Arc<Mutex<gfx::Screen>>) -> f64 {
@@ -70,8 +70,7 @@ impl RustPlugin for HelloWorld {
             }
         }
 
-
-        return 0.;
+        0.0
     }
 }
 
@@ -96,10 +95,11 @@ fn main() {
 
     let helloworld_example = HelloWorld::new("./examples/helloworld/helloworld.dpx8".to_string());
 
-    let mut frontend = match frontend::Frontend::init(px8::gfx::Scale::Scale4x, false, true) {
-        Err(error) => panic!("{:?}", error),
-        Ok(frontend) => frontend,
-    };
+    let mut frontend =
+        match frontend::Frontend::init(px8::gfx::Scale::Scale4x, false, true, true) {
+            Err(error) => panic!("{:?}", error),
+            Ok(frontend) => frontend,
+        };
 
     frontend.px8.register(helloworld_example);
     frontend.start("./sys/config/gamecontrollerdb.txt".to_string());

@@ -59,27 +59,22 @@ pub fn map_keycode(key: Keycode) -> (Option<PX8Key>, u8) {
         Keycode::Left => (Some(PX8Key::Left), 0),
         Keycode::Up => (Some(PX8Key::Up), 0),
         Keycode::Down => (Some(PX8Key::Down), 0),
-        Keycode::Z => (Some(PX8Key::O), 0),
-        Keycode::C => (Some(PX8Key::O), 0),
-        Keycode::N => (Some(PX8Key::O), 0),
-        Keycode::X => (Some(PX8Key::X), 0),
-        Keycode::V => (Some(PX8Key::X), 0),
-        Keycode::M => (Some(PX8Key::X), 0),
+
+        Keycode::Z | Keycode::C | Keycode::N => (Some(PX8Key::O), 0),
+        Keycode::X | Keycode::V | Keycode::M => (Some(PX8Key::X), 0),
 
         Keycode::F => (Some(PX8Key::Right), 1),
         Keycode::S => (Some(PX8Key::Left), 1),
         Keycode::E => (Some(PX8Key::Up), 1),
         Keycode::D => (Some(PX8Key::Down), 1),
 
-        Keycode::LShift => (Some(PX8Key::O), 1),
-        Keycode::Tab => (Some(PX8Key::O), 1),
+        Keycode::LShift | Keycode::Tab => (Some(PX8Key::O), 1),
 
-        Keycode::A => (Some(PX8Key::X), 1),
-        Keycode::Q => (Some(PX8Key::X), 1),
+        Keycode::A | Keycode::Q => (Some(PX8Key::X), 1),
 
         Keycode::P => (Some(PX8Key::Pause), 0),
-        Keycode::KpEnter => (Some(PX8Key::Enter), 0),
-        Keycode::Return => (Some(PX8Key::Enter), 0),
+
+        Keycode::KpEnter | Keycode::Return => (Some(PX8Key::Enter), 0),
 
         _ => (None, 0),
     }

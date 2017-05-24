@@ -64,7 +64,7 @@ mod sound;
 use gfx::Scale;
 use cartridge::Cartridge;
 
-fn print_usage(program: &str, opts: Options) {
+fn print_usage(program: &str, opts: &Options) {
     let brief = format!("Usage: {} FILE [options]", program);
     print!("{}", opts.usage(&brief));
 }
@@ -106,14 +106,14 @@ fn main() {
         Err(f) => panic!(f.to_string()),
     };
     if matches.opt_present("h") {
-        print_usage(&program, opts);
+        print_usage(&program, &opts);
         return;
     }
 
     let input = if !matches.free.is_empty() {
         matches.free[0].clone()
     } else {
-        print_usage(&program, opts);
+        print_usage(&program, &opts);
         return;
     };
 
@@ -139,30 +139,30 @@ fn main() {
 
     if matches.opt_present("c") {
         if input.contains(".png") {
-            match Cartridge::from_png_file(input) {
+            match Cartridge::from_png_file(&input) {
                 Ok(mut c) => {
                     println!("{:?}", c);
 
                     if matches.opt_present("d") {
-                        c.dump(matches.opt_str("d").unwrap());
+                        c.dump(&matches.opt_str("d").unwrap());
                     }
                 }
                 Err(e) => panic!(e),
             }
         } else if input.contains(".p8") {
-            match Cartridge::from_p8_file(input) {
+            match Cartridge::from_p8_file(&input) {
                 Ok(mut c) => {
                     println!("{:?}", c);
 
                     if matches.opt_present("d") {
                         c.set_mode(mode == px8::PX8Mode::PICO8);
-                        c.dump(matches.opt_str("d").unwrap());
+                        c.dump(&matches.opt_str("d").unwrap());
                     }
                 }
                 Err(e) => panic!(e),
             }
         } else if input.contains(".px8") {
-            match Cartridge::from_px8_file(input) {
+            match Cartridge::from_px8_file(&input) {
                 Ok(c) => {
                     println!("{:?}", c);
                 }
@@ -171,11 +171,11 @@ fn main() {
         }
     } else if matches.opt_present("t") {
         if input.contains(".png") {
-            match Cartridge::from_png_file(input) {
+            match Cartridge::from_png_file(&input) {
                 Ok(mut c) => {
                     println!("{:?}", c);
 
-                    c.save_in_p8(matches.opt_str("t").unwrap());
+                    c.save_in_p8(&matches.opt_str("t").unwrap());
                 }
                 Err(e) => panic!(e),
             }
@@ -185,7 +185,6 @@ fn main() {
         if matches.opt_present("s") {
             let value = matches.opt_str("s").unwrap().parse::<i32>().unwrap();
             match value {
-                1 => scale = Scale::Scale1x,
                 2 => scale = Scale::Scale2x,
                 3 => scale = Scale::Scale3x,
                 4 => scale = Scale::Scale4x,
@@ -197,20 +196,13 @@ fn main() {
             }
         }
 
-        let mut fullscreen = false;
-        if matches.opt_present("f") {
-            fullscreen = true;
-        }
-
-        let mut opengl = false;
-        if matches.opt_present("o") {
-            opengl = true;
-        }
+        let fullscreen = matches.opt_present("f");
+        let opengl = matches.opt_present("o");
 
         start_px8(scale,
                   fullscreen,
                   opengl,
-                  input,
+                  &input,
                   matches.opt_present("e"),
                   mode);
     }
@@ -219,7 +211,7 @@ fn main() {
 pub fn start_px8(scale: gfx::Scale,
                  fullscreen: bool,
                  opengl: bool,
-                 filename: String,
+                 filename: &str,
                  editor: bool,
                  mode: px8::PX8Mode) {
     let mut frontend = match frontend::Frontend::init(scale, fullscreen, opengl, false) {
