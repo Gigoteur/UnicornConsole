@@ -49,7 +49,7 @@ pub mod plugin {
     }
 
     def switch_palette(&self, name: String) -> PyResult<i32> {
-        self.palettes(py).lock().unwrap().switch_to(name);
+        self.palettes(py).lock().unwrap().switch_to(&name);
         Ok(0)
     }
 
@@ -598,10 +598,10 @@ pub mod plugin {
         }
         pub fn init(&mut self) {}
         pub fn draw(&mut self) -> bool {
-            return false;
+            false
         }
         pub fn update(&mut self) -> bool {
-            return false;
+            false
         }
         pub fn load_code(&mut self, data: String) -> bool {
             false

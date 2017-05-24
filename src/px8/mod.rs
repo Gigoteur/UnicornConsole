@@ -93,9 +93,9 @@ impl Palette {
     pub fn get_color(&mut self, color: u32) -> u32 {
         match self.colors.get(&color) {
             Some(rgb_value) => {
-                return (rgb_value.r as u32) << 16 | (rgb_value.g as u32) << 8 | (rgb_value.b as u32)
+                (rgb_value.r as u32) << 16 | (rgb_value.g as u32) << 8 | (rgb_value.b as u32)
             }
-            _ => return 0,
+            _ => 0,
         }
     }
 
@@ -103,9 +103,9 @@ impl Palette {
         let value = self.idx;
 
         let v = (r as u32) << 16 | (g as u32) << 8 | (b as u32);
-        match self.rcolors.get(&v) {
-            Some(color) => return *color,
-            _ => (),
+
+        if let Some(color) = self.rcolors.get(&v) {
+            return *color;
         }
 
         self.set_color(value, r, g, b);
@@ -117,8 +117,7 @@ impl Palette {
 
 lazy_static! {
     pub static ref PALETTE: Mutex<Palette> = {
-        let m = Mutex::new(Palette::new());
-        m
+        Mutex::new(Palette::new())
     };
 }
 
@@ -214,7 +213,7 @@ impl Menu {
             }
         }
 
-        return true;
+        true
     }
 
     pub fn draw(&mut self, screen: Arc<Mutex<gfx::Screen>>) {
@@ -238,13 +237,11 @@ impl Menu {
 
             self.draw_logo(screen.clone());
 
-            let mut pos = 0;
-            for item in &self.items {
+            for (pos, item) in self.items.iter().enumerate() {
                 screen
                     .lock()
                     .unwrap()
-                    .print(item.to_string(), idx_x + 5, idx_y + pos * 10, 7);
-                pos += 1;
+                    .print(item.to_string(), idx_x + 5, idx_y + (pos as i32) * 10, 7);
             }
 
         }
@@ -418,11 +415,11 @@ impl Palettes {
             let line = line.unwrap();
             let l = line.trim_left().to_string();
 
-            if l.len() == 0 {
+            if l.is_empty() {
                 continue;
             }
 
-            if l.starts_with("#") {
+            if l.starts_with('#') {
                 continue;
             }
 
@@ -447,23 +444,21 @@ impl Palettes {
 
     pub fn next(&mut self) {
         self.palette_idx = (self.palette_idx + 1) % self.palettes_list.len() as u32;
-        let ref mut p_value = self.palettes_list[self.palette_idx as usize].clone();
-        self.switch_to(p_value.clone());
+        let palette_name = self.palettes_list[self.palette_idx as usize].clone();
+        self.switch_to(&palette_name);
     }
 
-    pub fn switch_to(&mut self, name: String) {
-        let ref values = *self.palettes.get(&name).unwrap();
+    pub fn switch_to(&mut self, name: &str) {
+        let values = &self.palettes[name];
 
-        let mut idx = 0;
-        for rgb_value in values {
+        for (idx, rgb_value) in values.iter().enumerate() {
             PALETTE
                 .lock()
                 .unwrap()
-                .set_color(idx, rgb_value.r, rgb_value.g, rgb_value.b);
-            idx += 1;
+                .set_color(idx as u32, rgb_value.r, rgb_value.g, rgb_value.b);
         }
 
-        self.name = name.clone();
+        self.name = name.to_string();
     }
 
     pub fn set_color(&mut self, color: u32, r: u8, g: u8, b: u8) {
@@ -549,25 +544,15 @@ impl Px8New {
             record: Record::new(),
             draw_return: true,
             update_return: true,
-            mouse_spr: vec![
-            0, 1, 0, 0, 0, 0, 0, 0,
-            1, 7, 1, 0, 0, 0, 0, 0,
-            1, 7, 7, 1, 0, 0, 0, 0,
-            1, 7, 7, 7, 1, 0, 0, 0,
-            1, 7, 7, 7, 7, 1, 0, 0,
-            1, 7, 7, 1, 1, 0, 0, 0,
-            0, 1, 1, 7, 1, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0,
-            ],
+            mouse_spr: vec![0, 1, 0, 0, 0, 0, 0, 0, 1, 7, 1, 0, 0, 0, 0, 0, 1, 7, 7, 1, 0, 0, 0,
+                            0, 1, 7, 7, 7, 1, 0, 0, 0, 1, 7, 7, 7, 7, 1, 0, 0, 1, 7, 7, 1, 1, 0,
+                            0, 0, 0, 1, 1, 7, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         }
     }
 
     pub fn init(&mut self) {
         self.palettes.lock().unwrap().init();
-        self.palettes
-            .lock()
-            .unwrap()
-            .switch_to("pico-8".to_string());
+        self.palettes.lock().unwrap().switch_to("pico-8");
 
         self.screen.lock().unwrap().init();
         self.update_return = true;
@@ -618,7 +603,7 @@ impl Px8New {
             }
         }
 
-        return true;
+        true
     }
 
     pub fn draw(&mut self) {
@@ -642,34 +627,32 @@ impl Px8New {
 
             for y in 0..8 {
                 for x in 0..8 {
-                    let pixel = *self.mouse_spr.get(x + y * 8).unwrap();
+                    let pixel = self.mouse_spr[x + y * 8];
                     if pixel != 0 {
                         self.screen
                             .lock()
                             .unwrap()
-                            .putpixel_direct(mouse_x + x  as i32,
-                                             mouse_y + y as i32,
-                                             pixel as u32);
+                            .putpixel_direct(mouse_x + x as i32, mouse_y + y as i32, pixel as u32);
                     }
                 }
             }
         }
     }
 
-    pub fn is_end(&mut self) -> bool {
-        return !self.update_return;
+    pub fn is_end(&self) -> bool {
+        !self.update_return
     }
 
-    pub fn is_recording(&mut self) -> bool {
-        return self.record.recording;
+    pub fn is_recording(&self) -> bool {
+        self.record.recording
     }
 
-    pub fn start_record(&mut self, filename: String) {
+    pub fn start_record(&mut self, filename: &str) {
         info!("[PX8] Start to record the frame");
 
         self.record.recording = true;
         self.record.images.clear();
-        self.record.filename = filename;
+        self.record.filename = filename.to_string();
     }
 
     pub fn record(&mut self) {
@@ -721,9 +704,9 @@ impl Px8New {
 
             for _ in 0..SCREEN_WIDTH {
                 for _ in 0..SCREEN_HEIGHT {
-                    buffer.push(*self.record.images.get(idx).unwrap());
-                    buffer.push(*self.record.images.get(idx + 1).unwrap());
-                    buffer.push(*self.record.images.get(idx + 2).unwrap());
+                    buffer.push(self.record.images[idx]);
+                    buffer.push(self.record.images[idx + 1]);
+                    buffer.push(self.record.images[idx + 2]);
                     idx += 3;
                 }
             }
@@ -745,7 +728,7 @@ impl Px8New {
             info!("[PX8] Creating gif Frame");
             let mut frame = gif::Frame::from_rgb((SCREEN_WIDTH * scale) as u16,
                                                  (SCREEN_HEIGHT * scale) as u16,
-                                                 &mut *image.raw_pixels());
+                                                 &image.raw_pixels());
 
             frame.delay = 1;
             encoder.write_frame(&frame).unwrap();
@@ -754,7 +737,7 @@ impl Px8New {
         info!("[PX8] GIF created in {:?}", self.record.filename.clone());
     }
 
-    pub fn screenshot(&mut self, filename: String) {
+    pub fn screenshot(&mut self, filename: &str) {
         info!("[PX8] Taking screenshot in {:?}", filename);
 
         let mut buffer: Vec<u8> = Vec::new();
@@ -779,14 +762,14 @@ impl Px8New {
                     image::FilterType::Nearest)
             .flipv();
 
-        let mut output = File::create(&Path::new(&filename)).unwrap();
+        let mut output = File::create(&Path::new(filename)).unwrap();
         image.save(&mut output, image::ImageFormat::PNG).unwrap();
     }
 
     pub fn save_current_cartridge(&mut self) {
-        let ref mut cartridge = self.cartridges[self.current_cartridge];
+        let cartridge = &mut self.cartridges[self.current_cartridge];
 
-        let output_filename = cartridge.filename.clone();
+        let output_filename = &cartridge.filename.clone();
         info!("[PX8] Saving the current cartridge in {:?}",
               output_filename);
 
@@ -828,7 +811,7 @@ impl Px8New {
     }
 
     pub fn load_cartridge(&mut self,
-                          filename: String,
+                          filename: &str,
                           info: Arc<Mutex<Info>>,
                           sound: Arc<Mutex<Sound>>,
                           editor: bool,
@@ -837,22 +820,22 @@ impl Px8New {
         let idx = self.cartridges.len();
 
         if filename.contains(".png") {
-            match Cartridge::from_png_file(filename.clone()) {
+            match Cartridge::from_png_file(filename) {
                 Ok(c) => self.cartridges.push(c),
                 Err(e) => panic!("Impossible to load the png cartridge {:?}", e),
             }
         } else if filename.contains(".p8") {
-            match Cartridge::from_p8_file(filename.clone()) {
+            match Cartridge::from_p8_file(filename) {
                 Ok(c) => self.cartridges.push(c),
                 Err(e) => panic!("Impossible to load the p8 cartridge {:?}", e),
             }
         } else if filename.contains(".py") {
-            match Cartridge::from_p8_file(filename.clone()) {
+            match Cartridge::from_p8_file(filename) {
                 Ok(c) => self.cartridges.push(c),
                 Err(e) => panic!("Impossible to load the p8 cartridge {:?}", e),
             }
         } else if filename.contains(".px8") {
-            match Cartridge::from_px8_file(filename.clone()) {
+            match Cartridge::from_px8_file(filename) {
                 Ok(c) => self.cartridges.push(c),
                 Err(e) => panic!("Impossible to load the px8 cartridge {:?}", e),
             }
@@ -884,7 +867,7 @@ impl Px8New {
 
     #[allow(dead_code)]
     pub fn load_cartridge_raw(&mut self,
-                              filename: String,
+                              filename: &str,
                               data: Vec<u8>,
                               info: Arc<Mutex<Info>>,
                               sound: Arc<Mutex<Sound>>,
@@ -894,17 +877,17 @@ impl Px8New {
         let idx = self.cartridges.len();
 
         if filename.contains(".png") {
-            match Cartridge::from_png_raw(filename.clone(), data) {
+            match Cartridge::from_png_raw(filename, data) {
                 Ok(c) => self.cartridges.push(c),
                 Err(e) => panic!("Impossible to load the png cartridge {:?}", e),
             }
         } else if filename.contains(".p8") {
-            match Cartridge::from_p8_raw(filename.clone(), data) {
+            match Cartridge::from_p8_raw(filename, data) {
                 Ok(c) => self.cartridges.push(c),
                 Err(e) => panic!("Impossible to load the p8 cartridge {:?}", e),
             }
         } else if filename.contains(".py") {
-            match Cartridge::from_p8_raw(filename.clone(), data) {
+            match Cartridge::from_p8_raw(filename, data) {
                 Ok(c) => self.cartridges.push(c),
                 Err(e) => panic!("Impossible to load the p8 cartridge {:?}", e),
             }
@@ -930,15 +913,11 @@ impl Px8New {
     }
 
     pub fn _get_code_type(&mut self, idx: usize) -> Code {
-        if self.cartridges[idx].code.get_name() == "lua" {
-            return Code::LUA;
+        match self.cartridges[idx].code.get_name().as_ref() {
+            "lua" => Code::LUA,
+            "python" => Code::PYTHON,
+            _ => Code::UNKNOWN,
         }
-
-        if self.cartridges[idx].code.get_name() == "python" {
-            return Code::PYTHON;
-        }
-
-        return Code::UNKNOWN;
     }
 
     pub fn switch_code(&mut self) {
@@ -980,9 +959,9 @@ impl Px8New {
     }
 
     #[allow(dead_code)]
-    pub fn is_editing_current_cartridge(&mut self) -> bool {
+    pub fn is_editing_current_cartridge(&self) -> bool {
         let idx = self.current_cartridge;
-        return self.cartridges[idx].edit;
+        self.cartridges[idx].edit
     }
 
     pub fn load_plugin(&mut self,
@@ -1063,7 +1042,7 @@ impl Px8New {
             data = data + "\n" + &l;
         }
 
-        return data;
+        data
     }
 
     pub fn call_init(&mut self) -> f64 {
@@ -1074,7 +1053,7 @@ impl Px8New {
             Code::PYTHON => self.python_plugin.init(),
             Code::RUST => {
                 self.draw_return = true;
-                for callback in self.rust_plugin.iter_mut() {
+                for callback in &mut self.rust_plugin {
                     callback.init(self.screen.clone());
                 }
             }
@@ -1084,9 +1063,9 @@ impl Px8New {
         let diff_time = time::now() - current_time;
         let nanoseconds = (diff_time.num_nanoseconds().unwrap() as f64) -
                           (diff_time.num_seconds() * 1000000000) as f64;
-        let elapsed_time = diff_time.num_seconds() as f64 + nanoseconds / 1000000000.0;
 
-        return elapsed_time;
+        // Elapsed time
+        diff_time.num_seconds() as f64 + nanoseconds / 1000000000.0
     }
 
     pub fn call_draw(&mut self) -> f64 {
@@ -1107,9 +1086,9 @@ impl Px8New {
         let diff_time = time::now() - current_time;
         let nanoseconds = (diff_time.num_nanoseconds().unwrap() as f64) -
                           (diff_time.num_seconds() * 1000000000) as f64;
-        let elapsed_time = diff_time.num_seconds() as f64 + nanoseconds / 1000000000.0;
 
-        return elapsed_time;
+        // Elapsed time
+        diff_time.num_seconds() as f64 + nanoseconds / 1000000000.0
     }
 
     pub fn call_update(&mut self) -> f64 {
@@ -1130,8 +1109,8 @@ impl Px8New {
         let diff_time = time::now() - current_time;
         let nanoseconds = (diff_time.num_nanoseconds().unwrap() as f64) -
                           (diff_time.num_seconds() * 1000000000) as f64;
-        let elapsed_time = diff_time.num_seconds() as f64 + nanoseconds / 1000000000.0;
 
-        return elapsed_time;
+        // Elapsed time
+        diff_time.num_seconds() as f64 + nanoseconds / 1000000000.0
     }
 }

@@ -94,16 +94,12 @@ impl Players {
     }
 
     pub fn mouse_button_down(&mut self, mouse_btn: MouseButton, elapsed: f64) {
-        if mouse_btn == MouseButton::Left {
-            self.mouse.state = 1;
-        } else if mouse_btn == MouseButton::Right {
-            self.mouse.state = 2;
-        } else if mouse_btn == MouseButton::Middle {
-            self.mouse.state = 4;
-        } else {
-            self.mouse.state = 0;
-        }
-
+        self.mouse.state = match mouse_btn {
+            MouseButton::Left => 1,
+            MouseButton::Right => 2,
+            MouseButton::Middle => 4,
+            _ => 0,
+        };
         self.mouse.state_quick = self.mouse.state;
         self.mouse.delay = elapsed;
     }
@@ -138,7 +134,7 @@ impl Players {
         for (_, keys) in self.pkeys.iter_mut() {
             let ref mut current_keys = keys.keys;
 
-            let mut modif_quick:HashMap<PX8Key, bool> = HashMap::new();
+            let mut modif_quick: HashMap<PX8Key, bool> = HashMap::new();
 
             for (key_val, value) in current_keys.iter_mut() {
                 if *value {
@@ -164,10 +160,7 @@ impl Players {
     }
 
     pub fn key_down(&mut self, keycode: Keycode, repeat: bool, elapsed: f64) {
-        debug!("KEY {:?} {:?} {:?} -> DOWN",
-               keycode,
-               repeat,
-               elapsed);
+        debug!("KEY {:?} {:?} {:?} -> DOWN", keycode, repeat, elapsed);
 
         if self.akeys.contains_key(&keycode) {
             if !self.akeys[&keycode] {
@@ -184,10 +177,10 @@ impl Players {
 
     pub fn key_down_direct(&mut self, player: u8, key: PX8Key, repeat: bool, elapsed: f64) {
         debug!("KEY {:?} {:?} {:?} Player {:?} -> DOWN",
-        key,
-        repeat,
-        elapsed,
-        player);
+               key,
+               repeat,
+               elapsed,
+               player);
 
         match self.pkeys.get_mut(&player) {
             Some(keys) => {
@@ -276,7 +269,7 @@ impl Players {
                     2 if keys.keys_quick[&PX8Key::Up] => 1,
                     3 if keys.keys_quick[&PX8Key::Down] => 1,
                     4 if keys.keys_quick[&PX8Key::O] => 1,
-                    5 if keys.keys_quick[&PX8Key::X]=> 1,
+                    5 if keys.keys_quick[&PX8Key::X] => 1,
                     6 if keys.keys_quick[&PX8Key::Enter] => 1,
                     7 if keys.keys_quick[&PX8Key::Pause] => 1,
                     _ => 0,
@@ -298,10 +291,10 @@ impl Players {
                     Some(v) => {
                         return *v;
                     }
-                    None => ()
+                    None => (),
                 }
             }
-            None => ()
+            None => (),
         }
         false
     }
@@ -317,10 +310,10 @@ impl Players {
                     Some(v) => {
                         return *v;
                     }
-                    None => ()
+                    None => (),
                 }
             }
-            None => ()
+            None => (),
         }
         false
     }

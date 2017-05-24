@@ -72,7 +72,11 @@ pub struct Frontend {
 }
 
 impl Frontend {
-    pub fn init(scale: Scale, fullscreen: bool, opengl: bool, show_mouse: bool) -> FrontendResult<Frontend> {
+    pub fn init(scale: Scale,
+                fullscreen: bool,
+                opengl: bool,
+                show_mouse: bool)
+                -> FrontendResult<Frontend> {
         info!("[Frontend] SDL2 init");
         let sdl_context = try!(sdl2::init());
 
@@ -204,9 +208,9 @@ impl Frontend {
         self.handle_event(false);
     }
 
-    pub fn run_cartridge(&mut self, filename: String, editor: bool, mode: px8::PX8Mode) {
+    pub fn run_cartridge(&mut self, filename: &str, editor: bool, mode: px8::PX8Mode) {
         let success = self.px8
-            .load_cartridge(filename.clone(),
+            .load_cartridge(filename,
                             self.info.clone(),
                             self.sound.clone(),
                             editor,
@@ -237,8 +241,16 @@ impl Frontend {
                 self.renderer
                     .window_coords_to_viewport_coords(mouse_state.x(), mouse_state.y());
 
-            self.px8.players.lock().unwrap().set_mouse_x(mouse_viewport_x);
-            self.px8.players.lock().unwrap().set_mouse_y(mouse_viewport_y);
+            self.px8
+                .players
+                .lock()
+                .unwrap()
+                .set_mouse_x(mouse_viewport_x);
+            self.px8
+                .players
+                .lock()
+                .unwrap()
+                .set_mouse_y(mouse_viewport_y);
 
             for event in self.event_pump.poll_iter() {
                 match event {
@@ -250,13 +262,15 @@ impl Frontend {
                         self.renderer.update_dimensions();
                     }
                     Event::MouseButtonDown { mouse_btn, .. } => {
-                        self.px8.players
+                        self.px8
+                            .players
                             .lock()
                             .unwrap()
                             .mouse_button_down(mouse_btn, self.elapsed_time);
                     }
                     Event::MouseButtonUp { mouse_btn, .. } => {
-                        self.px8.players
+                        self.px8
+                            .players
                             .lock()
                             .unwrap()
                             .mouse_button_up(mouse_btn, self.elapsed_time);
@@ -266,7 +280,8 @@ impl Frontend {
                         repeat,
                         ..
                     } => {
-                        self.px8.players
+                        self.px8
+                            .players
                             .lock()
                             .unwrap()
                             .key_down(keycode, repeat, self.elapsed_time);
@@ -276,15 +291,16 @@ impl Frontend {
                         } else if keycode == Keycode::F3 {
                             let dt = Local::now();
                             self.px8
-                                .screenshot("screenshot-".to_string() +
-                                            &dt.format("%Y-%m-%d-%H-%M-%S.png").to_string());
+                                .screenshot(&("screenshot-".to_string() +
+                                              &dt.format("%Y-%m-%d-%H-%M-%S.png").to_string()));
                         } else if keycode == Keycode::F4 {
                             let record_screen = self.px8.is_recording();
                             if !record_screen {
                                 let dt = Local::now();
                                 self.px8
-                                    .start_record("record-".to_string() +
-                                                  &dt.format("%Y-%m-%d-%H-%M-%S.gif").to_string());
+                                    .start_record(&("record-".to_string() +
+                                                    &dt.format("%Y-%m-%d-%H-%M-%S.gif")
+                                                         .to_string()));
                             } else {
                                 self.px8.stop_record(self.scale.factor());
                             }
@@ -314,7 +330,8 @@ impl Frontend {
                         }
 
                         if let Some(key) = map_button(button) {
-                            self.px8.players
+                            self.px8
+                                .players
                                 .lock()
                                 .unwrap()
                                 .key_down_direct(0, key, false, self.elapsed_time)
@@ -348,7 +365,8 @@ impl Frontend {
                                 self.px8.players.lock().unwrap().key_direc_ver_up(0);
                             } else {
                                 if state {
-                                    self.px8.players
+                                    self.px8
+                                        .players
                                         .lock()
                                         .unwrap()
                                         .key_down_direct(0, key, false, self.elapsed_time);
@@ -376,7 +394,8 @@ impl Frontend {
                                 self.px8.players.lock().unwrap().key_direc_ver_up(0);
                             } else {
                                 if state {
-                                    self.px8.players
+                                    self.px8
+                                        .players
                                         .lock()
                                         .unwrap()
                                         .key_down_direct(0, key, false, self.elapsed_time);
@@ -397,7 +416,8 @@ impl Frontend {
                         }
 
                         if let Some(key) = map_button_joystick(button_idx) {
-                            self.px8.players
+                            self.px8
+                                .players
                                 .lock()
                                 .unwrap()
                                 .key_down_direct(0, key, false, self.elapsed_time);
@@ -452,9 +472,21 @@ impl Frontend {
                 self.renderer
                     .window_coords_to_viewport_coords(mouse_state.x(), mouse_state.y());
 
-            self.px8.players.lock().unwrap().set_mouse_x(mouse_viewport_x);
-            self.px8.players.lock().unwrap().set_mouse_y(mouse_viewport_y);
-            self.px8.players.lock().unwrap().set_mouse_state(mouse_state);
+            self.px8
+                .players
+                .lock()
+                .unwrap()
+                .set_mouse_x(mouse_viewport_x);
+            self.px8
+                .players
+                .lock()
+                .unwrap()
+                .set_mouse_y(mouse_viewport_y);
+            self.px8
+                .players
+                .lock()
+                .unwrap()
+                .set_mouse_state(mouse_state);
 
             if mouse_state.left() {
                 debug!("MOUSE X {:?} Y {:?}",
@@ -476,7 +508,8 @@ impl Frontend {
                         repeat,
                         ..
                     } => {
-                        self.px8.players
+                        self.px8
+                            .players
                             .lock()
                             .unwrap()
                             .key_down(player, keycode, repeat, self.elapsed_time);
@@ -526,7 +559,8 @@ impl Frontend {
 
                         info!("ID [{:?}] Controller button Down {:?}", id, button);
                         if let Some(key) = map_button(button) {
-                            self.px8.players
+                            self.px8
+                                .players
                                 .lock()
                                 .unwrap()
                                 .key_down(0, key, false, self.elapsed_time)
@@ -569,7 +603,8 @@ impl Frontend {
                                 self.px8.players.lock().unwrap().key_direc_ver_up(0);
                             } else {
                                 if state {
-                                    self.px8.players
+                                    self.px8
+                                        .players
                                         .lock()
                                         .unwrap()
                                         .key_down(0, key, false, self.elapsed_time)
@@ -604,7 +639,8 @@ impl Frontend {
                                 self.px8.players.lock().unwrap().key_direc_ver_up(0);
                             } else {
                                 if state {
-                                    self.px8.players
+                                    self.px8
+                                        .players
                                         .lock()
                                         .unwrap()
                                         .key_down(0, key, false, self.elapsed_time)
@@ -626,7 +662,8 @@ impl Frontend {
 
                         info!("ID [{:?}] Joystick button DOWN {:?}", id, button_idx);
                         if let Some(key) = map_button_joystick(button_idx) {
-                            self.px8.players
+                            self.px8
+                                .players
                                 .lock()
                                 .unwrap()
                                 .key_down(0, key, false, self.elapsed_time)
