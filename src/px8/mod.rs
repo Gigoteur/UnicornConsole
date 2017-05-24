@@ -544,10 +544,20 @@ impl Px8New {
             record: Record::new(),
             draw_return: true,
             update_return: true,
-            mouse_spr: vec![0, 1, 0, 0, 0, 0, 0, 0, 1, 7, 1, 0, 0, 0, 0, 0, 1, 7, 7, 1, 0, 0, 0,
-                            0, 1, 7, 7, 7, 1, 0, 0, 0, 1, 7, 7, 7, 7, 1, 0, 0, 1, 7, 7, 1, 1, 0,
-                            0, 0, 0, 1, 1, 7, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            mouse_spr: Px8New::mouse_sprite(),
         }
+    }
+
+    #[cfg_attr(rustfmt, rustfmt_skip)]
+    pub fn mouse_sprite() -> Vec<u8> {
+        vec![0, 1, 0, 0, 0, 0, 0, 0,
+             1, 7, 1, 0, 0, 0, 0, 0,
+             1, 7, 7, 1, 0, 0, 0, 0,
+             1, 7, 7, 7, 1, 0, 0, 0,
+             1, 7, 7, 7, 7, 1, 0, 0,
+             1, 7, 7, 1, 1, 0, 0, 0,
+             0, 1, 1, 7, 1, 0, 0, 0,
+             0, 0, 0, 0, 0, 0, 0, 0]
     }
 
     pub fn init(&mut self) {
