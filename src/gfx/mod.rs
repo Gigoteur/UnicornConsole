@@ -516,10 +516,6 @@ impl Screen {
             return;
         };
 
-        if x >= px8::SCREEN_WIDTH as i32 || y >= px8::SCREEN_HEIGHT as i32 {
-            return;
-        }
-
         let draw_col = self.color_map[(col & 0xFF) as usize];
 
         self.back_buffer[Screen::pixel_offset(x, y)] = draw_col;
