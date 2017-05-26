@@ -38,6 +38,8 @@ before_deploy:
 - mkdir PX8
 - cp target/release/px8 PX8/
 - cp -r sys PX8/
+- cp -r examples PX8/
+- cp -r games PX8/
 - tar -zcvf px8-$TRAVIS_TAG-$TARGET.tar.gz PX8
 
 deploy:
