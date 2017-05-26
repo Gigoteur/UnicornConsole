@@ -635,7 +635,6 @@ impl Px8New {
         }
 
         if self.configuration.lock().unwrap().show_mouse {
-
             let mouse_x = self.players.lock().unwrap().mouse_coordinate(0);
             let mouse_y = self.players.lock().unwrap().mouse_coordinate(1);
 
