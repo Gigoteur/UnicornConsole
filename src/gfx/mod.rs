@@ -499,9 +499,10 @@ impl Screen {
     }
 
     pub fn putpixel_direct(&mut self, x: i32, y: i32, col: u32) {
-        if x >= px8::SCREEN_WIDTH as i32 || y >= px8::SCREEN_HEIGHT as i32 {
+        if x < 0 || y < 0 || x >= px8::SCREEN_WIDTH as i32 || y >= px8::SCREEN_HEIGHT as i32 {
             return;
         }
+
         self.back_buffer[Screen::pixel_offset(x, y)] = col as u8;
     }
 
