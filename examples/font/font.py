@@ -9,32 +9,56 @@ GREEN = 11
 GREY = 6
 BROWN = 4
 
+LEFT_ARROW = 0
+RIGHT_ARROW = 1
+
+LINE_HEIGHT = 8
+
+FONTS = [
+    "pico8",
+    "bbc",
+    "cbmII",
+    "appleII",
+]
+
+frame = 0
+font_index = 0
+
 msgs = [
-    ("PX8 Fantasy Games Console", GREEN),
-    ("FONT TEST", WHITE),
-    ("ABCDEFGHIJKLMNOPQRSTUVWXYZ", RED),
-    ("abcdefghijklmnopqrstuvwxyz", RED),
+    ("PX8 Console", GREEN),
+    ("ABCDEFGHIJKLMNOP", RED),
+    ("QRSTUVWXYZ", RED),
+    ("abcdefghijklmnop", RED),
+    ("qrstuvwxyz", RED),
     ("1234567890", RED),
-    ("!@#$%^&*()-_=+{}[]:;|\?/<>,.'~`", RED),
-    ("The quick brown fox jumps over", BLUE),
-    ("the lazy dog", BLUE),
-    ("YOU ARE STANDING AT THE END OF", GREY),
-    ("A ROAD BEFORE A SMALL BRICK", GREY),
-    ("BUILDING.", GREY),
-    ("You are standing at the end of", BROWN),
-    ("a road before a small brick", BROWN),
-    ("building.", BROWN)
+    ("!@#$%^&*()-_=+{}", RED),
+    ("[]:;|\?/<>,.'~`", RED),
+    ("You are standing", BROWN),
+    ("at the end of a", BROWN),
+    ("a road before a", BROWN),
+    ("small brick", BROWN), 
+    ("building.", BROWN),
+    ("<- -> to switch", WHITE)
 ]
 
 def _init():
     pass
 
 def _update():
-    pass
+    global font_index
+    if btnp(LEFT_ARROW):
+        font_index = font_index - 1
+        if font_index < 0:
+            font_index += len(FONTS)
+    if btnp(RIGHT_ARROW):
+        font_index = (font_index + 1) % len(FONTS)
 
 def _draw():
     cls()
+    font(FONTS[font_index])
     y = 0
+    px8_print("Font: %s" % FONTS[font_index], 0, y, WHITE)
+    y += LINE_HEIGHT
     for msg,color in msgs:
         px8_print(msg, 0, y, color)
-        y += 8
+        y += LINE_HEIGHT
