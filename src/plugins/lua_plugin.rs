@@ -340,7 +340,7 @@ pub mod plugin {
                 name = "pico8"
               end
 
-              PX8Object:print(font)
+              PX8Object:font(name)
 
               end
               "#);
