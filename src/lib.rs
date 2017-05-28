@@ -21,6 +21,7 @@ extern crate time;
 extern crate chrono;
 extern crate libc;
 extern crate num;
+extern crate glob;
 
 extern crate rusttype;
 

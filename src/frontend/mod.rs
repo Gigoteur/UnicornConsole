@@ -61,7 +61,7 @@ pub struct Frontend {
     renderer: renderer::renderer::Renderer,
     controllers: controllers::Controllers,
     times: frametimes::FrameTimes,
-    pub px8: px8::Px8New,
+    pub px8: px8::PX8,
     pub info: Arc<Mutex<px8::info::Info>>,
     pub sound_interface: Arc<Mutex<sound::sound::SoundInterface<f32>>>,
     pub sound: Arc<Mutex<sound::sound::Sound>>,
@@ -107,7 +107,7 @@ impl Frontend {
                sound: Arc::new(Mutex::new(sound)),
                controllers: controllers::Controllers::new(),
                times: frametimes::FrameTimes::new(Duration::from_secs(1) / 60),
-               px8: px8::Px8New::new(),
+               px8: px8::PX8::new(),
                info: Arc::new(Mutex::new(px8::info::Info::new())),
                start_time: time::now(),
                elapsed_time: 0.,
@@ -202,7 +202,7 @@ impl Frontend {
 
     #[allow(dead_code)]
     pub fn run_native_cartridge(&mut self) {
-        self.px8.code_type = px8::Code::RUST;
+        self.px8.current_code_type = px8::Code::RUST;
         self.px8.init_time = self.px8.call_init() * 1000.0;
 
         self.handle_event(false);
@@ -224,6 +224,11 @@ impl Frontend {
         } else {
             error!("[Frontend] Failed to load the cartridge");
         }
+    }
+
+    pub fn run_interactive(&mut self) {
+        self.px8.init_interactive();
+        self.handle_event(false);
     }
 
     #[cfg(not(target_os = "emscripten"))]

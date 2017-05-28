@@ -708,7 +708,6 @@ pub struct Cartridge {
     pub code: CartridgeCode,
     pub music: CartridgeMusic,
     pub format: CartridgeFormat,
-    pub edit: bool,
 }
 
 pub static SECTION_DELIM_RE: &'static str = r"^__(\w+)__$";
@@ -804,7 +803,6 @@ fn read_from_pngformat<R: io::BufRead>(filename: &str, buf: &mut R) -> Result<Ca
            gff: cartridge_gff,
            music: cartridge_music,
            format: CartridgeFormat::PngFormat,
-           edit: false,
        })
 }
 
@@ -897,7 +895,6 @@ fn read_from_p8format<R: io::BufRead>(filename: &str, buf: &mut R) -> Result<Car
            gff: cartridge_gff,
            music: cartridge_music,
            format: CartridgeFormat::P8Format,
-           edit: false,
        })
 }
 
@@ -1007,7 +1004,6 @@ impl Cartridge {
                gff: cartridge_gff,
                music: cartridge_music,
                format: CartridgeFormat::P8Format,
-               edit: false,
            })
     }
 
@@ -1144,7 +1140,6 @@ impl Cartridge {
                gff: cartridge_gff,
                music: cartridge_music,
                format: CartridgeFormat::Px8Format,
-               edit: false,
            })
     }
 

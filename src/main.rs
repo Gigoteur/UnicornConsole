@@ -25,6 +25,7 @@ extern crate time;
 extern crate chrono;
 extern crate libc;
 extern crate num;
+extern crate glob;
 
 extern crate rusttype;
 
@@ -110,13 +111,6 @@ fn main() {
         return;
     }
 
-    let input = if !matches.free.is_empty() {
-        matches.free[0].clone()
-    } else {
-        print_usage(&program, &opts);
-        return;
-    };
-
     if matches.opt_present("v") {
         if let Err(e) = fern::init_global_logger(logger_config, log::LogLevelFilter::Debug) {
             panic!("Failed to initialize global logger: {}", e);
@@ -127,15 +121,38 @@ fn main() {
         }
     }
 
-
     let mut mode = px8::PX8Mode::PX8;
-
     if matches.opt_present("m") {
         let mode_str = matches.opt_str("m").unwrap();
         if mode_str == "pico8" {
             mode = px8::PX8Mode::PICO8;
         }
     }
+
+    let mut scale = Scale::Scale4x;
+    if matches.opt_present("s") {
+        let value = matches.opt_str("s").unwrap().parse::<i32>().unwrap();
+        match value {
+            2 => scale = Scale::Scale2x,
+            3 => scale = Scale::Scale3x,
+            4 => scale = Scale::Scale4x,
+            5 => scale = Scale::Scale5x,
+            6 => scale = Scale::Scale6x,
+            8 => scale = Scale::Scale8x,
+            10 => scale = Scale::Scale10x,
+            _ => scale = Scale::Scale1x,
+        }
+    }
+
+    let fullscreen = matches.opt_present("f");
+    let opengl = matches.opt_present("o");
+
+    let input = if !matches.free.is_empty() {
+        matches.free[0].clone()
+    } else {
+        run_interactive(scale, fullscreen, opengl);
+        return;
+    };
 
     if matches.opt_present("c") {
         if input.contains(".png") {
@@ -181,39 +198,21 @@ fn main() {
             }
         }
     } else {
-        let mut scale = Scale::Scale4x;
-        if matches.opt_present("s") {
-            let value = matches.opt_str("s").unwrap().parse::<i32>().unwrap();
-            match value {
-                2 => scale = Scale::Scale2x,
-                3 => scale = Scale::Scale3x,
-                4 => scale = Scale::Scale4x,
-                5 => scale = Scale::Scale5x,
-                6 => scale = Scale::Scale6x,
-                8 => scale = Scale::Scale8x,
-                10 => scale = Scale::Scale10x,
-                _ => scale = Scale::Scale1x,
-            }
-        }
-
-        let fullscreen = matches.opt_present("f");
-        let opengl = matches.opt_present("o");
-
-        start_px8(scale,
-                  fullscreen,
-                  opengl,
-                  &input,
-                  matches.opt_present("e"),
-                  mode);
+        run_cartridge(scale,
+                      fullscreen,
+                      opengl,
+                      &input,
+                      matches.opt_present("e"),
+                      mode);
     }
 }
 
-pub fn start_px8(scale: gfx::Scale,
-                 fullscreen: bool,
-                 opengl: bool,
-                 filename: &str,
-                 editor: bool,
-                 mode: px8::PX8Mode) {
+pub fn run_cartridge(scale: gfx::Scale,
+                     fullscreen: bool,
+                     opengl: bool,
+                     filename: &str,
+                     editor: bool,
+                     mode: px8::PX8Mode) {
     let mut frontend = match frontend::Frontend::init(scale, fullscreen, opengl, false) {
         Err(error) => panic!("{:?}", error),
         Ok(frontend) => frontend,
@@ -221,4 +220,17 @@ pub fn start_px8(scale: gfx::Scale,
 
     frontend.start("./sys/config/gamecontrollerdb.txt".to_string());
     frontend.run_cartridge(filename, editor, mode);
+}
+
+
+pub fn run_interactive(scale: gfx::Scale,
+                       fullscreen: bool,
+                       opengl: bool) {
+    let mut frontend = match frontend::Frontend::init(scale, fullscreen, opengl, false) {
+        Err(error) => panic!("{:?}", error),
+        Ok(frontend) => frontend,
+    };
+
+    frontend.start("./sys/config/gamecontrollerdb.txt".to_string());
+    frontend.run_interactive();
 }
