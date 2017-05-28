@@ -334,6 +334,18 @@ pub mod plugin {
               end
               "#);
 
+            lua_state.do_string(r#"font = function(name)
+
+              if name == nil then
+                name = "pico8"
+              end
+
+              PX8Object:font(name)
+
+              end
+              "#);
+
+
             lua_state.do_string(r#"pset = function(x, y, color)
               x = math.floor(x)
               y = math.floor(y)

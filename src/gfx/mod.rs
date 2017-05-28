@@ -1,3 +1,5 @@
+mod fonts;
+
 use std::fmt;
 use nalgebra::{Dynamic, Matrix, MatrixVec};
 
@@ -5,109 +7,24 @@ use px8;
 use std::cmp;
 use num::clamp;
 
-pub const GLYPH: [[u16; 2]; 95] = [
-    [0x0000, 0x0000], // space
-    [0x0017, 0x0000], // !
-    [0x0300, 0x0300], // "
-    [0x1f0a, 0x1f00], // #
-    [0x0d1f, 0x0b00], // $
-    [0x1304, 0x1900], // %
-    [0x1817, 0x1f00], // &
-    [0x0001, 0x0200], // '
-    [0x0011, 0x0e00], // (
-    [0x000e, 0x1100], // )
-    [0x150e, 0x1500], // *
-    [0x040e, 0x0400], // +
-    [0x0010, 0x2000], // ,
-    [0x0404, 0x0400], // -
-    [0x0010, 0x0000], // .
-    [0x010e, 0x1000], // /
-
-    [0x1f11, 0x1f00], // 0
-    [0x101f, 0x1100], // 1
-    [0x1715, 0x1d00], // 2
-    [0x1f15, 0x1100], // 3
-    [0x1f04, 0x0700], // 4
-    [0x1d15, 0x1700], // 5
-    [0x1d15, 0x1f00], // 6
-    [0x1f01, 0x0100], // 7
-    [0x1f15, 0x1f00], // 8
-    [0x1f05, 0x0700], // 9
-
-    [0x000a, 0x0000], // :
-    [0x000a, 0x1000], // ;
-    [0x110a, 0x0400], // <
-    [0x0a0a, 0x0a00], // =
-    [0x040a, 0x1100], // >
-    [0x0715, 0x0100], // ?
-    [0x1611, 0x0e00], // @
-
-    [0x1f05, 0x1f00], // A
-    [0x1b15, 0x1f00], // B
-    [0x1111, 0x0e00], // C
-    [0x1e11, 0x1f00], // D
-    [0x1115, 0x1f00], // E
-    [0x0105, 0x1f00], // F
-    [0x1911, 0x1e00], // G
-    [0x1f04, 0x1f00], // H
-    [0x111f, 0x1100], // I
-    [0x011f, 0x1100], // J
-    [0x1b04, 0x1f00], // K
-    [0x1010, 0x1f00], // L
-    [0x1f03, 0x1f00], // M
-    [0x1e01, 0x1f00], // N
-    [0x0f11, 0x1e00], // O
-    [0x0705, 0x1f00], // P
-    [0x1619, 0x0e00], // Q
-    [0x1b05, 0x1f00], // R
-    [0x0d15, 0x1600], // S
-    [0x011f, 0x0100], // T
-    [0x1f10, 0x0f00], // U
-    [0x0f10, 0x0f00], // V
-    [0x1f18, 0x1f00], // W
-    [0x1b04, 0x1b00], // X
-    [0x1f14, 0x1700], // Y
-    [0x1315, 0x1900], // Z
-
-    [0x0011, 0x1F00], // [
-    [0x100e, 0x0100], // \
-    [0x001F, 0x1100], // ]
-    [0x0201, 0x0200], // ^
-    [0x1010, 0x1000], // _
-    [0x0201, 0x0000], // `
-
-    [0x1c14, 0x0800], // a
-    [0x0814, 0x1f00], // b
-    [0x1414, 0x0800], // c
-    [0x1f14, 0x0800], // d
-    [0x1414, 0x0c00], // e
-    [0x051e, 0x0400], // f
-    [0x3c54, 0x5800], // g
-    [0x1804, 0x1f00], // h
-    [0x001d, 0x0000], // i
-    [0x001d, 0x2000], // j
-    [0x1408, 0x1f00], // k
-    [0x100f, 0x0000], // l
-    [0x1c0c, 0x1c00], // m
-    [0x1804, 0x1c00], // n
-    [0x0814, 0x0800], // o
-    [0x1814, 0x7c00], // p
-    [0x7c14, 0x0c00], // q
-    [0x0404, 0x1800], // r
-    [0x041c, 0x1000], // s
-    [0x140e, 0x0400], // t
-    [0x1c10, 0x0c00], // u
-    [0x0c18, 0x0c00], // v
-    [0x1c18, 0x1c00], // w
-    [0x1408, 0x1400], // x
-    [0x3c50, 0x5c00], // y
-    [0x101c, 0x0400], // z
-
-    [0x111f, 0x0400], // {
-    [0x001F, 0x0000], // |
-    [0x041f, 0x1100], // }
-    [0x0604, 0x0c00], // ~
-];
+// Fixed pitch font definition
+#[allow(dead_code)]
+pub struct Font {
+    // Width of glyph in pixels
+    glyph_width: i32,
+    // Height of glyph in pixels
+    glyph_height: i32,
+    // Number of x pixels before glyph
+    left_bearing: i32,
+    // Number of y pixels before glyph
+    top_bearing: i32,
+    // Horizontal distance to next character
+    advance_width: i32,
+    // Vertical distance between lines
+    line_height: i32,
+    // Glyph bitmap data - one byte per row, first bit in MSB
+    glyph_data: &'static [u8],
+}
 
 type DMatrixu32 = Matrix<u32, Dynamic, Dynamic, MatrixVec<u32, Dynamic, Dynamic>>;
 
@@ -403,6 +320,7 @@ pub struct Screen {
 
     pub camera: Camera,
     pub clipping: Clipping,
+    pub font: &'static Font,
 }
 
 unsafe impl Send for Screen {}
@@ -426,6 +344,7 @@ impl Screen {
             camera: Camera::new(),
 
             clipping: Clipping::new(0, 0, px8::SCREEN_WIDTH as i32, px8::SCREEN_HEIGHT as i32),
+            font: &fonts::pico8::FONT,
         }
     }
 
@@ -528,6 +447,16 @@ impl Screen {
         }
     }
 
+    pub fn font(&mut self, name: &str) {
+        self.font = match name {
+            "pico8" => &fonts::pico8::FONT,
+            "bbc" => &fonts::bbc::FONT,
+            "cbmII" => &fonts::cbmii::FONT,
+            "appleII" => &fonts::appleii::FONT,
+            _ => &fonts::pico8::FONT,
+        }
+    }
+
     pub fn putpixel(&mut self, x: i32, y: i32, col: u32) {
         self.putpixel_(x, y, col);
     }
@@ -608,40 +537,33 @@ impl Screen {
 
     pub fn _print(&mut self, string: String, x: i32, y: i32, col: i32, force: bool) {
         let mut x = x;
-        let y = y;
+        let y = y + self.font.top_bearing;
 
-        for k in 0..string.len() {
-            let value = string.as_bytes()[k] as usize;
+        for c in string.as_bytes() {
+            let glyph_index = if (*c < 32) || (*c > 126) { 0 } else { *c - 32 } as u32;
 
-            let data = if value >= 32 && value <= 126 {
-                GLYPH[value - 32]
-            } else {
-                /* Unknown char, replace by a space */
-                [0x0000, 0x0000]
-            };
+            let glyph_start = (glyph_index * (self.font.glyph_height as u32)) as usize;
+            let glyph_end = glyph_start + (self.font.glyph_height as usize);
 
-            let mut idx = 1;
-            let mut idx_1 = 0;
+            let glyph_data = &self.font.glyph_data[glyph_start..glyph_end];
 
-            for i in 0..32 {
-                if (data[idx] & (0x1 << idx_1)) != 0 {
-                    if force {
-                        self.putpixel_direct(x, y + i % 8, col as u32);
-                    } else {
-                        self.pset(x, y + i % 8, col);
+            for (i, glyph_row) in glyph_data.iter().enumerate() {
+                let mut dx = self.font.left_bearing;
+                let mut row = *glyph_row;
+                while row != 0 {
+                    if row & 0x80 != 0 {
+                        if force {
+                            self.putpixel_direct(x + dx, y + (i as i32), col as u32);
+                        } else {
+                            self.pset(x + dx, y + (i as i32), col);
+                        }
                     }
-                }
-
-                idx_1 += 1;
-
-                if i % 8 == 7 {
-                    x += 1;
-                }
-                if i == 15 {
-                    idx = 0;
-                    idx_1 = 0;
+                    row <<= 1;
+                    dx += 1;
                 }
             }
+
+            x += self.font.advance_width;
         }
     }
 

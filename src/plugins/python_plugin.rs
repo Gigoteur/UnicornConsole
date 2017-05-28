@@ -110,6 +110,11 @@ pub mod plugin {
         Ok(self.screen(py).lock().unwrap().fget_all(idx))
     }
 
+    def font(&self, name: String) -> PyResult<i32> {
+        self.screen(py).lock().unwrap().font(&name);
+        Ok(0)
+    }
+
     def fset(&self, idx: u32, flag: u8, value: bool) -> PyResult<i32> {
         self.screen(py).lock().unwrap().fset(idx, flag, value);
         Ok(0)
