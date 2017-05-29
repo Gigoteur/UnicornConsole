@@ -121,10 +121,12 @@ class Flappy(object):
                 i=flr(i/10)
                 sx-=8
 
-F = Flappy()
+
+global F
 
 def _init():
-    pass
+    global F
+    F = Flappy()
 
 def _update():
     F.update()

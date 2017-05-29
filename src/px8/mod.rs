@@ -1037,7 +1037,7 @@ impl PX8 {
                 .lock()
                 .unwrap()
                 .set_map(cartridge.cartridge.map.map);
-            
+
             self.state = PX8State::RUN;
         }
 

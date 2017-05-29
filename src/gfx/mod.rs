@@ -352,6 +352,7 @@ impl Screen {
         self._reset_colors();
         self._reset_transparency();
         self._reset_clip();
+        self.color = 0;
     }
 
     pub fn _reset_transparency(&mut self) {
