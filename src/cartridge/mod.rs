@@ -906,6 +906,21 @@ struct PX8Format {
 
 
 impl Cartridge {
+    pub fn empty() -> Cartridge {
+        Cartridge {
+            filename: "".to_string(),
+            data_filename: "".to_string(),
+            header: "".to_string(),
+            version: "".to_string(),
+            gfx: CartridgeGFX::empty(),
+            map: CartridgeMap::empty(),
+            gff: CartridgeGFF::empty(),
+            code: CartridgeCode::empty(),
+            music: CartridgeMusic::empty(),
+            format: CartridgeFormat::Px8Format,
+        }
+    }
+
     #[allow(dead_code)]
     pub fn parse(filename: &str, code: bool) -> Result<Cartridge, Error> {
         let f = try!(File::open(filename));

@@ -521,6 +521,16 @@ impl PX8Cartridge {
         }
     }
 
+    pub fn empty() -> PX8Cartridge {
+        PX8Cartridge {
+            cartridge: Cartridge::empty(),
+            lua_plugin: LuaPlugin::new(),
+            python_plugin: PythonPlugin::new(),
+            rust_plugin: Vec::new(),
+            edit: false,
+        }
+    }
+
     pub fn get_code_type(&mut self) -> Code {
         match self.cartridge.code.get_name().as_ref() {
             "lua" => Code::LUA,
@@ -873,7 +883,9 @@ impl PX8 {
 
     #[allow(dead_code)]
     pub fn register<F: RustPlugin + 'static>(&mut self, callback: F) {
-        self.cartridges[self.current_cartridge].rust_plugin.push(Box::new(callback));
+        let mut px8_cartridge = PX8Cartridge::empty();
+        px8_cartridge.rust_plugin.push(Box::new(callback));
+        self.add_cartridge(px8_cartridge);
     }
 
     pub fn _load_cartridge(&mut self,
