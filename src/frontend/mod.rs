@@ -62,9 +62,7 @@ pub struct Frontend {
     controllers: controllers::Controllers,
     times: frametimes::FrameTimes,
     pub px8: px8::PX8,
-    pub info: Arc<Mutex<px8::info::Info>>,
     pub sound_interface: Arc<Mutex<sound::sound::SoundInterface<f32>>>,
-    pub sound: Arc<Mutex<sound::sound::Sound>>,
     start_time: time::Tm,
     elapsed_time: f64,
     scale: Scale,
@@ -104,11 +102,9 @@ impl Frontend {
                event_pump: event_pump,
                renderer: renderer,
                sound_interface: Arc::new(Mutex::new(sound_interface)),
-               sound: Arc::new(Mutex::new(sound)),
                controllers: controllers::Controllers::new(),
                times: frametimes::FrameTimes::new(Duration::from_secs(1) / 60),
-               px8: px8::PX8::new(),
-               info: Arc::new(Mutex::new(px8::info::Info::new())),
+               px8: px8::PX8::new(Arc::new(Mutex::new(sound)).clone()),
                start_time: time::now(),
                elapsed_time: 0.,
                scale: scale,
@@ -124,7 +120,7 @@ impl Frontend {
         self.init_controllers(pathdb);
 
         info!("[Frontend] initialise PX8");
-        self.px8.init();
+        self.px8.reset();
     }
 
     pub fn update_time(&mut self) {
@@ -135,7 +131,7 @@ impl Frontend {
 
         self.elapsed_time = diff_time.num_seconds() as f64 + nanoseconds / 1000000000.0;
 
-        self.info.lock().unwrap().elapsed_time = self.elapsed_time;
+        self.px8.info.lock().unwrap().elapsed_time = self.elapsed_time;
 
         self.px8.players.lock().unwrap().update(self.elapsed_time);
     }
@@ -203,7 +199,7 @@ impl Frontend {
     #[allow(dead_code)]
     pub fn run_native_cartridge(&mut self) {
         self.px8.current_code_type = px8::Code::RUST;
-        self.px8.init_time = self.px8.call_init() * 1000.0;
+        self.px8.init();
 
         self.handle_event(false);
     }
@@ -211,15 +207,12 @@ impl Frontend {
     pub fn run_cartridge(&mut self, filename: &str, editor: bool, mode: px8::PX8Mode) {
         let success = self.px8
             .load_cartridge(filename,
-                            self.info.clone(),
-                            self.sound.clone(),
                             editor,
                             mode);
 
         if success {
             info!("[Frontend] Successfully loaded the cartridge");
             // Call the init of the cartridge
-            self.px8.init_time = self.px8.call_init() * 1000.0;
             self.handle_event(editor);
         } else {
             error!("[Frontend] Failed to load the cartridge");
@@ -315,8 +308,7 @@ impl Frontend {
                             }
                         } else if keycode == Keycode::F6 && editor {
                             self.px8.switch_code();
-                            // Call the init of the new code
-                            self.px8.init_time = self.px8.call_init() * 1000.0;
+                            self.px8.init();
                         } else if keycode == Keycode::F7 {
                             self.px8.next_palette();
                         }
@@ -454,8 +446,6 @@ impl Frontend {
 
             self.px8.draw();
 
-            self.px8.debug_update();
-
             self.update_time();
             self.blit();
         }
@@ -546,7 +536,7 @@ impl Frontend {
                         } else if keycode == Keycode::F6 && editor {
                             self.px8.switch_code();
                             // Call the init of the new code
-                            self.px8.init_time = self.px8.call_init() * 1000.0;
+                            self.px8.init();
                         }
 
                         if self.px8.players.lock().unwrap().get_value_quick(0, 7) == 1 {
