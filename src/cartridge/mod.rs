@@ -347,6 +347,10 @@ impl CartridgeCode {
         self.filename = filename.to_string();
     }
 
+    pub fn set_name(&mut self, name: String) {
+        self.code_type = name.clone();
+    }
+
     pub fn get_name(&mut self) -> String {
         self.code_type.clone()
     }
