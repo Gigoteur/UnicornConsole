@@ -326,6 +326,7 @@ ellipse | :white_check_mark: | :white_check_mark: | :white_check_mark:
 ellipsefill | :white_check_mark: | :white_check_mark: | :white_check_mark:
 fget | :white_check_mark: | :white_check_mark: | :white_check_mark:
 fset | :white_check_mark: | :white_check_mark: | :white_check_mark:
+font | :white_check_mark: | :white_check_mark: | :white_check_mark:
 line | :white_check_mark: | :white_check_mark: | :white_check_mark:
 pal | :white_check_mark: | :white_check_mark: | :white_check_mark:
 palt | :white_check_mark: | :white_check_mark: | :white_check_mark:
