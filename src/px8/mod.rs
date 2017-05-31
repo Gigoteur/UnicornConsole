@@ -168,6 +168,42 @@ pub enum Code {
 }
 
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
+pub fn draw_logo(screen: Arc<Mutex<gfx::Screen>>) {
+    let logo = vec![
+        0, 0, 0, 0, 0, 0, 0, 0,
+        8, 0, 0, 0, 0, 0, 0, 8,
+        0, 8, 8, 8, 8, 8, 8, 0,
+        8, 8, 8, 9, 8, 8, 9, 8,
+        0, 8, 8, 8, 8, 8, 8, 0,
+        8, 0, 0, 0, 0, 0, 0, 8,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0 ];
+
+    screen
+        .lock()
+        .unwrap()
+        .print("Powered by PX8".to_string(), 64, 112, 7);
+
+    let idx_x = 114;
+    let idx_y = 120;
+
+    let mut x = 0;
+    let mut y = 0;
+
+    for c in logo {
+        if x > 0 && x % 8 == 0 {
+            x = 0;
+            y += 1;
+        }
+
+        if c != 0 {
+            screen.lock().unwrap().pset(idx_x + x, idx_y + y, c);
+        }
+        x += 1;
+    }
+}
+
 pub struct Menu {
     idx: u32,
     cartridges: Vec<PathBuf>
@@ -223,12 +259,23 @@ impl Menu {
 
         if self.cartridges.len() > 0 {
             let mut filename = self.cartridges[self.idx as usize].file_name().unwrap().to_str().unwrap().to_string();
-            filename.truncate(20);
+            filename.truncate(10);
 
-            let data_to_print = format!("< {:?} >", filename);
 
+            let data_to_print = format!("< {:<width$} >", filename, width=10);
             screen.lock().unwrap().print(data_to_print,
-                                         20, 20, 7);
+                                         30, 20, 7);
+
+            let extension = self.cartridges[self.idx as usize].extension().unwrap().to_str().unwrap().to_string();
+            let extension_to_print = format!("CARTRIDGE {:}", extension);
+            screen.lock().unwrap().print(extension_to_print,
+                                         30, 28, 7);
+
+            let metadata = self.cartridges[self.idx as usize].metadata().unwrap();
+            let metadata_to_print = format!("{:?} bytes", metadata.len());
+            screen.lock().unwrap().print(metadata_to_print,
+                                         30, 36, 7);
+            draw_logo(screen.clone());
         }
     }
 }
@@ -304,9 +351,18 @@ impl PauseMenu {
             screen
                 .lock()
                 .unwrap()
-                .pset(idx_x, idx_y + (self.idx as i32) * 10, 7);
+                .rect(idx_x-1,
+                      idx_y - 6,
+                      idx_x + 41,
+                      idx_y + 1 + 10 * self.items.len() as i32,
+                      0);
 
-            self.draw_logo(screen.clone());
+            screen
+                .lock()
+                .unwrap()
+                .print(">".to_string(), idx_x, idx_y + (self.idx as i32) * 10, 3);
+
+            draw_logo(screen.clone());
 
             for (pos, item) in self.items.iter().enumerate() {
                 screen
@@ -320,43 +376,6 @@ impl PauseMenu {
         if self.selected_idx == 1 {
             screen.lock().unwrap().cls();
         }
-    }
-
-    #[cfg_attr(rustfmt, rustfmt_skip)]
-    pub fn draw_logo(&mut self, screen: Arc<Mutex<gfx::Screen>>) {
-        let logo = vec![
-            0, 0, 0, 0, 0, 0, 0, 0,
-            8, 0, 0, 0, 0, 0, 0, 8,
-            0, 8, 8, 8, 8, 8, 8, 0,
-            8, 8, 8, 9, 8, 8, 9, 8,
-            0, 8, 8, 8, 8, 8, 8, 0,
-            8, 0, 0, 0, 0, 0, 0, 8,
-            0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0 ];
-
-        screen
-            .lock()
-            .unwrap()
-            .print("Powered by PX8".to_string(), 64, 112, 7);
-
-        let idx_x = 114;
-        let idx_y = 120;
-
-        let mut x = 0;
-        let mut y = 0;
-
-        for c in logo {
-            if x > 0 && x % 8 == 0 {
-                x = 0;
-                y += 1;
-            }
-
-            if c != 0 {
-                screen.lock().unwrap().pset(idx_x + x, idx_y + y, c);
-            }
-            x += 1;
-        }
-
     }
 }
 
