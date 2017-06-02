@@ -24,7 +24,11 @@ pub fn load_editor(filename: String) -> String {
 impl Editor {
     pub fn new() -> Editor {
         Editor {
-            data: load_editor("./sys/editor/editor.py".to_string()).clone(),
+            data: "".to_string(),
         }
+    }
+
+    pub fn init(&mut self) {
+        self.data = load_editor("./sys/editor/editor.py".to_string()).clone();
     }
 }

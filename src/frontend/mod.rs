@@ -95,6 +95,8 @@ impl Frontend {
 
         let sound = sound::sound::Sound::new(sound_interface.data_sender.clone());
 
+        info!("[Frontend] Disable mouse cursor ? {:?}", show_mouse);
+
         sdl_context.mouse().show_cursor(show_mouse);
 
         Ok(Frontend {
@@ -113,6 +115,8 @@ impl Frontend {
     }
 
     pub fn start(&mut self, pathdb: String) {
+        info!("[Fronted] Start");
+
         self.start_time = time::now();
         self.times.reset();
 
@@ -440,7 +444,7 @@ impl Frontend {
             }
 
             if !self.px8.update() {
-                info!("[Frontend] End of PX8 requested");
+                info!("[Frontend] End of requested");
                 break 'main;
             }
 
@@ -461,7 +465,6 @@ impl Frontend {
             self.px8.fps = self.fps_counter.get_fps();
 
             let mouse_state = self.event_pump.mouse_state();
-            let (width, height) = self.renderer.get_dimensions();
 
             let (mouse_viewport_x, mouse_viewport_y) =
                 self.renderer
@@ -477,26 +480,29 @@ impl Frontend {
                 .lock()
                 .unwrap()
                 .set_mouse_y(mouse_viewport_y);
-            self.px8
-                .players
-                .lock()
-                .unwrap()
-                .set_mouse_state(mouse_state);
-
-            if mouse_state.left() {
-                debug!("MOUSE X {:?} Y {:?}",
-                       mouse_state.x() / (width as i32 / px8::SCREEN_WIDTH as i32),
-                       mouse_state.y() / (height as i32 / px8::SCREEN_HEIGHT as i32));
-            }
 
             for event in self.event_pump.poll_iter() {
                 match event {
-                    Event::Quit { .. } => break 'main,
+                    Event::Quit { .. } => break,
                     Event::KeyDown { keycode: Some(keycode), .. } if keycode == Keycode::Escape => {
-                        break 'main
+                        break
                     }
                     Event::Window { win_event: WindowEvent::SizeChanged(_, _), .. } => {
                         self.renderer.update_dimensions();
+                    }
+                    Event::MouseButtonDown { mouse_btn, .. } => {
+                        self.px8
+                            .players
+                            .lock()
+                            .unwrap()
+                            .mouse_button_down(mouse_btn, self.elapsed_time);
+                    }
+                    Event::MouseButtonUp { mouse_btn, .. } => {
+                        self.px8
+                            .players
+                            .lock()
+                            .unwrap()
+                            .mouse_button_up(mouse_btn, self.elapsed_time);
                     }
                     Event::KeyDown {
                         keycode: Some(keycode),
@@ -507,36 +513,35 @@ impl Frontend {
                             .players
                             .lock()
                             .unwrap()
-                            .key_down(player, keycode, repeat, self.elapsed_time);
+                            .key_down(keycode, repeat, self.elapsed_time);
 
                         if keycode == Keycode::F2 {
-                            self.px8.toggle_info_overlay();
+                            self.px8.configuration.lock().unwrap().toggle_info_overlay();
                         } else if keycode == Keycode::F3 {
                             let dt = Local::now();
                             self.px8
-                                .screenshot("screenshot-".to_string() +
-                                            &dt.format("%Y-%m-%d-%H-%M-%S.png").to_string());
+                                .screenshot(&("screenshot-".to_string() +
+                                    &dt.format("%Y-%m-%d-%H-%M-%S.png").to_string()));
                         } else if keycode == Keycode::F4 {
                             let record_screen = self.px8.is_recording();
                             if !record_screen {
                                 let dt = Local::now();
                                 self.px8
-                                    .start_record("record-".to_string() +
-                                                  &dt.format("%Y-%m-%d-%H-%M-%S.gif").to_string());
+                                    .start_record(&("record-".to_string() +
+                                        &dt.format("%Y-%m-%d-%H-%M-%S.gif")
+                                            .to_string()));
                             } else {
                                 self.px8.stop_record(self.scale.factor());
                             }
                         } else if keycode == Keycode::F5 {
                             if editor {
-                                let dt = Local::now();
-                                self.px8
-                                    .save_current_cartridge(dt.format("%Y-%m-%d-%H-%M-%S")
-                                                                .to_string());
+                                self.px8.save_current_cartridge();
                             }
                         } else if keycode == Keycode::F6 && editor {
                             self.px8.switch_code();
-                            // Call the init of the new code
                             self.px8.init();
+                        } else if keycode == Keycode::F7 {
+                            self.px8.next_palette();
                         }
 
                         if self.px8.players.lock().unwrap().get_value_quick(0, 7) == 1 {
@@ -544,7 +549,7 @@ impl Frontend {
                         }
                     }
                     Event::KeyUp { keycode: Some(keycode), .. } => {
-                        self.px8.players.lock().unwrap().key_up(keycode)
+                        self.px8.players.lock().unwrap().key_up(keycode);
                     }
 
                     Event::ControllerButtonDown { which: id, button, .. } => {
@@ -552,13 +557,12 @@ impl Frontend {
                             break;
                         }
 
-                        info!("ID [{:?}] Controller button Down {:?}", id, button);
                         if let Some(key) = map_button(button) {
                             self.px8
                                 .players
                                 .lock()
                                 .unwrap()
-                                .key_down(0, key, false, self.elapsed_time)
+                                .key_down_direct(0, key, false, self.elapsed_time)
                         }
                     }
 
@@ -567,9 +571,8 @@ impl Frontend {
                             break;
                         }
 
-                        info!("ID [{:?}] Controller button UP {:?}", id, button);
                         if let Some(key) = map_button(button) {
-                            self.px8.players.lock().unwrap().key_up(0, key)
+                            self.px8.players.lock().unwrap().key_up_direct(0, key);
                         }
                     }
 
@@ -583,15 +586,7 @@ impl Frontend {
                             break;
                         }
 
-                        info!("ID [{:?}] Controller Axis Motion {:?} {:?}",
-                              id,
-                              axis,
-                              value);
-
                         if let Some((key, state)) = map_axis(axis, value) {
-                            info!("Key {:?} State {:?}", key, state);
-
-
                             if axis == Axis::LeftX && value == 128 {
                                 self.px8.players.lock().unwrap().key_direc_hor_up(0);
                             } else if axis == Axis::LeftY && value == -129 {
@@ -602,9 +597,9 @@ impl Frontend {
                                         .players
                                         .lock()
                                         .unwrap()
-                                        .key_down(0, key, false, self.elapsed_time)
+                                        .key_down_direct(0, key, false, self.elapsed_time);
                                 } else {
-                                    self.px8.players.lock().unwrap().key_up(0, key)
+                                    self.px8.players.lock().unwrap().key_up_direct(0, key);
                                 }
                             }
                         }
@@ -620,14 +615,7 @@ impl Frontend {
                             break;
                         }
 
-                        info!("ID [{:?}] Joystick Axis Motion {:?} {:?}",
-                              id,
-                              axis_idx,
-                              value);
-
                         if let Some((key, state)) = map_axis_joystick(axis_idx, value) {
-                            info!("Joystick Key {:?} State {:?}", key, state);
-
                             if axis_idx == 0 && value == 128 {
                                 self.px8.players.lock().unwrap().key_direc_hor_up(0);
                             } else if axis_idx == 1 && value == -129 {
@@ -638,9 +626,9 @@ impl Frontend {
                                         .players
                                         .lock()
                                         .unwrap()
-                                        .key_down(0, key, false, self.elapsed_time)
+                                        .key_down_direct(0, key, false, self.elapsed_time);
                                 } else {
-                                    self.px8.players.lock().unwrap().key_up(0, key)
+                                    self.px8.players.lock().unwrap().key_up_direct(0, key);
                                 }
                             }
                         }
@@ -655,13 +643,12 @@ impl Frontend {
                             break;
                         }
 
-                        info!("ID [{:?}] Joystick button DOWN {:?}", id, button_idx);
                         if let Some(key) = map_button_joystick(button_idx) {
                             self.px8
                                 .players
                                 .lock()
                                 .unwrap()
-                                .key_down(0, key, false, self.elapsed_time)
+                                .key_down_direct(0, key, false, self.elapsed_time);
                         }
                     }
 
@@ -674,9 +661,8 @@ impl Frontend {
                             break;
                         }
 
-                        info!("ID [{:?}] Joystick Button UP {:?}", id, button_idx);
                         if let Some(key) = map_button_joystick(button_idx) {
-                            self.px8.players.lock().unwrap().key_up(0, key)
+                            self.px8.players.lock().unwrap().key_up_direct(0, key);
                         }
                     }
 
@@ -684,13 +670,12 @@ impl Frontend {
                 }
             }
 
-            if !self.px8.update(self.px8.players.clone()) {
-                break 'main;
+            if !self.px8.update() {
+                info!("[Frontend] End of PX8 requested");
+                return;
             }
 
             self.px8.draw();
-
-            self.px8.debug_update();
 
             self.update_time();
             self.blit();

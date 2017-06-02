@@ -185,21 +185,6 @@ pub mod plugin {
         Ok(0)
     }
 
-    def spr_dyn(&self, id:u32, x: i32, y: i32, flip_x: bool, flip_y: bool) -> PyResult<i32> {
-        self.screen(py).lock().unwrap().spr_dyn(id, x, y, flip_x, flip_y);
-        Ok(0)
-    }
-
-    def spr_dyn_load(&self, data:PyList, width: u32, height: u32) -> PyResult<i32> {
-        let mut data_vec = Vec::new();
-
-        for i in 0..data.len(py) {
-            let obj: u8 = data.get_item(py, i).extract(py)?;
-            data_vec.push(obj);
-        }
-        Ok(self.screen(py).lock().unwrap().spr_dyn_load(data_vec, width, height))
-    }
-
     def sset(&self, x: i32, y: i32, color: i32) -> PyResult<u8> {
         self.screen(py).lock().unwrap().sset(x as u32, y as u32, color);
         Ok(0)
@@ -582,7 +567,6 @@ pub mod plugin {
 pub mod plugin {
     use std::sync::{Arc, Mutex};
 
-    use gfx::Sprite;
     use config::Players;
 
     use px8::info::Info;
@@ -602,13 +586,13 @@ pub mod plugin {
 
 
         pub fn load(&mut self,
-                    palettes: Arc<Mutex<Palettes>>,
-                    players: Arc<Mutex<Players>>,
-                    info: Arc<Mutex<Info>>,
-                    screen: Arc<Mutex<Screen>>,
-                    sound: Arc<Mutex<Sound>>,
-                    noise: Arc<Mutex<Noise>>,
-                    config: Arc<Mutex<PX8Config>>) {
+                    _palettes: Arc<Mutex<Palettes>>,
+                    _players: Arc<Mutex<Players>>,
+                    _info: Arc<Mutex<Info>>,
+                    _screen: Arc<Mutex<Screen>>,
+                    _sound: Arc<Mutex<Sound>>,
+                    _noise: Arc<Mutex<Noise>>,
+                    _config: Arc<Mutex<PX8Config>>) {
             panic!("[PLUGIN][PYTHON] plugin disabled");
         }
         pub fn init(&mut self) {}
@@ -618,7 +602,7 @@ pub mod plugin {
         pub fn update(&mut self) -> bool {
             false
         }
-        pub fn load_code(&mut self, data: String) -> bool {
+        pub fn load_code(&mut self, _data: String) -> bool {
             false
         }
     }

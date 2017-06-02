@@ -667,7 +667,9 @@ pub struct PX8 {
 }
 
 impl PX8 {
-    pub fn new(sound: Arc<Mutex<Sound>>,) -> PX8 {
+    pub fn new(sound: Arc<Mutex<Sound>>) -> PX8 {
+        info!("[PX8] Creating new PX8");
+
         PX8 {
             screen: Arc::new(Mutex::new(gfx::Screen::new())),
             sound: sound.clone(),
@@ -1001,6 +1003,8 @@ impl PX8 {
 
     #[allow(dead_code)]
     pub fn register<F: RustPlugin + 'static>(&mut self, callback: F) {
+        info!("[PX8] Register new cartridge");
+
         let mut px8_cartridge = PX8Cartridge::empty();
         px8_cartridge.rust_plugin.push(Box::new(callback));
         self.add_cartridge(px8_cartridge);
@@ -1013,6 +1017,7 @@ impl PX8 {
 
         let data;
         if editor {
+            self.editor.init();
             data = self.editor.data.clone();
             cartridge.edit = true;
         } else {

@@ -13,6 +13,8 @@ pub struct Noise {
 
 impl Noise {
     pub fn new() -> Noise {
+        info!("[PX8][Noise] new");
+
         Noise { perlin: Perlin::new() }
     }
 

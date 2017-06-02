@@ -78,8 +78,7 @@ fn main() {
                                      level,
                                      msg)
                          }),
-        output: vec![fern::OutputConfig::stdout(),
-                     fern::OutputConfig::file("output.log")],
+        output: vec![fern::OutputConfig::stdout()],
         level: log::LogLevelFilter::Trace,
     };
 

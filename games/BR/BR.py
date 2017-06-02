@@ -364,7 +364,7 @@ def _draw():
     draw_clouds()
 
     camera(0, 0)
-    px8_print("P X %.2f Y %.2f" % (P.pos.x, P.pos.y), 0, 112)
+    px8_print("P X %.2f Y %.2f %.2f %.2f" % (P.pos.x, P.pos.y, P.v.x, P.v.y), 0, 112)
     px8_print("B %d C X %d Y %d" % (BLOBS.len(), flr(CAM.pos.x), flr(CAM.pos.y)), 0, 120)
 
 def draw_clouds(shadow=False):

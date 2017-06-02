@@ -1939,10 +1939,8 @@ pub mod plugin {
 pub mod plugin {
     use std::sync::{Arc, Mutex};
 
-    use gfx::Sprite;
     use config::Players;
 
-    use px8;
     use px8::noise::Noise;
     use px8::info::Info;
 
@@ -1958,13 +1956,13 @@ pub mod plugin {
 
         // Keep the compatibility
         pub fn load(&mut self,
-                    players: Arc<Mutex<Players>>,
-                    info: Arc<Mutex<Info>>,
-                    screen: Arc<Mutex<Screen>>,
-                    noise: Arc<Mutex<Noise>>) {
+                    _players: Arc<Mutex<Players>>,
+                    _info: Arc<Mutex<Info>>,
+                    _screen: Arc<Mutex<Screen>>,
+                    _noise: Arc<Mutex<Noise>>) {
             panic!("LUA plugin disabled");
         }
-        pub fn load_code(&mut self, data: String) -> bool {
+        pub fn load_code(&mut self, _data: String) -> bool {
             false
         }
         pub fn init(&mut self) {}

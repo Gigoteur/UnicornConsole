@@ -1,3 +1,62 @@
+import socket
+
+import sys
+sys.path.append("./games/asteroid")
+import packets, packet_types
+import utils
+import maps
+import biomes
+
+utils.addglobals(globals())
+maps.addglobals(globals())
+
+from utils import Vec2
+
+CELL_SIZE = 32
+CELL_BOUNDS = 128
+CELL_FILL = flr(128/CELL_SIZE+1)
+SEED=rnd(1)
+
+def local_noise(nx, ny, nz=0.0, freq=10, zoom=300.0):
+    return noise((freq*nx)/zoom, (freq*ny)/zoom, nz) / 2.0 + 1.0
+
+def CreateRandomWorld():
+    noise_set_seed(1)
+
+    dynamic_map = [""] * (CELL_BOUNDS*CELL_BOUNDS)
+
+    z = rnd(5)
+    for x in range(0, CELL_BOUNDS):
+        for y in range(0, CELL_BOUNDS):
+            value = min(15, flr(local_noise(x, y, z)/0.06666666666666667))
+            dynamic_map[x+y*CELL_BOUNDS] = "%x" % value
+
+    return ''.join(dynamic_map)
+
+class NetworkClient(object):
+    def __init__(self, host, port):
+        self.host = host
+        self.port = port
+
+    def connect(self):
+        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.s.connect((self.host, self.port))
+
+
+class Stars(object):
+    def __init__(self):
+        self.stars = []
+        for i in range(0, 20):
+            x = flr(rnd(1) * 128)
+            y = flr(rnd(1) * 128)
+            self.stars.append((x, y))
+
+    def draw(self):
+        for star in self.stars:
+            x = star[0] % 128
+            y = star[1] % 128
+
+            rectfill(x, y, x, y, 12)
 
 class Particle(object):
     def __init__(self, x, y):
@@ -54,6 +113,8 @@ class Particles(object):
     def draw(self):
         for p in self.particles:
             p.draw()
+
+    def debug(self):
         px8_print("P %d" % (len(self.particles)), 0, 112, 7)
 
 class Ship(object):
@@ -68,7 +129,7 @@ class Ship(object):
         self.ddy = 0
         self.jet_timer = 2
         self.reverse = False
-        self.max_speed = 1
+        self.max_speed = 3
 
     def update(self):
         self.ddx = -0.01 * self.dx
@@ -83,7 +144,6 @@ class Ship(object):
             self.dx -= 0.02 * cos(self.angle)
             self.dy -= 0.02 * sin(self.angle)
 
-
         if btn(2):
             self.dx += 0.04 * cos(self.angle)
             self.dy += 0.04 * sin(self.angle)
@@ -96,6 +156,20 @@ class Ship(object):
         self.dy += self.ddy
 
         self.clamp_speed()
+        self._update_boundaries()
+
+    def _update_boundaries(self):
+        x=self.x/CELL_SIZE
+        y=self.y/CELL_SIZE
+        if x > CELL_BOUNDS:
+            self.dx -= (x-CELL_BOUNDS)*2
+        elif x < 0:
+            self.dx -= x*2
+
+        if y > CELL_BOUNDS:
+            self.dy -= (y-CELL_BOUNDS)*2
+        elif y < 0:
+            self.dy -= y*2
 
     def clamp_speed(self):
         l = sqrt(self.dx * self.dx + self.dy * self.dy)
@@ -132,27 +206,93 @@ class Ship(object):
         line(x1, y1, x2, y2)
         line(x2, y2, x3, y3)
 
+    def debug(self):
         px8_print("%.02f:%.02f %.02f:%.02f" % (self.x, self.y, self.dx, self.dy), 0, 120, 7)
+
+class Camera(object):
+    def __init__(self, vec2):
+        self.pos = vec2
+        self.c = Vec2(self.pos.x%CELL_SIZE, self.pos.y%CELL_SIZE)
+        self.offset = Vec2(64, 64)
+        self.sway=[0.15,0.15,50,50]
+        self.pos_o = Vec2(self.pos.x, self.pos.y)
+        self.v = Vec2(0, 0)
+
+    def update(self, p_p_vec, p_v_vec):
+        self.offset = p_v_vec.mul(-15).add(Vec2(64,64))
+        self.pos_o = Vec2(self.pos.x, self.pos.y)
+        sway=Vec2(self.sway[0]*cos(px8_time()/self.sway[2]),
+                  self.sway[1]*sin(px8_time()/self.sway[3]))
+        self.pos = self.pos.lerp(p_p_vec.sub(self.offset),0.1).add(sway)
+
+        self.v = self.pos.sub(self.pos_o)
+
+        self.c.x = self.pos.x%CELL_SIZE
+        self.c.y = self.pos.y%CELL_SIZE
+
+class Configuration(object):
+    def __init__(self, biomes):
+        self.biomes = biomes
+        self.cell_fill = CELL_FILL
+        self.cell_size = CELL_SIZE
+        self.cell_bounds = CELL_BOUNDS
+        self.seed = SEED
 
 S = None
 P = None
+CAM = None
+N = None
+CELLS = None
+STARS = None
+M = maps.MapFormat(CreateRandomWorld())
+B = biomes.Biomes()
+CONFIG = Configuration(B)
 
 def _init():
-    global S, P
+    global S, P, CAM, N, CELLS, STARS
+    N = NetworkClient("localhost", 9000)
+    #N.connect()
+
     a = rnd(1)
+    STARS = Stars()
     P = Particles()
     S = Ship(P, 64, 64, a + 0.5)
+    CAM = Camera(Vec2(S.x, S.y))
+    CELLS = maps.Cells(flr(CAM.pos.x/CELL_SIZE),
+                       flr(CAM.pos.y/CELL_SIZE),
+                       M.mapdata,
+                       CONFIG)
 
 def _update():
-    global S, P
+    global S, P, CAM, CELLS
 
     P.update()
     S.update()
+    CAM.update(Vec2(S.x, S.y), Vec2(S.dx, S.dy))
+    CELLS.set_pos(Vec2(flr(CAM.pos.x/CELL_SIZE),
+                       flr(CAM.pos.y/CELL_SIZE)))
 
 def _draw():
-    global S
+    global S, P, CAM, CELLS, STARS
 
     cls()
 
+    camera(CAM.pos.x, CAM.pos.y)
+
+    for a in range(0, CELL_FILL):
+        for b in range(0, CELL_FILL):
+            x = (CELLS.pos.x+a)*CELL_SIZE
+            y = (CELLS.pos.y+b)*CELL_SIZE
+
+            cell = CELLS.get_current(a, b)
+            rectfill(x, y, x+CELL_SIZE, y+CELL_SIZE, 0)
+
     P.draw()
     S.draw()
+
+    camera()
+
+    #STARS.draw()
+
+    P.debug()
+    S.debug()
