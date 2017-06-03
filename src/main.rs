@@ -70,6 +70,14 @@ fn print_usage(program: &str, opts: &Options) {
     print!("{}", opts.usage(&brief));
 }
 
+fn array_to_vec(arr: &[u8]) -> Vec<u8> {
+    let mut vector = Vec::new();
+    for i in arr.iter() {
+        vector.push(*i);
+    }
+    vector
+}
+
 fn main() {
     let logger_config = fern::DispatchConfig {
         format: Box::new(|msg: &str, level: &log::LogLevel, _location: &log::LogLocation| {

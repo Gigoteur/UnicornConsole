@@ -223,6 +223,23 @@ impl Frontend {
         }
     }
 
+    #[allow(dead_code)]
+    pub fn run_cartridge_raw(&mut self, filename: &str, data: Vec<u8>, editor: bool, mode: px8::PX8Mode) {
+        let success = self.px8
+            .load_cartridge_raw(filename,
+                                data,
+                                editor,
+                                mode);
+
+        if success {
+            info!("[Frontend] Successfully loaded the cartridge");
+            // Call the init of the cartridge
+            self.handle_event(editor);
+        } else {
+            error!("[Frontend] Failed to load the cartridge");
+        }
+    }
+
     pub fn run_interactive(&mut self) {
         self.px8.init_interactive();
         self.handle_event(false);
