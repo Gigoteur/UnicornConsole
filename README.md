@@ -183,6 +183,7 @@ You must follow the following [guide](https://users.rust-lang.org/t/compiling-to
 
 You can see example of PX8 + Emscripten in the demos [repository](https://github.com/Gigoteur/PX8Demos/tree/master/emscripten/). You could also see live example from your browser:
   * Hello World [[Source Code]](https://github.com/Gigoteur/PX8Demos/tree/master/emscripten/Hello) [[Live Demo]](https://hallucino.github.io/demos/hello.html)
+  * Hello World 2 [[Source Code]](https://github.com/Gigoteur/PX8Demos/tree/master/emscripten/Hello2) [[Live Demo]](https://hallucino.github.io/demos/hello2.html)
   * Lua Cartridge [[Source Code]](https://github.com/Gigoteur/PX8Demos/tree/master/emscripten/LuaCartridge) [[Live Demo]](https://hallucino.github.io/demos/lua_cartridge.html)
   * Cast [[Source Code]](https://github.com/Gigoteur/PX8Demos/tree/master/emscripten/Cast) [[Live Demo]](https://hallucino.github.io/demos/cast.html)
 
