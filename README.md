@@ -35,7 +35,7 @@ PX8 is an Open Source Fantasy Console (128x128 pixels) in Rust, by using a cartr
 
 It is still in development, but it is usable and the main features are:
  * 128x128 pixels default resolution
- * Predefined palettes (pico-8, c64, etc), or use any RGB colors
+ * Predefined palettes (pico-8, c64, etc)
  * Python 3 / Lua 5.X support for the cartridge without tokens limit
  * Desktop/Mobile/Browser (Emscripten) support
  * Controls with dpad + 2 buttons (gamecontroller/joystick support)
@@ -43,7 +43,8 @@ It is still in development, but it is usable and the main features are:
  * Map support (128x32)
  * Editor for the sprite and map data
  * PX8 format to be able to use your favorite code editor for Python/Lua/Rust
- * Change the screen definition (128x128, 256x256, WIDTHxHEIGHT)
+ * Mutliple fonts support
+ * Change the screen definition (128x128, 256x256, YOUR_WIDTHxYOUR_HEIGHT)
  * Screenshot (PNG) / Video recording (GIF)
  * Pico-8 compatibility + cartridge (P8/P8.PNG) format support
  * Audio support is in progress
@@ -183,6 +184,7 @@ You must follow the following [guide](https://users.rust-lang.org/t/compiling-to
 
 You can see example of PX8 + Emscripten in the demos [repository](https://github.com/Gigoteur/PX8Demos/tree/master/emscripten/). You could also see live example from your browser:
   * Hello World [[Source Code]](https://github.com/Gigoteur/PX8Demos/tree/master/emscripten/Hello) [[Live Demo]](https://hallucino.github.io/demos/hello.html)
+  * Hello World 2 [[Source Code]](https://github.com/Gigoteur/PX8Demos/tree/master/emscripten/Hello2) [[Live Demo]](https://hallucino.github.io/demos/hello2.html)
   * Lua Cartridge [[Source Code]](https://github.com/Gigoteur/PX8Demos/tree/master/emscripten/LuaCartridge) [[Live Demo]](https://hallucino.github.io/demos/lua_cartridge.html)
   * Cast [[Source Code]](https://github.com/Gigoteur/PX8Demos/tree/master/emscripten/Cast) [[Live Demo]](https://hallucino.github.io/demos/cast.html)
 
