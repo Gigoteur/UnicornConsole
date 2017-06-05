@@ -35,7 +35,7 @@ PX8 is an Open Source Fantasy Console (128x128 pixels) in Rust, by using a cartr
 
 It is still in development, but it is usable and the main features are:
  * 128x128 pixels default resolution
- * Predefined palettes (pico-8, c64, etc), or use any RGB colors
+ * Predefined palettes (pico-8, c64, etc)
  * Python 3 / Lua 5.X support for the cartridge without tokens limit
  * Desktop/Mobile/Browser (Emscripten) support
  * Controls with dpad + 2 buttons (gamecontroller/joystick support)
@@ -43,7 +43,8 @@ It is still in development, but it is usable and the main features are:
  * Map support (128x32)
  * Editor for the sprite and map data
  * PX8 format to be able to use your favorite code editor for Python/Lua/Rust
- * Change the screen definition (128x128, 256x256, WIDTHxHEIGHT)
+ * Mutliple fonts support
+ * Change the screen definition (128x128, 256x256, YOUR_WIDTHxYOUR_HEIGHT)
  * Screenshot (PNG) / Video recording (GIF)
  * Pico-8 compatibility + cartridge (P8/P8.PNG) format support
  * Audio support is in progress
