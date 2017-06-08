@@ -15,7 +15,6 @@ pub mod plugin {
     use px8::info::Info;
     use px8::noise::Noise;
 
-    //    use px8::{SCREEN_WIDTH, SCREEN_HEIGHT};
     use gfx::Screen;
 
     pub struct ExtraData {
@@ -1309,10 +1308,6 @@ pub mod plugin {
                 return 1;
             }
 
-            //if x as usize >= SCREEN_HEIGHT || y as usize >= SCREEN_WIDTH {
-            //    return 1;
-            //}
-
             let screen = state.with_extra(|extra| {
                                               let data = extra
                                                   .as_ref()
@@ -1338,10 +1333,6 @@ pub mod plugin {
             if x < 0 || y < 0 {
                 return 1;
             }
-
-            //if x as usize >= SCREEN_HEIGHT || y as usize >= SCREEN_WIDTH {
-            //    return 1;
-            //}
 
             let screen = state.with_extra(|extra| {
                                               let data = extra
