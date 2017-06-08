@@ -62,6 +62,11 @@ def fset(idx_sprite, flag, value=-1):
 def line(x1, y1, x2, y2, color=-1):
     px8_graphic.line(math.floor(x1), math.floor(y1), math.floor(x2), math.floor(y2), math.floor(color))
 
+def mode(width, height, aspect_ratio=None):
+    if aspect_ratio is None:
+        aspect_ratio = float(width) / float(height)
+    px8_graphic.mode(width, height, aspect_ratio)
+
 def pal(c0 = -1, c1 = -1, p=0):
     px8_graphic.pal(math.floor(c0), math.floor(c1))
 
@@ -124,6 +129,7 @@ globals()["ellipsefill"] = ellipsefill
 globals()["fget"] = fget
 globals()["fset"] = fset
 globals()["line"] = line
+globals()["mode"] = mode
 globals()["pal"] = pal
 globals()["palt"] = palt
 globals()["pset"] = pset

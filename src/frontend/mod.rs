@@ -86,9 +86,14 @@ impl Frontend {
         info!("[Frontend] SDL2 event pump");
         let event_pump = try!(sdl_context.event_pump());
 
-        info!("[Frontend] creating renderer");
-        let renderer = renderer::renderer::Renderer::new(sdl_video, fullscreen, opengl, scale)
-            .unwrap();
+        let px8 = px8::Px8New::new();
+
+        let renderer = {
+            let mut screen = &mut px8.screen.lock().unwrap();
+
+            info!("[Frontend] creating renderer");
+            renderer::renderer::Renderer::new(sdl_video, screen, fullscreen, opengl, scale).unwrap()
+        };
 
         info!("[Frontend] SDL2 audio");
         let mut sound_interface =
@@ -107,7 +112,7 @@ impl Frontend {
                sound: Arc::new(Mutex::new(sound)),
                controllers: controllers::Controllers::new(),
                times: frametimes::FrameTimes::new(Duration::from_secs(1) / 60),
-               px8: px8::Px8New::new(),
+               px8: px8,
                info: Arc::new(Mutex::new(px8::info::Info::new())),
                start_time: time::now(),
                elapsed_time: 0.,
@@ -235,17 +240,21 @@ impl Frontend {
 
             self.px8.fps = self.fps_counter.get_fps();
 
+
             let mouse_state = self.event_pump.mouse_state();
 
-            let (mouse_viewport_x, mouse_viewport_y) =
+            let (mouse_viewport_x, mouse_viewport_y) = {
+                let screen = &self.px8.screen.lock().unwrap();
                 self.renderer
-                    .window_coords_to_viewport_coords(mouse_state.x(), mouse_state.y());
+                    .window_coords_to_viewport_coords(screen, mouse_state.x(), mouse_state.y())
+            };
 
             self.px8
                 .players
                 .lock()
                 .unwrap()
                 .set_mouse_x(mouse_viewport_x);
+
             self.px8
                 .players
                 .lock()
@@ -253,13 +262,15 @@ impl Frontend {
                 .set_mouse_y(mouse_viewport_y);
 
             for event in self.event_pump.poll_iter() {
+
                 match event {
                     Event::Quit { .. } => break 'main,
                     Event::KeyDown { keycode: Some(keycode), .. } if keycode == Keycode::Escape => {
                         break 'main
                     }
                     Event::Window { win_event: WindowEvent::SizeChanged(_, _), .. } => {
-                        self.renderer.update_dimensions();
+                        self.renderer
+                            .update_viewport(&self.px8.screen.lock().unwrap());
                     }
                     Event::MouseButtonDown { mouse_btn, .. } => {
                         self.px8
@@ -452,6 +463,7 @@ impl Frontend {
             self.px8.debug_update();
 
             self.update_time();
+
             self.blit();
         }
     }
@@ -468,9 +480,11 @@ impl Frontend {
             let mouse_state = self.event_pump.mouse_state();
             let (width, height) = self.renderer.get_dimensions();
 
-            let (mouse_viewport_x, mouse_viewport_y) =
+            let (mouse_viewport_x, mouse_viewport_y) = {
+                let screen = &px8.screen.lock().unwrap();
                 self.renderer
-                    .window_coords_to_viewport_coords(mouse_state.x(), mouse_state.y());
+                    .window_coords_to_viewport_coords(screen, mouse_state.x(), mouse_state.y())
+            };
 
             self.px8
                 .players
@@ -490,8 +504,8 @@ impl Frontend {
 
             if mouse_state.left() {
                 debug!("MOUSE X {:?} Y {:?}",
-                       mouse_state.x() / (width as i32 / px8::SCREEN_WIDTH as i32),
-                       mouse_state.y() / (height as i32 / px8::SCREEN_HEIGHT as i32));
+                       mouse_state.x() / (width as i32 / screen.buffer_width as i32),
+                       mouse_state.y() / (height as i32 / screen.buffer_height as i32));
             }
 
             for event in self.event_pump.poll_iter() {
@@ -501,7 +515,8 @@ impl Frontend {
                         break 'main
                     }
                     Event::Window { win_event: WindowEvent::SizeChanged(_, _), .. } => {
-                        self.renderer.update_dimensions();
+                        self.renderer
+                            .update_viewport(&self.px8.screen.lock().unwrap());
                     }
                     Event::KeyDown {
                         keycode: Some(keycode),
@@ -703,7 +718,7 @@ impl Frontend {
     }
 
     pub fn blit(&mut self) {
-        self.renderer.blit(self.px8.screen.clone());
+        self.renderer.blit(&mut self.px8.screen.lock().unwrap());
         self.times.limit();
     }
 }

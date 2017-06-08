@@ -134,6 +134,11 @@ pub mod plugin {
         Ok(0)
     }
 
+    def mode(&self, width: usize, height: usize, aspect_ratio: f32) -> PyResult<i32> {
+        self.screen(py).lock().unwrap().mode(width, height, aspect_ratio);
+        Ok(0)
+    }
+
     def palt(&self, c: i32, t: bool) -> PyResult<i32> {
         self.screen(py).lock().unwrap().palt(c, t);
         Ok(0)

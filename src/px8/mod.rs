@@ -34,14 +34,6 @@ use sound::sound::Sound;
 
 include!(concat!(env!("OUT_DIR"), "/parameters.rs"));
 
-pub const SCREEN_PIXELS: usize = SCREEN_WIDTH * SCREEN_HEIGHT;
-pub const SCREEN_PIXELS_RGB: usize = SCREEN_PIXELS * 3;
-
-pub type ScreenBuffer = [u8; SCREEN_PIXELS];
-pub type ScreenBufferRGB = [u8; SCREEN_PIXELS_RGB];
-
-pub const SCREEN_EMPTY: ScreenBuffer = [0; SCREEN_PIXELS];
-
 pub struct Palette {
     colors: HashMap<u32, RGB>,
     rcolors: HashMap<u32, u32>,
@@ -143,9 +135,9 @@ impl RGB {
 }
 
 pub trait RustPlugin {
-    fn init(&mut self, screen: Arc<Mutex<gfx::Screen>>) -> f64;
-    fn update(&mut self, players: Arc<Mutex<Players>>) -> f64;
-    fn draw(&mut self, screen: Arc<Mutex<gfx::Screen>>) -> f64;
+    fn init(&mut self, screen: &mut gfx::Screen) -> f64;
+    fn update(&mut self, players: &mut Players) -> f64;
+    fn draw(&mut self, screen: &mut gfx::Screen) -> f64;
 }
 
 #[derive(PartialEq)]
@@ -216,43 +208,34 @@ impl Menu {
         true
     }
 
-    pub fn draw(&mut self, screen: Arc<Mutex<gfx::Screen>>) {
+    pub fn draw(&mut self, screen: &mut gfx::Screen) {
         if self.selected_idx == -1 {
-            let idx_x = (SCREEN_WIDTH / 2 - 20) as i32;
-            let idx_y = (SCREEN_WIDTH / 2 - 10) as i32;
+            let idx_x = (screen.width / 2 - 20) as i32;
+            let idx_y = (screen.height / 2 - 10) as i32;
 
-            screen
-                .lock()
-                .unwrap()
-                .rectfill(idx_x,
-                          idx_y - 5,
-                          idx_x + 40,
-                          idx_y + 10 * self.items.len() as i32,
-                          11);
+            screen.rectfill(idx_x,
+                            idx_y - 5,
+                            idx_x + 40,
+                            idx_y + 10 * self.items.len() as i32,
+                            11);
 
-            screen
-                .lock()
-                .unwrap()
-                .pset(idx_x, idx_y + (self.idx as i32) * 10, 7);
+            screen.pset(idx_x, idx_y + (self.idx as i32) * 10, 7);
 
-            self.draw_logo(screen.clone());
+            self.draw_logo(screen);
 
             for (pos, item) in self.items.iter().enumerate() {
-                screen
-                    .lock()
-                    .unwrap()
-                    .print(item.to_string(), idx_x + 5, idx_y + (pos as i32) * 10, 7);
+                screen.print(item.to_string(), idx_x + 5, idx_y + (pos as i32) * 10, 7);
             }
 
         }
 
         if self.selected_idx == 1 {
-            screen.lock().unwrap().cls();
+            screen.cls();
         }
     }
 
     #[cfg_attr(rustfmt, rustfmt_skip)]
-    pub fn draw_logo(&mut self, screen: Arc<Mutex<gfx::Screen>>) {
+    pub fn draw_logo(&mut self, screen: &mut gfx::Screen) {
         let logo = vec![
             0, 0, 0, 0, 0, 0, 0, 0,
             8, 0, 0, 0, 0, 0, 0, 8,
@@ -263,10 +246,7 @@ impl Menu {
             0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0 ];
 
-        screen
-            .lock()
-            .unwrap()
-            .print("Powered by PX8".to_string(), 64, 112, 7);
+        screen.print("Powered by PX8".to_string(), 64, 112, 7);
 
         let idx_x = 114;
         let idx_y = 120;
@@ -281,7 +261,7 @@ impl Menu {
             }
 
             if c != 0 {
-                screen.lock().unwrap().pset(idx_x + x, idx_y + y, c);
+                screen.pset(idx_x + x, idx_y + y, c);
             }
             x += 1;
         }
@@ -528,7 +508,7 @@ pub struct Px8New {
 impl Px8New {
     pub fn new() -> Px8New {
         Px8New {
-            screen: Arc::new(Mutex::new(gfx::Screen::new())),
+            screen: Arc::new(Mutex::new(gfx::Screen::new(SCREEN_WIDTH, SCREEN_HEIGHT))),
             palettes: Arc::new(Mutex::new(Palettes::new())),
             players: Arc::new(Mutex::new(Players::new())),
             configuration: Arc::new(Mutex::new(PX8Config::new())),
@@ -579,23 +559,20 @@ impl Px8New {
 
     pub fn debug_update(&mut self) {
         if self.configuration.lock().unwrap().show_info_overlay {
-            self.screen
-                .lock()
-                .unwrap()
-                .rectfill(0, 0, SCREEN_WIDTH as i32, 8, 0);
+            let mut screen = &mut self.screen.lock().unwrap();
 
-            self.screen
-                .lock()
-                .unwrap()
-                .force_print(format!("{:.0}FPS {:.2} {:.2} {:?}",
-                                     self.fps,
-                                     self.draw_time,
-                                     self.update_time,
-                                     &self.palettes.lock().unwrap().name)
-                                     .to_string(),
-                             0,
-                             0,
-                             7);
+            let width = screen.width as i32;
+            screen.rectfill(0, 0, width, 8, 0);
+
+            screen.force_print(format!("{:.0}FPS {:.2} {:.2} {:?}",
+                                       self.fps,
+                                       self.draw_time,
+                                       self.update_time,
+                                       &self.palettes.lock().unwrap().name)
+                                       .to_string(),
+                               0,
+                               0,
+                               7);
         }
     }
 
@@ -623,7 +600,7 @@ impl Px8New {
     pub fn draw(&mut self) {
         match self.state {
             PX8State::PAUSE => {
-                self.menu.draw(self.screen.clone());
+                self.menu.draw(&mut self.screen.lock().unwrap());
             }
             PX8State::RUN => {
                 self.draw_time = self.call_draw() * 1000.0;
@@ -673,10 +650,11 @@ impl Px8New {
 
         if self.record.nb % 4 == 0 {
             let mut buffer: Vec<u8> = Vec::new();
+            let mut screen = &mut self.screen.lock().unwrap();
 
-            for x in 0..self::SCREEN_WIDTH {
-                for y in 0..self::SCREEN_HEIGHT {
-                    let value = self.screen.lock().unwrap().pget(x as u32, y as u32);
+            for x in 0..screen.width {
+                for y in 0..screen.height {
+                    let value = screen.pget(x as u32, y as u32);
                     let rgb_value = PALETTE.lock().unwrap().get_rgb(value);
 
                     buffer.push(rgb_value.r);
@@ -694,20 +672,22 @@ impl Px8New {
         info!("[PX8] Stop to record the frame {:?}",
               self.record.images.len());
 
+        let screen = &self.screen.lock().unwrap();
+
         self.record.recording = false;
 
         let mut filedata = File::create(self.record.filename.clone()).unwrap();
 
         let mut encoder = gif::Encoder::new(&mut filedata,
-                                            SCREEN_WIDTH as u16,
-                                            SCREEN_HEIGHT as u16,
+                                            screen.width as u16,
+                                            screen.height as u16,
                                             &[])
                 .unwrap();
 
         encoder.set(gif::Repeat::Infinite).unwrap();
 
         let mut idx = 0;
-        for i in 0..self.record.images.len() / (SCREEN_WIDTH * SCREEN_HEIGHT * 3) {
+        for i in 0..self.record.images.len() / (screen.width * screen.height * 3) {
             info!("[PX8] Generate frame {:?} {:?}/{:?}",
                   i,
                   self.record.images.len(),
@@ -715,8 +695,8 @@ impl Px8New {
 
             let mut buffer: Vec<u8> = Vec::new();
 
-            for _ in 0..SCREEN_WIDTH {
-                for _ in 0..SCREEN_HEIGHT {
+            for _ in 0..screen.width {
+                for _ in 0..screen.height {
                     buffer.push(self.record.images[idx]);
                     buffer.push(self.record.images[idx + 1]);
                     buffer.push(self.record.images[idx + 2]);
@@ -727,37 +707,39 @@ impl Px8New {
             info!("[PX8] Creating ImageBuffer {:?}", buffer.len());
 
             let image =
-                image::ImageBuffer::from_raw(SCREEN_WIDTH as u32, SCREEN_HEIGHT as u32, buffer)
+                image::ImageBuffer::from_raw(screen.width as u32, screen.height as u32, buffer)
                     .unwrap();
 
             info!("[PX8] Rotating image");
             let image = image::DynamicImage::ImageRgb8(image)
                 .rotate90()
-                .resize((SCREEN_WIDTH * scale) as u32,
-                        (SCREEN_HEIGHT * scale) as u32,
+                .resize((screen.width * scale) as u32,
+                        (screen.height * scale) as u32,
                         image::FilterType::Nearest)
                 .fliph();
 
             info!("[PX8] Creating gif Frame");
-            let mut frame = gif::Frame::from_rgb((SCREEN_WIDTH * scale) as u16,
-                                                 (SCREEN_HEIGHT * scale) as u16,
+            let mut frame = gif::Frame::from_rgb((screen.width * scale) as u16,
+                                                 (screen.height * scale) as u16,
                                                  &image.raw_pixels());
 
             frame.delay = 1;
             encoder.write_frame(&frame).unwrap();
         }
 
-        info!("[PX8] GIF created in {:?}", self.record.filename.clone());
+        info!("[PX8] GIF created in {:?}", self.record.filename);
     }
 
     pub fn screenshot(&mut self, filename: &str) {
         info!("[PX8] Taking screenshot in {:?}", filename);
 
+        let mut screen = &mut self.screen.lock().unwrap();
+
         let mut buffer: Vec<u8> = Vec::new();
 
-        for x in 0..SCREEN_WIDTH {
-            for y in 0..SCREEN_HEIGHT {
-                let value = self.screen.lock().unwrap().pget(x as u32, y as u32);
+        for x in 0..screen.width {
+            for y in 0..screen.height {
+                let value = screen.pget(x as u32, y as u32);
                 let rgb_value = PALETTE.lock().unwrap().get_rgb(value);
 
                 buffer.push(rgb_value.r);
@@ -766,12 +748,12 @@ impl Px8New {
             }
         }
 
-        let image = image::ImageBuffer::from_raw(SCREEN_WIDTH as u32, SCREEN_HEIGHT as u32, buffer)
+        let image = image::ImageBuffer::from_raw(screen.width as u32, screen.height as u32, buffer)
             .unwrap();
         let image = image::DynamicImage::ImageRgb8(image)
             .rotate270()
-            .resize((SCREEN_WIDTH * 4) as u32,
-                    (SCREEN_WIDTH * 4) as u32,
+            .resize((screen.width * 4) as u32,
+                    (screen.height * 4) as u32,
                     image::FilterType::Nearest)
             .flipv();
 
@@ -780,16 +762,16 @@ impl Px8New {
     }
 
     pub fn save_current_cartridge(&mut self) {
+        let screen = &self.screen.lock().unwrap();
+
         let cartridge = &mut self.cartridges[self.current_cartridge];
 
         let output_filename = &cartridge.filename.clone();
         info!("[PX8] Saving the current cartridge in {:?}",
               output_filename);
 
-        cartridge
-            .gfx
-            .set_sprites(self.screen.lock().unwrap().sprites.clone());
-        cartridge.map.set_map(self.screen.lock().unwrap().map);
+        cartridge.gfx.set_sprites(screen.sprites.clone());
+        cartridge.map.set_map(screen.map);
 
         match cartridge.format {
             CartridgeFormat::P8Format => {
@@ -805,15 +787,17 @@ impl Px8New {
     }
 
     pub fn switch_pause(&mut self) {
+        let mut screen = &mut self.screen.lock().unwrap();
+
         match self.state {
             PX8State::PAUSE => {
                 self.state = PX8State::RUN;
-                self.screen.lock().unwrap().restore();
+                screen.restore();
             }
             PX8State::RUN => {
                 self.menu.reset();
                 self.state = PX8State::PAUSE;
-                self.screen.lock().unwrap().save();
+                screen.save();
             }
         }
     }
@@ -1068,7 +1052,7 @@ impl Px8New {
             Code::RUST => {
                 self.draw_return = true;
                 for callback in &mut self.rust_plugin {
-                    callback.init(self.screen.clone());
+                    callback.init(&mut self.screen.lock().unwrap());
                 }
             }
             _ => (),
@@ -1090,8 +1074,8 @@ impl Px8New {
             Code::PYTHON => self.draw_return = self.python_plugin.draw(),
             Code::RUST => {
                 self.draw_return = true;
-                for callback in self.rust_plugin.iter_mut() {
-                    callback.draw(self.screen.clone());
+                for callback in &mut self.rust_plugin {
+                    callback.draw(&mut self.screen.lock().unwrap());
                 }
             }
             _ => (),
@@ -1113,8 +1097,8 @@ impl Px8New {
             Code::PYTHON => self.update_return = self.python_plugin.update(),
             Code::RUST => {
                 self.update_return = true;
-                for callback in self.rust_plugin.iter_mut() {
-                    callback.update(self.players.clone());
+                for callback in &mut self.rust_plugin {
+                    callback.update(&mut self.players.lock().unwrap());
                 }
             }
             _ => (),

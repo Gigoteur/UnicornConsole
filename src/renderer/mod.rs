@@ -11,7 +11,7 @@ pub mod renderer {
     use sdl2::rect::Rect;
     use sdl2::rect::Point;
     use sdl2::pixels::PixelFormatEnum;
-    use std::sync::{Arc, Mutex};
+    //use std::sync::{Arc, Mutex};
     use num;
     use time::PreciseTime;
 
@@ -28,9 +28,13 @@ pub mod renderer {
     pub struct Renderer {
         pub renderer: render::Renderer<'static>,
         pub texture: render::Texture,
+        buffer_rgb: Vec<u8>,
 
         window_width: u32,
         window_height: u32,
+        aspect_ratio: f32,
+        texture_width: u32,
+        texture_height: u32,
         viewport_width: u32,
         viewport_height: u32,
         viewport_offset: Point,
@@ -39,6 +43,7 @@ pub mod renderer {
 
     impl Renderer {
         pub fn new(sdl_video: VideoSubsystem,
+                   screen: &mut Screen,
                    fullscreen: bool,
                    opengl: bool,
                    scale: Scale)
@@ -49,8 +54,8 @@ pub mod renderer {
 
             let mut window_builder =
                 sdl_video.window("PX8",
-                                 (px8::SCREEN_WIDTH as usize * scale.factor()) as u32,
-                                 (px8::SCREEN_HEIGHT as usize * scale.factor()) as u32);
+                                 (screen.width as usize * scale.factor()) as u32,
+                                 (screen.height as usize * scale.factor()) as u32);
 
             let wb = if fullscreen {
                 window_builder.fullscreen()
@@ -69,18 +74,25 @@ pub mod renderer {
                 .unwrap();
 
             info!("[SDL] Creating texture");
+            let texture_width = screen.width as u32;
+            let texture_height = screen.height as u32;
             let texture = renderer
                 .create_texture(PixelFormatEnum::BGR24,
                                 render::TextureAccess::Streaming,
-                                px8::SCREEN_WIDTH as u32,
-                                px8::SCREEN_HEIGHT as u32)
+                                texture_width,
+                                texture_height)
                 .unwrap();
+
 
             Ok(Renderer {
                    renderer: renderer,
                    texture: texture,
+                   buffer_rgb: vec![0; 0],
                    window_width: 0,
                    window_height: 0,
+                   aspect_ratio: 0.0,
+                   texture_width: texture_width,
+                   texture_height: texture_height,
                    viewport_width: 0,
                    viewport_height: 0,
                    viewport_offset: Point::new(0, 0),
@@ -88,14 +100,32 @@ pub mod renderer {
                })
         }
 
-        pub fn blit(&mut self, screen: Arc<Mutex<Screen>>) {
-            if self.viewport_width == 0 {
-                self.update_dimensions();
+        pub fn blit(&mut self, screen: &mut Screen) {
+            if (self.aspect_ratio != screen.aspect_ratio) || (self.viewport_width == 0) {
+                self.aspect_ratio = screen.aspect_ratio;
+                self.update_viewport(screen);
+            }
+
+            if (self.texture_width != screen.width as u32) ||
+               (self.texture_height != screen.height as u32) {
+                self.texture_width = screen.width as u32;
+                self.texture_height = screen.height as u32;
+
+                self.texture = self.renderer
+                    .create_texture(PixelFormatEnum::BGR24,
+                                    render::TextureAccess::Streaming,
+                                    self.texture_width,
+                                    self.texture_height)
+                    .unwrap();
             }
 
             // Translate the pixel values to RGB colors.
-            let src_buffer = screen.lock().unwrap().back_buffer;
-            let mut rgb_buffer = *screen.lock().unwrap().buffer_rgb;
+            let src_buffer = &screen.frame_buffer;
+            let rgb_buffer_len = src_buffer.len() * 3;
+            if self.buffer_rgb.len() != rgb_buffer_len {
+                self.buffer_rgb = vec![0; rgb_buffer_len];
+            }
+            let mut rgb_buffer = &mut self.buffer_rgb;
             let mut palette = px8::PALETTE.lock().unwrap();
 
             let mut j = 0;
@@ -112,14 +142,14 @@ pub mod renderer {
                 rgb_buffer[j] = rgb.b;
                 rgb_buffer[j + 1] = rgb.g;
                 rgb_buffer[j + 2] = rgb.r;
-                j = j + 3;
+                j += 3;
             }
 
             let t1 = PreciseTime::now();
 
             // Update the texture with the RGB values.
             self.texture
-                .update(None, &mut rgb_buffer, px8::SCREEN_WIDTH * 3)
+                .update(None, &rgb_buffer, screen.width * 3)
                 .unwrap();
 
             let t2 = PreciseTime::now();
@@ -133,7 +163,7 @@ pub mod renderer {
 
             self.renderer
                 .copy(&self.texture,
-                      Some(Rect::new(0, 0, px8::SCREEN_WIDTH as u32, px8::SCREEN_HEIGHT as u32)),
+                      Some(Rect::new(0, 0, screen.width as u32, screen.height as u32)),
                       Some(Rect::new(self.viewport_offset.x(),
                                      self.viewport_offset.y(),
                                      self.viewport_width,
@@ -148,24 +178,24 @@ pub mod renderer {
 
             if cfg!(feature = "blit_perf") {
                 if self.frame % 60 == 0 {
-                    println!("gen_rgb:{} update_tex:{} copy_tex:{} present:{}",
-                             start.to(t1),
-                             t1.to(t2),
-                             t2.to(t3),
-                             t3.to(t4))
+                    info!("gen_rgb:{} update_tex:{} copy_tex:{} present:{}",
+                          start.to(t1),
+                          t1.to(t2),
+                          t2.to(t3),
+                          t3.to(t4))
                 }
             }
 
             self.frame += 1;
         }
 
-        pub fn update_dimensions(&mut self) {
+        pub fn update_viewport(&mut self, screen: &Screen) {
             let (w, h) = self.get_dimensions();
             self.window_width = w;
             self.window_height = h;
 
             let window_aspect_ratio = (w as f32) / (h as f32);
-            let viewport_aspect_ratio = (px8::SCREEN_WIDTH as f32) / (px8::SCREEN_HEIGHT as f32);
+            let viewport_aspect_ratio = screen.aspect_ratio;
 
             self.viewport_offset = if viewport_aspect_ratio > window_aspect_ratio {
                 // Need margin at top and bottom
@@ -185,18 +215,19 @@ pub mod renderer {
         }
 
         pub fn window_coords_to_viewport_coords(&mut self,
+                                                screen: &Screen,
                                                 window_x: i32,
                                                 window_y: i32)
                                                 -> (i32, i32) {
             let viewport_x = ((window_x - self.viewport_offset.x()) as f32 /
                               self.viewport_width as f32 *
-                              px8::SCREEN_WIDTH as f32) as i32;
+                              screen.width as f32) as i32;
             let viewport_y = ((window_y - self.viewport_offset.y()) as f32 /
                               self.viewport_height as f32 *
-                              px8::SCREEN_HEIGHT as f32) as i32;
+                              screen.height as f32) as i32;
 
-            (num::clamp(viewport_x, 0, (px8::SCREEN_WIDTH - 1) as i32),
-             num::clamp(viewport_y, 0, (px8::SCREEN_HEIGHT - 1) as i32))
+            (num::clamp(viewport_x, 0, (screen.width - 1) as i32),
+             num::clamp(viewport_y, 0, (screen.height - 1) as i32))
         }
     }
 }
