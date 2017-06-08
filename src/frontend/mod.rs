@@ -91,7 +91,7 @@ impl Frontend {
 
         let sound = sound::sound::Sound::new(sound_interface.data_sender.clone());
 
-        let px8 = px8::Px8New::new(Arc::new(Mutex::new(sound));
+        let px8 = px8::PX8::new(Arc::new(Mutex::new(sound)));
 
         let renderer = {
             let mut screen = &mut px8.screen.lock().unwrap();
