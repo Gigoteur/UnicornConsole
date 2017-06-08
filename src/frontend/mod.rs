@@ -61,10 +61,8 @@ pub struct Frontend {
     renderer: renderer::renderer::Renderer,
     controllers: controllers::Controllers,
     times: frametimes::FrameTimes,
-    pub px8: px8::Px8New,
-    pub info: Arc<Mutex<px8::info::Info>>,
+    pub px8: px8::PX8,
     pub sound_interface: Arc<Mutex<sound::sound::SoundInterface<f32>>>,
-    pub sound: Arc<Mutex<sound::sound::Sound>>,
     start_time: time::Tm,
     elapsed_time: f64,
     scale: Scale,
@@ -86,7 +84,14 @@ impl Frontend {
         info!("[Frontend] SDL2 event pump");
         let event_pump = try!(sdl_context.event_pump());
 
-        let px8 = px8::Px8New::new();
+        info!("[Frontend] SDL2 audio");
+        let mut sound_interface =
+            sound::sound::SoundInterface::new(sdl_context.clone(), 44100, 1024, 1);
+        sound_interface.start();
+
+        let sound = sound::sound::Sound::new(sound_interface.data_sender.clone());
+
+        let px8 = px8::Px8New::new(Arc::new(Mutex::new(sound));
 
         let renderer = {
             let mut screen = &mut px8.screen.lock().unwrap();
@@ -94,13 +99,8 @@ impl Frontend {
             info!("[Frontend] creating renderer");
             renderer::renderer::Renderer::new(sdl_video, screen, fullscreen, opengl, scale).unwrap()
         };
-
-        info!("[Frontend] SDL2 audio");
-        let mut sound_interface =
-            sound::sound::SoundInterface::new(sdl_context.clone(), 44100, 1024, 1);
-        sound_interface.start();
-
-        let sound = sound::sound::Sound::new(sound_interface.data_sender.clone());
+                  
+        info!("[Frontend] Disable mouse cursor ? {:?}", show_mouse);
 
         sdl_context.mouse().show_cursor(show_mouse);
 
@@ -109,11 +109,9 @@ impl Frontend {
                event_pump: event_pump,
                renderer: renderer,
                sound_interface: Arc::new(Mutex::new(sound_interface)),
-               sound: Arc::new(Mutex::new(sound)),
                controllers: controllers::Controllers::new(),
                times: frametimes::FrameTimes::new(Duration::from_secs(1) / 60),
                px8: px8,
-               info: Arc::new(Mutex::new(px8::info::Info::new())),
                start_time: time::now(),
                elapsed_time: 0.,
                scale: scale,
@@ -122,6 +120,8 @@ impl Frontend {
     }
 
     pub fn start(&mut self, pathdb: String) {
+        info!("[Fronted] Start");
+
         self.start_time = time::now();
         self.times.reset();
 
@@ -129,7 +129,7 @@ impl Frontend {
         self.init_controllers(pathdb);
 
         info!("[Frontend] initialise PX8");
-        self.px8.init();
+        self.px8.reset();
     }
 
     pub fn update_time(&mut self) {
@@ -140,7 +140,7 @@ impl Frontend {
 
         self.elapsed_time = diff_time.num_seconds() as f64 + nanoseconds / 1000000000.0;
 
-        self.info.lock().unwrap().elapsed_time = self.elapsed_time;
+        self.px8.info.lock().unwrap().elapsed_time = self.elapsed_time;
 
         self.px8.players.lock().unwrap().update(self.elapsed_time);
     }
@@ -207,8 +207,8 @@ impl Frontend {
 
     #[allow(dead_code)]
     pub fn run_native_cartridge(&mut self) {
-        self.px8.code_type = px8::Code::RUST;
-        self.px8.init_time = self.px8.call_init() * 1000.0;
+        self.px8.current_code_type = px8::Code::RUST;
+        self.px8.init();
 
         self.handle_event(false);
     }
@@ -216,19 +216,38 @@ impl Frontend {
     pub fn run_cartridge(&mut self, filename: &str, editor: bool, mode: px8::PX8Mode) {
         let success = self.px8
             .load_cartridge(filename,
-                            self.info.clone(),
-                            self.sound.clone(),
                             editor,
                             mode);
 
         if success {
             info!("[Frontend] Successfully loaded the cartridge");
             // Call the init of the cartridge
-            self.px8.init_time = self.px8.call_init() * 1000.0;
             self.handle_event(editor);
         } else {
             error!("[Frontend] Failed to load the cartridge");
         }
+    }
+
+    #[allow(dead_code)]
+    pub fn run_cartridge_raw(&mut self, filename: &str, data: Vec<u8>, editor: bool, mode: px8::PX8Mode) {
+        let success = self.px8
+            .load_cartridge_raw(filename,
+                                data,
+                                editor,
+                                mode);
+
+        if success {
+            info!("[Frontend] Successfully loaded the cartridge");
+            // Call the init of the cartridge
+            self.handle_event(editor);
+        } else {
+            error!("[Frontend] Failed to load the cartridge");
+        }
+    }
+
+    pub fn run_interactive(&mut self) {
+        self.px8.init_interactive();
+        self.handle_event(false);
     }
 
     #[cfg(not(target_os = "emscripten"))]
@@ -321,8 +340,243 @@ impl Frontend {
                             }
                         } else if keycode == Keycode::F6 && editor {
                             self.px8.switch_code();
-                            // Call the init of the new code
-                            self.px8.init_time = self.px8.call_init() * 1000.0;
+                            self.px8.init();
+                        } else if keycode == Keycode::F7 {
+                            self.px8.next_palette();
+                        }
+
+                        if self.px8.players.lock().unwrap().get_value_quick(0, 7) == 1 {
+                            self.px8.switch_pause();
+                        }
+                    }
+                    Event::KeyUp { keycode: Some(keycode), .. } => {
+                        self.px8.players.lock().unwrap().key_up(keycode);
+                    }
+
+                    Event::ControllerButtonDown { which: id, button, .. } => {
+                        if !self.controllers.is_controller(id as u32) {
+                            break;
+                        }
+
+                        if let Some(key) = map_button(button) {
+                            self.px8
+                                .players
+                                .lock()
+                                .unwrap()
+                                .key_down_direct(0, key, false, self.elapsed_time)
+                        }
+                    }
+
+                    Event::ControllerButtonUp { which: id, button, .. } => {
+                        if !self.controllers.is_controller(id as u32) {
+                            break;
+                        }
+
+                        if let Some(key) = map_button(button) {
+                            self.px8.players.lock().unwrap().key_up_direct(0, key);
+                        }
+                    }
+
+                    Event::ControllerAxisMotion {
+                        which: id,
+                        axis,
+                        value,
+                        ..
+                    } => {
+                        if !self.controllers.is_controller(id as u32) {
+                            break;
+                        }
+
+                        if let Some((key, state)) = map_axis(axis, value) {
+                            if axis == Axis::LeftX && value == 128 {
+                                self.px8.players.lock().unwrap().key_direc_hor_up(0);
+                            } else if axis == Axis::LeftY && value == -129 {
+                                self.px8.players.lock().unwrap().key_direc_ver_up(0);
+                            } else {
+                                if state {
+                                    self.px8
+                                        .players
+                                        .lock()
+                                        .unwrap()
+                                        .key_down_direct(0, key, false, self.elapsed_time);
+                                } else {
+                                    self.px8.players.lock().unwrap().key_up_direct(0, key);
+                                }
+                            }
+                        }
+                    }
+
+                    Event::JoyAxisMotion {
+                        which: id,
+                        axis_idx,
+                        value,
+                        ..
+                    } => {
+                        if !self.controllers.is_joystick(id as u32) {
+                            break;
+                        }
+
+                        if let Some((key, state)) = map_axis_joystick(axis_idx, value) {
+                            if axis_idx == 0 && value == 128 {
+                                self.px8.players.lock().unwrap().key_direc_hor_up(0);
+                            } else if axis_idx == 1 && value == -129 {
+                                self.px8.players.lock().unwrap().key_direc_ver_up(0);
+                            } else {
+                                if state {
+                                    self.px8
+                                        .players
+                                        .lock()
+                                        .unwrap()
+                                        .key_down_direct(0, key, false, self.elapsed_time);
+                                } else {
+                                    self.px8.players.lock().unwrap().key_up_direct(0, key);
+                                }
+                            }
+                        }
+                    }
+
+                    Event::JoyButtonDown {
+                        which: id,
+                        button_idx,
+                        ..
+                    } => {
+                        if !self.controllers.is_joystick(id as u32) {
+                            break;
+                        }
+
+                        if let Some(key) = map_button_joystick(button_idx) {
+                            self.px8
+                                .players
+                                .lock()
+                                .unwrap()
+                                .key_down_direct(0, key, false, self.elapsed_time);
+                        }
+                    }
+
+                    Event::JoyButtonUp {
+                        which: id,
+                        button_idx,
+                        ..
+                    } => {
+                        if !self.controllers.is_joystick(id as u32) {
+                            break;
+                        }
+
+                        if let Some(key) = map_button_joystick(button_idx) {
+                            self.px8.players.lock().unwrap().key_up_direct(0, key);
+                        }
+                    }
+
+                    _ => (),
+                }
+            }
+
+            if !self.px8.update() {
+                info!("[Frontend] End of requested");
+                break 'main;
+            }
+
+            self.px8.draw();
+
+            self.update_time();
+
+            self.blit();
+        }
+    }
+
+    #[cfg(target_os = "emscripten")]
+    fn handle_event(&mut self, editor: bool) {
+        emscripten::set_main_loop_callback(|| {
+            self.times.update();
+
+            self.fps_counter.update(self.times.get_last_time());
+
+            self.px8.fps = self.fps_counter.get_fps();
+
+            let mouse_state = self.event_pump.mouse_state();
+
+            let (mouse_viewport_x, mouse_viewport_y) = {
+                let screen = &px8.screen.lock().unwrap();
+                self.renderer
+                    .window_coords_to_viewport_coords(screen, mouse_state.x(), mouse_state.y())
+            };
+
+            self.px8
+                .players
+                .lock()
+                .unwrap()
+                .set_mouse_x(mouse_viewport_x);
+            self.px8
+                .players
+                .lock()
+                .unwrap()
+                .set_mouse_y(mouse_viewport_y);
+            self.px8
+                .players
+                .lock()
+                .unwrap()
+                .set_mouse_state(mouse_state);
+
+            for event in self.event_pump.poll_iter() {
+                match event {
+                    Event::Quit { .. } => break,
+                    Event::KeyDown { keycode: Some(keycode), .. } if keycode == Keycode::Escape => {
+                        break
+                    }
+                    Event::Window { win_event: WindowEvent::SizeChanged(_, _), .. } => {
+                        self.renderer
+                            .update_viewport(&self.px8.screen.lock().unwrap());
+                    }
+                    Event::MouseButtonDown { mouse_btn, .. } => {
+                        self.px8
+                            .players
+                            .lock()
+                            .unwrap()
+                            .mouse_button_down(mouse_btn, self.elapsed_time);
+                    }
+                    Event::MouseButtonUp { mouse_btn, .. } => {
+                        self.px8
+                            .players
+                            .lock()
+                            .unwrap()
+                            .mouse_button_up(mouse_btn, self.elapsed_time);
+                    }
+                    Event::KeyDown {
+                        keycode: Some(keycode),
+                        repeat,
+                        ..
+                    } => {
+                        self.px8
+                            .players
+                            .lock()
+                            .unwrap()
+                            .key_down(keycode, repeat, self.elapsed_time);
+
+                        if keycode == Keycode::F2 {
+                            self.px8.configuration.lock().unwrap().toggle_info_overlay();
+                        } else if keycode == Keycode::F3 {
+                            let dt = Local::now();
+                            self.px8
+                                .screenshot(&("screenshot-".to_string() +
+                                    &dt.format("%Y-%m-%d-%H-%M-%S.png").to_string()));
+                        } else if keycode == Keycode::F4 {
+                            let record_screen = self.px8.is_recording();
+                            if !record_screen {
+                                let dt = Local::now();
+                                self.px8
+                                    .start_record(&("record-".to_string() +
+                                        &dt.format("%Y-%m-%d-%H-%M-%S.gif")
+                                            .to_string()));
+                            } else {
+                                self.px8.stop_record(self.scale.factor());
+                            }
+                        } else if keycode == Keycode::F5 {
+                            if editor {
+                                self.px8.save_current_cartridge();
+                            }
+                        } else if keycode == Keycode::F6 && editor {
+                            self.px8.switch_code();
+                            self.px8.init();
                         } else if keycode == Keycode::F7 {
                             self.px8.next_palette();
                         }
@@ -455,262 +709,10 @@ impl Frontend {
 
             if !self.px8.update() {
                 info!("[Frontend] End of PX8 requested");
-                break 'main;
+                return;
             }
 
             self.px8.draw();
-
-            self.px8.debug_update();
-
-            self.update_time();
-
-            self.blit();
-        }
-    }
-
-    #[cfg(target_os = "emscripten")]
-    fn handle_event(&mut self, editor: bool) {
-        emscripten::set_main_loop_callback(|| {
-            self.times.update();
-
-            self.fps_counter.update(self.times.get_last_time());
-
-            self.px8.fps = self.fps_counter.get_fps();
-
-            let mouse_state = self.event_pump.mouse_state();
-            let (width, height) = self.renderer.get_dimensions();
-
-            let (mouse_viewport_x, mouse_viewport_y) = {
-                let screen = &px8.screen.lock().unwrap();
-                self.renderer
-                    .window_coords_to_viewport_coords(screen, mouse_state.x(), mouse_state.y())
-            };
-
-            self.px8
-                .players
-                .lock()
-                .unwrap()
-                .set_mouse_x(mouse_viewport_x);
-            self.px8
-                .players
-                .lock()
-                .unwrap()
-                .set_mouse_y(mouse_viewport_y);
-            self.px8
-                .players
-                .lock()
-                .unwrap()
-                .set_mouse_state(mouse_state);
-
-            if mouse_state.left() {
-                debug!("MOUSE X {:?} Y {:?}",
-                       mouse_state.x() / (width as i32 / screen.buffer_width as i32),
-                       mouse_state.y() / (height as i32 / screen.buffer_height as i32));
-            }
-
-            for event in self.event_pump.poll_iter() {
-                match event {
-                    Event::Quit { .. } => break 'main,
-                    Event::KeyDown { keycode: Some(keycode), .. } if keycode == Keycode::Escape => {
-                        break 'main
-                    }
-                    Event::Window { win_event: WindowEvent::SizeChanged(_, _), .. } => {
-                        self.renderer
-                            .update_viewport(&self.px8.screen.lock().unwrap());
-                    }
-                    Event::KeyDown {
-                        keycode: Some(keycode),
-                        repeat,
-                        ..
-                    } => {
-                        self.px8
-                            .players
-                            .lock()
-                            .unwrap()
-                            .key_down(player, keycode, repeat, self.elapsed_time);
-
-                        if keycode == Keycode::F2 {
-                            self.px8.toggle_info_overlay();
-                        } else if keycode == Keycode::F3 {
-                            let dt = Local::now();
-                            self.px8
-                                .screenshot("screenshot-".to_string() +
-                                            &dt.format("%Y-%m-%d-%H-%M-%S.png").to_string());
-                        } else if keycode == Keycode::F4 {
-                            let record_screen = self.px8.is_recording();
-                            if !record_screen {
-                                let dt = Local::now();
-                                self.px8
-                                    .start_record("record-".to_string() +
-                                                  &dt.format("%Y-%m-%d-%H-%M-%S.gif").to_string());
-                            } else {
-                                self.px8.stop_record(self.scale.factor());
-                            }
-                        } else if keycode == Keycode::F5 {
-                            if editor {
-                                let dt = Local::now();
-                                self.px8
-                                    .save_current_cartridge(dt.format("%Y-%m-%d-%H-%M-%S")
-                                                                .to_string());
-                            }
-                        } else if keycode == Keycode::F6 && editor {
-                            self.px8.switch_code();
-                            // Call the init of the new code
-                            self.px8.init_time = self.px8.call_init() * 1000.0;
-                        }
-
-                        if self.px8.players.lock().unwrap().get_value_quick(0, 7) == 1 {
-                            self.px8.switch_pause();
-                        }
-                    }
-                    Event::KeyUp { keycode: Some(keycode), .. } => {
-                        self.px8.players.lock().unwrap().key_up(keycode)
-                    }
-
-                    Event::ControllerButtonDown { which: id, button, .. } => {
-                        if !self.controllers.is_controller(id as u32) {
-                            break;
-                        }
-
-                        info!("ID [{:?}] Controller button Down {:?}", id, button);
-                        if let Some(key) = map_button(button) {
-                            self.px8
-                                .players
-                                .lock()
-                                .unwrap()
-                                .key_down(0, key, false, self.elapsed_time)
-                        }
-                    }
-
-                    Event::ControllerButtonUp { which: id, button, .. } => {
-                        if !self.controllers.is_controller(id as u32) {
-                            break;
-                        }
-
-                        info!("ID [{:?}] Controller button UP {:?}", id, button);
-                        if let Some(key) = map_button(button) {
-                            self.px8.players.lock().unwrap().key_up(0, key)
-                        }
-                    }
-
-                    Event::ControllerAxisMotion {
-                        which: id,
-                        axis,
-                        value,
-                        ..
-                    } => {
-                        if !self.controllers.is_controller(id as u32) {
-                            break;
-                        }
-
-                        info!("ID [{:?}] Controller Axis Motion {:?} {:?}",
-                              id,
-                              axis,
-                              value);
-
-                        if let Some((key, state)) = map_axis(axis, value) {
-                            info!("Key {:?} State {:?}", key, state);
-
-
-                            if axis == Axis::LeftX && value == 128 {
-                                self.px8.players.lock().unwrap().key_direc_hor_up(0);
-                            } else if axis == Axis::LeftY && value == -129 {
-                                self.px8.players.lock().unwrap().key_direc_ver_up(0);
-                            } else {
-                                if state {
-                                    self.px8
-                                        .players
-                                        .lock()
-                                        .unwrap()
-                                        .key_down(0, key, false, self.elapsed_time)
-                                } else {
-                                    self.px8.players.lock().unwrap().key_up(0, key)
-                                }
-                            }
-                        }
-                    }
-
-                    Event::JoyAxisMotion {
-                        which: id,
-                        axis_idx,
-                        value,
-                        ..
-                    } => {
-                        if !self.controllers.is_joystick(id as u32) {
-                            break;
-                        }
-
-                        info!("ID [{:?}] Joystick Axis Motion {:?} {:?}",
-                              id,
-                              axis_idx,
-                              value);
-
-                        if let Some((key, state)) = map_axis_joystick(axis_idx, value) {
-                            info!("Joystick Key {:?} State {:?}", key, state);
-
-                            if axis_idx == 0 && value == 128 {
-                                self.px8.players.lock().unwrap().key_direc_hor_up(0);
-                            } else if axis_idx == 1 && value == -129 {
-                                self.px8.players.lock().unwrap().key_direc_ver_up(0);
-                            } else {
-                                if state {
-                                    self.px8
-                                        .players
-                                        .lock()
-                                        .unwrap()
-                                        .key_down(0, key, false, self.elapsed_time)
-                                } else {
-                                    self.px8.players.lock().unwrap().key_up(0, key)
-                                }
-                            }
-                        }
-                    }
-
-                    Event::JoyButtonDown {
-                        which: id,
-                        button_idx,
-                        ..
-                    } => {
-                        if !self.controllers.is_joystick(id as u32) {
-                            break;
-                        }
-
-                        info!("ID [{:?}] Joystick button DOWN {:?}", id, button_idx);
-                        if let Some(key) = map_button_joystick(button_idx) {
-                            self.px8
-                                .players
-                                .lock()
-                                .unwrap()
-                                .key_down(0, key, false, self.elapsed_time)
-                        }
-                    }
-
-                    Event::JoyButtonUp {
-                        which: id,
-                        button_idx,
-                        ..
-                    } => {
-                        if !self.controllers.is_joystick(id as u32) {
-                            break;
-                        }
-
-                        info!("ID [{:?}] Joystick Button UP {:?}", id, button_idx);
-                        if let Some(key) = map_button_joystick(button_idx) {
-                            self.px8.players.lock().unwrap().key_up(0, key)
-                        }
-                    }
-
-                    _ => (),
-                }
-            }
-
-            if !self.px8.update(self.px8.players.clone()) {
-                break 'main;
-            }
-
-            self.px8.draw();
-
-            self.px8.debug_update();
 
             self.update_time();
             self.blit();

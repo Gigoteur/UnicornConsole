@@ -347,6 +347,10 @@ impl CartridgeCode {
         self.filename = filename.to_string();
     }
 
+    pub fn set_name(&mut self, name: String) {
+        self.code_type = name.clone();
+    }
+
     pub fn get_name(&mut self) -> String {
         self.code_type.clone()
     }
@@ -708,7 +712,6 @@ pub struct Cartridge {
     pub code: CartridgeCode,
     pub music: CartridgeMusic,
     pub format: CartridgeFormat,
-    pub edit: bool,
 }
 
 pub static SECTION_DELIM_RE: &'static str = r"^__(\w+)__$";
@@ -804,7 +807,6 @@ fn read_from_pngformat<R: io::BufRead>(filename: &str, buf: &mut R) -> Result<Ca
            gff: cartridge_gff,
            music: cartridge_music,
            format: CartridgeFormat::PngFormat,
-           edit: false,
        })
 }
 
@@ -897,7 +899,6 @@ fn read_from_p8format<R: io::BufRead>(filename: &str, buf: &mut R) -> Result<Car
            gff: cartridge_gff,
            music: cartridge_music,
            format: CartridgeFormat::P8Format,
-           edit: false,
        })
 }
 
@@ -909,10 +910,23 @@ struct PX8Format {
 
 
 impl Cartridge {
+    pub fn empty() -> Cartridge {
+        Cartridge {
+            filename: "".to_string(),
+            data_filename: "".to_string(),
+            header: "".to_string(),
+            version: "".to_string(),
+            gfx: CartridgeGFX::empty(),
+            map: CartridgeMap::empty(),
+            gff: CartridgeGFF::empty(),
+            code: CartridgeCode::empty(),
+            music: CartridgeMusic::empty(),
+            format: CartridgeFormat::Px8Format,
+        }
+    }
+
     #[allow(dead_code)]
-    pub fn parse(filename: &str, code: bool) -> Result<Cartridge, Error> {
-        let f = try!(File::open(filename));
-        let mut buf = BufReader::new(f);
+    pub fn parse_raw<R: io::BufRead>(filename: &str, buf: &mut R, code: bool) -> Result<Cartridge, Error> {
         let mut header = String::new();
         let mut version = String::new();
 
@@ -1007,8 +1021,14 @@ impl Cartridge {
                gff: cartridge_gff,
                music: cartridge_music,
                format: CartridgeFormat::P8Format,
-               edit: false,
            })
+    }
+
+    #[allow(dead_code)]
+    pub fn parse(filename: &str, code: bool) -> Result<Cartridge, Error> {
+        let f = try!(File::open(filename));
+        let mut buf_reader = BufReader::new(f);
+        self::Cartridge::parse_raw(filename, &mut buf_reader, code)
     }
 
     #[allow(dead_code)]
@@ -1144,7 +1164,6 @@ impl Cartridge {
                gff: cartridge_gff,
                music: cartridge_music,
                format: CartridgeFormat::Px8Format,
-               edit: false,
            })
     }
 

@@ -571,16 +571,20 @@ class Editor(object):
         for widget in self.widgets:
             widget.draw()
 
-E = Editor()
+E = None
 
 def _init():
+    global E
+    E = Editor()
     cls()
     show_mouse(True)
 
 def _update():
+    global E
     E.update()
 
 def _draw():
+    global E
     E.draw()
 
 

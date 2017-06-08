@@ -19,7 +19,7 @@ path       = "src/lib.rs"
 
 [features]
 default = []
-gfx_rs_renderer = []
+#gfx_rs_renderer = []
 audio = []
 blit_perf = []
 
@@ -40,13 +40,14 @@ image = "0.11.0"
 gif = "0.9.0"
 chrono = "0.2.25"
 lazy_static = "0.1.*"
-gfx = "0.14"
+#gfx = "0.14"
 serde = "1.0"
 serde_derive = "1.0"
 serde_json = "1.0"
 noise = "0.4.0"
 num = "0.1.37"
 num-traits = "0.1"
+glob = "0.2.11"
 
 cpython = {version = "0.1.0", optional = true}
 lua = {version = "0.0.10", optional = true }

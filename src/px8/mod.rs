@@ -1,3 +1,4 @@
+pub mod editor;
 pub mod info;
 pub mod cartdata;
 pub mod emscripten;
@@ -5,7 +6,6 @@ pub mod noise;
 pub mod math;
 
 use std::collections::HashMap;
-use std::io::BufReader;
 use std::io::Cursor;
 use std::sync::{Arc, Mutex};
 use time;
@@ -19,14 +19,14 @@ use gif::SetParameter;
 
 use std::io::prelude::*;
 
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::fs::File;
+use glob::glob;
 
 use plugins::lua_plugin::plugin::LuaPlugin;
 use plugins::python_plugin::plugin::PythonPlugin;
 
 use config::Players;
-use self::info::Info;
 use self::noise::Noise;
 use gfx;
 use cartridge::{Cartridge, CartridgeFormat};
@@ -149,6 +149,7 @@ pub enum PX8Mode {
 pub enum PX8State {
     RUN,
     PAUSE,
+    INTERACTIVE,
 }
 
 pub enum Code {
@@ -158,21 +159,134 @@ pub enum Code {
     RUST = 3,
 }
 
+
+#[cfg_attr(rustfmt, rustfmt_skip)]
+pub fn draw_logo(screen: Arc<Mutex<gfx::Screen>>) {
+    let logo = vec![
+        0, 0, 0, 0, 0, 0, 0, 0,
+        8, 0, 0, 0, 0, 0, 0, 8,
+        0, 8, 8, 8, 8, 8, 8, 0,
+        8, 8, 8, 9, 8, 8, 9, 8,
+        0, 8, 8, 8, 8, 8, 8, 0,
+        8, 0, 0, 0, 0, 0, 0, 8,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0 ];
+
+    screen
+        .lock()
+        .unwrap()
+        .print("Powered by PX8".to_string(), 64, 112, 7);
+
+    let idx_x = 114;
+    let idx_y = 120;
+
+    let mut x = 0;
+    let mut y = 0;
+
+    for c in logo {
+        if x > 0 && x % 8 == 0 {
+            x = 0;
+            y += 1;
+        }
+
+        if c != 0 {
+            screen.lock().unwrap().pset(idx_x + x, idx_y + y, c);
+        }
+        x += 1;
+    }
+}
+
 pub struct Menu {
+    idx: u32,
+    cartridges: Vec<PathBuf>
+}
+
+impl Menu {
+    pub fn new() -> Menu {
+        Menu {
+            idx: 0,
+            cartridges: Vec::new(),
+        }
+    }
+
+    pub fn reset(&mut self) {
+        info!("[PX8][Menu] Reset");
+
+        self.cartridges.clear();
+
+        // PX8 Files
+        for entry in glob("**/*.px8").expect("Failed to read glob pattern") {
+            match entry {
+                Ok(path) => self.cartridges.push(path),
+                Err(e) => println!("{:?}", e),
+            }
+        }
+
+        // P8 Files
+        for entry in glob("**/*.p8").expect("Failed to read glob pattern") {
+            match entry {
+                Ok(path) => self.cartridges.push(path),
+                Err(e) => println!("{:?}", e),
+            }
+        }
+    }
+
+    pub fn update(&mut self, players: Arc<Mutex<Players>>) -> bool {
+        if players.lock().unwrap().btnp(0, 0) {
+            self.idx = clamp(self.idx - 1, 0, (self.cartridges.len() as u32) - 1);
+        }
+        else if players.lock().unwrap().btnp(0, 1) {
+            self.idx = clamp(self.idx + 1, 0, (self.cartridges.len() as u32) - 1);
+        }
+
+        true
+    }
+
+    pub fn selected_cartridge(&mut self) -> String {
+        self.cartridges[self.idx as usize].as_path().to_str().unwrap().to_string()
+    }
+
+    pub fn draw(&mut self, screen: Arc<Mutex<gfx::Screen>>) {
+        screen.lock().unwrap().cls();
+
+        if self.cartridges.len() > 0 {
+            let mut filename = self.cartridges[self.idx as usize].file_name().unwrap().to_str().unwrap().to_string();
+            filename.truncate(10);
+
+
+            let data_to_print = format!("< {:<width$} >", filename, width=10);
+            screen.lock().unwrap().print(data_to_print,
+                                         30, 20, 7);
+
+            let extension = self.cartridges[self.idx as usize].extension().unwrap().to_str().unwrap().to_string();
+            let extension_to_print = format!("CARTRIDGE {:}", extension);
+            screen.lock().unwrap().print(extension_to_print,
+                                         30, 28, 7);
+
+            let metadata = self.cartridges[self.idx as usize].metadata().unwrap();
+            let metadata_to_print = format!("{:?} bytes", metadata.len());
+            screen.lock().unwrap().print(metadata_to_print,
+                                         30, 36, 7);
+            draw_logo(screen.clone());
+        }
+    }
+}
+
+pub struct PauseMenu {
     idx: u32,
     selected_idx: i32,
     items: Vec<String>,
 }
 
-impl Menu {
-    pub fn new() -> Menu {
+impl PauseMenu {
+    pub fn new() -> PauseMenu {
         let mut items = Vec::new();
 
         items.push("Continue".to_string());
         items.push("Config".to_string());
         items.push("Quit".to_string());
 
-        Menu {
+        PauseMenu {
             idx: 0,
             selected_idx: -1,
             items: items.clone(),
@@ -189,8 +303,12 @@ impl Menu {
         self.selected_idx == 0
     }
 
+    pub fn quit(&mut self) -> bool {
+        self.selected_idx == self.items.len() as i32 - 1
+    }
+
     pub fn update(&mut self, players: Arc<Mutex<Players>>) -> bool {
-        if players.lock().unwrap().btnp(0, 6) {
+        if players.lock().unwrap().btnp(0, 4) {
             self.selected_idx = self.idx as i32;
             if self.selected_idx == self.items.len() as i32 {
                 return false;
@@ -219,9 +337,18 @@ impl Menu {
                             idx_y + 10 * self.items.len() as i32,
                             11);
 
-            screen.pset(idx_x, idx_y + (self.idx as i32) * 10, 7);
 
-            self.draw_logo(screen);
+            screen
+                .rect(idx_x-1,
+                      idx_y - 6,
+                      idx_x + 41,
+                      idx_y + 1 + 10 * self.items.len() as i32,
+                      0);
+
+            screen
+                .print(">".to_string(), idx_x, idx_y + (self.idx as i32) * 10, 3);
+
+            draw_logo(screen.clone());
 
             for (pos, item) in self.items.iter().enumerate() {
                 screen.print(item.to_string(), idx_x + 5, idx_y + (pos as i32) * 10, 7);
@@ -232,40 +359,6 @@ impl Menu {
         if self.selected_idx == 1 {
             screen.cls();
         }
-    }
-
-    #[cfg_attr(rustfmt, rustfmt_skip)]
-    pub fn draw_logo(&mut self, screen: &mut gfx::Screen) {
-        let logo = vec![
-            0, 0, 0, 0, 0, 0, 0, 0,
-            8, 0, 0, 0, 0, 0, 0, 8,
-            0, 8, 8, 8, 8, 8, 8, 0,
-            8, 8, 8, 9, 8, 8, 9, 8,
-            0, 8, 8, 8, 8, 8, 8, 0,
-            8, 0, 0, 0, 0, 0, 0, 8,
-            0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0 ];
-
-        screen.print("Powered by PX8".to_string(), 64, 112, 7);
-
-        let idx_x = 114;
-        let idx_y = 120;
-
-        let mut x = 0;
-        let mut y = 0;
-
-        for c in logo {
-            if x > 0 && x % 8 == 0 {
-                x = 0;
-                y += 1;
-            }
-
-            if c != 0 {
-                screen.pset(idx_x + x, idx_y + y, c);
-            }
-            x += 1;
-        }
-
     }
 }
 
@@ -480,20 +573,72 @@ impl PX8Config {
     }
 }
 
-pub struct Px8New {
+pub struct PX8Cartridge {
+    pub cartridge: Cartridge,
+    pub lua_plugin: LuaPlugin,
+    pub python_plugin: PythonPlugin,
+    pub rust_plugin: Vec<Box<RustPlugin>>,
+    pub edit: bool,
+}
+
+impl PX8Cartridge {
+    pub fn new(cartridge: Cartridge) -> PX8Cartridge {
+        PX8Cartridge {
+            cartridge: cartridge,
+            lua_plugin: LuaPlugin::new(),
+            python_plugin: PythonPlugin::new(),
+            rust_plugin: Vec::new(),
+            edit: false,
+        }
+    }
+
+    pub fn empty() -> PX8Cartridge {
+        PX8Cartridge {
+            cartridge: Cartridge::empty(),
+            lua_plugin: LuaPlugin::new(),
+            python_plugin: PythonPlugin::new(),
+            rust_plugin: Vec::new(),
+            edit: false,
+        }
+    }
+
+    pub fn set_code_type(&mut self, code: Code) {
+        match code {
+            Code::PYTHON => self.cartridge.code.set_name("python".to_string()),
+            Code::LUA => self.cartridge.code.set_name("lua".to_string()),
+            _ => (),
+        }
+
+    }
+
+    pub fn get_code_type(&mut self) -> Code {
+        match self.cartridge.code.get_name().as_ref() {
+            "lua" => Code::LUA,
+            "python" => Code::PYTHON,
+            _ => Code::UNKNOWN,
+        }
+    }
+
+    pub fn get_code(&mut self) -> String {
+        self.cartridge.code.get_data().clone()
+    }
+}
+
+pub struct PX8 {
     pub screen: Arc<Mutex<gfx::Screen>>,
+    pub info: Arc<Mutex<info::Info>>,
+    pub sound: Arc<Mutex<Sound>>,
     pub palettes: Arc<Mutex<Palettes>>,
     pub players: Arc<Mutex<Players>>,
     pub configuration: Arc<Mutex<PX8Config>>,
     pub noise: Arc<Mutex<Noise>>,
-    pub cartridges: Vec<Cartridge>,
-    pub current_cartridge: usize,
-    pub lua_plugin: LuaPlugin,
-    pub python_plugin: PythonPlugin,
-    pub rust_plugin: Vec<Box<RustPlugin>>,
-    pub code_type: Code,
-    pub state: PX8State,
+    pub cartridges: Vec<PX8Cartridge>,
+    pub editor: editor::Editor,
     pub menu: Menu,
+    pub current_cartridge: usize,
+    pub current_code_type: Code,
+    pub state: PX8State,
+    pub pause_menu: PauseMenu,
     pub fps: f64,
     pub draw_time: f64,
     pub init_time: f64,
@@ -504,22 +649,24 @@ pub struct Px8New {
     pub mouse_spr: Vec<u8>,
 }
 
+impl PX8 {
+    pub fn new(sound: Arc<Mutex<Sound>>) -> PX8 {
+        info!("[PX8] Creating new PX8");
 
-impl Px8New {
-    pub fn new() -> Px8New {
-        Px8New {
+        PX8 {
             screen: Arc::new(Mutex::new(gfx::Screen::new(SCREEN_WIDTH, SCREEN_HEIGHT))),
+            sound: sound.clone(),
+            info: Arc::new(Mutex::new(info::Info::new())),
             palettes: Arc::new(Mutex::new(Palettes::new())),
             players: Arc::new(Mutex::new(Players::new())),
             configuration: Arc::new(Mutex::new(PX8Config::new())),
             noise: Arc::new(Mutex::new(Noise::new())),
             cartridges: Vec::new(),
+            editor: editor::Editor::new(),
             current_cartridge: 0,
-            lua_plugin: LuaPlugin::new(),
-            python_plugin: PythonPlugin::new(),
-            rust_plugin: Vec::new(),
-            code_type: Code::UNKNOWN,
+            current_code_type: Code::UNKNOWN,
             state: PX8State::RUN,
+            pause_menu: PauseMenu::new(),
             menu: Menu::new(),
             fps: 0.0,
             draw_time: 0.0,
@@ -528,7 +675,7 @@ impl Px8New {
             record: Record::new(),
             draw_return: true,
             update_return: true,
-            mouse_spr: Px8New::mouse_sprite(),
+            mouse_spr: PX8::mouse_sprite(),
         }
     }
 
@@ -544,7 +691,9 @@ impl Px8New {
              0, 0, 0, 0, 0, 0, 0, 0]
     }
 
-    pub fn init(&mut self) {
+    pub fn reset(&mut self) {
+        info!("[PX8] Reset");
+
         self.palettes.lock().unwrap().init();
         self.palettes.lock().unwrap().switch_to("pico-8");
 
@@ -553,11 +702,16 @@ impl Px8New {
         self.draw_return = true;
     }
 
+    pub fn init_interactive(&mut self) {
+        self.menu.reset();
+        self.state = PX8State::INTERACTIVE;
+    }
+
     pub fn next_palette(&mut self) {
         self.palettes.lock().unwrap().next();
     }
 
-    pub fn debug_update(&mut self) {
+    pub fn debug_draw(&mut self) {
         if self.configuration.lock().unwrap().show_info_overlay {
             let mut screen = &mut self.screen.lock().unwrap();
 
@@ -576,14 +730,28 @@ impl Px8New {
         }
     }
 
+    pub fn init(&mut self) {
+        match self.state {
+            PX8State::RUN => {
+                self.init_time = self.call_init() * 1000.0;
+            },
+            _ => {},
+        }
+    }
+
     pub fn update(&mut self) -> bool {
         match self.state {
             PX8State::PAUSE => {
-                if self.menu.stop() {
+                if self.pause_menu.stop() {
                     self.state = PX8State::RUN;
                 }
 
-                return self.menu.update(self.players.clone());
+                if self.pause_menu.quit() {
+                    self.menu.reset();
+                    self.state = PX8State::INTERACTIVE;
+                }
+
+                return self.pause_menu.update(self.players.clone());
             }
             PX8State::RUN => {
                 if self.is_end() {
@@ -592,41 +760,54 @@ impl Px8New {
 
                 self.update_time = self.call_update() * 1000.0;
             }
-        }
+            PX8State::INTERACTIVE => {
+                let return_value = self.menu.update(self.players.clone());
+                if self.players.lock().unwrap().btnp(0, 4) {
+                    let filename = self.menu.selected_cartridge().clone();
+                    self.load_cartridge(filename.as_str(), false, PX8Mode::PX8);
+                }
 
+                return return_value;
+            }
+        }
         true
     }
 
     pub fn draw(&mut self) {
         match self.state {
             PX8State::PAUSE => {
-                self.menu.draw(&mut self.screen.lock().unwrap());
+                self.pause_menu.draw(&mut self.screen.lock().unwrap());
             }
             PX8State::RUN => {
                 self.draw_time = self.call_draw() * 1000.0;
+
+                if self.configuration.lock().unwrap().show_mouse {
+                    let mouse_x = self.players.lock().unwrap().mouse_coordinate(0);
+                    let mouse_y = self.players.lock().unwrap().mouse_coordinate(1);
+
+                    for y in 0..8 {
+                        for x in 0..8 {
+                            let pixel = self.mouse_spr[x + y * 8];
+                            if pixel != 0 {
+                                self.screen
+                                    .lock()
+                                    .unwrap()
+                                    .putpixel_direct(mouse_x + x as i32, mouse_y + y as i32, pixel as u32);
+                            }
+                        }
+                    }
+                }
 
                 if self.is_recording() {
                     self.record();
                 }
             }
-        }
-
-        if self.configuration.lock().unwrap().show_mouse {
-            let mouse_x = self.players.lock().unwrap().mouse_coordinate(0);
-            let mouse_y = self.players.lock().unwrap().mouse_coordinate(1);
-
-            for y in 0..8 {
-                for x in 0..8 {
-                    let pixel = self.mouse_spr[x + y * 8];
-                    if pixel != 0 {
-                        self.screen
-                            .lock()
-                            .unwrap()
-                            .putpixel_direct(mouse_x + x as i32, mouse_y + y as i32, pixel as u32);
-                    }
-                }
+            PX8State::INTERACTIVE => {
+                self.menu.draw(self.screen.clone());
             }
         }
+
+        self.debug_draw();
     }
 
     pub fn is_end(&self) -> bool {
@@ -764,7 +945,7 @@ impl Px8New {
     pub fn save_current_cartridge(&mut self) {
         let screen = &self.screen.lock().unwrap();
 
-        let cartridge = &mut self.cartridges[self.current_cartridge];
+        let cartridge = &mut self.cartridges[self.current_cartridge].cartridge;
 
         let output_filename = &cartridge.filename.clone();
         info!("[PX8] Saving the current cartridge in {:?}",
@@ -795,7 +976,12 @@ impl Px8New {
                 screen.restore();
             }
             PX8State::RUN => {
-                self.menu.reset();
+                self.pause_menu.reset();
+                self.state = PX8State::PAUSE;
+                self.screen.lock().unwrap().save();
+            }
+            PX8State::INTERACTIVE => {
+                self.pause_menu.reset();
                 self.state = PX8State::PAUSE;
                 screen.save();
             }
@@ -804,258 +990,228 @@ impl Px8New {
 
     #[allow(dead_code)]
     pub fn register<F: RustPlugin + 'static>(&mut self, callback: F) {
-        self.rust_plugin.push(Box::new(callback));
+        info!("[PX8] Register new cartridge");
+
+        let mut px8_cartridge = PX8Cartridge::empty();
+        px8_cartridge.rust_plugin.push(Box::new(callback));
+        self.add_cartridge(px8_cartridge);
+    }
+
+    pub fn _load_cartridge(&mut self,
+                           cartridge: &mut PX8Cartridge,
+                           editor: bool) -> bool {
+        info!("[PX8] Loading cartridge");
+
+        let data;
+        if editor {
+            self.editor.init();
+            data = self.editor.data.clone();
+            cartridge.edit = true;
+        } else {
+            data = cartridge.get_code();
+        }
+
+        let mut ret: bool = false;
+
+        if editor {
+            cartridge.set_code_type(Code::PYTHON);
+        }
+
+        match cartridge.get_code_type() {
+            Code::LUA => {
+                info!("[PX8] Loading LUA Plugin");
+
+                cartridge.lua_plugin
+                    .load(self.players.clone(),
+                          self.info.clone(),
+                          self.screen.clone(),
+                          self.noise.clone());
+
+                ret = cartridge.lua_plugin.load_code(data);
+            }
+            Code::PYTHON => {
+                info!("[PX8] Loading PYTHON Plugin");
+
+                cartridge.python_plugin
+                    .load(self.palettes.clone(),
+                          self.players.clone(),
+                          self.info.clone(),
+                          self.screen.clone(),
+                          self.sound.clone(),
+                          self.noise.clone(),
+                          self.configuration.clone());
+
+                ret = cartridge.python_plugin.load_code(data);
+            }
+            _ => ()
+        }
+
+        if ret {
+            self.screen
+                .lock()
+                .unwrap()
+                .set_sprites(cartridge.cartridge.gfx.sprites.clone());
+
+            self.screen
+                .lock()
+                .unwrap()
+                .set_sprites_flags(cartridge.cartridge.gff.flags.clone());
+
+            self.screen
+                .lock()
+                .unwrap()
+                .set_map(cartridge.cartridge.map.map);
+
+            self.state = PX8State::RUN;
+        }
+
+        ret
     }
 
     pub fn load_cartridge(&mut self,
                           filename: &str,
-                          info: Arc<Mutex<Info>>,
-                          sound: Arc<Mutex<Sound>>,
                           editor: bool,
                           mode: PX8Mode)
                           -> bool {
-        let idx = self.cartridges.len();
+        let mut cartridge;
 
         if filename.contains(".png") {
             match Cartridge::from_png_file(filename) {
-                Ok(c) => self.cartridges.push(c),
-                Err(e) => panic!("Impossible to load the png cartridge {:?}", e),
+                Ok(c) => cartridge = c,
+                Err(e) => panic!("[PX8] Impossible to load the png cartridge {:?}", e),
             }
         } else if filename.contains(".p8") {
             match Cartridge::from_p8_file(filename) {
-                Ok(c) => self.cartridges.push(c),
-                Err(e) => panic!("Impossible to load the p8 cartridge {:?}", e),
+                Ok(c) => cartridge = c,
+                Err(e) => panic!("[PX8] Impossible to load the p8 cartridge {:?}", e),
             }
         } else if filename.contains(".py") {
             match Cartridge::from_p8_file(filename) {
-                Ok(c) => self.cartridges.push(c),
-                Err(e) => panic!("Impossible to load the p8 cartridge {:?}", e),
+                Ok(c) => cartridge = c,
+                Err(e) => panic!("[PX8] Impossible to load the p8 cartridge {:?}", e),
             }
         } else if filename.contains(".px8") {
             match Cartridge::from_px8_file(filename) {
-                Ok(c) => self.cartridges.push(c),
-                Err(e) => panic!("Impossible to load the px8 cartridge {:?}", e),
+                Ok(c) => cartridge = c,
+                Err(e) => panic!("[PX8] Impossible to load the px8 cartridge {:?}", e),
             }
         } else {
             panic!("[PX8] Unknown file format !");
         }
 
-        self.current_cartridge = idx;
+        cartridge.set_mode(mode == PX8Mode::PICO8);
+        let mut px8_cartridge = PX8Cartridge::new(cartridge);
+        let ret = self._load_cartridge(&mut px8_cartridge, editor);
+        if ret {
+            self.add_cartridge(px8_cartridge);
+            self.init();
+        }
 
-        self.cartridges[idx].set_mode(mode == PX8Mode::PICO8);
+        ret
+    }
 
-        self.screen
-            .lock()
-            .unwrap()
-            .set_sprites(self.cartridges[idx].gfx.sprites.clone());
+    pub fn add_cartridge(&mut self, mut cartridge: PX8Cartridge) {
+        info!("[PX8] Add cartridge");
 
-        self.screen
-            .lock()
-            .unwrap()
-            .set_sprites_flags(self.cartridges[idx].gff.flags.clone());
-
-        self.screen
-            .lock()
-            .unwrap()
-            .set_map(self.cartridges[idx].map.map);
-
-        self.load_plugin(idx, info, sound, editor)
+        self.current_cartridge = self.cartridges.len();
+        self.current_code_type = cartridge.get_code_type();
+        self.cartridges.push(cartridge);
     }
 
     #[allow(dead_code)]
     pub fn load_cartridge_raw(&mut self,
                               filename: &str,
                               data: Vec<u8>,
-                              info: Arc<Mutex<Info>>,
-                              sound: Arc<Mutex<Sound>>,
                               editor: bool,
                               mode: PX8Mode)
                               -> bool {
-        let idx = self.cartridges.len();
+        let mut cartridge;
 
         if filename.contains(".png") {
             match Cartridge::from_png_raw(filename, data) {
-                Ok(c) => self.cartridges.push(c),
+                Ok(c) => cartridge = c,
                 Err(e) => panic!("Impossible to load the png cartridge {:?}", e),
             }
         } else if filename.contains(".p8") {
             match Cartridge::from_p8_raw(filename, data) {
-                Ok(c) => self.cartridges.push(c),
+                Ok(c) => cartridge = c,
                 Err(e) => panic!("Impossible to load the p8 cartridge {:?}", e),
             }
         } else if filename.contains(".py") {
             match Cartridge::from_p8_raw(filename, data) {
-                Ok(c) => self.cartridges.push(c),
+                Ok(c) => cartridge = c,
                 Err(e) => panic!("Impossible to load the p8 cartridge {:?}", e),
             }
         } else {
             panic!("[PX8] Unknown file");
         }
 
-        self.current_cartridge = idx;
-
-        self.cartridges[idx].set_mode(mode == PX8Mode::PICO8);
-
-        self.screen
-            .lock()
-            .unwrap()
-            .set_sprites(self.cartridges[idx].gfx.sprites.clone());
-
-        self.screen
-            .lock()
-            .unwrap()
-            .set_map(self.cartridges[idx].map.map);
-
-        self.load_plugin(idx, info, sound, editor)
-    }
-
-    pub fn _get_code_type(&mut self, idx: usize) -> Code {
-        match self.cartridges[idx].code.get_name().as_ref() {
-            "lua" => Code::LUA,
-            "python" => Code::PYTHON,
-            _ => Code::UNKNOWN,
+        cartridge.set_mode(mode == PX8Mode::PICO8);
+        let mut px8_cartridge = PX8Cartridge::new(cartridge);
+        let ret = self._load_cartridge(&mut px8_cartridge, editor);
+        if ret {
+            self.add_cartridge(px8_cartridge);
+            self.init();
         }
+
+        ret
     }
 
     pub fn switch_code(&mut self) {
         let idx = self.current_cartridge;
 
         let data;
+        let code_type;
 
         if self.cartridges[idx].edit {
             // Reload the code for the px8 format
-            match self.cartridges[idx].format {
+            match self.cartridges[idx].cartridge.format {
                 CartridgeFormat::Px8Format => {
                     info!("[PX8] Reloading code section for the cartridge");
-                    self.cartridges[idx].code.reload();
+                    self.cartridges[idx].cartridge.code.reload();
                 }
                 _ => (),
             }
 
-            data = self.cartridges[idx].code.get_data().clone();
+            data = self.cartridges[idx].get_code();
             self.cartridges[idx].edit = false;
-            self.code_type = self._get_code_type(idx);
+            code_type = self.cartridges[idx].get_code_type();
         } else {
-            data = self.load_editor("./sys/editor/editor.py".to_string())
-                .clone();
+            data = self.editor.data.clone();
             self.cartridges[idx].edit = true;
-            self.code_type = Code::PYTHON;
+            code_type = Code::PYTHON;
         }
 
-        match self.code_type {
+        match code_type {
             Code::LUA => {
-                self.lua_plugin.load_code(data);
+                self.cartridges[idx].lua_plugin.load_code(data);
             }
             Code::PYTHON => {
-                self.python_plugin.load_code(data);
+                self.cartridges[idx].python_plugin.load_code(data);
             }
             _ => (),
         }
 
-        self.init();
-    }
-
-    #[allow(dead_code)]
-    pub fn is_editing_current_cartridge(&self) -> bool {
-        let idx = self.current_cartridge;
-        self.cartridges[idx].edit
-    }
-
-    pub fn load_plugin(&mut self,
-                       idx: usize,
-                       info: Arc<Mutex<Info>>,
-                       sound: Arc<Mutex<Sound>>,
-                       editor: bool)
-                       -> bool {
-        let data;
-
-        info!("[PX8] Load the plugin");
-
-        self.code_type = self._get_code_type(idx);
-
-        if editor {
-            // Editor mode and original code type is different from Python
-            match self.code_type {
-                Code::LUA => {
-                    info!("[PX8] Loading LUA Plugin");
-                    // load the lua plugin
-                    self.lua_plugin
-                        .load(self.players.clone(),
-                              info.clone(),
-                              self.screen.clone(),
-                              self.noise.clone());
-                }
-                _ => (),
-            }
-
-            data = self.load_editor("./sys/editor/editor.py".to_string())
-                .clone();
-            self.cartridges[idx].edit = true;
-            self.code_type = Code::PYTHON;
-        } else {
-            data = self.cartridges[idx].code.get_data().clone();
-        }
-
-        match self.code_type {
-            Code::LUA => {
-                info!("[PX8] Loading LUA Plugin");
-
-                self.lua_plugin
-                    .load(self.players.clone(),
-                          info.clone(),
-                          self.screen.clone(),
-                          self.noise.clone());
-
-                return self.lua_plugin.load_code(data);
-            }
-            Code::PYTHON => {
-                info!("[PX8] Loading PYTHON Plugin");
-
-                self.python_plugin
-                    .load(self.palettes.clone(),
-                          self.players.clone(),
-                          info.clone(),
-                          self.screen.clone(),
-                          sound.clone(),
-                          self.noise.clone(),
-                          self.configuration.clone());
-
-                return self.python_plugin.load_code(data);
-            }
-            _ => (),
-        }
-
-        false
-    }
-
-    pub fn load_editor(&mut self, filename: String) -> String {
-        let mut data = "".to_string();
-
-        let f = File::open(filename.clone()).unwrap();
-        let buf_reader = BufReader::new(f);
-
-        for line in buf_reader.lines() {
-            let l = line.unwrap();
-
-            data = data + "\n" + &l;
-        }
-
-        data
+        self.reset();
     }
 
     pub fn call_init(&mut self) -> f64 {
+        info!("[PX8] CALL INIT");
+
+        self.reset();
+
         let current_time = time::now();
 
-        match self.code_type {
-            Code::LUA => self.lua_plugin.init(),
-            Code::PYTHON => self.python_plugin.init(),
+        match self.current_code_type {
+            Code::LUA => self.cartridges[self.current_cartridge].lua_plugin.init(),
+            Code::PYTHON => self.cartridges[self.current_cartridge].python_plugin.init(),
             Code::RUST => {
                 self.draw_return = true;
-                for callback in &mut self.rust_plugin {
+                for callback in &mut self.cartridges[self.current_cartridge].rust_plugin {
                     callback.init(&mut self.screen.lock().unwrap());
                 }
             }
-            _ => (),
+            _ => panic!("[PX8] Impossible to match a plugin")
         }
 
         let diff_time = time::now() - current_time;
@@ -1069,13 +1225,15 @@ impl Px8New {
     pub fn call_draw(&mut self) -> f64 {
         let current_time = time::now();
 
-        match self.code_type {
-            Code::LUA => self.draw_return = self.lua_plugin.draw(),
-            Code::PYTHON => self.draw_return = self.python_plugin.draw(),
+        match self.current_code_type {
+            Code::LUA => self.draw_return = self.cartridges[self.current_cartridge].lua_plugin.draw(),
+            Code::PYTHON => self.draw_return = self.cartridges[self.current_cartridge].python_plugin.draw(),
             Code::RUST => {
                 self.draw_return = true;
-                for callback in &mut self.rust_plugin {
+
+                for callback in &mut self.cartridges[self.current_cartridge].rust_plugin {
                     callback.draw(&mut self.screen.lock().unwrap());
+
                 }
             }
             _ => (),
@@ -1092,12 +1250,13 @@ impl Px8New {
     pub fn call_update(&mut self) -> f64 {
         let current_time = time::now();
 
-        match self.code_type {
-            Code::LUA => self.update_return = self.lua_plugin.update(),
-            Code::PYTHON => self.update_return = self.python_plugin.update(),
+        match self.current_code_type {
+            Code::LUA => self.update_return = self.cartridges[self.current_cartridge].lua_plugin.update(),
+            Code::PYTHON => self.update_return = self.cartridges[self.current_cartridge].python_plugin.update(),
             Code::RUST => {
                 self.update_return = true;
-                for callback in &mut self.rust_plugin {
+
+                for callback in &mut self.cartridges[self.current_cartridge].rust_plugin {
                     callback.update(&mut self.players.lock().unwrap());
                 }
             }

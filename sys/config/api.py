@@ -94,12 +94,6 @@ def sget(x, y):
 def spr(n, x, y,  w=1, h=1, flip_x=False, flip_y=False):
     px8_graphic.spr(math.floor(n), math.floor(x), math.floor(y), math.floor(w), math.floor(h), flip_x, flip_y)
 
-def spr_dyn(id, x, y, flip_x=False, flip_y=False):
-    return px8_graphic.spr_dyn(math.floor(id), math.floor(x), math.floor(y), flip_x, flip_y)
-
-def spr_dyn_load(data, width, height):
-    return px8_graphic.spr_dyn_load(data, width, height)
-
 def sset(x, y, c=-1):
     px8_graphic.sset(x, y, c)
 
@@ -139,8 +133,6 @@ globals()["rect"] = rect
 globals()["rectfill"] = rectfill
 globals()["sget"] = sget
 globals()["spr"] = spr
-globals()["spr_dyn"] = spr_dyn
-globals()["spr_dyn_load"] = spr_dyn_load
 globals()["sset"] = sset
 globals()["sspr"] = sspr
 globals()["trigon"] = trigon
