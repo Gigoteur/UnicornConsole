@@ -161,7 +161,7 @@ pub enum Code {
 
 
 #[cfg_attr(rustfmt, rustfmt_skip)]
-pub fn draw_logo(screen: Arc<Mutex<gfx::Screen>>) {
+pub fn draw_logo(screen: &mut gfx::Screen) {
     let logo = vec![
         0, 0, 0, 0, 0, 0, 0, 0,
         8, 0, 0, 0, 0, 0, 0, 8,
@@ -173,8 +173,6 @@ pub fn draw_logo(screen: Arc<Mutex<gfx::Screen>>) {
         0, 0, 0, 0, 0, 0, 0, 0 ];
 
     screen
-        .lock()
-        .unwrap()
         .print("Powered by PX8".to_string(), 64, 112, 7);
 
     let idx_x = 114;
@@ -190,7 +188,7 @@ pub fn draw_logo(screen: Arc<Mutex<gfx::Screen>>) {
         }
 
         if c != 0 {
-            screen.lock().unwrap().pset(idx_x + x, idx_y + y, c);
+            screen.pset(idx_x + x, idx_y + y, c);
         }
         x += 1;
     }
@@ -246,8 +244,8 @@ impl Menu {
         self.cartridges[self.idx as usize].as_path().to_str().unwrap().to_string()
     }
 
-    pub fn draw(&mut self, screen: Arc<Mutex<gfx::Screen>>) {
-        screen.lock().unwrap().cls();
+    pub fn draw(&mut self, screen: &mut gfx::Screen) {
+        screen.cls();
 
         if self.cartridges.len() > 0 {
             let mut filename = self.cartridges[self.idx as usize].file_name().unwrap().to_str().unwrap().to_string();
@@ -255,19 +253,19 @@ impl Menu {
 
 
             let data_to_print = format!("< {:<width$} >", filename, width=10);
-            screen.lock().unwrap().print(data_to_print,
+            screen.print(data_to_print,
                                          30, 20, 7);
 
             let extension = self.cartridges[self.idx as usize].extension().unwrap().to_str().unwrap().to_string();
             let extension_to_print = format!("CARTRIDGE {:}", extension);
-            screen.lock().unwrap().print(extension_to_print,
+            screen.print(extension_to_print,
                                          30, 28, 7);
 
             let metadata = self.cartridges[self.idx as usize].metadata().unwrap();
             let metadata_to_print = format!("{:?} bytes", metadata.len());
-            screen.lock().unwrap().print(metadata_to_print,
+            screen.print(metadata_to_print,
                                          30, 36, 7);
-            draw_logo(screen.clone());
+            draw_logo(screen);
         }
     }
 }
