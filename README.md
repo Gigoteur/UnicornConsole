@@ -152,7 +152,7 @@ cargo build --features="cpython lua" --release
 
 ## Resolution
 
-By default the resolution will 128x128 but you can change the default values by calling the 'mode' API function:
+By default the resolution will 128x128 but you can change the default values by calling the [mode](https://github.com/Gigoteur/PX8/wiki/API-Documentation#mode) API function:
 ```
 mode(width, height, [aspect_ratio])
 ```
@@ -323,6 +323,7 @@ fget | :white_check_mark: | :white_check_mark: | :white_check_mark:
 fset | :white_check_mark: | :white_check_mark: | :white_check_mark:
 font | :white_check_mark: | :white_check_mark: | :white_check_mark:
 line | :white_check_mark: | :white_check_mark: | :white_check_mark:
+mode | :white_check_mark: | :white_check_mark: | :white_check_mark:
 pal | :white_check_mark: | :white_check_mark: | :white_check_mark:
 palt | :white_check_mark: | :white_check_mark: | :white_check_mark:
 pget | :white_check_mark: | :white_check_mark: | :white_check_mark:
