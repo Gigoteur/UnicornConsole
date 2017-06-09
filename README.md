@@ -31,7 +31,7 @@
   * [API documentation](#api-documentation)
   
   
-PX8 is an Open Source Fantasy Console (128x128 pixels) in Rust, by using a cartridge that contains the code/gfx/music. The code could be in Python/Lua, or you could create directly everything in pure Rust by using it as a library.
+PX8 is an Open Source Fantasy Console (128x128 pixels default resolution) in Rust, by using a cartridge that contains the code/gfx/music. The code could be in Python/Lua, or you could create directly everything in pure Rust by using it as a library.
 
 It is still in development, but it is usable and the main features are:
  * 128x128 pixels default resolution
@@ -43,8 +43,8 @@ It is still in development, but it is usable and the main features are:
  * Map support (128x32)
  * Editor for the sprite and map data
  * PX8 format to be able to use your favorite code editor for Python/Lua/Rust
- * Mutliple fonts support
- * Change the screen definition (128x128, 256x256, YOUR_WIDTHxYOUR_HEIGHT)
+ * Mutliple fonts support (pico-8, bbc, cbmII, appleII)
+ * Change the screen definition dynamically and the aspect ratio
  * Screenshot (PNG) / Video recording (GIF)
  * Pico-8 compatibility + cartridge (P8/P8.PNG) format support
  * Audio support is in progress
@@ -152,22 +152,15 @@ cargo build --features="cpython lua" --release
 
 ## Resolution
 
-By default the resolution will 128x128 but you can change the default values by specifying the values of the env variables PX8_SCREEN_WIDTH + PX8_SCREEN_HEIGHT during the compulation:
+By default the resolution will 128x128 but you can change the default values by calling the [mode](https://github.com/Gigoteur/PX8/wiki/API-Documentation#mode) API function:
 ```
-PX8_SCREEN_WIDTH=256 PX8_SCREEN_HEIGHT=256
+mode(width, height, [aspect_ratio])
 ```
 
 Example:
 ```
-PX8_SCREEN_WIDTH=256 PX8_SCREEN_HEIGHT=256 cargo build --release
-```
-
-### With GFX-RS
-
-If you want to use the gfx_rs renderer (WIP):
-
-```
-cargo build --features="gfx_rs_renderer" --release 
+mode(128, 128, 1.0)
+mode(512, 128, 4.0)
 ```
 
 ### SDL + Opengl
@@ -330,6 +323,7 @@ fget | :white_check_mark: | :white_check_mark: | :white_check_mark:
 fset | :white_check_mark: | :white_check_mark: | :white_check_mark:
 font | :white_check_mark: | :white_check_mark: | :white_check_mark:
 line | :white_check_mark: | :white_check_mark: | :white_check_mark:
+mode | :white_check_mark: | :white_check_mark: | :white_check_mark:
 pal | :white_check_mark: | :white_check_mark: | :white_check_mark:
 palt | :white_check_mark: | :white_check_mark: | :white_check_mark:
 pget | :white_check_mark: | :white_check_mark: | :white_check_mark:
