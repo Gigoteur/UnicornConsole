@@ -346,7 +346,7 @@ impl PauseMenu {
             screen
                 .print(">".to_string(), idx_x, idx_y + (self.idx as i32) * 10, 3);
 
-            draw_logo(screen.clone());
+            draw_logo(screen);
 
             for (pos, item) in self.items.iter().enumerate() {
                 screen.print(item.to_string(), idx_x + 5, idx_y + (pos as i32) * 10, 7);
@@ -801,7 +801,7 @@ impl PX8 {
                 }
             }
             PX8State::INTERACTIVE => {
-                self.menu.draw(self.screen.clone());
+                self.menu.draw(&mut self.screen.lock().unwrap());
             }
         }
 
