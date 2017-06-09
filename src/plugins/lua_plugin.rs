@@ -15,7 +15,6 @@ pub mod plugin {
     use px8::info::Info;
     use px8::noise::Noise;
 
-    use px8::{SCREEN_WIDTH, SCREEN_HEIGHT};
     use gfx::Screen;
 
     pub struct ExtraData {
@@ -301,6 +300,23 @@ pub mod plugin {
 
             lua_state.do_string(r#"cls = function()
               PX8Object:cls()
+              end
+              "#);
+
+            lua_state.do_string(r#"mode = function(w, h, a)
+              if w == nil then
+                w = 128
+              end
+
+              if h == nil then
+                h = 128
+              end
+
+              if a == nil then
+                a = 1
+              end
+
+              PX8Object:mode(w, h, a)
               end
               "#);
 
@@ -936,6 +952,33 @@ pub mod plugin {
         }
 
         #[allow(non_snake_case)]
+        unsafe extern "C" fn lua_mode(lua_context: *mut lua_State) -> c_int {
+            debug!("LUA MODE");
+
+            let mut state = State::from_ptr(lua_context);
+
+            let w = state.check_integer(2);
+            let h = state.check_integer(3);
+            let a = state.check_number(4);
+
+            let screen = state.with_extra(|extra| {
+                                              let data = extra
+                                                  .as_ref()
+                                                  .unwrap()
+                                                  .downcast_ref::<ExtraData>()
+                                                  .unwrap();
+                                              data.screen.clone()
+                                          });
+
+            screen
+                .lock()
+                .unwrap()
+                .mode(w as usize, h as usize, a as f32);
+
+            1
+        }
+
+        #[allow(non_snake_case)]
         unsafe extern "C" fn lua_rect(lua_context: *mut lua_State) -> c_int {
             debug!("LUA RECT");
 
@@ -1265,10 +1308,6 @@ pub mod plugin {
                 return 1;
             }
 
-            if x as usize >= SCREEN_HEIGHT || y as usize >= SCREEN_WIDTH {
-                return 1;
-            }
-
             let screen = state.with_extra(|extra| {
                                               let data = extra
                                                   .as_ref()
@@ -1292,10 +1331,6 @@ pub mod plugin {
             let y = state.check_integer(3);
 
             if x < 0 || y < 0 {
-                return 1;
-            }
-
-            if x as usize >= SCREEN_HEIGHT || y as usize >= SCREEN_WIDTH {
                 return 1;
             }
 
@@ -1875,7 +1910,7 @@ pub mod plugin {
         }
     }
 
-    pub const PX8LUA_LIB: [(&'static str, Function); 39] =
+    pub const PX8LUA_LIB: [(&'static str, Function); 40] =
         [("new", Some(PX8Lua::lua_new)),
 
          ("camera", Some(PX8Lua::lua_camera)),
@@ -1885,6 +1920,7 @@ pub mod plugin {
          ("btnp", Some(PX8Lua::lua_btnp)),
 
          ("cls", Some(PX8Lua::lua_cls)),
+         ("mode", Some(PX8Lua::lua_mode)),
 
          ("fget", Some(PX8Lua::lua_fget)),
          ("fget_all", Some(PX8Lua::lua_fget_all)),

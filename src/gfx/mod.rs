@@ -4,7 +4,7 @@ use std::fmt;
 
 use px8;
 use std::cmp;
-use num::clamp;
+use std::ptr;
 
 // Fixed pitch font definition
 #[allow(dead_code)]
@@ -195,30 +195,43 @@ impl Camera {
     }
 }
 
-// Clipping rectangle is exclusive of right and bottom edges
-pub struct Clipping {
-    pub left: i32,
-    pub top: i32,
-    pub right: i32,
-    pub bottom: i32,
+// ClipRect rectangle is exclusive of right and bottom edges
+pub struct ClipRect {
+    left: i32,
+    top: i32,
+    right: i32,
+    bottom: i32,
 }
 
-impl Clipping {
-    pub fn new(left: i32, top: i32, right: i32, bottom: i32) -> Clipping {
-        Clipping {
-            left: clamp(left, 0, px8::SCREEN_WIDTH as i32),
-            top: clamp(top, 0, px8::SCREEN_HEIGHT as i32),
-            right: clamp(right, 0, px8::SCREEN_WIDTH as i32),
-            bottom: clamp(bottom, 0, px8::SCREEN_HEIGHT as i32),
+impl ClipRect {
+    pub fn new() -> ClipRect {
+        ClipRect {
+            left: 0,
+            top: 0,
+            right: 0,
+            bottom: 0,
         }
+    }
+
+    pub fn intersect(&mut self, other: &ClipRect) {
+        self.left = cmp::max(self.left, other.left);
+        self.top = cmp::max(self.top, other.top);
+        self.right = cmp::min(self.right, other.right);
+        self.bottom = cmp::min(self.bottom, other.bottom);
+    }
+
+    pub fn contains(&self, x: i32, y: i32) -> bool {
+        (x >= self.left) && (x < self.right) && (y >= self.top) && (y < self.bottom)
     }
 }
 
 pub struct Screen {
-    pub back_buffer: px8::ScreenBuffer,
-    pub saved_back_buffer: Box<px8::ScreenBuffer>,
-    pub buffer_rgb: Box<px8::ScreenBufferRGB>,
+    pub width: usize,
+    pub height: usize,
+    pub aspect_ratio: f32,
 
+    pub frame_buffer: Vec<u8>,
+    pub saved_frame_buffer: Vec<u8>,
     pub sprites: Vec<Sprite>,
 
     pub map: [[u32; px8::MAP_HEIGHT]; px8::MAP_WIDTH],
@@ -229,7 +242,7 @@ pub struct Screen {
     pub color_map: [u8; 256],
 
     pub camera: Camera,
-    pub clipping: Clipping,
+    pub cliprect: ClipRect,
     pub font: &'static Font,
 }
 
@@ -237,22 +250,21 @@ unsafe impl Send for Screen {}
 unsafe impl Sync for Screen {}
 
 impl Screen {
-    pub fn new() -> Screen {
+    pub fn new(width: usize, height: usize) -> Screen {
+        info!("Creating Screen. width:{} height:{}", width, height);
         Screen {
-            back_buffer: px8::SCREEN_EMPTY,
-            saved_back_buffer: Box::new(px8::SCREEN_EMPTY),
-            buffer_rgb: Box::new([0; px8::SCREEN_PIXELS_RGB]),
-
+            width: width,
+            height: height,
+            frame_buffer: vec![0; width * height],
+            saved_frame_buffer: vec![0; width * height],
+            aspect_ratio: width as f32 / height as f32,
             sprites: Vec::new(),
             map: [[0; px8::MAP_HEIGHT]; px8::MAP_WIDTH],
-
             transparency_map: [false; 256],
             color_map: [0; 256],
             color: 0,
-
             camera: Camera::new(),
-
-            clipping: Clipping::new(0, 0, px8::SCREEN_WIDTH as i32, px8::SCREEN_HEIGHT as i32),
+            cliprect: ClipRect::new(),
             font: &fonts::pico8::FONT,
         }
     }
@@ -260,8 +272,19 @@ impl Screen {
     pub fn init(&mut self) {
         self._reset_colors();
         self._reset_transparency();
-        self._reset_clip();
+        self._reset_cliprect();
         self.color = 0;
+    }
+
+    pub fn mode(&mut self, width: usize, height: usize, aspect_ratio: f32) {
+        self.width = width;
+        self.height = height;
+        self.aspect_ratio = aspect_ratio;
+
+        self.frame_buffer = vec![0; width * height];
+        self.saved_frame_buffer = vec![0; width * height];
+
+        self._reset_cliprect();
     }
 
     pub fn _reset_transparency(&mut self) {
@@ -275,20 +298,21 @@ impl Screen {
         }
     }
 
-    pub fn _reset_clip(&mut self) {
-        self.clipping = Clipping::new(0, 0, px8::SCREEN_WIDTH as i32, px8::SCREEN_HEIGHT as i32);
+    pub fn _reset_cliprect(&mut self) {
+        self.cliprect = ClipRect {
+            left: 0,
+            top: 0,
+            right: self.width as i32,
+            bottom: self.height as i32,
+        };
     }
 
     pub fn save(&mut self) {
-        for i in 0..px8::SCREEN_PIXELS {
-            self.saved_back_buffer[i] = self.back_buffer[i];
-        }
+        self.saved_frame_buffer.copy_from_slice(&self.frame_buffer);
     }
 
     pub fn restore(&mut self) {
-        for i in 0..px8::SCREEN_PIXELS {
-            self.back_buffer[i] = self.saved_back_buffer[i];
-        }
+        self.frame_buffer.copy_from_slice(&self.saved_frame_buffer);
     }
 
     pub fn _find_color(&mut self, col: i32) -> u32 {
@@ -323,16 +347,17 @@ impl Screen {
         }
     }
 
-    pub fn pixel_offset(x: i32, y: i32) -> usize {
-        (x as usize) + ((y as usize) * px8::SCREEN_WIDTH)
+    pub fn pixel_offset(&self, x: i32, y: i32) -> usize {
+        (x as usize) + ((y as usize) * self.width)
     }
 
     pub fn putpixel_direct(&mut self, x: i32, y: i32, col: u32) {
-        if x < 0 || y < 0 || x >= px8::SCREEN_WIDTH as i32 || y >= px8::SCREEN_HEIGHT as i32 {
+        if x < 0 || y < 0 || x >= self.width as i32 || y >= self.height as i32 {
             return;
         }
 
-        self.back_buffer[Screen::pixel_offset(x, y)] = col as u8;
+        let offset = self.pixel_offset(x, y);
+        self.frame_buffer[offset] = col as u8;
     }
 
     pub fn putpixel_(&mut self, x: i32, y: i32, col: u32) {
@@ -341,14 +366,14 @@ impl Screen {
         let y = y - self.camera.y;
 
         // Clip
-        if x < self.clipping.left || x >= self.clipping.right || y < self.clipping.top ||
-           y >= self.clipping.bottom {
+        if !self.cliprect.contains(x, y) {
             return;
-        };
+        }
 
         let draw_col = self.color_map[(col & 0xFF) as usize];
 
-        self.back_buffer[Screen::pixel_offset(x, y)] = draw_col;
+        let offset = self.pixel_offset(x, y);
+        self.frame_buffer[offset] = draw_col;
     }
 
     pub fn color(&mut self, col: i32) {
@@ -375,11 +400,11 @@ impl Screen {
         let x = (x as i32 - self.camera.x) as usize;
         let y = (y as i32 - self.camera.y) as usize;
 
-        if x >= px8::SCREEN_WIDTH || y >= px8::SCREEN_HEIGHT {
+        if x >= self.width || y >= self.height {
             return 0;
         }
 
-        self.back_buffer[x + y * px8::SCREEN_WIDTH] as u32
+        self.frame_buffer[x + y * self.width] as u32
     }
 
     pub fn pget(&mut self, x: u32, y: u32) -> u32 {
@@ -434,7 +459,11 @@ impl Screen {
     }
 
     pub fn cls(&mut self) {
-        self.back_buffer = px8::SCREEN_EMPTY;
+        // Maximum performance!
+        unsafe {
+            let fb_ptr = self.frame_buffer.as_mut_ptr();
+            ptr::write_bytes(fb_ptr, 0, self.frame_buffer.len());
+        }
     }
 
     pub fn force_print(&mut self, string: String, x: i32, y: i32, col: i32) {
@@ -565,13 +594,19 @@ impl Screen {
     }
 
     pub fn clip(&mut self, x: i32, y: i32, w: i32, h: i32) {
+        self._reset_cliprect();
+
         if x == -1 && y == -1 && w == -1 && h == -1 {
-            self._reset_clip();
             return;
         }
 
-        // Clipping rectangle is exclusive of right and bottom edges
-        self.clipping = Clipping::new(x, y, x + w, y + h);
+        self.cliprect
+            .intersect(&ClipRect {
+                           left: x,
+                           top: y,
+                           right: x + w,
+                           bottom: y + h,
+                       });
     }
 
     // Original algorithm from SDL2 gfx project
@@ -1156,7 +1191,7 @@ impl Screen {
     }
 
     pub fn peek(&mut self, addr: u32) -> u8 {
-        self.back_buffer[addr as usize]
+        self.frame_buffer[addr as usize]
     }
 
     pub fn poke(&mut self, _addr: u32, _val: u16) {}
@@ -1172,12 +1207,12 @@ impl Screen {
                source_addr,
                len);
 
-        let a = &self.back_buffer[source_addr as usize..(source_addr + len * 2) as usize].to_vec();
+        let a = &self.frame_buffer[source_addr as usize..(source_addr + len * 2) as usize].to_vec();
 
         while idx < len * 2 {
             let value = a[idx as usize] as u32;
 
-            self.back_buffer[(dest_addr + idx) as usize] = value as u8;
+            self.frame_buffer[(dest_addr + idx) as usize] = value as u8;
 
             idx += 1;
         }

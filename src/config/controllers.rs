@@ -40,11 +40,11 @@ impl Controllers {
         }
     }
 
-    pub fn is_controller(&mut self, id: u32) -> bool {
+    pub fn is_controller(&self, id: u32) -> bool {
         self.g_ids.contains(&id)
     }
 
-    pub fn is_joystick(&mut self, id: u32) -> bool {
+    pub fn is_joystick(&self, id: u32) -> bool {
         self.j_ids.contains(&id)
     }
 }
