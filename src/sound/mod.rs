@@ -27,7 +27,7 @@ pub mod sound {
                 if let Ok(command) = receiver.try_recv() {
                     generator.process_command(command);
                 }
-                
+
                 generator.get_samples(frames, &mut generator_buffer);
                 let mut idx = 0;
                 for item in generator_buffer.iter().take(frames) {

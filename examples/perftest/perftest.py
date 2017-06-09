@@ -52,6 +52,7 @@ def perftest(name, f, iterations):
 
 
 tests = [
+    #("cls", cls, 1000000),
     ("cls", cls, 1000000),
     ("small_rect", small_rect, 1000000),
     ("small_rectfill", small_rectfill, 1000000),

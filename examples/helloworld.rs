@@ -30,16 +30,16 @@ impl HelloWorld {
 }
 
 impl RustPlugin for HelloWorld {
-    fn init(&mut self, screen: Arc<Mutex<gfx::Screen>>) -> f64 {
+    fn init(&mut self, screen: &mut gfx::Screen) -> f64 {
         match cartridge::Cartridge::parse(&self.sprite_filename, false) {
-            Ok(c) => screen.lock().unwrap().set_sprites(c.gfx.sprites),
+            Ok(c) => screen.set_sprites(c.gfx.sprites),
             Err(e) => panic!("Impossible to load the assets {:?}", e),
         }
 
         0.0
     }
 
-    fn update(&mut self, _players: Arc<Mutex<Players>>) -> f64 {
+    fn update(&mut self, _players: &mut Players) -> f64 {
         debug!("HelloWorld update");
 
         self.t += 1;
@@ -47,10 +47,10 @@ impl RustPlugin for HelloWorld {
         0.0
     }
 
-    fn draw(&mut self, screen: Arc<Mutex<gfx::Screen>>) -> f64 {
+    fn draw(&mut self, screen: &mut gfx::Screen) -> f64 {
         debug!("HelloWorld draw");
 
-        screen.lock().unwrap().cls();
+        screen.cls();
 
         for i in 1..12 {
             for j0 in 0..7 {
@@ -62,11 +62,8 @@ impl RustPlugin for HelloWorld {
                 let y: i32 = ((38 + j) as f64 + math::cos((t1 as f64 / 50.0) as f64) * 5.0)
                     .floor() as i32;
 
-                screen.lock().unwrap().pal(7, col);
-                screen
-                    .lock()
-                    .unwrap()
-                    .spr(16 + i as u32, 8 + i * 8 + x, y, 1, 1, false, false);
+                screen.pal(7, col);
+                screen.spr(16 + i as u32, 8 + i * 8 + x, y, 1, 1, false, false);
             }
         }
 
