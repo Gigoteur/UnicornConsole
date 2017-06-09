@@ -38,7 +38,6 @@ pub struct Palette {
     colors: HashMap<u32, RGB>,
     rcolors: HashMap<u32, u32>,
     cached_colors: [u32; 16],
-    idx: u32,
 }
 
 impl Palette {
@@ -47,7 +46,6 @@ impl Palette {
             colors: HashMap::new(),
             rcolors: HashMap::new(),
             cached_colors: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            idx: 16,
         }
     }
 
@@ -89,21 +87,6 @@ impl Palette {
             }
             _ => 0,
         }
-    }
-
-    pub fn add_color(&mut self, r: u8, g: u8, b: u8) -> u32 {
-        let value = self.idx;
-
-        let v = (r as u32) << 16 | (g as u32) << 8 | (b as u32);
-
-        if let Some(color) = self.rcolors.get(&v) {
-            return *color;
-        }
-
-        self.set_color(value, r, g, b);
-        self.idx += 1;
-
-        value
     }
 }
 

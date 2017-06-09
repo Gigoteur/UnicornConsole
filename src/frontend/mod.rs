@@ -4,7 +4,6 @@ pub mod frametimes;
 use time;
 
 use sdl2;
-use std::sync::{Arc, Mutex};
 use sdl2::Sdl;
 use sdl2::EventPump;
 use std::time::Duration;

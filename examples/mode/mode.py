@@ -144,7 +144,7 @@ def _draw():
         ball.draw()
 
     font(FONTS[font_index])
-    y = 0
+    y = 0 
     px8_print("Mode: %dx%d (%.1f)" % MODES[mode_index], 0, y, WHITE)
     y += line_height
     px8_print("Font: %s" % FONTS[font_index], 0, y, WHITE)

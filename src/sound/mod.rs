@@ -256,14 +256,15 @@ pub mod sound {
 
 #[cfg(all(not(feature = "sdl_audio"), not(feature = "portaudio")))]
 pub mod sound {
-    use sdl2;
-    use std::marker::PhantomData;
-
     pub struct Sound {}
 
     impl Sound {
-        pub fn new(_data_sender: PhantomData<f32>) -> Sound {
+        pub fn new() -> Sound {
             Sound {}
+        }
+
+        pub fn init(&mut self) {
+
         }
 
         pub fn load(&mut self, _filename: String) -> i32 {
@@ -272,27 +273,5 @@ pub mod sound {
         pub fn play(&mut self, _id: u32) {}
 
         pub fn stop(&mut self, _id: u32) {}
-    }
-
-    pub struct SoundInterface<T: 'static + Send> {
-        phantom: PhantomData<T>,
-        pub data_sender: PhantomData<T>,
-    }
-
-    impl<T> SoundInterface<T>
-        where T: Send
-    {
-        pub fn new(_sdl_context: sdl2::Sdl,
-                   _sample_rate: u32,
-                   _buffer_size: usize,
-                   _channel_count: u16)
-                   -> SoundInterface<T> {
-            SoundInterface {
-                phantom: PhantomData,
-                data_sender: PhantomData,
-            }
-        }
-
-        pub fn start(&mut self) {}
     }
 }
