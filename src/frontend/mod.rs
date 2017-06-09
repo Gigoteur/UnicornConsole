@@ -18,7 +18,6 @@ use sdl2::controller::Axis;
 use sdl2::keyboard::Keycode;
 
 use renderer;
-use sound;
 use px8;
 use config::keys::{map_axis, map_button, map_button_joystick, map_axis_joystick};
 use config::controllers;
@@ -62,7 +61,6 @@ pub struct Frontend {
     controllers: controllers::Controllers,
     times: frametimes::FrameTimes,
     pub px8: px8::PX8,
-    pub sound_interface: Arc<Mutex<sound::sound::SoundInterface<f32>>>,
     start_time: time::Tm,
     elapsed_time: f64,
     scale: Scale,
@@ -88,13 +86,6 @@ impl Frontend {
         let renderer = renderer::renderer::Renderer::new(sdl_video, fullscreen, opengl, scale)
             .unwrap();
 
-        info!("[Frontend] SDL2 audio");
-        let mut sound_interface =
-            sound::sound::SoundInterface::new(sdl_context.clone(), 44100, 1024, 1);
-        sound_interface.start();
-
-        let sound = sound::sound::Sound::new(sound_interface.data_sender.clone());
-
         info!("[Frontend] Disable mouse cursor ? {:?}", show_mouse);
 
         sdl_context.mouse().show_cursor(show_mouse);
@@ -103,10 +94,9 @@ impl Frontend {
                sdl: sdl_context,
                event_pump: event_pump,
                renderer: renderer,
-               sound_interface: Arc::new(Mutex::new(sound_interface)),
                controllers: controllers::Controllers::new(),
                times: frametimes::FrameTimes::new(Duration::from_secs(1) / 60),
-               px8: px8::PX8::new(Arc::new(Mutex::new(sound)).clone()),
+               px8: px8::PX8::new(),
                start_time: time::now(),
                elapsed_time: 0.,
                scale: scale,

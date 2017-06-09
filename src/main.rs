@@ -5,6 +5,10 @@ extern crate lua;
 #[macro_use]
 extern crate cpython;
 
+#[cfg(feature = "portaudio")]
+#[macro_use]
+extern crate portaudio;
+
 extern crate sdl2;
 extern crate getopts;
 

@@ -1,7 +1,59 @@
-#[cfg(feature = "audio")]
 pub mod song;
 
-#[cfg(feature = "audio")]
+#[cfg(feature = "portaudio")]
+pub mod sound {
+    use portaudio;
+    const CHANNELS: i32 = 2;
+    const FRAMES: u32 = 64;
+    const SAMPLE_HZ: f64 = 44_100.0;
+
+    pub struct Sound {
+        pa: portaudio::PortAudio,
+    }
+
+    impl Sound {
+        pub fn new() -> Sound {
+            Sound {
+                pa: portaudio::PortAudio::new().unwrap(),
+            }
+        }
+
+        pub fn init(&mut self) -> Result<(), portaudio::Error> {
+            let settings = try!(self.pa.default_output_stream_settings::<f32>(CHANNELS, SAMPLE_HZ, FRAMES));
+            let mut stream = try!(self.pa.open_non_blocking_stream(settings, callback));
+            try!(stream.start());
+
+            let callback_fn = move |pa::OutputStreamCallbackArgs { buffer, frames, .. }| {
+                if let Ok(command) = receiver.try_recv() {
+                    generator.process_command(command);
+                }
+                
+                generator.get_samples(frames, &mut generator_buffer);
+                let mut idx = 0;
+                for item in generator_buffer.iter().take(frames) {
+                    for _ in 0..(channel_count as usize) {
+                        buffer[idx] = *item;// as SampleOutput;
+                        idx += 1;
+                    }
+                }
+
+                portaudio::Continue
+            };
+
+            Ok(())
+        }
+
+        pub fn load(&mut self, _filename: String) -> i32 {
+            0
+        }
+        pub fn play(&mut self, _id: u32) {}
+
+        pub fn stop(&mut self, _id: u32) {}
+    }
+
+}
+
+#[cfg(feature = "sdl_audio")]
 #[allow(dead_code, unused_must_use, unused_variables)]
 pub mod sound {
     use sdl2;
@@ -202,7 +254,7 @@ pub mod sound {
     }
 }
 
-#[cfg(not(feature = "audio"))]
+#[cfg(all(not(feature = "sdl_audio"), not(feature = "portaudio")))]
 pub mod sound {
     use sdl2;
     use std::marker::PhantomData;

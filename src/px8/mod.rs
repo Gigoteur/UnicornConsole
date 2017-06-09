@@ -667,12 +667,12 @@ pub struct PX8 {
 }
 
 impl PX8 {
-    pub fn new(sound: Arc<Mutex<Sound>>) -> PX8 {
+    pub fn new() -> PX8 {
         info!("[PX8] Creating new PX8");
 
         PX8 {
             screen: Arc::new(Mutex::new(gfx::Screen::new())),
-            sound: sound.clone(),
+            sound: Arc::new(Mutex::new(Sound::new())),
             info: Arc::new(Mutex::new(info::Info::new())),
             palettes: Arc::new(Mutex::new(Palettes::new())),
             players: Arc::new(Mutex::new(Players::new())),
@@ -710,6 +710,8 @@ impl PX8 {
 
     pub fn reset(&mut self) {
         info!("[PX8] Reset");
+
+        self.sound.lock().unwrap().init();
 
         self.palettes.lock().unwrap().init();
         self.palettes.lock().unwrap().switch_to("pico-8");
