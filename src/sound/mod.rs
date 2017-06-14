@@ -3,6 +3,7 @@ pub mod song;
 #[cfg(feature = "portaudio")]
 pub mod sound {
     use portaudio;
+
     const CHANNELS: i32 = 2;
     const FRAMES: u32 = 64;
     const SAMPLE_HZ: f64 = 44_100.0;
@@ -54,203 +55,134 @@ pub mod sound {
 }
 
 #[cfg(feature = "sdl_audio")]
-#[allow(dead_code, unused_must_use, unused_variables)]
 pub mod sound {
-    use sdl2;
-    use sdl2::audio::{AudioCallback, AudioSpecDesired, AudioSpec, AudioDevice, AudioSpecWAV,
-                      AudioCVT, AudioFormat};
     use std::sync::mpsc;
-    use std::sync::mpsc::{Sender, Receiver};
+    use px8::packet;
+
     use std::collections::HashMap;
-    use std::sync::{Arc, Mutex};
+    use sdl2;
+    use sdl2::mixer;
 
-    pub trait SoundPlayer: Send {
-        fn get_samples(&mut self, sample_count: usize, result: &mut Vec<u8>) -> u32;
+    /// Minimum value for playback volume parameter.
+    pub const MIN_VOLUME: f64 = 0.0;
+
+    /// Maximum value for playback volume parameter.
+    pub const MAX_VOLUME: f64 = 1.0;
+
+    pub struct SoundInternal {
+        music_tracks: HashMap<String, mixer::Music>,
+        pub csend: mpsc::Sender<Vec<u8>>,
+        crecv: mpsc::Receiver<Vec<u8>>,
     }
 
-    pub struct PX8Player {
-        data: Vec<u8>,
-        idx: u32,
-        tx: Sender<Vec<u8>>,
-        rx: Receiver<Vec<u8>>,
-    }
+    impl SoundInternal {
+        pub fn new() -> SoundInternal {
+            let (csend, crecv) = mpsc::channel();
 
-    impl PX8Player {
-        pub fn new(tx: Sender<Vec<u8>>, rx: Receiver<Vec<u8>>) -> PX8Player {
-            PX8Player {
-                data: Vec::new(),
-                idx: 0,
-                tx: tx,
-                rx: rx,
+            SoundInternal {
+                music_tracks: HashMap::new(),
+                csend: csend,
+                crecv: crecv,
             }
         }
-    }
 
-    unsafe impl Send for PX8Player {}
+        pub fn init(&mut self) {
+            let _ = mixer::init(mixer::INIT_MP3 | mixer::INIT_FLAC | mixer::INIT_MOD |
+                mixer::INIT_FLUIDSYNTH | mixer::INIT_MODPLUG |
+                mixer::INIT_OGG).unwrap();
+            mixer::open_audio(44100,
+                              mixer::DEFAULT_FORMAT,
+                              mixer::DEFAULT_CHANNELS,
+                              1024).unwrap();
+            mixer::allocate_channels(16);
+            info!("query spec => {:?}", sdl2::mixer::query_spec());
+        }
 
-    impl SoundPlayer for PX8Player {
-        fn get_samples(&mut self, sample_count: usize, result: &mut Vec<u8>) -> u32 {
-            self.idx = 0;
-
-            if let Ok(incoming_data) = self.rx.try_recv() {
-                self.data.append(&mut incoming_data.clone());
-            }
-
-            if self.data.len() > 0 {
-                for item in result.iter_mut() {
-                    if self.data.len() > 0 {
-                        *item = (self.data.remove(0) as f32 * 0.25) as u8;
-                        self.idx += 1;
+        pub fn update(&mut self) {
+            for sound_packet in self.crecv.try_iter() {
+                info!("[SOUND] PACKET {:?}", sound_packet);
+                match packet::read_packet(sound_packet).unwrap() {
+                    packet::Packet::LoadSound(res) => {
+                        let filename = res.filename.clone();
+                        let track = mixer::Music::from_file(filename.as_ref()).unwrap();
+                        info!("[SOUND][SoundInternal] Track {:?}", track);
+                        info!("music type => {:?}", track.get_type());
+                        self.music_tracks.insert(filename, track);
+                    },
+                    packet::Packet::PlaySound(res) => {
+                        let filename = res.filename.clone();
+                        self.music_tracks.get(&filename).expect("music: Attempted to play value that is not bound to asset").play(-1);
                     }
-                }
-            }
-            self.idx
-        }
-    }
-
-    struct Player<T: 'static + Send> {
-        channel_count: usize,
-        frame_size: usize,
-        generator_buffer: Vec<u8>,
-        generator: Box<SoundPlayer>,
-        receiver: Receiver<T>,
-    }
-
-    impl<T> Player<T>
-        where T: Send
-    {
-        fn new(spec: AudioSpec,
-               buffer_size: usize,
-               generator: Box<SoundPlayer>,
-               receiver: Receiver<T>)
-               -> Player<T> {
-            Player {
-                channel_count: spec.channels as usize,
-                frame_size: buffer_size,
-                generator_buffer: vec![0; buffer_size],
-                generator: generator,
-                receiver: receiver,
-            }
-        }
-    }
-
-    impl<T> AudioCallback for Player<T>
-        where T: Send
-    {
-        type Channel = u8;
-        /// Callback routine for SDL2
-        fn callback(&mut self, out: &mut [u8]) {
-            if self.generator
-                   .get_samples(self.frame_size, &mut self.generator_buffer) > 0 {
-                let mut idx = 0;
-                for item in self.generator_buffer.iter().take(self.frame_size) {
-                    for _ in 0..(self.channel_count) {
-                        out[idx] = *item;
-                        idx += 1;
+                    packet::Packet::StopSound(res) => {
+                        let filename = res.filename.clone();
+                        sdl2::mixer::Music::halt();
                     }
                 }
             }
         }
-    }
 
-
-    pub struct SoundInterface<T: 'static + Send> {
-        sample_rate: u32,
-        channel_count: u16,
-        sdl_device: AudioDevice<Player<T>>,
-        pub sender: Option<Sender<T>>,
-        pub data_sender: Sender<Vec<u8>>,
-    }
-
-    impl<T> SoundInterface<T>
-        where T: Send
-    {
-        pub fn new(sdl_context: sdl2::Sdl,
-                   sample_rate: u32,
-                   buffer_size: usize,
-                   channel_count: u16)
-                   -> SoundInterface<T> {
-            let sdl_audio_subsystem = sdl_context.audio().unwrap();
-
-            let desired_spec = AudioSpecDesired {
-                freq: Some(sample_rate as i32),
-                channels: Some(channel_count as u8),
-                samples: Some((buffer_size as u16) * channel_count),
-            };
-
-            let (tx, rx): (Sender<Vec<u8>>, Receiver<Vec<u8>>) = mpsc::channel();
-
-            let sound_player = Box::new(PX8Player::new(tx.clone(), rx));
-
-            let (sender, receiver) = ::std::sync::mpsc::channel();
-
-            let sdl_device = sdl_audio_subsystem
-                .open_playback(None,
-                               &desired_spec,
-                               |spec| Player::new(spec, buffer_size, sound_player, receiver))
-                .unwrap();
-
-            SoundInterface {
-                sample_rate: sample_rate,
-                channel_count: channel_count,
-                sdl_device: sdl_device,
-                sender: Some(sender),
-                data_sender: tx.clone(),
-            }
+        pub fn set_volume(&mut self, volume: f64) {
+            info!("[SOUND][SoundInternal] music volume => {:?}", sdl2::mixer::Music::get_volume());
+            // Map 0.0 - 1.0 to 0 - 128 (sdl2::mixer::MAX_VOLUME).
+            mixer::Music::set_volume((volume.max(MIN_VOLUME).min(MAX_VOLUME) *
+                mixer::MAX_VOLUME as f64) as i32);
+            info!("[SOUND][SoundInternal] music volume => {:?}", sdl2::mixer::Music::get_volume());
         }
 
-        pub fn start(&mut self) {
-            self.sdl_device.resume();
+    }
+
+    #[derive(Copy, Clone)]
+    pub enum Repeat {
+        /// Repeats forever.
+        Forever,
+        /// Repeats amount of times.
+        Times(u16),
+    }
+
+    impl Repeat {
+        fn to_sdl2_repeats(&self) -> i32 {
+            match *self {
+                Repeat::Forever => -1,
+                Repeat::Times(val) => val as i32,
+            }
         }
     }
 
     pub struct Sound {
-        pub sounds: HashMap<u32, Vec<u8>>,
-        pub data_sender: Sender<Vec<u8>>,
+        csend: mpsc::Sender<Vec<u8>>,
     }
 
     impl Sound {
-        pub fn new(data_sender: Sender<Vec<u8>>) -> Sound {
+        pub fn new(csend: mpsc::Sender<Vec<u8>>) -> Sound {
             Sound {
-                sounds: HashMap::new(),
-                data_sender: data_sender,
+                csend: csend,
             }
         }
 
         pub fn load(&mut self, filename: String) -> i32 {
             info!("Load sound {:?}", filename);
-            // SONG
-
-            // WAV
-            let wav = AudioSpecWAV::load_wav(filename.clone())
-                .ok()
-                .expect("Could not load test WAV file");
-
-            let cvt = AudioCVT::new(wav.format,
-                                    wav.channels,
-                                    wav.freq,
-                                    AudioFormat::U8,
-                                    1,
-                                    44100)
-                    .ok()
-                    .expect("Could not convert WAV file");
-
-            let mut data = cvt.convert(wav.buffer().to_vec());
-            info!("LOAD DATA {:?}", data.len());
-
-            let length = self.sounds.len() as u32;
-            self.sounds.insert(length, data);
-
-            length as i32
+            let p = packet::LoadSound {
+                filename: filename,
+            };
+            self.csend.send(packet::write_packet(p).unwrap());
+            0
         }
 
-        pub fn play(&mut self, id_sound: u32) {
-            info!("Play sound {:?}", id_sound);
-            let data = (*self.sounds.get(&id_sound).unwrap()).clone();
-            self.data_sender.send(data);
+        pub fn play(&mut self, filename: String) {
+            info!("Play sound {:?}", filename);
+            let p = packet::PlaySound {
+                filename: filename,
+            };
+            self.csend.send(packet::write_packet(p).unwrap());
         }
 
-        pub fn stop(&mut self, _id: u32) {}
+        pub fn stop(&mut self, filename: String) {
+            info!("Stop sound {:?}", filename);
+            let p = packet::StopSound {
+                filename: filename,
+            };
+            self.csend.send(packet::write_packet(p).unwrap());
+        }
     }
 }
 

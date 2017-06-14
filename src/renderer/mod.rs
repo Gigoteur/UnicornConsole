@@ -1,7 +1,3 @@
-#[cfg(feature = "gfx_rs_renderer")]
-pub mod renderer {}
-
-#[cfg(not(feature = "gfx_rs_renderer"))]
 pub mod renderer {
     use px8;
     use gfx::{Scale, Screen};

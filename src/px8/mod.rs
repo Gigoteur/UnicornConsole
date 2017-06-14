@@ -4,6 +4,7 @@ pub mod cartdata;
 pub mod emscripten;
 pub mod noise;
 pub mod math;
+pub mod packet;
 
 use std::collections::HashMap;
 use std::io::Cursor;
@@ -30,7 +31,7 @@ use config::Players;
 use self::noise::Noise;
 use gfx;
 use cartridge::{Cartridge, CartridgeFormat};
-use sound::sound::Sound;
+use sound::sound::{Sound, SoundInternal};
 
 include!(concat!(env!("OUT_DIR"), "/parameters.rs"));
 
@@ -275,6 +276,8 @@ impl PauseMenu {
     }
 
     pub fn reset(&mut self) {
+        info!("[PX8][PauseMenu] Reset");
+
         self.selected_idx = -1;
         self.idx = 0;
     }
@@ -609,6 +612,7 @@ pub struct PX8 {
     pub screen: Arc<Mutex<gfx::Screen>>,
     pub info: Arc<Mutex<info::Info>>,
     pub sound: Arc<Mutex<Sound>>,
+    pub sound_internal: SoundInternal,
     pub palettes: Arc<Mutex<Palettes>>,
     pub players: Arc<Mutex<Players>>,
     pub configuration: Arc<Mutex<PX8Config>>,
@@ -634,9 +638,13 @@ impl PX8 {
     pub fn new() -> PX8 {
         info!("[PX8] Creating new PX8");
 
+        let sound_internal = SoundInternal::new();
+        let csend = sound_internal.csend.clone();
+
         PX8 {
-            screen: Arc::new(Mutex::new(gfx::Screen::new(SCREEN_WIDTH, SCREEN_HEIGHT))),
-            sound: Arc::new(Mutex::new(Sound::new())),
+            screen: Arc::new(Mutex::new(gfx::Screen::new(128, 128))),
+            sound_internal: sound_internal,
+            sound: Arc::new(Mutex::new(Sound::new(csend))),
             info: Arc::new(Mutex::new(info::Info::new())),
             palettes: Arc::new(Mutex::new(Palettes::new())),
             players: Arc::new(Mutex::new(Players::new())),
@@ -660,6 +668,16 @@ impl PX8 {
         }
     }
 
+    pub fn setup(&mut self) {
+        info!("[PX8] Setup");
+        self.sound_internal.init();
+        self.reset();
+    }
+
+    pub fn update_sound(&mut self) {
+        self.sound_internal.update();
+    }
+
     #[cfg_attr(rustfmt, rustfmt_skip)]
     pub fn mouse_sprite() -> Vec<u8> {
         vec![0, 1, 0, 0, 0, 0, 0, 0,
@@ -674,8 +692,6 @@ impl PX8 {
 
     pub fn reset(&mut self) {
         info!("[PX8] Reset");
-
-        self.sound.lock().unwrap().init();
 
         self.palettes.lock().unwrap().init();
         self.palettes.lock().unwrap().switch_to("pico-8");
@@ -810,7 +826,7 @@ impl PX8 {
     }
 
     pub fn record(&mut self) {
-        info!("[PX8] Recording the frame");
+        info!("[PX8] Recording the frame {:?}", self.record.images.len());
 
         if self.record.nb % 4 == 0 {
             let mut buffer: Vec<u8> = Vec::new();
@@ -951,6 +967,8 @@ impl PX8 {
     }
 
     pub fn switch_pause(&mut self) {
+        info!("[PX8] Switch pause");
+
         let mut screen = &mut self.screen.lock().unwrap();
 
         match self.state {
@@ -961,7 +979,7 @@ impl PX8 {
             PX8State::RUN => {
                 self.pause_menu.reset();
                 self.state = PX8State::PAUSE;
-                self.screen.lock().unwrap().save();
+                screen.save();
             }
             PX8State::INTERACTIVE => {
                 self.pause_menu.reset();
@@ -969,6 +987,7 @@ impl PX8 {
                 screen.save();
             }
         }
+        info!("[PX8] End Switch pause");
     }
 
     #[allow(dead_code)]

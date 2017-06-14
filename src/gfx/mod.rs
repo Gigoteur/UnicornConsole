@@ -308,10 +308,12 @@ impl Screen {
     }
 
     pub fn save(&mut self) {
+        info!("[GFX] SAVE SCREEN");
         self.saved_frame_buffer.copy_from_slice(&self.frame_buffer);
     }
 
     pub fn restore(&mut self) {
+        info!("[GFX] Restore SCREEN");
         self.frame_buffer.copy_from_slice(&self.saved_frame_buffer);
     }
 

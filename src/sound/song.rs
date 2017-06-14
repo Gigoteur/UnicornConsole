@@ -1,6 +1,6 @@
 use std::io::Cursor;
 use std::io::prelude::*;
-use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
+use byteorder::{LittleEndian, ReadBytesExt};
 
 use std::fs::File;
 use std::io::BufReader;

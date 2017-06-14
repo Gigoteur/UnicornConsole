@@ -2,14 +2,19 @@
 #version 1
 #__python__
 
+WAV_FILE = "./examples/assets/piano.wav"
+
 def _init():
-    id_sound = sound_load("./examples/assets/cat.wav")
-    print(id_sound)
-    if id_sound != -1:
-        sound_play(id_sound)
+    sound_load(WAV_FILE)
 
 def _update():
-    pass
+    if btnp(0):
+        print("Play")
+        sound_play(WAV_FILE)
+
+    if btnp(1):
+        print("Stop")
+        sound_stop(WAV_FILE)
 
 def _draw():
     pass

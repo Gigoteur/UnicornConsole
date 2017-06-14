@@ -7,11 +7,11 @@ from sys import float_info
 def sound_load(filename):
     return px8_audio.sound_load(filename)
 
-def sound_play(id_sound):
-    px8_audio.sound_play(id_sound)
+def sound_play(filename):
+    px8_audio.sound_play(filename)
 
-def sound_stop(id_sound):
-    px8_audio.sound_stop(id_sound)
+def sound_stop(filename):
+    px8_audio.sound_stop(filename)
 
 globals()["sound_load"] = sound_load
 globals()["sound_play"] = sound_play

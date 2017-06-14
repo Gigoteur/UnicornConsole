@@ -66,6 +66,7 @@ pub struct Frontend {
     fps_counter: fps::FpsCounter,
 }
 
+
 impl Frontend {
     pub fn init(scale: Scale,
                 fullscreen: bool,
@@ -81,6 +82,9 @@ impl Frontend {
         info!("[Frontend] SDL2 event pump");
         let event_pump = try!(sdl_context.event_pump());
 
+        info!("[Frontend] SDL2 audio");
+        try!(sdl_context.audio());
+
         let px8 = px8::PX8::new();
 
         let renderer = {
@@ -89,9 +93,8 @@ impl Frontend {
             info!("[Frontend] creating renderer");
             renderer::renderer::Renderer::new(sdl_video, screen, fullscreen, opengl, scale).unwrap()
         };
-                  
-        info!("[Frontend] Disable mouse cursor ? {:?}", show_mouse);
 
+        info!("[Frontend] Disable mouse cursor ? {:?}", show_mouse);
         sdl_context.mouse().show_cursor(show_mouse);
 
         Ok(Frontend {
@@ -109,7 +112,7 @@ impl Frontend {
     }
 
     pub fn start(&mut self, pathdb: String) {
-        info!("[Fronted] Start");
+        info!("[Frontend] Start");
 
         self.start_time = time::now();
         self.times.reset();
@@ -118,7 +121,7 @@ impl Frontend {
         self.init_controllers(pathdb);
 
         info!("[Frontend] initialise PX8");
-        self.px8.reset();
+        self.px8.setup();
     }
 
     pub fn update_time(&mut self) {
@@ -238,6 +241,7 @@ impl Frontend {
         self.px8.init_interactive();
         self.handle_event(false);
     }
+
 
     #[cfg(not(target_os = "emscripten"))]
     fn handle_event(&mut self, editor: bool) {
@@ -466,6 +470,7 @@ impl Frontend {
             }
 
             self.px8.draw();
+            self.px8.update_sound();
 
             self.update_time();
 

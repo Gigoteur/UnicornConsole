@@ -14,10 +14,6 @@ extern crate getopts;
 
 extern crate nalgebra;
 
-#[cfg(feature = "gfx_rs_renderer")]
-#[macro_use]
-extern crate gfx as gfx_rs;
-
 extern crate image;
 extern crate gif;
 
@@ -32,8 +28,6 @@ extern crate num;
 extern crate glob;
 
 extern crate rusttype;
-
-extern crate chan;
 
 #[macro_use]
 extern crate log;

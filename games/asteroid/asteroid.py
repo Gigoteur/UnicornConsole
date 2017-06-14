@@ -13,8 +13,8 @@ maps.addglobals(globals())
 from utils import Vec2
 
 CELL_SIZE = 32
-CELL_BOUNDS = 128
-CELL_FILL = flr(128/CELL_SIZE+1)
+CELL_BOUNDS = 256
+CELL_FILL = flr(256/CELL_SIZE+1)
 SEED=rnd(1)
 
 def local_noise(nx, ny, nz=0.0, freq=10, zoom=300.0):
@@ -115,7 +115,7 @@ class Particles(object):
             p.draw()
 
     def debug(self):
-        px8_print("P %d" % (len(self.particles)), 0, 112, 7)
+        px8_print("P %d" % (len(self.particles)), 0, 240, 7)
 
 class Ship(object):
     def __init__(self, particles, x, y, angle):
@@ -187,7 +187,7 @@ class Ship(object):
         a += (rnd(1) - 0.5) * 0.15
         j.dx = sin(a) + self.dx
         j.dy = cos(a) + self.dy
-        j.life = 15 * rnd(1) + 15
+        j.life = rnd(30) * rnd(1) + 15
         j.drag = 0.04
 
     def draw(self):
@@ -207,19 +207,19 @@ class Ship(object):
         line(x2, y2, x3, y3)
 
     def debug(self):
-        px8_print("%.02f:%.02f %.02f:%.02f" % (self.x, self.y, self.dx, self.dy), 0, 120, 7)
+        px8_print("%.02f:%.02f %.02f:%.02f" % (self.x, self.y, self.dx, self.dy), 0, 248, 7)
 
 class Camera(object):
     def __init__(self, vec2):
         self.pos = vec2
         self.c = Vec2(self.pos.x%CELL_SIZE, self.pos.y%CELL_SIZE)
-        self.offset = Vec2(64, 64)
+        self.offset = Vec2(128, 128)
         self.sway=[0.15,0.15,50,50]
         self.pos_o = Vec2(self.pos.x, self.pos.y)
         self.v = Vec2(0, 0)
 
     def update(self, p_p_vec, p_v_vec):
-        self.offset = p_v_vec.mul(-15).add(Vec2(64,64))
+        self.offset = p_v_vec.mul(-15).add(Vec2(128,128))
         self.pos_o = Vec2(self.pos.x, self.pos.y)
         sway=Vec2(self.sway[0]*cos(px8_time()/self.sway[2]),
                   self.sway[1]*sin(px8_time()/self.sway[3]))
@@ -249,6 +249,8 @@ B = biomes.Biomes()
 CONFIG = Configuration(B)
 
 def _init():
+    show_mouse(True)
+    mode(256, 256)
     global S, P, CAM, N, CELLS, STARS
     N = NetworkClient("localhost", 9000)
     #N.connect()
@@ -285,7 +287,7 @@ def _draw():
             y = (CELLS.pos.y+b)*CELL_SIZE
 
             cell = CELLS.get_current(a, b)
-            rectfill(x, y, x+CELL_SIZE, y+CELL_SIZE, 0)
+            rectfill(x, y, x+CELL_SIZE, y+CELL_SIZE, cell.color)
 
     P.draw()
     S.draw()

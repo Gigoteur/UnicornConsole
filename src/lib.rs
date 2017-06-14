@@ -29,8 +29,6 @@ extern crate glob;
 
 extern crate rusttype;
 
-extern crate chan;
-
 #[macro_use]
 extern crate log;
 extern crate fern;

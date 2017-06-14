@@ -23,13 +23,13 @@ pub mod plugin {
         Ok(self.sound(py).lock().unwrap().load(filename))
     }
 
-    def sound_play(&self, id: u32) -> PyResult<i32> {
-        self.sound(py).lock().unwrap().play(id);
+    def sound_play(&self, filename: String) -> PyResult<i32> {
+        self.sound(py).lock().unwrap().play(filename);
         Ok(0)
     }
 
-    def sound_stop(&self, id: u32) -> PyResult<i32> {
-        self.sound(py).lock().unwrap().stop(id);
+    def sound_stop(&self, filename: String) -> PyResult<i32> {
+        self.sound(py).lock().unwrap().stop(filename);
         Ok(0)
     }
 
