@@ -279,11 +279,27 @@ pub mod sound {
             Sound {}
         }
 
+        // Music
         pub fn load(&mut self, _filename: String) -> i32 {
             0
         }
         pub fn play(&mut self, _filename: String) {}
 
-        pub fn stop(&mut self, _filename: String) {}
+        pub fn stop(&mut self) {}
+
+        pub fn pause(&mut self) {}
+
+        pub fn resume(&mut self) {}
+
+        pub fn rewind(&mut self) {}
+
+        // Sound
+        pub fn load_sound(&mut self, _filename: String) -> i32 {
+            0
+        }
+
+        pub fn play_sound(&mut self, _filename: String) -> i32 {
+            0
+        }
     }
 }
