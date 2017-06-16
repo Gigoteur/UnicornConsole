@@ -200,13 +200,28 @@ macro_rules! create_packets {
 }
 
 create_packets!(
+    packet LoadMusic {
+        field filename: String =,
+    }
+    packet PlayMusic {
+        field filename: String =,
+    }
+    packet StopMusic {
+        field filename: String =,
+    }
+    packet PauseMusic {
+        field filename: String =,
+    }
+    packet ResumeMusic {
+        field filename: String =,
+    }
+    packet RewindMusic {
+        field filename: String =,
+    }
     packet LoadSound {
         field filename: String =,
     }
     packet PlaySound {
-        field filename: String =,
-    }
-    packet StopSound {
         field filename: String =,
     }
 );

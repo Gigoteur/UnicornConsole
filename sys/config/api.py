@@ -4,18 +4,43 @@ from math import frexp, copysign
 from sys import float_info
 
 # Audio
+def music_load(filename):
+    return px8_audio.music_load(filename)
+
+def music_play(filename):
+    px8_audio.music_play(filename)
+
+def music_pause():
+    px8_audio.music_pause()
+
+def music_resume():
+    px8_audio.music_resume()
+
+def music_stop():
+    px8_audio.music_stop()
+
+def music_rewind():
+    px8_audio.music_rewind()
+
+def music_volume(value):
+    px8_audio.music_volume(value)
+
 def sound_load(filename):
     return px8_audio.sound_load(filename)
 
 def sound_play(filename):
-    px8_audio.sound_play(filename)
+    return px8_audio.sound_play(filename)
 
-def sound_stop(filename):
-    px8_audio.sound_stop(filename)
+globals()["music_load"] = music_load
+globals()["music_play"] = music_play
+globals()["music_stop"] = music_stop
+globals()["music_pause"] = music_pause
+globals()["music_resume"] = music_resume
+globals()["music_rewind"] = music_rewind
 
 globals()["sound_load"] = sound_load
 globals()["sound_play"] = sound_play
-globals()["sound_stop"] = sound_stop
+
 
 # Cart Data
 

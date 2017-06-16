@@ -19,19 +19,45 @@ pub mod plugin {
     py_class!(class PX8Audio |py| {
     data sound: Arc<Mutex<Sound>>;
 
-    def sound_load(&self, filename: String) -> PyResult<i32> {
+    // Music
+    def music_load(&self, filename: String) -> PyResult<i32> {
         Ok(self.sound(py).lock().unwrap().load(filename))
     }
 
-    def sound_play(&self, filename: String) -> PyResult<i32> {
+    def music_play(&self, filename: String) -> PyResult<i32> {
         self.sound(py).lock().unwrap().play(filename);
         Ok(0)
     }
 
-    def sound_stop(&self, filename: String) -> PyResult<i32> {
-        self.sound(py).lock().unwrap().stop(filename);
+    def music_stop(&self) -> PyResult<i32> {
+        self.sound(py).lock().unwrap().stop();
         Ok(0)
     }
+
+    def music_pause(&self) -> PyResult<i32> {
+        self.sound(py).lock().unwrap().pause();
+        Ok(0)
+    }
+
+    def music_resume(&self) -> PyResult<i32> {
+        self.sound(py).lock().unwrap().resume();
+        Ok(0)
+    }
+
+    def music_rewind(&self) -> PyResult<i32> {
+        self.sound(py).lock().unwrap().rewind();
+        Ok(0)
+    }
+
+    // Sound
+    def sound_load(&self, filename: String) -> PyResult<i32> {
+        Ok(self.sound(py).lock().unwrap().load_sound(filename))
+    }
+
+    def sound_play(&self, filename: String) -> PyResult<i32> {
+        Ok(self.sound(py).lock().unwrap().play_sound(filename))
+    }
+
 
     });
 

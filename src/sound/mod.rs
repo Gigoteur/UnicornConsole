@@ -71,6 +71,7 @@ pub mod sound {
 
     pub struct SoundInternal {
         music_tracks: HashMap<String, mixer::Music>,
+        sound_tracks: HashMap<String, mixer::Chunk>,
         pub csend: mpsc::Sender<Vec<u8>>,
         crecv: mpsc::Receiver<Vec<u8>>,
     }
@@ -81,6 +82,7 @@ pub mod sound {
 
             SoundInternal {
                 music_tracks: HashMap::new(),
+                sound_tracks: HashMap::new(),
                 csend: csend,
                 crecv: crecv,
             }
@@ -90,7 +92,7 @@ pub mod sound {
             let _ = mixer::init(mixer::INIT_MP3 | mixer::INIT_FLAC | mixer::INIT_MOD |
                 mixer::INIT_FLUIDSYNTH | mixer::INIT_MODPLUG |
                 mixer::INIT_OGG).unwrap();
-            mixer::open_audio(44100,
+            mixer::open_audio(mixer::DEFAULT_FREQUENCY,
                               mixer::DEFAULT_FORMAT,
                               mixer::DEFAULT_CHANNELS,
                               1024).unwrap();
@@ -102,20 +104,38 @@ pub mod sound {
             for sound_packet in self.crecv.try_iter() {
                 info!("[SOUND] PACKET {:?}", sound_packet);
                 match packet::read_packet(sound_packet).unwrap() {
-                    packet::Packet::LoadSound(res) => {
+                    packet::Packet::LoadMusic(res) => {
                         let filename = res.filename.clone();
                         let track = mixer::Music::from_file(filename.as_ref()).unwrap();
-                        info!("[SOUND][SoundInternal] Track {:?}", track);
+                        info!("[SOUND][SoundInternal] MUSIC Track {:?}", filename);
                         info!("music type => {:?}", track.get_type());
                         self.music_tracks.insert(filename, track);
                     },
-                    packet::Packet::PlaySound(res) => {
+                    packet::Packet::PlayMusic(res) => {
                         let filename = res.filename.clone();
                         self.music_tracks.get(&filename).expect("music: Attempted to play value that is not bound to asset").play(-1);
                     }
-                    packet::Packet::StopSound(res) => {
-                        let filename = res.filename.clone();
+                    packet::Packet::StopMusic(res) => {
                         sdl2::mixer::Music::halt();
+                    }
+                    packet::Packet::PauseMusic(res) => {
+                        sdl2::mixer::Music::pause();
+                    }
+                    packet::Packet::RewindMusic(res) => {
+                        sdl2::mixer::Music::rewind();
+                    }
+                    packet::Packet::ResumeMusic(res) => {
+                        sdl2::mixer::Music::resume();
+                    }
+                    packet::Packet::LoadSound(res) => {
+                        let filename = res.filename.clone();
+                        let track = mixer::Chunk::from_file(filename.as_ref()).unwrap();
+                        info!("[SOUND][SoundInternal] SOUND Track {:?}", filename);
+                        self.sound_tracks.insert(filename, track);
+                    },
+                    packet::Packet::PlaySound(res) => {
+                        let filename = res.filename.clone();
+                        sdl2::mixer::Channel::all().play(&self.sound_tracks.get(&filename).unwrap(), 0);
                     }
                 }
             }
@@ -159,9 +179,10 @@ pub mod sound {
             }
         }
 
+        // Music
         pub fn load(&mut self, filename: String) -> i32 {
-            info!("Load sound {:?}", filename);
-            let p = packet::LoadSound {
+            info!("[SOUND] Load music {:?}", filename);
+            let p = packet::LoadMusic {
                 filename: filename,
             };
             self.csend.send(packet::write_packet(p).unwrap());
@@ -169,19 +190,62 @@ pub mod sound {
         }
 
         pub fn play(&mut self, filename: String) {
-            info!("Play sound {:?}", filename);
-            let p = packet::PlaySound {
+            info!("[SOUND] Play music {:?}", filename);
+            let p = packet::PlayMusic {
                 filename: filename,
             };
             self.csend.send(packet::write_packet(p).unwrap());
         }
 
-        pub fn stop(&mut self, filename: String) {
-            info!("Stop sound {:?}", filename);
-            let p = packet::StopSound {
+        pub fn stop(&mut self) {
+            info!("[SOUND] Stop music");
+            let p = packet::StopMusic {
+                filename: "".to_string(),
+            };
+            self.csend.send(packet::write_packet(p).unwrap());
+        }
+
+        pub fn pause(&mut self) {
+            info!("[SOUND] Pause music");
+            let p = packet::PauseMusic {
+                filename: "".to_string(),
+            };
+            self.csend.send(packet::write_packet(p).unwrap());
+        }
+
+        pub fn resume(&mut self) {
+            info!("[SOUND] Resume music");
+            let p = packet::ResumeMusic {
+                filename: "".to_string(),
+            };
+            self.csend.send(packet::write_packet(p).unwrap());
+        }
+
+        pub fn rewind(&mut self) {
+            info!("[SOUND] Rewind music");
+            let p = packet::RewindMusic {
+                filename: "".to_string(),
+            };
+            self.csend.send(packet::write_packet(p).unwrap());
+        }
+
+        // Sound
+        pub fn load_sound(&mut self, filename: String) -> i32 {
+            info!("[SOUND] Load sound {:?}", filename);
+            let p = packet::LoadSound {
                 filename: filename,
             };
             self.csend.send(packet::write_packet(p).unwrap());
+            0
+        }
+
+        pub fn play_sound(&mut self, filename: String) -> i32 {
+            info!("[SOUND] Play sound {:?}", filename);
+            let p = packet::PlaySound {
+                filename: filename,
+            };
+            self.csend.send(packet::write_packet(p).unwrap());
+            0
         }
     }
 }

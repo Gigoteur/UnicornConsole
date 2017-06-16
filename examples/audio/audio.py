@@ -3,18 +3,68 @@
 #__python__
 
 WAV_FILE = "./examples/assets/piano.wav"
+SOUND_GUN_FILE = "./examples/assets/gun.wav"
+
+class Button(object):
+    def __init__(self, x1, y1, x2, y2, color, text, highlight=False):
+        self.x1 = x1
+        self.y1 = y1
+        self.x2 = x2
+        self.y2 = y2
+        self.color = color
+        self.text = text
+        self.clicked = True if highlight else False
+
+    def update(self, x, y):
+        self.clicked = (self.x1 <= x <= self.x2 and
+                        self.y1 <= y <= self.y2)
+
+    def draw(self):
+        rectfill(self.x1, self.y1, self.x2, self.y2, self.color)
+        i = 3 if self.clicked else 1
+        px8_print(self.text, self.x1 + 1, self.y1, i)
+
+    def is_click(self):
+        return self.clicked
+
+MENU = {
+    'Play': Button(20, 20, 40, 28, 7, 'Play'),
+    'Stop': Button(42, 20, 62, 28, 7, 'Stop'),
+    'Pause': Button(64, 20, 84, 28, 7, 'Pause'),
+    'Resume': Button(86, 20, 110, 28, 7, 'Resume'),
+    'Gun': Button(20, 30, 40, 38, 7, 'Gun'),
+}
 
 def _init():
-    sound_load(WAV_FILE)
+    show_mouse()
+    music_load(WAV_FILE)
+    sound_load(SOUND_GUN_FILE)
 
 def _update():
-    if btnp(0):
-        print("Play")
-        sound_play(WAV_FILE)
+    if mouse_state():
+        mousex, mousey = mouse_x(), mouse_y()
 
-    if btnp(1):
-        print("Stop")
-        sound_stop(WAV_FILE)
+        for item in MENU.values():
+            item.update(mousex, mousey)
+            if item.text =='Play' and item.is_click():
+                print("Play")
+                music_play(WAV_FILE)
+            elif item.text =='Stop' and item.is_click():
+                print("Stop")
+                music_stop()
+            elif item.text =='Pause' and item.is_click():
+                print("Pause")
+                music_pause()
+            elif item.text =='Resume' and item.is_click():
+                print("Resume")
+                music_resume()
+            if item.text =='Gun' and item.is_click():
+                print("Play gun sound")
+                sound_play(SOUND_GUN_FILE)
 
 def _draw():
-    pass
+    cls()
+
+    for item in MENU.values():
+        item.draw()
+
