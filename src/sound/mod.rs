@@ -188,22 +188,38 @@ pub mod sound {
 
 #[cfg(all(not(feature = "sdl_audio"), not(feature = "portaudio")))]
 pub mod sound {
-    pub struct Sound {}
+    use std::sync::mpsc;
 
-    impl Sound {
-        pub fn new() -> Sound {
-            Sound {}
+    pub struct SoundInternal {
+        pub csend: mpsc::Sender<Vec<u8>>,
+    }
+
+    impl SoundInternal {
+        pub fn new() -> SoundInternal {
+            let (csend, _) = mpsc::channel();
+
+            SoundInternal {
+                csend: csend,
+            }
         }
 
-        pub fn init(&mut self) {
+        pub fn init(&mut self) {}
+        pub fn update(&mut self) {}
+    }
 
+    pub struct Sound {
+    }
+
+    impl Sound {
+        pub fn new(_csend: mpsc::Sender<Vec<u8>>) -> Sound {
+            Sound {}
         }
 
         pub fn load(&mut self, _filename: String) -> i32 {
             0
         }
-        pub fn play(&mut self, _id: u32) {}
+        pub fn play(&mut self, _filename: String) {}
 
-        pub fn stop(&mut self, _id: u32) {}
+        pub fn stop(&mut self, _filename: String) {}
     }
 }
