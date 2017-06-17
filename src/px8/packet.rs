@@ -81,11 +81,7 @@ impl Serializable for bool {
         Result::Ok(try!(buf.read_u8()) != 0)
     }
     fn write_to<W: io::Write>(&self, buf: &mut W) -> Result<(), Error> {
-        try!(buf.write_u8(if *self {
-            1
-        } else {
-            0
-        }));
+        try!(buf.write_u8(if *self { 1 } else { 0 }));
         Result::Ok(())
     }
 }
@@ -205,6 +201,7 @@ create_packets!(
     }
     packet PlayMusic {
         field filename: String =,
+        field loops: i32 =,
     }
     packet StopMusic {
         field filename: String =,
@@ -223,11 +220,12 @@ create_packets!(
     }
     packet PlaySound {
         field filename: String =,
+        field loops: i32 =,
     }
 );
 
 
-pub trait Lengthable : Serializable + Copy + Default {
+pub trait Lengthable: Serializable + Copy + Default {
     fn into(self) -> usize;
     fn from(usize) -> Self;
 }
@@ -248,7 +246,7 @@ impl Lengthable for VarInt {
 impl Serializable for VarInt {
     /// Decodes a `VarInt` from the Reader
     fn read_from<R: io::Read>(buf: &mut R) -> Result<VarInt, Error> {
-        const PART : u32 = 0x7F;
+        const PART: u32 = 0x7F;
         let mut size = 0;
         let mut val = 0u32;
         loop {
@@ -259,7 +257,7 @@ impl Serializable for VarInt {
                 return Result::Err(Error::new(ErrorKind::Other, "VarInt too big"));
             }
             if (b & 0x80) == 0 {
-                break
+                break;
             }
         }
 
@@ -268,7 +266,7 @@ impl Serializable for VarInt {
 
     /// Encodes a `VarInt` into the Writer
     fn write_to<W: io::Write>(&self, buf: &mut W) -> Result<(), Error> {
-        const PART : u32 = 0x7F;
+        const PART: u32 = 0x7F;
         let mut val = self.0 as u32;
         loop {
             if (val & !PART) == 0 {
@@ -320,9 +318,7 @@ pub fn read_packet(buf: Vec<u8>) -> Result<Packet, Error> {
     //   println!("READ_PACKET {:?}", packet);
 
     match packet {
-        Some(val) => {
-            Result::Ok(val)
-        }
+        Some(val) => Result::Ok(val),
         None => Result::Err(Error::new(ErrorKind::Other, "missing packet")),
     }
 }

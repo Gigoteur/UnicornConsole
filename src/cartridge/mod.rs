@@ -926,7 +926,10 @@ impl Cartridge {
     }
 
     #[allow(dead_code)]
-    pub fn parse_raw<R: io::BufRead>(filename: &str, buf: &mut R, code: bool) -> Result<Cartridge, Error> {
+    pub fn parse_raw<R: io::BufRead>(filename: &str,
+                                     buf: &mut R,
+                                     code: bool)
+                                     -> Result<Cartridge, Error> {
         let mut header = String::new();
         let mut version = String::new();
 

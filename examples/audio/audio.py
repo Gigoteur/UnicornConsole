@@ -4,6 +4,7 @@
 
 WAV_FILE = "./examples/assets/piano.wav"
 SOUND_GUN_FILE = "./examples/assets/gun.wav"
+SOUND_FIREWORKS_FILE = "./examples/assets/fireworks.wav"
 
 class Button(object):
     def __init__(self, x1, y1, x2, y2, color, text, highlight=False):
@@ -33,12 +34,14 @@ MENU = {
     'Pause': Button(64, 20, 84, 28, 7, 'Pause'),
     'Resume': Button(86, 20, 110, 28, 7, 'Resume'),
     'Gun': Button(20, 30, 40, 38, 7, 'Gun'),
+    'Fireworks': Button(42, 30, 80, 38, 7, 'Fireworks'),
 }
 
 def _init():
     show_mouse()
     music_load(WAV_FILE)
     sound_load(SOUND_GUN_FILE)
+    sound_load(SOUND_FIREWORKS_FILE)
 
 def _update():
     if mouse_state():
@@ -58,9 +61,12 @@ def _update():
             elif item.text =='Resume' and item.is_click():
                 print("Resume")
                 music_resume()
-            if item.text =='Gun' and item.is_click():
+            elif item.text =='Gun' and item.is_click():
                 print("Play gun sound")
                 sound_play(SOUND_GUN_FILE)
+            if item.text =='Fireworks' and item.is_click():
+                print("Play fireworks sound")
+                sound_play(SOUND_FIREWORKS_FILE)
 
 def _draw():
     cls()

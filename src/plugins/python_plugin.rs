@@ -24,8 +24,8 @@ pub mod plugin {
         Ok(self.sound(py).lock().unwrap().load(filename))
     }
 
-    def music_play(&self, filename: String) -> PyResult<i32> {
-        self.sound(py).lock().unwrap().play(filename);
+    def music_play(&self, filename: String, loops: i32) -> PyResult<i32> {
+        self.sound(py).lock().unwrap().play(filename, loops);
         Ok(0)
     }
 
@@ -54,8 +54,8 @@ pub mod plugin {
         Ok(self.sound(py).lock().unwrap().load_sound(filename))
     }
 
-    def sound_play(&self, filename: String) -> PyResult<i32> {
-        Ok(self.sound(py).lock().unwrap().play_sound(filename))
+    def sound_play(&self, filename: String, loops: i32) -> PyResult<i32> {
+        Ok(self.sound(py).lock().unwrap().play_sound(filename, loops))
     }
 
 

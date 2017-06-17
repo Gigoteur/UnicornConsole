@@ -220,9 +220,7 @@ pub fn run_cartridge(scale: gfx::Scale,
 }
 
 
-pub fn run_interactive(scale: gfx::Scale,
-                       fullscreen: bool,
-                       opengl: bool) {
+pub fn run_interactive(scale: gfx::Scale, fullscreen: bool, opengl: bool) {
     let mut frontend = match frontend::Frontend::init(scale, fullscreen, opengl, false) {
         Err(error) => panic!("{:?}", error),
         Ok(frontend) => frontend,

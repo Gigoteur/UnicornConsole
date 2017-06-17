@@ -206,10 +206,7 @@ impl Frontend {
     }
 
     pub fn run_cartridge(&mut self, filename: &str, editor: bool, mode: px8::PX8Mode) {
-        let success = self.px8
-            .load_cartridge(filename,
-                            editor,
-                            mode);
+        let success = self.px8.load_cartridge(filename, editor, mode);
 
         if success {
             info!("[Frontend] Successfully loaded the cartridge");
@@ -221,12 +218,12 @@ impl Frontend {
     }
 
     #[allow(dead_code)]
-    pub fn run_cartridge_raw(&mut self, filename: &str, data: Vec<u8>, editor: bool, mode: px8::PX8Mode) {
-        let success = self.px8
-            .load_cartridge_raw(filename,
-                                data,
-                                editor,
-                                mode);
+    pub fn run_cartridge_raw(&mut self,
+                             filename: &str,
+                             data: Vec<u8>,
+                             editor: bool,
+                             mode: px8::PX8Mode) {
+        let success = self.px8.load_cartridge_raw(filename, data, editor, mode);
 
         if success {
             info!("[Frontend] Successfully loaded the cartridge");
@@ -552,15 +549,15 @@ impl Frontend {
                             let dt = Local::now();
                             self.px8
                                 .screenshot(&("screenshot-".to_string() +
-                                    &dt.format("%Y-%m-%d-%H-%M-%S.png").to_string()));
+                                              &dt.format("%Y-%m-%d-%H-%M-%S.png").to_string()));
                         } else if keycode == Keycode::F4 {
                             let record_screen = self.px8.is_recording();
                             if !record_screen {
                                 let dt = Local::now();
                                 self.px8
                                     .start_record(&("record-".to_string() +
-                                        &dt.format("%Y-%m-%d-%H-%M-%S.gif")
-                                            .to_string()));
+                                                    &dt.format("%Y-%m-%d-%H-%M-%S.gif")
+                                                         .to_string()));
                             } else {
                                 self.px8.stop_record(self.scale.factor());
                             }

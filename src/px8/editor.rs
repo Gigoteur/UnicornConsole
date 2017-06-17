@@ -23,9 +23,7 @@ pub fn load_editor(filename: String) -> String {
 
 impl Editor {
     pub fn new() -> Editor {
-        Editor {
-            data: "".to_string(),
-        }
+        Editor { data: "".to_string() }
     }
 
     pub fn init(&mut self) {

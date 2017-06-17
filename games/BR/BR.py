@@ -64,7 +64,8 @@ class Player(object):
 
         self.c=[4,10,3]
 
-        self.id_quack = sound_load("./examples/assets/wav/mygame_sfx_5.wav")
+        self.QUACK = "./games/BR/quack.wav"
+        self.id_quack = sound_load(self.QUACK)
 
     def update(self):
         v_dif = Vec2(0, 0)
@@ -78,7 +79,7 @@ class Player(object):
             v_dif.y += self.speed.y
 
         if btnp(4):
-            sound_play(self.id_quack)
+            sound_play(self.QUACK)
 
         if abs(v_dif.x)+abs(v_dif.y) > 0.01:
             self.v._add(v_dif)

@@ -14,13 +14,13 @@ pub mod sound {
 
     impl Sound {
         pub fn new() -> Sound {
-            Sound {
-                pa: portaudio::PortAudio::new().unwrap(),
-            }
+            Sound { pa: portaudio::PortAudio::new().unwrap() }
         }
 
         pub fn init(&mut self) -> Result<(), portaudio::Error> {
-            let settings = try!(self.pa.default_output_stream_settings::<f32>(CHANNELS, SAMPLE_HZ, FRAMES));
+            let settings =
+                try!(self.pa
+                         .default_output_stream_settings::<f32>(CHANNELS, SAMPLE_HZ, FRAMES));
             let mut stream = try!(self.pa.open_non_blocking_stream(settings, callback));
             try!(stream.start());
 
@@ -33,7 +33,7 @@ pub mod sound {
                 let mut idx = 0;
                 for item in generator_buffer.iter().take(frames) {
                     for _ in 0..(channel_count as usize) {
-                        buffer[idx] = *item;// as SampleOutput;
+                        buffer[idx] = *item; // as SampleOutput;
                         idx += 1;
                     }
                 }
@@ -90,12 +90,15 @@ pub mod sound {
 
         pub fn init(&mut self) {
             let _ = mixer::init(mixer::INIT_MP3 | mixer::INIT_FLAC | mixer::INIT_MOD |
-                mixer::INIT_FLUIDSYNTH | mixer::INIT_MODPLUG |
-                mixer::INIT_OGG).unwrap();
+                                mixer::INIT_FLUIDSYNTH |
+                                mixer::INIT_MODPLUG |
+                                mixer::INIT_OGG)
+                    .unwrap();
             mixer::open_audio(mixer::DEFAULT_FREQUENCY,
                               mixer::DEFAULT_FORMAT,
                               mixer::DEFAULT_CHANNELS,
-                              1024).unwrap();
+                              1024)
+                    .unwrap();
             mixer::allocate_channels(16);
             info!("query spec => {:?}", sdl2::mixer::query_spec());
         }
@@ -110,10 +113,13 @@ pub mod sound {
                         info!("[SOUND][SoundInternal] MUSIC Track {:?}", filename);
                         info!("music type => {:?}", track.get_type());
                         self.music_tracks.insert(filename, track);
-                    },
+                    }
                     packet::Packet::PlayMusic(res) => {
                         let filename = res.filename.clone();
-                        self.music_tracks.get(&filename).expect("music: Attempted to play value that is not bound to asset").play(-1);
+                        self.music_tracks
+                            .get(&filename)
+                            .expect("music: Attempted to play value that is not bound to asset")
+                            .play(res.loops);
                     }
                     packet::Packet::StopMusic(res) => {
                         sdl2::mixer::Music::halt();
@@ -132,23 +138,26 @@ pub mod sound {
                         let track = mixer::Chunk::from_file(filename.as_ref()).unwrap();
                         info!("[SOUND][SoundInternal] SOUND Track {:?}", filename);
                         self.sound_tracks.insert(filename, track);
-                    },
+                    }
                     packet::Packet::PlaySound(res) => {
                         let filename = res.filename.clone();
-                        sdl2::mixer::Channel::all().play(&self.sound_tracks.get(&filename).unwrap(), 0);
+                        sdl2::mixer::Channel::all()
+                            .play(&self.sound_tracks.get(&filename).unwrap(), res.loops);
                     }
                 }
             }
         }
 
         pub fn set_volume(&mut self, volume: f64) {
-            info!("[SOUND][SoundInternal] music volume => {:?}", sdl2::mixer::Music::get_volume());
+            info!("[SOUND][SoundInternal] music volume => {:?}",
+                  sdl2::mixer::Music::get_volume());
             // Map 0.0 - 1.0 to 0 - 128 (sdl2::mixer::MAX_VOLUME).
             mixer::Music::set_volume((volume.max(MIN_VOLUME).min(MAX_VOLUME) *
-                mixer::MAX_VOLUME as f64) as i32);
-            info!("[SOUND][SoundInternal] music volume => {:?}", sdl2::mixer::Music::get_volume());
+                                      mixer::MAX_VOLUME as f64) as
+                                     i32);
+            info!("[SOUND][SoundInternal] music volume => {:?}",
+                  sdl2::mixer::Music::get_volume());
         }
-
     }
 
     #[derive(Copy, Clone)]
@@ -174,75 +183,63 @@ pub mod sound {
 
     impl Sound {
         pub fn new(csend: mpsc::Sender<Vec<u8>>) -> Sound {
-            Sound {
-                csend: csend,
-            }
+            Sound { csend: csend }
         }
 
         // Music
         pub fn load(&mut self, filename: String) -> i32 {
             info!("[SOUND] Load music {:?}", filename);
-            let p = packet::LoadMusic {
-                filename: filename,
-            };
+            let p = packet::LoadMusic { filename: filename };
             self.csend.send(packet::write_packet(p).unwrap());
             0
         }
 
-        pub fn play(&mut self, filename: String) {
-            info!("[SOUND] Play music {:?}", filename);
+        pub fn play(&mut self, filename: String, loops: i32) {
+            info!("[SOUND] Play music {:?} {:?}", filename, loops);
             let p = packet::PlayMusic {
                 filename: filename,
+                loops: loops,
             };
             self.csend.send(packet::write_packet(p).unwrap());
         }
 
         pub fn stop(&mut self) {
             info!("[SOUND] Stop music");
-            let p = packet::StopMusic {
-                filename: "".to_string(),
-            };
+            let p = packet::StopMusic { filename: "".to_string() };
             self.csend.send(packet::write_packet(p).unwrap());
         }
 
         pub fn pause(&mut self) {
             info!("[SOUND] Pause music");
-            let p = packet::PauseMusic {
-                filename: "".to_string(),
-            };
+            let p = packet::PauseMusic { filename: "".to_string() };
             self.csend.send(packet::write_packet(p).unwrap());
         }
 
         pub fn resume(&mut self) {
             info!("[SOUND] Resume music");
-            let p = packet::ResumeMusic {
-                filename: "".to_string(),
-            };
+            let p = packet::ResumeMusic { filename: "".to_string() };
             self.csend.send(packet::write_packet(p).unwrap());
         }
 
         pub fn rewind(&mut self) {
             info!("[SOUND] Rewind music");
-            let p = packet::RewindMusic {
-                filename: "".to_string(),
-            };
+            let p = packet::RewindMusic { filename: "".to_string() };
             self.csend.send(packet::write_packet(p).unwrap());
         }
 
         // Sound
         pub fn load_sound(&mut self, filename: String) -> i32 {
             info!("[SOUND] Load sound {:?}", filename);
-            let p = packet::LoadSound {
-                filename: filename,
-            };
+            let p = packet::LoadSound { filename: filename };
             self.csend.send(packet::write_packet(p).unwrap());
             0
         }
 
-        pub fn play_sound(&mut self, filename: String) -> i32 {
-            info!("[SOUND] Play sound {:?}", filename);
+        pub fn play_sound(&mut self, filename: String, loops: i32) -> i32 {
+            info!("[SOUND] Play sound {:?} {:?}", filename, loops);
             let p = packet::PlaySound {
                 filename: filename,
+                loops: loops,
             };
             self.csend.send(packet::write_packet(p).unwrap());
             0
@@ -262,17 +259,14 @@ pub mod sound {
         pub fn new() -> SoundInternal {
             let (csend, _) = mpsc::channel();
 
-            SoundInternal {
-                csend: csend,
-            }
+            SoundInternal { csend: csend }
         }
 
         pub fn init(&mut self) {}
         pub fn update(&mut self) {}
     }
 
-    pub struct Sound {
-    }
+    pub struct Sound {}
 
     impl Sound {
         pub fn new(_csend: mpsc::Sender<Vec<u8>>) -> Sound {
@@ -283,7 +277,7 @@ pub mod sound {
         pub fn load(&mut self, _filename: String) -> i32 {
             0
         }
-        pub fn play(&mut self, _filename: String) {}
+        pub fn play(&mut self, _filename: String, _loops: i32) {}
 
         pub fn stop(&mut self) {}
 
@@ -298,7 +292,7 @@ pub mod sound {
             0
         }
 
-        pub fn play_sound(&mut self, _filename: String) -> i32 {
+        pub fn play_sound(&mut self, _filename: String, _loops: i32) -> i32 {
             0
         }
     }

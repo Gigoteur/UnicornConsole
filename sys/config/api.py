@@ -7,8 +7,8 @@ from sys import float_info
 def music_load(filename):
     return px8_audio.music_load(filename)
 
-def music_play(filename):
-    px8_audio.music_play(filename)
+def music_play(filename, loops=-1):
+    px8_audio.music_play(filename, loops)
 
 def music_pause():
     px8_audio.music_pause()
@@ -28,8 +28,8 @@ def music_volume(value):
 def sound_load(filename):
     return px8_audio.sound_load(filename)
 
-def sound_play(filename):
-    return px8_audio.sound_play(filename)
+def sound_play(filename, loops=0):
+    return px8_audio.sound_play(filename, loops)
 
 globals()["music_load"] = music_load
 globals()["music_play"] = music_play
