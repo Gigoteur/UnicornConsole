@@ -62,8 +62,6 @@ The console is inspired from the awesome [Pico-8](http://www.lexaloffle.com/pico
 
 ![](http://i.imgur.com/um3gmWh.gif)
 
-![](http://i.imgur.com/8gRKf2h.gif)
-
 Editor mode:
 
 ![](http://i.imgur.com/pM1lIGS.gif)
