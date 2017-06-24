@@ -114,6 +114,7 @@ and old binaries could be obtain for free.
 
 You will need multiple things:
   * SDL2
+  * SDL2_mixer
   * python3
   * libreadline
 
@@ -136,6 +137,7 @@ sudo raspi-config
 Install external dependencies via brew:
    * brew install python3
    * brew install sdl2
+   * brew install sdl2_mixer
    * brew install readline
    
 Right now you need to export the DYLD_FALLBACK_LIBRARY_PATH env variable for the python support, e.g:
