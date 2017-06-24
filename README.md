@@ -122,6 +122,7 @@ You will need multiple things:
 
 Packages for Debian/Ubuntu:
   * libsdl2-dev
+  * libsdl2-mixer-dev
   * libreadline-dev
   * libpython3-dev
 
