@@ -683,7 +683,7 @@ impl PX8 {
     }
 
     pub fn update_sound(&mut self) {
-        self.sound_internal.update();
+        self.sound_internal.update(self.sound.clone());
     }
 
     #[cfg_attr(rustfmt, rustfmt_skip)]

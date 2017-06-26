@@ -74,3 +74,10 @@ def _draw():
     for item in MENU.values():
         item.draw()
 
+    idx = 10
+    for i in range(0, 16):
+        is_playing = sound_isplaying(i)
+        color = 7
+        if is_playing:
+            color = 8
+        circfill(idx+i*5, 100, 1, color)

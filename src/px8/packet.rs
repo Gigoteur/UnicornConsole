@@ -215,12 +215,30 @@ create_packets!(
     packet RewindMusic {
         field filename: String =,
     }
+    packet VolumeMusic {
+        field volume: i32 =,
+    }
+
     packet LoadSound {
         field filename: String =,
     }
     packet PlaySound {
         field filename: String =,
         field loops: i32 =,
+        field channel: i32 =,
+    }
+    packet StopSound {
+        field channel: i32 =,
+    }
+     packet PauseSound {
+        field channel: i32 =,
+    }
+    packet ResumeSound {
+        field channel: i32 =,
+    }
+    packet VolumeSound {
+        field volume: i32 =,
+        field channel: i32 =,
     }
 );
 

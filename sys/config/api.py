@@ -22,14 +22,29 @@ def music_stop():
 def music_rewind():
     px8_audio.music_rewind()
 
-def music_volume(value):
-    px8_audio.music_volume(value)
+def music_volume(volume):
+    px8_audio.music_volume(volume)
 
 def sound_load(filename):
     return px8_audio.sound_load(filename)
 
-def sound_play(filename, loops=0):
-    return px8_audio.sound_play(filename, loops)
+def sound_play(filename, loops=0, channel=-1):
+    return px8_audio.sound_play(filename, loops, channel)
+
+def sound_pause(channel=-1):
+    px8_audio.sound_pause(channel)
+
+def sound_resume(channel=-1):
+    px8_audio.sound_resume(channel)
+
+def sound_stop(channel=-1):
+    px8_audio.sound_stop(channel)
+
+def sound_volume(volume, channel=-1):
+    px8_audio.sound_volume(volume, channel)
+
+def sound_isplaying(channel=-1):
+    return px8_audio.sound_isplaying(channel)
 
 globals()["music_load"] = music_load
 globals()["music_play"] = music_play
@@ -37,10 +52,15 @@ globals()["music_stop"] = music_stop
 globals()["music_pause"] = music_pause
 globals()["music_resume"] = music_resume
 globals()["music_rewind"] = music_rewind
+globals()["music_volume"] = music_volume
 
 globals()["sound_load"] = sound_load
 globals()["sound_play"] = sound_play
-
+globals()["sound_pause"] = sound_pause
+globals()["sound_resume"] = sound_resume
+globals()["sound_stop"] = sound_stop
+globals()["sound_volume"] = sound_volume
+globals()["sound_isplaying"] = sound_isplaying
 
 # Cart Data
 

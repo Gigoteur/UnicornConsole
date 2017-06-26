@@ -49,13 +49,43 @@ pub mod plugin {
         Ok(0)
     }
 
+    def music_volume(&self, volume: i32) -> PyResult<i32> {
+        self.sound(py).lock().unwrap().volume(volume);
+        Ok(0)
+    }
+
     // Sound
     def sound_load(&self, filename: String) -> PyResult<i32> {
         Ok(self.sound(py).lock().unwrap().load_sound(filename))
     }
 
-    def sound_play(&self, filename: String, loops: i32) -> PyResult<i32> {
-        Ok(self.sound(py).lock().unwrap().play_sound(filename, loops))
+    def sound_play(&self, filename: String, loops: i32, channel: i32) -> PyResult<i32> {
+        self.sound(py).lock().unwrap().play_sound(filename, loops, channel);
+        Ok(0)
+    }
+
+    def sound_pause(&self, channel: i32) -> PyResult<i32> {
+        self.sound(py).lock().unwrap().pause_sound(channel);
+        Ok(0)
+    }
+
+    def sound_resume(&self, channel: i32) -> PyResult<i32> {
+        self.sound(py).lock().unwrap().resume_sound(channel);
+        Ok(0)
+    }
+
+    def sound_stop(&self, channel: i32) -> PyResult<i32> {
+        self.sound(py).lock().unwrap().stop_sound(channel);
+        Ok(0)
+    }
+
+    def sound_volume(&self, volume: i32, channel: i32) -> PyResult<i32> {
+        self.sound(py).lock().unwrap().volume_sound(volume, channel);
+        Ok(0)
+    }
+
+    def sound_isplaying(&self, channel: i32) -> PyResult<bool> {
+        Ok(self.sound(py).lock().unwrap().isplaying_sound(channel))
     }
 
 

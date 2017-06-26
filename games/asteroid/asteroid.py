@@ -11,6 +11,7 @@ utils.addglobals(globals())
 maps.addglobals(globals())
 
 from utils import Vec2
+JET_SOUND = "games/asteroid/assets/jet.wav"
 
 CELL_SIZE = 32
 CELL_BOUNDS = 256
@@ -145,6 +146,7 @@ class Ship(object):
             self.dy -= 0.02 * sin(self.angle)
 
         if btn(2):
+            sound_play(JET_SOUND)
             self.dx += 0.04 * cos(self.angle)
             self.dy += 0.04 * sin(self.angle)
             self.jet(1 - self.angle + 0.25)
@@ -251,6 +253,8 @@ CONFIG = Configuration(B)
 def _init():
     show_mouse(True)
     mode(256, 256)
+
+    sound_load(JET_SOUND)
     global S, P, CAM, N, CELLS, STARS
     N = NetworkClient("localhost", 9000)
     #N.connect()
