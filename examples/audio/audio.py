@@ -28,7 +28,43 @@ class Button(object):
     def is_click(self):
         return self.clicked
 
+class InteractiveNumber(object):
+    def __init__(self, x, y, color):
+        self.x = x
+        self.y = y
+        self.color = color
+        self.value = 128
+        self.text = 'Unknown'
+
+        base_x_rect = self.x - 4
+        base_y_rect = self.y - 4
+        self.rect_minus = [base_x_rect, self.y, base_x_rect+2, self.y+2]
+        self.rect_plus = [base_x_rect, base_y_rect, base_x_rect+2, base_y_rect+2]
+
+    def update(self, x, y):
+        rect_min_clicked = (self.rect_minus[0] <= x <= self.rect_minus[2] and
+                            self.rect_minus[1] <= y <= self.rect_minus[3])
+        if rect_min_clicked:
+            self.value -= 10
+            self.value = max(0, self.value)
+
+
+        rect_plus_clicked = (self.rect_plus[0] <= x <= self.rect_plus[2] and
+                             self.rect_plus[1] <= y <= self.rect_plus[3])
+        if rect_plus_clicked:
+            self.value += 10
+            self.value = min(128, self.value)
+
+        if rect_min_clicked or rect_plus_clicked:
+            music_volume(self.value)
+
+    def draw(self):
+        rectfill(self.rect_minus[0], self.rect_minus[1], self.rect_minus[2], self.rect_minus[3], self.color)
+        rectfill(self.rect_plus[0], self.rect_plus[1], self.rect_plus[2], self.rect_plus[3], self.color)
+
+
 MENU = {
+    'Volume': InteractiveNumber(10, 20, 7),
     'Play': Button(20, 20, 40, 28, 7, 'Play'),
     'Stop': Button(42, 20, 62, 28, 7, 'Stop'),
     'Pause': Button(64, 20, 84, 28, 7, 'Pause'),

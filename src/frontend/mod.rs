@@ -1,8 +1,6 @@
 pub mod fps;
 pub mod frametimes;
 
-use time;
-
 use sdl2;
 use sdl2::Sdl;
 use sdl2::EventPump;
@@ -60,7 +58,6 @@ pub struct Frontend {
     controllers: controllers::Controllers,
     times: frametimes::FrameTimes,
     pub px8: px8::PX8,
-    start_time: time::Tm,
     elapsed_time: f64,
     scale: Scale,
     fps_counter: fps::FpsCounter,
@@ -104,7 +101,6 @@ impl Frontend {
                controllers: controllers::Controllers::new(),
                times: frametimes::FrameTimes::new(Duration::from_secs(1) / 60),
                px8: px8,
-               start_time: time::now(),
                elapsed_time: 0.,
                scale: scale,
                fps_counter: fps::FpsCounter::new(),
@@ -114,7 +110,6 @@ impl Frontend {
     pub fn start(&mut self, pathdb: String) {
         info!("[Frontend] Start");
 
-        self.start_time = time::now();
         self.times.reset();
 
         info!("[Frontend] initialise controllers");
@@ -125,16 +120,8 @@ impl Frontend {
     }
 
     pub fn update_time(&mut self) {
-        let new_time = time::now();
-        let diff_time = new_time - self.start_time;
-        let nanoseconds = (diff_time.num_nanoseconds().unwrap() as f64) -
-                          (diff_time.num_seconds() * 1000000000) as f64;
-
-        self.elapsed_time = diff_time.num_seconds() as f64 + nanoseconds / 1000000000.0;
-
-        self.px8.info.lock().unwrap().elapsed_time = self.elapsed_time;
-
-        self.px8.players.lock().unwrap().update(self.elapsed_time);
+        self.px8.info.lock().unwrap().update();
+        self.px8.players.lock().unwrap().update(self.px8.info.lock().unwrap().elapsed_time);
     }
 
     pub fn init_controllers(&mut self, pathdb: String) {

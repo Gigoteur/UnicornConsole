@@ -1835,9 +1835,8 @@ pub mod plugin {
                                             data.info.clone()
                                         });
 
-            info!("LUA TIME {:?}", info.lock().unwrap().real_time);
-
-            state.push_number(info.lock().unwrap().real_time);
+            info.lock().unwrap().update();
+            state.push_integer(info.lock().unwrap().milliseconds);
 
             1
         }
