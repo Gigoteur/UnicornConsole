@@ -915,10 +915,11 @@ impl Screen {
         let mut orig_x = x;
         let mut orig_y = y;
 
+        let sprites_len = self.sprites.len();
         for i in 0..h {
             for j in 0..w {
                 let sprite_offset = ((j + n) + i * 16) as usize;
-                if sprite_offset >= self.sprites.len() {
+                if sprite_offset >= sprites_len {
                     break;
                 }
 

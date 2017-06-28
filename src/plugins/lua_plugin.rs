@@ -1608,8 +1608,6 @@ pub mod plugin {
 
         // spr n x y [w h] [flip_x] [flip_y]
         unsafe extern "C" fn lua_spr(lua_context: *mut lua_State) -> c_int {
-            debug!("LUA SPR");
-
             let mut state = State::from_ptr(lua_context);
 
             let n = state.check_integer(2);
@@ -1619,15 +1617,6 @@ pub mod plugin {
             let h = state.check_integer(6);
             let flip_x = state.check_integer(7);
             let flip_y = state.check_integer(8);
-
-            debug!("LUA SPR n:{:?} x:{:?} y:{:?} w:{:?} h:{:?} flip_x:{:?} flip_y:{:?}",
-                   n,
-                   x,
-                   y,
-                   w,
-                   h,
-                   flip_x,
-                   flip_y);
 
             let screen = state.with_extra(|extra| {
                                               let data = extra
@@ -1654,8 +1643,6 @@ pub mod plugin {
 
         // sspr sx sy sw sh dx dy [dw dh] [flip_x] [flip_y]
         unsafe extern "C" fn lua_sspr(lua_context: *mut lua_State) -> c_int {
-            debug!("LUA SSPR");
-
             let mut state = State::from_ptr(lua_context);
 
             let sx = state.check_integer(2);
@@ -1668,18 +1655,6 @@ pub mod plugin {
             let dh = state.check_integer(9);
             let flip_x = state.check_integer(10);
             let flip_y = state.check_integer(11);
-
-            debug!("LUA SSPR sx:{:?} sy:{:?} sw:{:?} sh:{:?} dx:{:?} dy:{:?} dw:{:?} dh:{:?} flip_x:{:?} flip_y:{:?}",
-                   sx,
-                   sy,
-                   sw,
-                   sh,
-                   dx,
-                   dy,
-                   dw,
-                   dh,
-                   flip_x,
-                   flip_y);
 
             let screen = state.with_extra(|extra| {
                                               let data = extra
@@ -1835,8 +1810,7 @@ pub mod plugin {
                                             data.info.clone()
                                         });
 
-            info.lock().unwrap().update();
-            state.push_integer(info.lock().unwrap().milliseconds);
+            state.push_integer(info.lock().unwrap().get_milliseconds());
 
             1
         }

@@ -47,7 +47,7 @@ impl RustPlugin for HelloWorld {
         0.0
     }
 
-    fn draw(&mut self, screen: &mut gfx::Screen) -> f64 {
+    fn draw(&mut self, screen: &mut gfx::Screen, _info: &mut info::Info) -> f64 {
         debug!("HelloWorld draw");
 
         screen.cls();

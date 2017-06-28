@@ -121,7 +121,7 @@ impl RGB {
 pub trait RustPlugin {
     fn init(&mut self, screen: &mut gfx::Screen) -> f64;
     fn update(&mut self, players: &mut Players) -> f64;
-    fn draw(&mut self, screen: &mut gfx::Screen) -> f64;
+    fn draw(&mut self, screen: &mut gfx::Screen, info: &mut info::Info) -> f64;
 }
 
 #[derive(PartialEq)]
@@ -1244,8 +1244,7 @@ impl PX8 {
                 self.draw_return = true;
 
                 for callback in &mut self.cartridges[self.current_cartridge].rust_plugin {
-                    callback.draw(&mut self.screen.lock().unwrap());
-
+                    callback.draw(&mut self.screen.lock().unwrap(), &mut self.info.lock().unwrap());
                 }
             }
             _ => (),

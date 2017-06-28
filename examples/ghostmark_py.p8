@@ -1,96 +1,63 @@
-px8 / lua cartridge
+px8 / python cartridge
 version 1
-__lua__
+__python__
 
--- Original code is here: http://tic.computer/play?cart=122
+import random
 
-function _init()
-end
+# Original code is here: http://tic.computer/play?cart=122
 
-function _update()
-end
+def _init():
+    pass
 
-
-function class(superclass, name)
-    local cls = {}
-    cls.__name = name or ""
-    cls.__super = superclass
-    cls.__index = cls
-    return setmetatable(cls, {__call = function (c, ...)
-        self = setmetatable({}, cls)
-        local super = cls.__super
-        while (super~=nil) do
-            if super.__init then
-                super.__init(self, ...)
-            end
-            super = super.__super
-        end
-        if cls.__init then
-            cls.__init(self, ...)
-        end
-        return self
-    end})
-end
-
-Items = {}
-
-Item = class(nil,"Stuff")
-
-function Item:__init()
-    self.x = math.random(10,128)
-    self.y = math.random(10,128)
-    self.vx = math.random(-10,10) / 10.0
-    self.vy = math.random(-10,10) / 10.0
-    self.color = math.random(15)
-    table.insert(Items,self)
-end
-
-function Item:update()
-    self.x = self.x + self.vx
-    self.y = self.y + self.vy
-
-    if self.x<0 or self.x>128 then
-        self.vx = -self.vx
-    end
-    if self.y>128 then
-        self.y = 128
-        self.vy = -(math.random(100)/25.0)
-    end
-
-    spr(self.color,self.x,self.y)
-    self.vy = self.vy + 0.05
-end
+def _update():
+    pass
 
 
+class Item(object):
+    def __init__(self):
+        self.x = random.randrange(10,128)
+        self.y = random.randrange(10,128)
+        self.vx = random.randrange(-10,10) / 10.0
+        self.vy = random.randrange(-10,10) / 10.0
+        self.color = rnd(15)
 
-for x=1,500 do
-    bunny = Item()
-end
+    def update(self):
+        self.x = self.x + self.vx
+        self.y = self.y + self.vy
 
-function _draw()
+        if self.x<0 or self.x>128:
+            self.vx = -self.vx
+
+        if self.y>128:
+            self.y = 128
+            self.vy = -(rnd(100)/25.0)
+
+
+        spr(self.color,self.x,self.y)
+        self.vy = self.vy + 0.05
+
+Items = []
+for i in range(0, 500):
+    Items.append(Item())
+
+def _draw():
     cls()
-    local stime = time()
+    stime = px8_time()
 
-    for x=1,#Items do
-        Items[x]:update()
-    end
+    for item in Items:
+        item.update()
 
-    local etime = time()
+    etime = px8_time()
 
-   -- debug_print(stime .. " " .. etime)
+    px8_print("dots :" + str(len(Items)),8,0, 7)
+    px8_print("Time :" + str(etime - stime), 8, 8, 7)
+    px8_print("Time :" + str((etime - stime)/16.67), 8, 16, 7)
 
-    print("dots :" .. #Items,8,0, 7)
-    print("Time :" .. etime - stime, 8, 8, 7)
-    print("Time :" .. (etime - stime)/16.67, 8, 16, 7)
-
-    --    add 500 more
-    print("(X) add 500 more",8,120, 7)
-    if btnp(5) then
-        for x=1,500 do
-            bunny = Item()
-        end
-    end
-end
+    #    add 500 more
+    px8_print("(X) add 500 more", 8, 120, 7)
+    if btnp(5):
+        for i in range(0, 500):
+            Items.append(Item())
 
 __gfx__
 000000000111111002222220033333300444444005555550066666600777777008888880099999900aaaaaa00bbbbbb00cccccc00dddddd00eeeeee00ffffff0

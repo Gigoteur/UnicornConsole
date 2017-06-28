@@ -30,4 +30,9 @@ impl Info {
         self.elapsed_time = diff_time.num_seconds() as f64 + nanoseconds / 1000000000.0;
         self.milliseconds = diff_time.num_milliseconds();
     }
+
+    pub fn get_milliseconds(&mut self) -> i64 {
+        self.update();
+        self.milliseconds
+    }
 }
