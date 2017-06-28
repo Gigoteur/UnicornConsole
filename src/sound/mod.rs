@@ -64,12 +64,6 @@ pub mod sound {
     use sdl2::mixer;
     use std::sync::{Arc, Mutex};
 
-    /// Minimum value for playback volume parameter.
-    pub const MIN_VOLUME: f64 = 0.0;
-
-    /// Maximum value for playback volume parameter.
-    pub const MAX_VOLUME: f64 = 1.0;
-
     pub struct SoundInternal {
         music_tracks: HashMap<String, mixer::Music>,
         sound_tracks: HashMap<String, mixer::Chunk>,
@@ -106,14 +100,14 @@ pub mod sound {
 
         pub fn update(&mut self, sound: Arc<Mutex<Sound>>) {
             for sound_packet in self.crecv.try_iter() {
-                info!("[SOUND] PACKET {:?}", sound_packet);
+                debug!("[SOUND] PACKET {:?}", sound_packet);
                 match packet::read_packet(sound_packet).unwrap() {
                     // Music
                     packet::Packet::LoadMusic(res) => {
                         let filename = res.filename.clone();
                         let track = mixer::Music::from_file(filename.as_ref()).unwrap();
-                        info!("[SOUND][SoundInternal] MUSIC Track {:?}", filename);
-                        info!("music type => {:?}", track.get_type());
+                        debug!("[SOUND][SoundInternal] MUSIC Track {:?}", filename);
+                        debug!("music type => {:?}", track.get_type());
                         self.music_tracks.insert(filename, track);
                     }
                     packet::Packet::PlayMusic(res) => {
@@ -143,7 +137,7 @@ pub mod sound {
                     packet::Packet::LoadSound(res) => {
                         let filename = res.filename.clone();
                         let track = mixer::Chunk::from_file(filename.as_ref()).unwrap();
-                        info!("[SOUND][SoundInternal] SOUND Track {:?}", filename);
+                        debug!("[SOUND][SoundInternal] SOUND Track {:?}", filename);
                         self.sound_tracks.insert(filename, track);
                     }
                     packet::Packet::PlaySound(res) => {
@@ -174,17 +168,6 @@ pub mod sound {
                 sound.lock().unwrap().channels[i] = sdl2::mixer::channel(i as i32).is_playing();
             }
         }
-
-        pub fn set_volume(&mut self, volume: f64) {
-            info!("[SOUND][SoundInternal] music volume => {:?}",
-                  sdl2::mixer::Music::get_volume());
-            // Map 0.0 - 1.0 to 0 - 128 (sdl2::mixer::MAX_VOLUME).
-            mixer::Music::set_volume((volume.max(MIN_VOLUME).min(MAX_VOLUME) *
-                                      mixer::MAX_VOLUME as f64) as
-                                     i32);
-            info!("[SOUND][SoundInternal] music volume => {:?}",
-                  sdl2::mixer::Music::get_volume());
-        }
     }
 
     pub struct Sound {
@@ -202,14 +185,14 @@ pub mod sound {
 
         // Music
         pub fn load(&mut self, filename: String) -> i32 {
-            info!("[SOUND] Load music {:?}", filename);
+            debug!("[SOUND] Load music {:?}", filename);
             let p = packet::LoadMusic { filename: filename };
             self.csend.send(packet::write_packet(p).unwrap()).unwrap();
             0
         }
 
         pub fn play(&mut self, filename: String, loops: i32) {
-            info!("[SOUND] Play music {:?} {:?}", filename, loops);
+            debug!("[SOUND] Play music {:?} {:?}", filename, loops);
             let p = packet::PlayMusic {
                 filename: filename,
                 loops: loops,
@@ -218,31 +201,31 @@ pub mod sound {
         }
 
         pub fn stop(&mut self) {
-            info!("[SOUND] Stop music");
+            debug!("[SOUND] Stop music");
             let p = packet::StopMusic { filename: "".to_string() };
             self.csend.send(packet::write_packet(p).unwrap()).unwrap();
         }
 
         pub fn pause(&mut self) {
-            info!("[SOUND] Pause music");
+            debug!("[SOUND] Pause music");
             let p = packet::PauseMusic { filename: "".to_string() };
             self.csend.send(packet::write_packet(p).unwrap()).unwrap();
         }
 
         pub fn resume(&mut self) {
-            info!("[SOUND] Resume music");
+            debug!("[SOUND] Resume music");
             let p = packet::ResumeMusic { filename: "".to_string() };
             self.csend.send(packet::write_packet(p).unwrap()).unwrap();
         }
 
         pub fn rewind(&mut self) {
-            info!("[SOUND] Rewind music");
+            debug!("[SOUND] Rewind music");
             let p = packet::RewindMusic { filename: "".to_string() };
             self.csend.send(packet::write_packet(p).unwrap()).unwrap();
         }
 
         pub fn volume(&mut self, volume: i32) {
-            info!("[SOUND] Volume music");
+            debug!("[SOUND] Volume music");
             let p = packet::VolumeMusic { volume: volume };
             self.csend.send(packet::write_packet(p).unwrap()).unwrap();
         }
@@ -250,14 +233,14 @@ pub mod sound {
 
         // Sound
         pub fn load_sound(&mut self, filename: String) -> i32 {
-            info!("[SOUND] Load sound {:?}", filename);
+            debug!("[SOUND] Load sound {:?}", filename);
             let p = packet::LoadSound { filename: filename };
             self.csend.send(packet::write_packet(p).unwrap()).unwrap();
             0
         }
 
         pub fn play_sound(&mut self, filename: String, loops: i32, channel: i32) {
-            info!("[SOUND] Play sound {:?} {:?} {:?}", filename, loops, channel);
+            debug!("[SOUND] Play sound {:?} {:?} {:?}", filename, loops, channel);
             let p = packet::PlaySound {
                 filename: filename,
                 loops: loops,
@@ -267,7 +250,7 @@ pub mod sound {
         }
 
         pub fn pause_sound(&mut self, channel: i32) {
-            info!("[SOUND] Pause sound {:?}", channel);
+            debug!("[SOUND] Pause sound {:?}", channel);
             let p = packet::PauseSound {
                 channel: channel,
             };
@@ -275,7 +258,7 @@ pub mod sound {
         }
 
         pub fn resume_sound(&mut self, channel: i32) {
-            info!("[SOUND] Resume sound {:?}", channel);
+            debug!("[SOUND] Resume sound {:?}", channel);
             let p = packet::ResumeSound {
                 channel: channel,
             };
@@ -283,7 +266,7 @@ pub mod sound {
         }
 
         pub fn stop_sound(&mut self, channel: i32) {
-            info!("[SOUND] Stop sound {:?}", channel);
+            debug!("[SOUND] Stop sound {:?}", channel);
             let p = packet::StopSound {
                 channel: channel,
             };
@@ -291,7 +274,7 @@ pub mod sound {
         }
 
         pub fn volume_sound(&mut self, volume: i32, channel: i32) {
-            info!("[SOUND] Volume sound {:?} {:?}", volume, channel);
+            debug!("[SOUND] Volume sound {:?} {:?}", volume, channel);
             let p = packet::VolumeSound {
                 volume: volume,
                 channel: channel,
