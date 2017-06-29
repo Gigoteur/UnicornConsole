@@ -26,7 +26,7 @@ install:
 build: false
 
 test_script:
-    - cargo build --features="cpython lua" --verbose --release
+    - cargo build --features="cpython" --verbose --release
 
 cache:
     - target
