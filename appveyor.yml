@@ -13,8 +13,7 @@ environment:
           MSYSTEM: MINGW32
           BASH: C:\msys64\usr\bin\bash
           MSYS_CACHE: C:\msys64\var\cache\pacman\pkg
-          CC: i686-w64-mingw32-gcc
-
+          
 matrix:
     allow_failures:
         - CHANNEL: nightly
