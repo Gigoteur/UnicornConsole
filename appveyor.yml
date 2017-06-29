@@ -65,12 +65,6 @@ install:
     - set LIB=%LIB%;C:\projects\PX8\sdl2_mixer\SDL2_mixer-2.0.1\lib\x64
     - ps: Get-ChildItem -Recurse -Depth 4
 
-    - bash -lc "pacman --noconfirm --sync --refresh --refresh pacman"
-    - bash -lc "pacman --noconfirm --sync --refresh --refresh --sysupgrade --sysupgrade"
-    - bash -xlc "pacman --noconfirm -S --needed base-devel"
-
-
-
 build: false
 
 test_script:
