@@ -10,10 +10,12 @@ environment:
           PY: 3
           PYTHONPATH: C:\Python34-x64
           FEATURES: python3-sys
-          MSYSTEM: MINGW32
-          BASH: C:\msys64\usr\bin\bash
-          MSYS_CACHE: C:\msys64\var\cache\pacman\pkg
-          
+          compiler: msvc_msys2
+          ARCH: x64
+          MSYS2_ARCH: x86_64
+          MSYS2_DIR: msys64
+          MSYSTEM: MINGW64
+
 matrix:
     allow_failures:
         - CHANNEL: nightly
