@@ -1,4 +1,5 @@
 environment:
+    image: Visual Studio 2017
     global:
         PROJECT_NAME: PX8
     matrix:
