@@ -16,6 +16,8 @@ matrix:
         - CHANNEL: nightly
 
 install:
+    - set PATH=C:\msys64\usr\bin;%PATH%
+    - set PATH=C:\msys64\mingw32\bin;%PATH%
     - if "%TARGET%" == "x86_64-pc-windows-msvc" set PATH=C:\msys64\mingw64\bin;%PATH%
     - if "%TARGET%" == "i686-pc-windows-msvc" set PATH=C:\msys64\mingw32\bin;%PATH%
 
