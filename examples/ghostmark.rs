@@ -2,15 +2,11 @@ extern crate px8;
 extern crate sdl2;
 extern crate time;
 extern crate rand;
-#[macro_use]
 extern crate log;
 extern crate fern;
 
 use rand::Rng;
 
-use std::sync::{Arc, Mutex};
-
-use px8::px8::math;
 use px8::frontend;
 use px8::gfx;
 use px8::px8::info;
@@ -98,13 +94,13 @@ impl RustPlugin for GhostMark {
     fn draw(&mut self, screen: &mut gfx::Screen, info: &mut info::Info) -> f64 {
         screen.cls();
 
-        let stime = info.get_milliseconds();
+        let stime = info.time();
 
         for ghost in &mut self.sprites {
             ghost.update(screen);
         }
 
-        let etime = info.get_milliseconds();
+        let etime = info.time();
 
         screen.print(format!("dots {:?}",  self.sprites.len()), 8, 0, 7);
         screen.print(format!("Time : {:?}", etime - stime), 8, 8, 7);

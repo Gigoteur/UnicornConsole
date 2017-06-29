@@ -403,7 +403,7 @@ pub mod plugin {
         }
 
         def time(&self) -> PyResult<i64> {
-            Ok(self.info(py).lock().unwrap().get_milliseconds())
+            Ok(self.info(py).lock().unwrap().time())
         }
 
     });

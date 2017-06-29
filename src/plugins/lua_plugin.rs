@@ -1810,7 +1810,7 @@ pub mod plugin {
                                             data.info.clone()
                                         });
 
-            state.push_integer(info.lock().unwrap().get_milliseconds());
+            state.push_integer(info.lock().unwrap().time());
 
             1
         }

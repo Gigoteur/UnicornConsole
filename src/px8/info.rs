@@ -31,7 +31,7 @@ impl Info {
         self.milliseconds = diff_time.num_milliseconds();
     }
 
-    pub fn get_milliseconds(&mut self) -> i64 {
+    pub fn time(&mut self) -> i64 {
         self.update();
         self.milliseconds
     }
