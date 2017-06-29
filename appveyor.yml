@@ -51,7 +51,8 @@ install:
     - appveyor DownloadFile https://win.rustup.rs/ -FileName rustup-init.exe
     - rustup-init.exe -y --default-toolchain %CHANNEL%
     - set PATH=%PATH%;C:\Users\appveyor\.cargo\bin
-  
+    - if NOT "%TARGET%" == "x86_64-pc-windows-msvc" rustup target add %TARGET%
+
     - where gcc rustc cargo
     - rustc -Vv
     - SET PATH=%PYTHONPATH%;%PATH%
