@@ -16,9 +16,35 @@ matrix:
         - CHANNEL: nightly
 
 install:
-    - set PATH=C:\msys64\usr\bin;%PATH%
-    - if "%TARGET%" == "x86_64-pc-windows-msvc" set PATH=C:\msys64\mingw64\bin;%PATH%
-    - if "%TARGET%" == "i686-pc-windows-msvc" set PATH=C:\msys64\mingw32\bin;%PATH%
+      # Print Powershell version.
+    - ps: $PSVersionTable.PSVersion
+    - ps: pwd
+
+    - ps: |
+      # Check if MSYS2 was restored from cache
+      if($env:MINGW_DIR) {
+        if($env:MINGW_DIR -eq "mingw32") {
+          # Download and install MINGW (32-bit)
+          Write-Host "Installing MinGW (32-bit)..." -ForegroundColor Cyan
+          Write-Host "Downloading installation package..."
+          appveyor DownloadFile https://s3.amazonaws.com/rust-lang-ci/i686-4.9.2-release-win32-dwarf-rt_v4-rev4.7z -FileName mingw.7z
+        } elseif($env:MINGW_DIR -eq "mingw64") {
+          # Download and install MINGW (64-bit)
+          Write-Host "Installing MinGW (64-bit)..." -ForegroundColor Cyan
+          Write-Host "Downloading installation package..."
+          appveyor DownloadFile https://s3.amazonaws.com/rust-lang-ci/x86_64-4.9.2-release-win32-seh-rt_v4-rev4.7z -FileName mingw.7z
+        }
+        Write-Host "Extracting installation package..."
+        7z x -y mingw.7z -oC:\msys64 | Out-Null
+        del mingw.7z
+      } else {
+        Write-Host "MSYS2 not required" -ForegroundColor Green
+      }
+
+    - if defined MINGW_DIR set PATH=C:\msys64\%MINGW_DIR%\bin;C:\msys64\usr\bin;%PATH%
+
+    - set FEATURES=
+    - if defined BUILD_MSI set FEATURES=--features msi-installed
 
     - curl -sSf -o rustup-init.exe https://win.rustup.rs
     - rustup-init.exe --default-host %TARGET% --default-toolchain %CHANNEL% -y
@@ -26,9 +52,6 @@ install:
     - rustc -Vv
     - SET PATH=%PYTHONPATH%;%PATH%
     - python --version
-      # Print Powershell version.
-    - ps: $PSVersionTable.PSVersion
-    - ps: pwd
 
     # Install SDL2.
     - curl --fail --silent --show-error --location --output sdl2.zip https://www.libsdl.org/release/SDL2-devel-2.0.5-VC.zip
