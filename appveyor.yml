@@ -1,13 +1,18 @@
 environment:
     global:
         PROJECT_NAME: PX8
-        MAKE: C:\MinGW\bin\mingw32-make.exe
     matrix:
         - TARGET: x86_64-pc-windows-msvc
           CHANNEL: stable
           PY: 3
           PYTHONPATH: C:\Python34-x64
           FEATURES: python3-sys
+          COMPILER: msys2
+          PLATFORM: x64
+          MSYS2_ARCH: x86_64
+          MSYS2_DIR: msys64
+          MSYSTEM: MINGW64
+          BIT: 64
 
 matrix:
     allow_failures:
