@@ -10,6 +10,9 @@ environment:
           PY: 3
           PYTHONPATH: C:\Python34-x64
           FEATURES: python3-sys
+          MSYSTEM: MINGW32
+          BASH: C:\msys64\usr\bin\bash
+          MSYS_CACHE: C:\msys64\var\cache\pacman\pkg
           CC: i686-w64-mingw32-gcc
 
 matrix:
