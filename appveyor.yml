@@ -3,16 +3,11 @@ environment:
         PROJECT_NAME: PX8
         MAKE: C:\MinGW\bin\mingw32-make.exe
     matrix:
-        - TARGET: i686-pc-windows-gnu
-          CHANNEL: stable
         - TARGET: x86_64-pc-windows-msvc
           CHANNEL: stable
-        - TARGET: x86_64-pc-windows-gnu
-          CHANNEL: stable
-        - TARGET: x86_64-pc-windows-gnu
-          CHANNEL: beta
-        - TARGET: x86_64-pc-windows-gnu
-          CHANNEL: nightly
+          PY: 3
+          PYTHONPATH: C:\Python34-x64
+          FEATURES: python3-sys
 
 matrix:
     allow_failures:
