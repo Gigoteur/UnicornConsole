@@ -22,6 +22,19 @@ install:
     - rustc -Vv
     - SET PATH=%PYTHONPATH%;%PATH%
     - python --version
+      # Print Powershell version.
+    - ps: $PSVersionTable.PSVersion
+    - ps: pwd
+    # Install SDL2.
+    - curl --fail --silent --show-error --location --output sdl2.zip https://www.libsdl.org/release/SDL2-devel-2.0.5-VC.zip
+    - ps: Expand-Archive sdl2.zip -DestinationPath sdl2
+    - set LIB=%LIB%;C:\projects\PX8\sdl2\SDL2-2.0.5\lib\x64
+
+    # Install SDL2_Mixer.
+    - curl --fail --silent --show-error --location --output sdl2_mixer.zip https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.0.1-VC.zip
+    - ps: Expand-Archive sdl2_mixer.zip -DestinationPath sdl2_mixer
+    - set LIB=%LIB%;C:\projects\PX8\sdl2_mixer\SDL2_mixer-2.0.1\lib\x64
+    - ps: Get-ChildItem -Recurse -Depth 4
 
 build: false
 
