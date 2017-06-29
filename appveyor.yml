@@ -16,6 +16,8 @@ install:
     - set PATH=C:\msys64\usr\bin;%PATH%
     - set PATH=C:\msys64\mingw32\bin;%PATH%
     - if "%TARGET%" == "x86_64-pc-windows-gnu" set PATH=C:\msys64\mingw64\bin;%PATH%
+    - if "%TARGET%" == "i686-pc-windows-gnu" set PATH=C:\msys64\mingw32\bin;%PATH%
+
     - curl -sSf -o rustup-init.exe https://win.rustup.rs
     - rustup-init.exe --default-host %TARGET% --default-toolchain %CHANNEL% -y
     - set PATH=%PATH%;C:\Users\appveyor\.cargo\bin
@@ -25,6 +27,7 @@ install:
       # Print Powershell version.
     - ps: $PSVersionTable.PSVersion
     - ps: pwd
+
     # Install SDL2.
     - curl --fail --silent --show-error --location --output sdl2.zip https://www.libsdl.org/release/SDL2-devel-2.0.5-VC.zip
     - ps: Expand-Archive sdl2.zip -DestinationPath sdl2
@@ -36,10 +39,16 @@ install:
     - set LIB=%LIB%;C:\projects\PX8\sdl2_mixer\SDL2_mixer-2.0.1\lib\x64
     - ps: Get-ChildItem -Recurse -Depth 4
 
+    - bash -lc "pacman --noconfirm --sync --refresh --refresh pacman"
+    - bash -lc "pacman --noconfirm --sync --refresh --refresh --sysupgrade --sysupgrade"
+    - bash -xlc "pacman --noconfirm -S --needed base-devel"
+
+
+
 build: false
 
 test_script:
-    - cargo build --features="cpython" --verbose --release
+    - cargo build --features="cpython lua" --verbose --release
 
 cache:
     - target
