@@ -104,9 +104,9 @@ cd PX8
 
 Or you can get latest binaries for multiples platforms directly on [itch.io](https://hallucino.itch.io/px8) or here:
   * [Raspberry Pi 3](https://github.com/Gigoteur/PX8/releases/download/0.0.4/PX8-RaspberryPi-3-0.0.4.tar.gz)
-  * [Linux x86_64](https://github.com/Gigoteur/PX8/releases/download/0.0.4/px8-0.0.4-x86_64-unknown-linux-gnu.tar.gz)
+  * [Linux x64](https://github.com/Gigoteur/PX8/releases/download/0.0.4/px8-0.0.4-x86_64-unknown-linux-gnu.tar.gz)
+  * [Windows x64 - python only] (https://github.com/Gigoteur/PX8/releases/download/0.0.4/PX8-0.0.4-win-x64-python.zip)
   * OSX (available)
-  * Windows (Work in progress)
 
 and old binaries could be obtain for free.
 
