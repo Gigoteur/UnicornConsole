@@ -26,7 +26,7 @@ install:
     - ps: $PSVersionTable.PSVersion
     - ps: pwd
 
-    - pacman -S tar wget mingw32/mingw-w64-i686-gcc
+    - bash -lc "pacman -S tar wget mingw32/mingw-w64-i686-gcc"
 
     - set PATH=C:\%MSYS2_DIR%\%MSYSTEM%\bin;C:\%MSYS2_DIR%\usr\bin;%PATH%
 
