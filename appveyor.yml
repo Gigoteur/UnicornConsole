@@ -27,7 +27,7 @@ install:
     - ps: pwd
 
     - set PATH=C:\%MSYS2_DIR%\%MSYSTEM%\bin;C:\%MSYS2_DIR%\usr\bin;%PATH%
-    - bash -lc "pacman -S tar wget mingw32/mingw-w64-i686-gcc"
+    - bash -lc "pacman -S tar wget mingw32/mingw-w64-i686-gcc --noconfirm"
 
     # Install rust, x86_64-pc-windows-msvc host
     - appveyor DownloadFile https://win.rustup.rs/ -FileName rustup-init.exe
