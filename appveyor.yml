@@ -15,7 +15,7 @@ environment:
           MSYS2_ARCH: x86_64
           MSYS2_DIR: msys64
           MSYSTEM: MINGW64
-          CC: x86_64-w64-mingw32-gcc
+          CC: mingw-w64-i686-gcc
 
 matrix:
     allow_failures:
@@ -25,6 +25,8 @@ install:
     # Print Powershell version.
     - ps: $PSVersionTable.PSVersion
     - ps: pwd
+
+    - pacman -S tar wget mingw32/mingw-w64-i686-gcc
 
     - set PATH=C:\%MSYS2_DIR%\%MSYSTEM%\bin;C:\%MSYS2_DIR%\usr\bin;%PATH%
 
