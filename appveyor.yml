@@ -27,10 +27,7 @@ install:
     - ps: pwd
 
     - set PATH=C:\%MSYS2_DIR%\%MSYSTEM%\bin;C:\%MSYS2_DIR%\usr\bin;%PATH%
-    - bash -lc "for i in {1..3}; do pacman -Syyuu --noconfirm && break || sleep 15; done"
-    - bash -lc "for i in {1..3}; do pacman -Suu --noconfirm && break || sleep 15; done"
-    - bash -lc "for i in {1..3}; do pacman --noconfirm -Su mingw-w64-%MSYS2_ARCH%-{gcc,libtool,curl,gcc-fortran,libxslt,glib2} automake autoconf make wget tar && break || sleep 15; done"
-
+   
     # Install rust, x86_64-pc-windows-msvc host
     - appveyor DownloadFile https://win.rustup.rs/ -FileName rustup-init.exe
     - rustup-init.exe -y --default-toolchain %CHANNEL%
