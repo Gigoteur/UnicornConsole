@@ -144,7 +144,7 @@ Right now you need to export the DYLD_FALLBACK_LIBRARY_PATH env variable for the
    * export DYLD_FALLBACK_LIBRARY_PATH=/usr/local/Cellar/python3/3.5.1/Frameworks/Python.framework/Versions/3.5/lib
 
 
-## Build
+## Build for Linux/Windows/OSX
 
 **The first thing to do is to install Rust, so please go to [rustup](https://www.rustup.rs/) and follow all instructions.**
 
