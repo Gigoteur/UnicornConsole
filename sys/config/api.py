@@ -303,10 +303,14 @@ globals()["noise_set_seed"] = noise_set_seed
 def px8_time():
     return px8_sys.time()
 
+def px8_time_sec():
+    return px8_sys.time_sec()
+
 def show_mouse(value=True):
     px8_sys.show_mouse(value)
 
 globals()["px8_time"] = px8_time
+globals()["px8_time_sec"] = px8_time_sec
 globals()["show_mouse"] = show_mouse
 
 

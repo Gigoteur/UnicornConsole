@@ -406,6 +406,9 @@ pub mod plugin {
             Ok(self.info(py).lock().unwrap().time())
         }
 
+        def time_sec(&self) -> PyResult<f64> {
+            Ok(self.info(py).lock().unwrap().time_sec())
+        }
     });
 
     pub struct PythonPlugin {

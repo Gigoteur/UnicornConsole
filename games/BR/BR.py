@@ -148,8 +148,8 @@ class Camera(object):
     def update(self, p_p_vec, p_v_vec):
         self.offset = p_v_vec.mul(-15).add(Vec2(64,64))
         self.pos_o = Vec2(self.pos.x, self.pos.y)
-        sway=Vec2(self.sway[0]*cos(px8_time()/self.sway[2]),
-                  self.sway[1]*sin(px8_time()/self.sway[3]))
+        sway=Vec2(self.sway[0]*cos(px8_time_sec()/self.sway[2]),
+                  self.sway[1]*sin(px8_time_sec()/self.sway[3]))
         self.pos = self.pos.lerp(p_p_vec.sub(self.offset),0.1).add(sway)
 
         self.v = self.pos.sub(self.pos_o)
@@ -321,7 +321,7 @@ def _update():
 
     P.update()
 
-    PERSPECTIVE_OFFSET = Vec2(64+sin(px8_time()/9)*4, 80+sin(px8_time()/11)*4)
+    PERSPECTIVE_OFFSET = Vec2(64+sin(px8_time_sec()/9)*4, 80+sin(px8_time_sec()/11)*4)
 
     CAM.update(P.pos, P.v)
     CELLS.set_pos(Vec2(flr(CAM.pos.x/CELL_SIZE),

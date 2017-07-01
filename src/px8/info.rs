@@ -35,4 +35,9 @@ impl Info {
         self.update();
         self.milliseconds
     }
+
+    pub fn time_sec(&mut self) -> f64 {
+        self.update();
+        self.elapsed_time
+    }
 }
