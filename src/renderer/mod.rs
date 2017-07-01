@@ -2,15 +2,16 @@ pub mod renderer {
     use px8;
     use gfx::{Scale, Screen};
 
+    use sdl2::rwops::RWops;
+    use sdl2::surface::Surface;
+
     use sdl2::VideoSubsystem;
     use sdl2::render;
     use sdl2::rect::Rect;
     use sdl2::rect::Point;
     use sdl2::pixels::PixelFormatEnum;
-    //use std::sync::{Arc, Mutex};
     use num;
     use time::PreciseTime;
-
 
     #[derive(Clone, Debug)]
     pub enum RendererError {
@@ -59,7 +60,16 @@ pub mod renderer {
                 window_builder.resizable().position_centered()
             };
 
-            let window = (if opengl { wb.opengl() } else { wb }).build().unwrap();
+            let mut window = (if opengl { wb.opengl() } else { wb }).build().unwrap();
+
+            let raw_data = include_bytes!("../../docs/px8.bmp");
+            let mut v_order:Vec<u8> = Vec::new();
+            v_order.extend(raw_data.iter().cloned());
+
+
+            let mut data = RWops::from_bytes_mut(v_order.as_mut_slice()).unwrap();
+            let surface = Surface::load_bmp_rw(&mut data).unwrap();
+            window.set_icon(surface);
 
             info!("[SDL] Creating renderer");
             let renderer = window
@@ -68,6 +78,7 @@ pub mod renderer {
                 .present_vsync()
                 .build()
                 .unwrap();
+
 
             info!("[SDL] Creating texture");
             let texture_width = screen.width as u32;

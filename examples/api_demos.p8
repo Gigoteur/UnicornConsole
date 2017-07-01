@@ -297,19 +297,20 @@ class Memcpy(object):
 class Audio(object):
     def __init__(self):
         self.T = 0
-        self.id_sound = -1
+        self.filename = "./examples/assets/piano.wav"
+        music_load(self.filename)
 
     def init(self):
-        self.id_sound = sound_load("./examples/assets/cat.wav")
-        print(self.id_sound)
-        if self.id_sound != -1:
-            sound_play(self.id_sound)
+        music_play(self.filename)
 
     def update(self):
         self.T += 1
 
     def draw(self):
         cls()
+
+    def stop():
+        music_stop(self.filename)
 
 
 def local_noise(nx, ny, nz=0.0, freq=10, zoom=300.0):
