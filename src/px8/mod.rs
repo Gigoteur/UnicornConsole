@@ -985,11 +985,13 @@ impl PX8 {
             PX8State::PAUSE => {
                 self.state = PX8State::RUN;
                 screen.restore();
+                self.sound_internal.resume();
             }
             PX8State::RUN => {
                 self.pause_menu.reset();
                 self.state = PX8State::PAUSE;
                 screen.save();
+                self.sound_internal.pause();
             }
             PX8State::INTERACTIVE => {
                 self.pause_menu.reset();

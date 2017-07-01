@@ -43,6 +43,16 @@ pub mod sound {
             info!("query spec => {:?}", sdl2::mixer::query_spec());
         }
 
+        pub fn pause(&mut self) {
+            sdl2::mixer::Music::pause();
+            sdl2::mixer::channel(-1).pause();
+        }
+
+        pub fn resume(&mut self) {
+            sdl2::mixer::Music::resume();
+            sdl2::mixer::channel(-1).resume();
+        }
+
         pub fn update(&mut self, sound: Arc<Mutex<Sound>>) {
             for sound_packet in self.crecv.try_iter() {
                 debug!("[SOUND] PACKET {:?}", sound_packet);
