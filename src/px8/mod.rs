@@ -1246,7 +1246,8 @@ impl PX8 {
                 self.draw_return = true;
 
                 for callback in &mut self.cartridges[self.current_cartridge].rust_plugin {
-                    callback.draw(&mut self.screen.lock().unwrap(), &mut self.info.lock().unwrap());
+                    callback.draw(&mut self.screen.lock().unwrap(),
+                                  &mut self.info.lock().unwrap());
                 }
             }
             _ => (),

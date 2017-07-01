@@ -70,7 +70,8 @@ pub mod sound {
                         self.music_tracks
                             .get(&filename)
                             .expect("music: Attempted to play value that is not bound to asset")
-                            .play(res.loops).unwrap();
+                            .play(res.loops)
+                            .unwrap();
                     }
                     packet::Packet::StopMusic(_res) => {
                         sdl2::mixer::Music::halt();
@@ -98,23 +99,20 @@ pub mod sound {
                     packet::Packet::PlaySound(res) => {
                         let filename = res.filename.clone();
                         sdl2::mixer::channel(res.channel)
-                            .play(&self.sound_tracks.get(&filename).unwrap(), res.loops).unwrap();
+                            .play(&self.sound_tracks.get(&filename).unwrap(), res.loops)
+                            .unwrap();
                     }
                     packet::Packet::PauseSound(res) => {
-                        sdl2::mixer::channel(res.channel)
-                            .pause();
+                        sdl2::mixer::channel(res.channel).pause();
                     }
                     packet::Packet::ResumeSound(res) => {
-                        sdl2::mixer::channel(res.channel)
-                            .resume();
+                        sdl2::mixer::channel(res.channel).resume();
                     }
                     packet::Packet::StopSound(res) => {
-                        sdl2::mixer::channel(res.channel)
-                            .halt();
+                        sdl2::mixer::channel(res.channel).halt();
                     }
                     packet::Packet::VolumeSound(res) => {
-                        sdl2::mixer::channel(res.channel)
-                            .set_volume(res.volume);
+                        sdl2::mixer::channel(res.channel).set_volume(res.volume);
                     }
                 }
             }
@@ -195,7 +193,10 @@ pub mod sound {
         }
 
         pub fn play_sound(&mut self, filename: String, loops: i32, channel: i32) {
-            debug!("[SOUND] Play sound {:?} {:?} {:?}", filename, loops, channel);
+            debug!("[SOUND] Play sound {:?} {:?} {:?}",
+                   filename,
+                   loops,
+                   channel);
             let p = packet::PlaySound {
                 filename: filename,
                 loops: loops,
@@ -206,25 +207,19 @@ pub mod sound {
 
         pub fn pause_sound(&mut self, channel: i32) {
             debug!("[SOUND] Pause sound {:?}", channel);
-            let p = packet::PauseSound {
-                channel: channel,
-            };
+            let p = packet::PauseSound { channel: channel };
             self.csend.send(packet::write_packet(p).unwrap()).unwrap();
         }
 
         pub fn resume_sound(&mut self, channel: i32) {
             debug!("[SOUND] Resume sound {:?}", channel);
-            let p = packet::ResumeSound {
-                channel: channel,
-            };
+            let p = packet::ResumeSound { channel: channel };
             self.csend.send(packet::write_packet(p).unwrap()).unwrap();
         }
 
         pub fn stop_sound(&mut self, channel: i32) {
             debug!("[SOUND] Stop sound {:?}", channel);
-            let p = packet::StopSound {
-                channel: channel,
-            };
+            let p = packet::StopSound { channel: channel };
             self.csend.send(packet::write_packet(p).unwrap()).unwrap();
         }
 

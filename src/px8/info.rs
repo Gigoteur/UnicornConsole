@@ -25,7 +25,7 @@ impl Info {
         let new_time = time::now();
         let diff_time = new_time - self.start_time;
         let nanoseconds = (diff_time.num_nanoseconds().unwrap() as f64) -
-        (diff_time.num_seconds() * 1000000000) as f64;
+                          (diff_time.num_seconds() * 1000000000) as f64;
 
         self.elapsed_time = diff_time.num_seconds() as f64 + nanoseconds / 1000000000.0;
         self.milliseconds = diff_time.num_milliseconds();

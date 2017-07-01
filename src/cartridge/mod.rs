@@ -409,7 +409,7 @@ impl fmt::Debug for CartridgeGFX {
 impl CartridgeGFX {
     pub fn empty() -> CartridgeGFX {
         // Fill with empty sprites
-        let mut sprites:Vec<Sprite> = Vec::new();
+        let mut sprites: Vec<Sprite> = Vec::new();
         for i in 0..128 {
             sprites.push(Sprite::new([0; 64]));
         }

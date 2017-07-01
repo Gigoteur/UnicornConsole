@@ -121,7 +121,11 @@ impl Frontend {
 
     pub fn update_time(&mut self) {
         self.px8.info.lock().unwrap().update();
-        self.px8.players.lock().unwrap().update(self.px8.info.lock().unwrap().elapsed_time);
+        self.px8
+            .players
+            .lock()
+            .unwrap()
+            .update(self.px8.info.lock().unwrap().elapsed_time);
     }
 
     pub fn init_controllers(&mut self, pathdb: String) {

@@ -509,7 +509,7 @@ impl Screen {
     }
 
     pub fn line(&mut self, x0: i32, y0: i32, x1: i32, y1: i32, col: i32) {
-       // debug!("LINE {:?} {:?} {:?} {:?} {:?}", x0, y0, x1, y1, col);
+        // debug!("LINE {:?} {:?} {:?} {:?} {:?}", x0, y0, x1, y1, col);
 
         let color = self._find_color(col);
 
@@ -903,7 +903,7 @@ impl Screen {
     }
 
     pub fn spr(&mut self, n: u32, x: i32, y: i32, w: u32, h: u32, flip_x: bool, flip_y: bool) {
-       /* debug!("PRINT SPRITE = x:{:?} y:{:?} n:{:?} w:{:?} h:{:?} flip_x:{:?} flip_y:{:?}",
+        /* debug!("PRINT SPRITE = x:{:?} y:{:?} n:{:?} w:{:?} h:{:?} flip_x:{:?} flip_y:{:?}",
                x,
                y,
                n,
@@ -935,7 +935,7 @@ impl Screen {
                 let mut new_x = orig_x;
                 let mut new_y = orig_y;
 
-/*                debug!("SPRITE = {:?} x:{:?} y:{:?} {:?}",
+                /*                debug!("SPRITE = {:?} x:{:?} y:{:?} {:?}",
                        sprite_offset,
                        new_x,
                        new_y,

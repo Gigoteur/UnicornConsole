@@ -102,9 +102,12 @@ impl RustPlugin for GhostMark {
 
         let etime = info.time();
 
-        screen.print(format!("dots {:?}",  self.sprites.len()), 8, 0, 7);
+        screen.print(format!("dots {:?}", self.sprites.len()), 8, 0, 7);
         screen.print(format!("Time : {:?}", etime - stime), 8, 8, 7);
-        screen.print(format!("Time : {:?}", (etime - stime) as f64/16.67), 8, 16, 7);
+        screen.print(format!("Time : {:?}", (etime - stime) as f64 / 16.67),
+                     8,
+                     16,
+                     7);
 
         0.0
     }
@@ -114,11 +117,11 @@ impl RustPlugin for GhostMark {
 fn main() {
     let logger_config = fern::DispatchConfig {
         format: Box::new(|msg: &str, level: &log::LogLevel, _location: &log::LogLocation| {
-            format!("[{}][{}] {}",
-                    time::now().strftime("%Y-%m-%d][%H:%M:%S").unwrap(),
-                    level,
-                    msg)
-        }),
+                             format!("[{}][{}] {}",
+                                     time::now().strftime("%Y-%m-%d][%H:%M:%S").unwrap(),
+                                     level,
+                                     msg)
+                         }),
         output: vec![fern::OutputConfig::stdout()],
         level: log::LogLevelFilter::Trace,
     };
