@@ -47,7 +47,6 @@ The main features are:
  * Change the screen definition dynamically and the aspect ratio
  * Screenshot (PNG) / Video recording (GIF)
  * Pico-8 compatibility + cartridge (P8/P8.PNG) format support
- * Audio support is in progress
  
 It works on all platforms (Linux/OSX/Windows), in the browser (via Emscripten), and on tiny hardware like Raspberry Pi 2/3.
 
