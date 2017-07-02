@@ -191,14 +191,14 @@ pub mod sound {
 
 
         // Sound
-        pub fn load_sound(&mut self, filename: String) -> i32 {
+        pub fn sound_load(&mut self, filename: String) -> i32 {
             debug!("[SOUND] Load sound {:?}", filename);
             let p = packet::LoadSound { filename: filename };
             self.csend.send(packet::write_packet(p).unwrap()).unwrap();
             0
         }
 
-        pub fn play_sound(&mut self, filename: String, loops: i32, channel: i32) {
+        pub fn sound_play(&mut self, filename: String, loops: i32, channel: i32) {
             debug!("[SOUND] Play sound {:?} {:?} {:?}",
                    filename,
                    loops,
@@ -211,25 +211,25 @@ pub mod sound {
             self.csend.send(packet::write_packet(p).unwrap()).unwrap();
         }
 
-        pub fn pause_sound(&mut self, channel: i32) {
+        pub fn sound_pause(&mut self, channel: i32) {
             debug!("[SOUND] Pause sound {:?}", channel);
             let p = packet::PauseSound { channel: channel };
             self.csend.send(packet::write_packet(p).unwrap()).unwrap();
         }
 
-        pub fn resume_sound(&mut self, channel: i32) {
+        pub fn sound_resume(&mut self, channel: i32) {
             debug!("[SOUND] Resume sound {:?}", channel);
             let p = packet::ResumeSound { channel: channel };
             self.csend.send(packet::write_packet(p).unwrap()).unwrap();
         }
 
-        pub fn stop_sound(&mut self, channel: i32) {
+        pub fn sound_stop(&mut self, channel: i32) {
             debug!("[SOUND] Stop sound {:?}", channel);
             let p = packet::StopSound { channel: channel };
             self.csend.send(packet::write_packet(p).unwrap()).unwrap();
         }
 
-        pub fn volume_sound(&mut self, volume: i32, channel: i32) {
+        pub fn sound_volume(&mut self, volume: i32, channel: i32) {
             debug!("[SOUND] Volume sound {:?} {:?}", volume, channel);
             let p = packet::VolumeSound {
                 volume: volume,
@@ -238,7 +238,7 @@ pub mod sound {
             self.csend.send(packet::write_packet(p).unwrap()).unwrap();
         }
 
-        pub fn isplaying_sound(&mut self, channel: i32) -> bool {
+        pub fn sound_isplaying(&mut self, channel: i32) -> bool {
             self.channels[channel as usize]
         }
     }

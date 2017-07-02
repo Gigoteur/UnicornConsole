@@ -14,6 +14,7 @@ pub mod plugin {
 
     use px8::info::Info;
     use px8::noise::Noise;
+    use sound::sound::Sound;
 
     use gfx::Screen;
 
@@ -23,6 +24,7 @@ pub mod plugin {
         pub screen: Arc<Mutex<Screen>>,
         pub info: Arc<Mutex<Info>>,
         pub noise: Arc<Mutex<Noise>>,
+        pub sound: Arc<Mutex<Sound>>,
     }
 
     #[derive(Clone, Debug)]
@@ -49,7 +51,8 @@ pub mod plugin {
                     players: Arc<Mutex<Players>>,
                     info: Arc<Mutex<Info>>,
                     screen: Arc<Mutex<Screen>>,
-                    noise: Arc<Mutex<Noise>>) {
+                    noise: Arc<Mutex<Noise>>,
+                    sound: Arc<Mutex<Sound>>) {
             info!("[PLUGIN][LUA] Init plugin");
 
             let extra = ExtraData {
@@ -57,6 +60,7 @@ pub mod plugin {
                 info: info.clone(),
                 screen: screen.clone(),
                 noise: noise.clone(),
+                sound: sound.clone(),
             };
 
             let mut lua_state = self.lua_state.lock().unwrap();
@@ -79,6 +83,86 @@ pub mod plugin {
             /* Create the PX8Lua object */
             lua_state.do_string("PX8Object = PX8Lua.new()");
             lua_state.do_string(r#"debug_print = print"#);
+
+            /* Audio */
+            /* Music */
+            lua_state.do_string(r#"music_load = function(filename)
+              PX8Object:music_load(filename)
+              end
+              "#);
+            lua_state.do_string(r#"music_play = function(filename, loops)
+              PX8Object:music_play(filename, loops)
+              end
+              "#);
+            lua_state.do_string(r#"music_pause = function()
+              PX8Object:music_pause()
+              end
+              "#);
+            lua_state.do_string(r#"music_resume = function()
+              PX8Object:music_resume()
+              end
+              "#);
+            lua_state.do_string(r#"music_stop = function()
+              PX8Object:music_stop()
+              end
+              "#);
+            lua_state.do_string(r#"music_rewind = function()
+              PX8Object:music_rewind()
+              end
+              "#);
+            lua_state.do_string(r#"music_volume = function(volume)
+              PX8Object:music_volume(volume)
+              end
+              "#);
+            /* Sound */
+            lua_state.do_string(r#"sound_load = function(filename)
+              PX8Object:sound_load(filename)
+              end
+              "#);
+            lua_state.do_string(r#"sound_play = function(filename, loops, channel)
+              PX8Object:sound_play(filename, loops, channel)
+              end
+              "#);
+            lua_state.do_string(r#"sound_pause = function(channel)
+              if channel == nil then
+                channel = -1
+              end
+
+              PX8Object:sound_pause(channel)
+              end
+              "#);
+            lua_state.do_string(r#"sound_resume = function(channel)
+              if channel == nil then
+                channel = -1
+              end
+
+              PX8Object:sound_resume(channel)
+              end
+              "#);
+            lua_state.do_string(r#"sound_stop = function(channel)
+              if channel == nil then
+                channel = -1
+              end
+
+              PX8Object:sound_stop(channel)
+              end
+              "#);
+            lua_state.do_string(r#"sound_volume = function(volume, channel)
+              if channel == nil then
+                channel = -1
+              end
+
+              PX8Object:sound_volume(volume, channel)
+              end
+              "#);
+            lua_state.do_string(r#"sound_isplaying = function(channel)
+              if channel == nil then
+                channel = -1
+              end
+
+              return PX8Object:sound_isplaying(channel)
+              end
+              "#);
 
             lua_state.do_string(r#"camera = function(x, y)
 
@@ -839,10 +923,11 @@ pub mod plugin {
             debug!("LUA MUSIC LOAD");
 
             let mut state = State::from_ptr(lua_context);
+            let mut state2 = State::from_ptr(lua_context);
 
             let filename = state.check_string(2);
 
-            let sound = state.with_extra(|extra| {
+            let sound = state2.with_extra(|extra| {
                 let data = extra
                     .as_ref()
                     .unwrap()
@@ -851,7 +936,7 @@ pub mod plugin {
                 data.sound.clone()
             });
 
-            sound.lock().unwrap().load(filename);
+            sound.lock().unwrap().load(filename.to_string());
 
             1
         }
@@ -860,9 +945,29 @@ pub mod plugin {
             debug!("LUA MUSIC PLAY");
 
             let mut state = State::from_ptr(lua_context);
+            let mut state2 = State::from_ptr(lua_context);
 
             let filename = state.check_string(2);
-            let loops = state.check_integer(2);
+            let loops = state2.check_integer(2);
+
+            let sound = state2.with_extra(|extra| {
+                let data = extra
+                    .as_ref()
+                    .unwrap()
+                    .downcast_ref::<ExtraData>()
+                    .unwrap();
+                data.sound.clone()
+            });
+
+            sound.lock().unwrap().play(filename.to_string(), loops as i32);
+
+            1
+        }
+
+        unsafe extern "C" fn lua_music_pause(lua_context: *mut lua_State) -> c_int {
+            debug!("LUA MUSIC PAUSE");
+
+            let mut state = State::from_ptr(lua_context);
 
             let sound = state.with_extra(|extra| {
                 let data = extra
@@ -873,17 +978,34 @@ pub mod plugin {
                 data.sound.clone()
             });
 
-            sound.lock().unwrap().play(filename, loops);
+            sound.lock().unwrap().pause();
+
+            1
+        }
+
+        unsafe extern "C" fn lua_music_resume(lua_context: *mut lua_State) -> c_int {
+            debug!("LUA MUSIC RESUME");
+
+            let mut state = State::from_ptr(lua_context);
+
+            let sound = state.with_extra(|extra| {
+                let data = extra
+                    .as_ref()
+                    .unwrap()
+                    .downcast_ref::<ExtraData>()
+                    .unwrap();
+                data.sound.clone()
+            });
+
+            sound.lock().unwrap().resume();
 
             1
         }
 
         unsafe extern "C" fn lua_music_stop(lua_context: *mut lua_State) -> c_int {
-            debug!("LUA MUSIC LOAD");
+            debug!("LUA MUSIC STOP");
 
             let mut state = State::from_ptr(lua_context);
-
-            let filename = state.check_string(2);
 
             let sound = state.with_extra(|extra| {
                 let data = extra
@@ -894,17 +1016,16 @@ pub mod plugin {
                 data.sound.clone()
             });
 
-            sound.lock().unwrap().load(filename);
+            sound.lock().unwrap().stop();
 
             1
         }
 
-        unsafe extern "C" fn lua_music_load(lua_context: *mut lua_State) -> c_int {
-            debug!("LUA MUSIC LOAD");
+
+        unsafe extern "C" fn lua_music_rewind(lua_context: *mut lua_State) -> c_int {
+            debug!("LUA MUSIC REWIND");
 
             let mut state = State::from_ptr(lua_context);
-
-            let filename = state.check_string(2);
 
             let sound = state.with_extra(|extra| {
                 let data = extra
@@ -915,17 +1036,17 @@ pub mod plugin {
                 data.sound.clone()
             });
 
-            sound.lock().unwrap().load(filename);
+            sound.lock().unwrap().rewind();
 
             1
         }
 
-        unsafe extern "C" fn lua_music_load(lua_context: *mut lua_State) -> c_int {
-            debug!("LUA MUSIC LOAD");
+        unsafe extern "C" fn lua_music_volume(lua_context: *mut lua_State) -> c_int {
+            debug!("LUA MUSIC VOLUME");
 
             let mut state = State::from_ptr(lua_context);
 
-            let filename = state.check_string(2);
+            let volume = state.check_integer(2);
 
             let sound = state.with_extra(|extra| {
                 let data = extra
@@ -936,17 +1057,63 @@ pub mod plugin {
                 data.sound.clone()
             });
 
-            sound.lock().unwrap().load(filename);
+            sound.lock().unwrap().volume(volume as i32);
 
             1
         }
 
-        unsafe extern "C" fn lua_music_load(lua_context: *mut lua_State) -> c_int {
+        unsafe extern "C" fn lua_sound_load(lua_context: *mut lua_State) -> c_int {
+            debug!("LUA SOUND LOAD");
+
+            let mut state = State::from_ptr(lua_context);
+            let mut state2 = State::from_ptr(lua_context);
+
+            let filename = state.check_string(2);
+
+            let sound = state2.with_extra(|extra| {
+                let data = extra
+                    .as_ref()
+                    .unwrap()
+                    .downcast_ref::<ExtraData>()
+                    .unwrap();
+                data.sound.clone()
+            });
+
+            sound.lock().unwrap().sound_load(filename.to_string());
+
+            1
+        }
+
+        unsafe extern "C" fn lua_sound_play(lua_context: *mut lua_State) -> c_int {
+            debug!("LUA SOUND PLAY");
+
+            let mut state = State::from_ptr(lua_context);
+            let mut state2 = State::from_ptr(lua_context);
+
+            let filename = state.check_string(2);
+            let loops = state2.check_integer(3);
+            let channel = state2.check_integer(4);
+
+            let sound = state2.with_extra(|extra| {
+                let data = extra
+                    .as_ref()
+                    .unwrap()
+                    .downcast_ref::<ExtraData>()
+                    .unwrap();
+                data.sound.clone()
+            });
+
+            sound.lock().unwrap().sound_play(filename.to_string(), loops as i32, channel as i32);
+
+            1
+        }
+
+        unsafe extern "C" fn lua_sound_pause(lua_context: *mut lua_State) -> c_int {
             debug!("LUA MUSIC LOAD");
 
             let mut state = State::from_ptr(lua_context);
 
-            let filename = state.check_string(2);
+            let channel = state.check_integer(2);
 
             let sound = state.with_extra(|extra| {
                 let data = extra
@@ -957,17 +1124,17 @@ pub mod plugin {
                 data.sound.clone()
             });
 
-            sound.lock().unwrap().load(filename);
+            sound.lock().unwrap().sound_pause(channel as i32);
 
             1
         }
 
-        unsafe extern "C" fn lua_music_load(lua_context: *mut lua_State) -> c_int {
+        unsafe extern "C" fn lua_sound_resume(lua_context: *mut lua_State) -> c_int {
             debug!("LUA MUSIC LOAD");
 
             let mut state = State::from_ptr(lua_context);
 
-            let filename = state.check_string(2);
+            let channel = state.check_integer(2);
 
             let sound = state.with_extra(|extra| {
                 let data = extra
@@ -978,17 +1145,17 @@ pub mod plugin {
                 data.sound.clone()
             });
 
-            sound.lock().unwrap().load(filename);
+            sound.lock().unwrap().sound_resume(channel as i32);
 
             1
         }
 
-        unsafe extern "C" fn lua_music_load(lua_context: *mut lua_State) -> c_int {
+        unsafe extern "C" fn lua_sound_stop(lua_context: *mut lua_State) -> c_int {
             debug!("LUA MUSIC LOAD");
 
             let mut state = State::from_ptr(lua_context);
 
-            let filename = state.check_string(2);
+            let channel = state.check_integer(2);
 
             let sound = state.with_extra(|extra| {
                 let data = extra
@@ -999,17 +1166,18 @@ pub mod plugin {
                 data.sound.clone()
             });
 
-            sound.lock().unwrap().load(filename);
+            sound.lock().unwrap().sound_stop(channel as i32);
 
             1
         }
 
-        unsafe extern "C" fn lua_music_load(lua_context: *mut lua_State) -> c_int {
+        unsafe extern "C" fn lua_sound_volume(lua_context: *mut lua_State) -> c_int {
             debug!("LUA MUSIC LOAD");
 
             let mut state = State::from_ptr(lua_context);
 
-            let filename = state.check_string(2);
+            let channel = state.check_integer(2);
+            let volume = state.check_integer(3);
 
             let sound = state.with_extra(|extra| {
                 let data = extra
@@ -1020,17 +1188,17 @@ pub mod plugin {
                 data.sound.clone()
             });
 
-            sound.lock().unwrap().load(filename);
+            sound.lock().unwrap().sound_volume(channel as i32, volume as i32);
 
             1
         }
 
-        unsafe extern "C" fn lua_music_load(lua_context: *mut lua_State) -> c_int {
+        unsafe extern "C" fn lua_sound_isplaying(lua_context: *mut lua_State) -> c_int {
             debug!("LUA MUSIC LOAD");
 
             let mut state = State::from_ptr(lua_context);
 
-            let filename = state.check_string(2);
+            let channel = state.check_integer(2);
 
             let sound = state.with_extra(|extra| {
                 let data = extra
@@ -1041,116 +1209,11 @@ pub mod plugin {
                 data.sound.clone()
             });
 
-            sound.lock().unwrap().load(filename);
+            let value = sound.lock().unwrap().sound_isplaying(channel as i32);
+            state.push_bool(value);
 
             1
         }
-
-        unsafe extern "C" fn lua_music_load(lua_context: *mut lua_State) -> c_int {
-            debug!("LUA MUSIC LOAD");
-
-            let mut state = State::from_ptr(lua_context);
-
-            let filename = state.check_string(2);
-
-            let sound = state.with_extra(|extra| {
-                let data = extra
-                    .as_ref()
-                    .unwrap()
-                    .downcast_ref::<ExtraData>()
-                    .unwrap();
-                data.sound.clone()
-            });
-
-            sound.lock().unwrap().load(filename);
-
-            1
-        }
-
-        unsafe extern "C" fn lua_music_load(lua_context: *mut lua_State) -> c_int {
-            debug!("LUA MUSIC LOAD");
-
-            let mut state = State::from_ptr(lua_context);
-
-            let filename = state.check_string(2);
-
-            let sound = state.with_extra(|extra| {
-                let data = extra
-                    .as_ref()
-                    .unwrap()
-                    .downcast_ref::<ExtraData>()
-                    .unwrap();
-                data.sound.clone()
-            });
-
-            sound.lock().unwrap().load(filename);
-
-            1
-        }
-
-        unsafe extern "C" fn lua_music_load(lua_context: *mut lua_State) -> c_int {
-            debug!("LUA MUSIC LOAD");
-
-            let mut state = State::from_ptr(lua_context);
-
-            let filename = state.check_string(2);
-
-            let sound = state.with_extra(|extra| {
-                let data = extra
-                    .as_ref()
-                    .unwrap()
-                    .downcast_ref::<ExtraData>()
-                    .unwrap();
-                data.sound.clone()
-            });
-
-            sound.lock().unwrap().load(filename);
-
-            1
-        }
-
-        unsafe extern "C" fn lua_music_load(lua_context: *mut lua_State) -> c_int {
-            debug!("LUA MUSIC LOAD");
-
-            let mut state = State::from_ptr(lua_context);
-
-            let filename = state.check_string(2);
-
-            let sound = state.with_extra(|extra| {
-                let data = extra
-                    .as_ref()
-                    .unwrap()
-                    .downcast_ref::<ExtraData>()
-                    .unwrap();
-                data.sound.clone()
-            });
-
-            sound.lock().unwrap().load(filename);
-
-            1
-        }
-
-        unsafe extern "C" fn lua_music_load(lua_context: *mut lua_State) -> c_int {
-            debug!("LUA MUSIC LOAD");
-
-            let mut state = State::from_ptr(lua_context);
-
-            let filename = state.check_string(2);
-
-            let sound = state.with_extra(|extra| {
-                let data = extra
-                    .as_ref()
-                    .unwrap()
-                    .downcast_ref::<ExtraData>()
-                    .unwrap();
-                data.sound.clone()
-            });
-
-            sound.lock().unwrap().load(filename);
-
-            1
-        }
-
 
         unsafe extern "C" fn lua_camera(lua_context: *mut lua_State) -> c_int {
             debug!("LUA CAMERA");
@@ -2284,6 +2347,7 @@ pub mod plugin {
 
     use px8::noise::Noise;
     use px8::info::Info;
+    use sound::sound::Sound;
 
     use gfx::Screen;
 
@@ -2300,7 +2364,8 @@ pub mod plugin {
                     _players: Arc<Mutex<Players>>,
                     _info: Arc<Mutex<Info>>,
                     _screen: Arc<Mutex<Screen>>,
-                    _noise: Arc<Mutex<Noise>>) {
+                    _noise: Arc<Mutex<Noise>>,
+                    _sound: Arc<Mutex<Sound>>) {
             panic!("LUA plugin disabled");
         }
         pub fn load_code(&mut self, _data: String) -> bool {

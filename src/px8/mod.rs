@@ -1039,7 +1039,8 @@ impl PX8 {
                     .load(self.players.clone(),
                           self.info.clone(),
                           self.screen.clone(),
-                          self.noise.clone());
+                          self.noise.clone(),
+                          self.sound.clone());
 
                 ret = cartridge.lua_plugin.load_code(data);
             }
