@@ -835,6 +835,323 @@ pub mod plugin {
             1
         }
 
+        unsafe extern "C" fn lua_music_load(lua_context: *mut lua_State) -> c_int {
+            debug!("LUA MUSIC LOAD");
+
+            let mut state = State::from_ptr(lua_context);
+
+            let filename = state.check_string(2);
+
+            let sound = state.with_extra(|extra| {
+                let data = extra
+                    .as_ref()
+                    .unwrap()
+                    .downcast_ref::<ExtraData>()
+                    .unwrap();
+                data.sound.clone()
+            });
+
+            sound.lock().unwrap().load(filename);
+
+            1
+        }
+
+        unsafe extern "C" fn lua_music_play(lua_context: *mut lua_State) -> c_int {
+            debug!("LUA MUSIC PLAY");
+
+            let mut state = State::from_ptr(lua_context);
+
+            let filename = state.check_string(2);
+            let loops = state.check_integer(2);
+
+            let sound = state.with_extra(|extra| {
+                let data = extra
+                    .as_ref()
+                    .unwrap()
+                    .downcast_ref::<ExtraData>()
+                    .unwrap();
+                data.sound.clone()
+            });
+
+            sound.lock().unwrap().play(filename, loops);
+
+            1
+        }
+
+        unsafe extern "C" fn lua_music_stop(lua_context: *mut lua_State) -> c_int {
+            debug!("LUA MUSIC LOAD");
+
+            let mut state = State::from_ptr(lua_context);
+
+            let filename = state.check_string(2);
+
+            let sound = state.with_extra(|extra| {
+                let data = extra
+                    .as_ref()
+                    .unwrap()
+                    .downcast_ref::<ExtraData>()
+                    .unwrap();
+                data.sound.clone()
+            });
+
+            sound.lock().unwrap().load(filename);
+
+            1
+        }
+
+        unsafe extern "C" fn lua_music_load(lua_context: *mut lua_State) -> c_int {
+            debug!("LUA MUSIC LOAD");
+
+            let mut state = State::from_ptr(lua_context);
+
+            let filename = state.check_string(2);
+
+            let sound = state.with_extra(|extra| {
+                let data = extra
+                    .as_ref()
+                    .unwrap()
+                    .downcast_ref::<ExtraData>()
+                    .unwrap();
+                data.sound.clone()
+            });
+
+            sound.lock().unwrap().load(filename);
+
+            1
+        }
+
+        unsafe extern "C" fn lua_music_load(lua_context: *mut lua_State) -> c_int {
+            debug!("LUA MUSIC LOAD");
+
+            let mut state = State::from_ptr(lua_context);
+
+            let filename = state.check_string(2);
+
+            let sound = state.with_extra(|extra| {
+                let data = extra
+                    .as_ref()
+                    .unwrap()
+                    .downcast_ref::<ExtraData>()
+                    .unwrap();
+                data.sound.clone()
+            });
+
+            sound.lock().unwrap().load(filename);
+
+            1
+        }
+
+        unsafe extern "C" fn lua_music_load(lua_context: *mut lua_State) -> c_int {
+            debug!("LUA MUSIC LOAD");
+
+            let mut state = State::from_ptr(lua_context);
+
+            let filename = state.check_string(2);
+
+            let sound = state.with_extra(|extra| {
+                let data = extra
+                    .as_ref()
+                    .unwrap()
+                    .downcast_ref::<ExtraData>()
+                    .unwrap();
+                data.sound.clone()
+            });
+
+            sound.lock().unwrap().load(filename);
+
+            1
+        }
+
+        unsafe extern "C" fn lua_music_load(lua_context: *mut lua_State) -> c_int {
+            debug!("LUA MUSIC LOAD");
+
+            let mut state = State::from_ptr(lua_context);
+
+            let filename = state.check_string(2);
+
+            let sound = state.with_extra(|extra| {
+                let data = extra
+                    .as_ref()
+                    .unwrap()
+                    .downcast_ref::<ExtraData>()
+                    .unwrap();
+                data.sound.clone()
+            });
+
+            sound.lock().unwrap().load(filename);
+
+            1
+        }
+
+        unsafe extern "C" fn lua_music_load(lua_context: *mut lua_State) -> c_int {
+            debug!("LUA MUSIC LOAD");
+
+            let mut state = State::from_ptr(lua_context);
+
+            let filename = state.check_string(2);
+
+            let sound = state.with_extra(|extra| {
+                let data = extra
+                    .as_ref()
+                    .unwrap()
+                    .downcast_ref::<ExtraData>()
+                    .unwrap();
+                data.sound.clone()
+            });
+
+            sound.lock().unwrap().load(filename);
+
+            1
+        }
+
+        unsafe extern "C" fn lua_music_load(lua_context: *mut lua_State) -> c_int {
+            debug!("LUA MUSIC LOAD");
+
+            let mut state = State::from_ptr(lua_context);
+
+            let filename = state.check_string(2);
+
+            let sound = state.with_extra(|extra| {
+                let data = extra
+                    .as_ref()
+                    .unwrap()
+                    .downcast_ref::<ExtraData>()
+                    .unwrap();
+                data.sound.clone()
+            });
+
+            sound.lock().unwrap().load(filename);
+
+            1
+        }
+
+        unsafe extern "C" fn lua_music_load(lua_context: *mut lua_State) -> c_int {
+            debug!("LUA MUSIC LOAD");
+
+            let mut state = State::from_ptr(lua_context);
+
+            let filename = state.check_string(2);
+
+            let sound = state.with_extra(|extra| {
+                let data = extra
+                    .as_ref()
+                    .unwrap()
+                    .downcast_ref::<ExtraData>()
+                    .unwrap();
+                data.sound.clone()
+            });
+
+            sound.lock().unwrap().load(filename);
+
+            1
+        }
+
+        unsafe extern "C" fn lua_music_load(lua_context: *mut lua_State) -> c_int {
+            debug!("LUA MUSIC LOAD");
+
+            let mut state = State::from_ptr(lua_context);
+
+            let filename = state.check_string(2);
+
+            let sound = state.with_extra(|extra| {
+                let data = extra
+                    .as_ref()
+                    .unwrap()
+                    .downcast_ref::<ExtraData>()
+                    .unwrap();
+                data.sound.clone()
+            });
+
+            sound.lock().unwrap().load(filename);
+
+            1
+        }
+
+        unsafe extern "C" fn lua_music_load(lua_context: *mut lua_State) -> c_int {
+            debug!("LUA MUSIC LOAD");
+
+            let mut state = State::from_ptr(lua_context);
+
+            let filename = state.check_string(2);
+
+            let sound = state.with_extra(|extra| {
+                let data = extra
+                    .as_ref()
+                    .unwrap()
+                    .downcast_ref::<ExtraData>()
+                    .unwrap();
+                data.sound.clone()
+            });
+
+            sound.lock().unwrap().load(filename);
+
+            1
+        }
+
+        unsafe extern "C" fn lua_music_load(lua_context: *mut lua_State) -> c_int {
+            debug!("LUA MUSIC LOAD");
+
+            let mut state = State::from_ptr(lua_context);
+
+            let filename = state.check_string(2);
+
+            let sound = state.with_extra(|extra| {
+                let data = extra
+                    .as_ref()
+                    .unwrap()
+                    .downcast_ref::<ExtraData>()
+                    .unwrap();
+                data.sound.clone()
+            });
+
+            sound.lock().unwrap().load(filename);
+
+            1
+        }
+
+        unsafe extern "C" fn lua_music_load(lua_context: *mut lua_State) -> c_int {
+            debug!("LUA MUSIC LOAD");
+
+            let mut state = State::from_ptr(lua_context);
+
+            let filename = state.check_string(2);
+
+            let sound = state.with_extra(|extra| {
+                let data = extra
+                    .as_ref()
+                    .unwrap()
+                    .downcast_ref::<ExtraData>()
+                    .unwrap();
+                data.sound.clone()
+            });
+
+            sound.lock().unwrap().load(filename);
+
+            1
+        }
+
+        unsafe extern "C" fn lua_music_load(lua_context: *mut lua_State) -> c_int {
+            debug!("LUA MUSIC LOAD");
+
+            let mut state = State::from_ptr(lua_context);
+
+            let filename = state.check_string(2);
+
+            let sound = state.with_extra(|extra| {
+                let data = extra
+                    .as_ref()
+                    .unwrap()
+                    .downcast_ref::<ExtraData>()
+                    .unwrap();
+                data.sound.clone()
+            });
+
+            sound.lock().unwrap().load(filename);
+
+            1
+        }
+
+
         unsafe extern "C" fn lua_camera(lua_context: *mut lua_State) -> c_int {
             debug!("LUA CAMERA");
 
@@ -1883,8 +2200,23 @@ pub mod plugin {
         }
     }
 
-    pub const PX8LUA_LIB: [(&'static str, Function); 40] =
+    pub const PX8LUA_LIB: [(&'static str, Function); 54] =
         [("new", Some(PX8Lua::lua_new)),
+         ("music_load", Some(PX8Lua::lua_music_load)),
+         ("music_play", Some(PX8Lua::lua_music_play)),
+         ("music_stop", Some(PX8Lua::lua_music_stop)),
+         ("music_pause", Some(PX8Lua::lua_music_pause)),
+         ("music_resume", Some(PX8Lua::lua_music_resume)),
+         ("music_rewind", Some(PX8Lua::lua_music_rewind)),
+         ("music_volume", Some(PX8Lua::lua_music_volume)),
+
+         ("sound_load", Some(PX8Lua::lua_sound_load)),
+         ("sound_play", Some(PX8Lua::lua_sound_play)),
+         ("sound_pause", Some(PX8Lua::lua_sound_pause)),
+         ("sound_resume", Some(PX8Lua::lua_sound_resume)),
+         ("sound_stop", Some(PX8Lua::lua_sound_stop)),
+         ("sound_volume", Some(PX8Lua::lua_sound_volume)),
+         ("sound_isplaying", Some(PX8Lua::lua_sound_isplaying)),
 
          ("camera", Some(PX8Lua::lua_camera)),
          ("color", Some(PX8Lua::lua_color)),

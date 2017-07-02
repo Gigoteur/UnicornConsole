@@ -53,6 +53,12 @@ pub mod sound {
             sdl2::mixer::channel(-1).resume();
         }
 
+        pub fn stop(&mut self) {
+            sdl2::mixer::Music::halt();
+            sdl2::mixer::channel(-1).halt();
+        }
+
+
         pub fn update(&mut self, sound: Arc<Mutex<Sound>>) {
             for sound_packet in self.crecv.try_iter() {
                 debug!("[SOUND] PACKET {:?}", sound_packet);

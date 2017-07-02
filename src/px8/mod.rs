@@ -756,6 +756,7 @@ impl PX8 {
                 if self.pause_menu.quit() {
                     self.menu.reset();
                     self.state = PX8State::INTERACTIVE;
+                    self.sound_internal.stop();
                 }
 
                 return self.pause_menu.update(self.players.clone());
