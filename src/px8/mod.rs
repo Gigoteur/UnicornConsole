@@ -5,6 +5,7 @@ pub mod emscripten;
 pub mod noise;
 pub mod math;
 pub mod packet;
+pub mod wfc;
 
 use std::collections::HashMap;
 use std::io::Cursor;
@@ -684,6 +685,10 @@ impl PX8 {
 
     pub fn update_sound(&mut self) {
         self.sound_internal.update(self.sound.clone());
+    }
+
+    pub fn stop(&mut self) {
+        self.sound_internal.stop();
     }
 
     #[cfg_attr(rustfmt, rustfmt_skip)]

@@ -120,6 +120,14 @@ pub mod plugin {
               end
               "#);
             lua_state.do_string(r#"sound_play = function(filename, loops, channel)
+              if loops == nil then
+                loops = 0
+              end
+
+              if channel == nil then
+                channel = -1
+              end
+
               PX8Object:sound_play(filename, loops, channel)
               end
               "#);
@@ -372,6 +380,10 @@ pub mod plugin {
               "#);
 
             lua_state.do_string(r#"rnd = function(x)
+              if x == nil then
+                x = 1
+              end
+
               x = math.floor(x)
               return PX8Object:rnd(x)
               end

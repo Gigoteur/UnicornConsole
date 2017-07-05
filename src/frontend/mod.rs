@@ -454,6 +454,7 @@ impl Frontend {
 
             if !self.px8.update() {
                 info!("[Frontend] End of requested");
+                self.px8.stop();
                 break 'main;
             }
 

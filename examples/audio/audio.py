@@ -64,7 +64,7 @@ class InteractiveNumber(object):
 
 
 MENU = {
-    'Volume': InteractiveNumber(10, 20, 7),
+    'Volume': InteractiveNumber(18, 24, 7),
     'Play': Button(20, 20, 40, 28, 7, 'Play'),
     'Stop': Button(42, 20, 62, 28, 7, 'Stop'),
     'Pause': Button(64, 20, 84, 28, 7, 'Pause'),

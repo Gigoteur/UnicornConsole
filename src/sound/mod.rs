@@ -105,8 +105,7 @@ pub mod sound {
                     packet::Packet::PlaySound(res) => {
                         let filename = res.filename.clone();
                         sdl2::mixer::channel(res.channel)
-                            .play(&self.sound_tracks.get(&filename).unwrap(), res.loops)
-                            .unwrap();
+                            .play(&self.sound_tracks.get(&filename).unwrap(), res.loops);
                     }
                     packet::Packet::PauseSound(res) => {
                         sdl2::mixer::channel(res.channel).pause();
