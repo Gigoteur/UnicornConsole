@@ -1217,8 +1217,8 @@ impl Cartridge {
         f.write_all(b"__music__\n").unwrap();
     }
 
-    pub fn save_data(&mut self) {
-        info!("Save the data in {:?}", self.data_filename);
+    pub fn save_in_dpx8(&mut self) {
+        info!("Save the date of the PX8 file in {:?}", self.data_filename);
 
         match self.format {
             CartridgeFormat::Px8Format => {
@@ -1228,6 +1228,7 @@ impl Cartridge {
                 f.write_all(self.gfx.get_data().clone().as_bytes()).unwrap();
 
                 f.write_all(b"__gff__\n").unwrap();
+                f.write_all(self.gff.get_data().clone().as_bytes()).unwrap();
 
                 f.write_all(b"__map__\n").unwrap();
                 f.write_all(self.map.get_data().clone().as_bytes()).unwrap();

@@ -977,7 +977,7 @@ impl PX8 {
                 cartridge.save_in_p8(output_filename);
             }
             CartridgeFormat::Px8Format => {
-                cartridge.save_data();
+                cartridge.save_in_dpx8();
             }
         }
     }
