@@ -319,7 +319,7 @@ impl Frontend {
                             if editor {
                                 self.px8.save_current_cartridge();
                             }
-                        } else if keycode == Keycode::F6 && editor {
+                        } else if keycode == Keycode::F6 {
                             self.px8.switch_code();
                             self.px8.init();
                         } else if keycode == Keycode::F7 {
@@ -554,10 +554,8 @@ impl Frontend {
                                 self.px8.stop_record(self.scale.factor());
                             }
                         } else if keycode == Keycode::F5 {
-                            if editor {
-                                self.px8.save_current_cartridge();
-                            }
-                        } else if keycode == Keycode::F6 && editor {
+                            self.px8.save_current_cartridge();
+                        } else if keycode == Keycode::F6 {
                             self.px8.switch_code();
                             self.px8.init();
                         } else if keycode == Keycode::F7 {

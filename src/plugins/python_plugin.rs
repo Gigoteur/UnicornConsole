@@ -398,7 +398,7 @@ pub mod plugin {
     data config: Arc<Mutex<PX8Config>>;
 
         def show_mouse(&self, value: bool) -> PyResult<u32> {
-            self.config(py).lock().unwrap().show_mouse(value);
+            self.config(py).lock().unwrap().toggle_mouse(value);
             Ok(0)
         }
 

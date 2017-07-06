@@ -276,6 +276,9 @@ class Actor(object):
                 self.curframe=0#--loop
 
     def draw(self):
+        palt(0, False)
+        palt(14, True)
+
         a=self.anims.get(self.curanim)
         frame=a.frames[self.curframe]
         spr(frame,
@@ -284,6 +287,8 @@ class Actor(object):
             self.w/8,self.h/8,
             self.flipx,
             False)
+
+        palt()
 
 class Raspberry(Actor):
     def __init__(self, x, y):
@@ -298,9 +303,6 @@ P = Raspberry(64, 100)
 C = Camera(P)
 
 def _init():
-    palt(0, False)
-    palt(14, True)
-
     P.set_anim("walk")
     C.init(P)
 
