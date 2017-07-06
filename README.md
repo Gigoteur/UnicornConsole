@@ -51,7 +51,7 @@ It works on all platforms (Linux/OSX/Windows), in the browser (via Emscripten), 
 
 The console is inspired from the awesome [Pico-8](http://www.lexaloffle.com/pico-8.php), so there is a [compatibility](https://github.com/Gigoteur/PX8/wiki/Pico-8-compatibility) mode (not 100%, and it is not the goal of the project) available with Pico-8 console and cartridges (P8/PNG).
   
-You can follow the development[here](https://hallucino.itch.io/px8/devlog).
+You can follow the development [here](https://hallucino.itch.io/px8/devlog).
 
 [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=T9NLJWMVWRMVU&lc=FR&item_name=Gigoteur&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted)
 
@@ -116,14 +116,12 @@ You will need multiple things:
   * SDL2
   * SDL2_mixer
   * python3
-  * libreadline
 
 #### Linux
 
 Packages for Debian/Ubuntu:
   * libsdl2-dev
   * libsdl2-mixer-dev
-  * libreadline-dev
   * libpython3-dev
 
 ##### Raspberry Pi
@@ -139,7 +137,6 @@ Install external dependencies via brew:
    * brew install python3
    * brew install sdl2
    * brew install sdl2_mixer
-   * brew install readline
    
 Right now you need to export the DYLD_FALLBACK_LIBRARY_PATH env variable for the python support, e.g:
    * export DYLD_FALLBACK_LIBRARY_PATH=/usr/local/Cellar/python3/3.5.1/Frameworks/Python.framework/Versions/3.5/lib
