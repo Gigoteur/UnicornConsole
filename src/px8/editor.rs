@@ -323,20 +323,91 @@ impl Flags {
     }
 }
 
+#[derive(Debug)]
+pub enum EditorState {
+    SPRITE_EDITOR,
+    MAP_EDITOR,
+}
+
 pub struct MapEditor {
     state: Arc<Mutex<State>>,
+    coord: [i32; 4],
+    offset_x: u32,
+    offset_y: u32,
+    available_zooms: [f32; 3],
+    idx_zoom: u32,
+    zoom: f32,
+    cache: [u32; 128*32],
+    select_field: [i32; 2],
 }
 
 impl MapEditor {
     pub fn new(state: Arc<Mutex<State>>) -> MapEditor {
         MapEditor {
             state: state.clone(),
+            coord: [0, 8, 128, 78],
+            offset_x: 0,
+            offset_y: 0,
+            available_zooms: [1., 0.5, 0.25],
+            idx_zoom: 0,
+            zoom: 1.,
+            cache: [0; 128*32],
+            select_field: [0, 8],
         }
     }
 
-    pub fn update(&mut self, players: Arc<Mutex<Players>>, screen: &mut Screen) {}
-    pub fn draw(&mut self, screen: &mut Screen) {
+    pub fn init(&mut self, screen: &mut Screen) {
+        for y in 0..32 {
+            for x in 0..128 {
+                self.cache[x + y * 128] = screen.mget(x as i32, y as i32);
+            }
+        }
+    }
 
+    pub fn update(&mut self, players: Arc<Mutex<Players>>, screen: &mut Screen) {
+
+    }
+
+    pub fn draw(&mut self, screen: &mut Screen) {
+        // clean screen
+        screen.rectfill(self.coord[0], self.coord[1], self.coord[2], self.coord[3], 0);
+
+        // draw map
+        let mut idx_y = 0;
+        for y in self.offset_y..self.offset_y + (8./self.zoom).floor() as u32 {
+            let mut idx_x = 0;
+
+            for x in self.offset_x..self.offset_x + (16./self.zoom).floor() as u32 {
+                let offset = x + y * 128;
+
+                let sprite_number = self.cache[offset as usize];
+                if sprite_number != 0 {
+                    let sprite_x = (sprite_number % 16) * 8;
+                    let sprite_y = (sprite_number as f32 / 16.).floor() as i32 * 8;
+
+                    let dx = idx_x * ((8. * self.zoom).floor() as i32);
+                    let dy = idx_y * ((8. * self.zoom).floor() as i32) + 9;
+                    screen.sspr(sprite_x as u32, sprite_y as u32, 8, 8, dx, dy,
+                                (self.zoom * 8.).floor() as u32,
+                                (self.zoom * 8.).floor() as u32,
+                                false, false);
+                }
+
+                idx_x += 1
+            }
+
+            idx_y += 1
+        }
+
+
+        // draw selected sprites
+        let zoom_sprite = self.state.lock().unwrap().zoom_sprite;
+
+        screen.rect(self.select_field[0],
+                    self.select_field[1],
+                    self.select_field[0] + (8. * self.zoom * zoom_sprite as f32).floor() as i32,
+                    self.select_field[1] + (8. * self.zoom * zoom_sprite as f32).floor() as i32,
+                    7)
     }
 }
 
@@ -541,7 +612,9 @@ impl SpritesMap {
 
 pub struct Editor {
     state: Arc<Mutex<State>>,
+    state_editor: EditorState,
     sm: SpritesMap,
+    me: MapEditor,
     se: SpriteEditor,
     widgets: Vec<Arc<Mutex<Widget>>>,
 }
@@ -552,7 +625,7 @@ impl Editor {
 
         let mut widgets = Vec::new();
 
-        widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(), "SPRITE EDITOR".to_string(), 110, 1, 8, 6,
+        widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(), "SPRITES".to_string(), 110, 1, 8, 6,
                                                        vec![6, 11, 11, 11, 11, 11, 11, 6,
                                                             11, 6, 6, 6, 6, 6, 6, 11,
                                                             11, 6, 11, 11, 11, 11, 6, 11,
@@ -560,7 +633,7 @@ impl Editor {
                                                             11, 6, 6, 6, 6, 6, 6, 11,
                                                             6, 11, 11, 11, 11, 11, 11, 6],
                                                         HashMap::new()))));
-        widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(), "MAP EDITOR".to_string(), 119, 1, 8, 6,
+        widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(), "MAP".to_string(), 119, 1, 8, 6,
                                                      vec![11, 11, 11, 11, 11, 11, 11, 11,
                                                           11, 6, 6, 6, 6, 6, 6, 11,
                                                           11, 6, 11, 11, 11, 11, 6, 11,
@@ -571,7 +644,9 @@ impl Editor {
 
         Editor {
             state: state.clone(),
+            state_editor: EditorState::SPRITE_EDITOR,
             sm: SpritesMap::new(state.clone()),
+            me: MapEditor::new(state.clone()),
             se: SpriteEditor::new(state.clone()),
             widgets: widgets,
         }
@@ -594,15 +669,25 @@ impl Editor {
 
         self.state.lock().unwrap().update(players.clone());
         self.sm.update(screen);
-        self.se.update(players.clone(), screen);
+        match self.state_editor {
+            EditorState::SPRITE_EDITOR => { self.se.update(players.clone(), screen); }
+            EditorState::MAP_EDITOR => { self.me.update(players.clone(), screen); }
+        }
 
         for widget in &self.widgets {
             widget.lock().unwrap().update();
         }
 
         for widget in &self.widgets {
-            if widget.lock().unwrap().is_click() {
-                info!("CLICKED");
+            let is_click = widget.lock().unwrap().is_click();
+            if is_click {
+                if widget.lock().unwrap().name == "SPRITES" {
+                    self.state_editor = EditorState::SPRITE_EDITOR;
+                }
+                if widget.lock().unwrap().name == "MAP" {
+                    self.state_editor = EditorState::MAP_EDITOR;
+                    self.me.init(screen);
+                }
             }
         }
 
@@ -616,8 +701,13 @@ impl Editor {
         // Draw sprites map
         self.sm.draw(screen);
 
-        // Draw sprite editor
-        self.se.draw(screen);
+        // Draw sprite or map editor
+        match self.state_editor {
+            EditorState::SPRITE_EDITOR => { self.se.draw(screen); }
+            EditorState::MAP_EDITOR => { self.me.draw(screen); }
+        }
+
+
 
         for widget in &self.widgets {
             widget.lock().unwrap().draw(screen);
