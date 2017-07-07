@@ -1,6 +1,7 @@
 use gfx::Screen;
 use config::Players;
 use std::sync::{Arc, Mutex};
+use std::collections::HashMap;
 use px8::PX8Config;
 use time;
 
@@ -114,6 +115,70 @@ impl Button {
     }
 }
 
+pub struct Widget {
+    state: Arc<Mutex<State>>,
+    name: String,
+    x1: u32,
+    y1: u32,
+    x2: u32,
+    y2: u32,
+    w: u32,
+    h: u32,
+    data: Vec<u8>,
+    highlight: HashMap<u32, u32>,
+    clicked: bool,
+}
+
+impl Widget {
+    pub fn new(state: Arc<Mutex<State>>, name: String, x: u32, y: u32, w: u32, h: u32, data: Vec<u8>, highlight: HashMap<u32, u32>) -> Widget {
+        Widget {
+            state: state,
+            name: name,
+            x1: x,
+            y1: y,
+            x2: x + w,
+            y2: y + h,
+            w: w,
+            h: h,
+            data: data,
+            highlight: highlight,
+            clicked: false
+        }
+    }
+
+    pub fn is_click(&mut self) -> bool {
+        self.clicked
+    }
+
+    pub fn update(&mut self) {
+        let mouse_state = self.state.lock().unwrap().mouse_state;
+        self.clicked = false;
+
+        if mouse_state == 1 {
+            let mouse_x = self.state.lock().unwrap().mouse_x as u32;
+            let mouse_y = self.state.lock().unwrap().mouse_y as u32;
+
+            self.clicked = (self.x1 <= mouse_x && mouse_x < self.x2) && (self.y1 <= mouse_y && mouse_y < self.y2);
+        }
+    }
+
+    pub fn draw(&mut self, screen: &mut Screen) {
+        let mut idx_w = 0;
+        let mut idx_h = 0;
+
+        for pixel in &self.data {
+            screen.pset((self.x1+idx_w) as i32, (self.y1+idx_h) as i32, *pixel as i32);
+
+            idx_w += 1;
+            if idx_w == self.w {
+                idx_w = 0;
+                idx_h += 1;
+            }
+
+        }
+    }
+}
+
 pub struct PalettePicker {
     state: Arc<Mutex<State>>,
     idx_x: i32,
@@ -154,7 +219,6 @@ impl PalettePicker {
                 let x_zoom_sprite = self.state.lock().unwrap().x_zoom_sprite;
                 let y_zoom_sprite = self.state.lock().unwrap().y_zoom_sprite;
 
-                info!("SSET {:?} {:?} {:?} {:?} {:?}", x_zoom_sprite + idx_x as u32, y_zoom_sprite + idx_y as u32, idx_x, idx_y, mouse_y);
                 screen.sset(x_zoom_sprite + idx_x as u32, y_zoom_sprite + idx_y as u32, self.current_color as i32);
             }
 
@@ -198,14 +262,81 @@ impl PalettePicker {
 }
 
 pub struct Flags {
-    values: [u32; 8]
+    state: Arc<Mutex<State>>,
+    values: [u32; 8],
+    flags: HashMap<u32, u32>,
 }
 
 impl Flags {
-    pub fn new() -> Flags {
-        Flags {
-            values: [1, 2, 4, 8, 16, 32, 64, 128],
+    pub fn new(state: Arc<Mutex<State>>) -> Flags {
+        let values = [1, 2, 4, 8, 16, 32, 64, 128];
+        let mut flags = HashMap::new();
+
+        for i in values.iter() {
+            flags.insert(*i, 0);
         }
+
+        Flags {
+            state: state.clone(),
+            values: values,
+            flags: flags,
+        }
+    }
+
+    pub fn update(&mut self, screen: &mut Screen) {
+        let mut idx = 0;
+        let idx_sprite = self.state.lock().unwrap().current_sprite;
+
+        for i in self.values.iter() {
+            let flag = screen.fget(idx_sprite, *i as u8);
+            let mut color = 0;
+            if flag {
+                color = 7;
+            }
+            self.flags.insert(*i, color);
+
+            let mouse_state = self.state.lock().unwrap().mouse_state;
+            if mouse_state == 1 {
+                let mouse_x = self.state.lock().unwrap().mouse_x;
+                let mouse_y = self.state.lock().unwrap().mouse_y;
+
+                if point_in_rect(mouse_x, mouse_y,
+                                 80+idx, 74, 82+idx, 76) {
+                    screen.fset(idx_sprite, *i as u8, !flag);
+                }
+            }
+
+            idx += 6;
+        }
+    }
+
+    pub fn draw(&mut self, screen: &mut Screen) {
+        let mut idx = 0;
+
+        for k in self.values.iter() {
+            let color = self.flags[k];
+
+            screen.rectfill(80 + idx, 74, 82 + idx, 76, color as i32);
+
+            idx += 6
+        }
+    }
+}
+
+pub struct MapEditor {
+    state: Arc<Mutex<State>>,
+}
+
+impl MapEditor {
+    pub fn new(state: Arc<Mutex<State>>) -> MapEditor {
+        MapEditor {
+            state: state.clone(),
+        }
+    }
+
+    pub fn update(&mut self, players: Arc<Mutex<Players>>, screen: &mut Screen) {}
+    pub fn draw(&mut self, screen: &mut Screen) {
+
     }
 }
 
@@ -291,6 +422,7 @@ pub struct SpritesMap {
     state: Arc<Mutex<State>>,
     buttons: [i32; 4],
     buttons_map: Vec<Arc<Mutex<Button>>>,
+    flags: Flags,
 }
 
 impl SpritesMap {
@@ -302,13 +434,14 @@ impl SpritesMap {
         buttons_map.push(Arc::new(Mutex::new(Button::new(111, 79, 115, 87, 2, "4".to_string(), false))));
 
         SpritesMap {
-            state: state,
+            state: state.clone(),
             buttons: [96, 79, 115, 87],
             buttons_map: buttons_map.clone(),
+            flags: Flags::new(state.clone()),
         }
     }
 
-    pub fn update(&mut self) {
+    pub fn update(&mut self, screen: &mut Screen) {
         self.state.lock().unwrap().on_current_sprite = false;
 
         if self.state.lock().unwrap().mouse_state == 1 {
@@ -344,18 +477,22 @@ impl SpritesMap {
                 let current_sprite = self.state.lock().unwrap().current_sprite;
                 self.state.lock().unwrap().x_zoom_sprite = (current_sprite % 16) * 8;
                 self.state.lock().unwrap().y_zoom_sprite = (current_sprite as f64 / 16.).floor() as u32 * 8;
-                info!("{:?} {:?}", (current_sprite % 16) * 8, (current_sprite as f64 / 16.).floor() as u32 * 8);
             }
         }
 
         // Update flags
+        self.flags.update(screen);
     }
 
     pub fn draw(&mut self, screen: &mut Screen) {
         self.draw_sprite_map(screen);
-      //  self.draw_sprite_flags(screen);
+        self.draw_sprite_flags(screen);
         self.draw_button(screen);
         self.draw_information(screen);
+    }
+
+    pub fn draw_sprite_flags(&mut self, screen: &mut Screen) {
+        self.flags.draw(screen);
     }
 
     pub fn draw_sprite_map(&mut self, screen: &mut Screen) {
@@ -406,15 +543,37 @@ pub struct Editor {
     state: Arc<Mutex<State>>,
     sm: SpritesMap,
     se: SpriteEditor,
+    widgets: Vec<Arc<Mutex<Widget>>>,
 }
 
 impl Editor {
     pub fn new() -> Editor {
         let state = Arc::new(Mutex::new(State::new()));
+
+        let mut widgets = Vec::new();
+
+        widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(), "SPRITE EDITOR".to_string(), 110, 1, 8, 6,
+                                                       vec![6, 11, 11, 11, 11, 11, 11, 6,
+                                                            11, 6, 6, 6, 6, 6, 6, 11,
+                                                            11, 6, 11, 11, 11, 11, 6, 11,
+                                                            11, 6, 11, 11, 11, 11, 6, 11,
+                                                            11, 6, 6, 6, 6, 6, 6, 11,
+                                                            6, 11, 11, 11, 11, 11, 11, 6],
+                                                        HashMap::new()))));
+        widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(), "MAP EDITOR".to_string(), 119, 1, 8, 6,
+                                                     vec![11, 11, 11, 11, 11, 11, 11, 11,
+                                                          11, 6, 6, 6, 6, 6, 6, 11,
+                                                          11, 6, 11, 11, 11, 11, 6, 11,
+                                                          11, 6, 11, 11, 11, 11, 6, 11,
+                                                          11, 6, 6, 6, 6, 6, 6, 11,
+                                                          11, 11, 11, 11, 11, 11, 11, 11],
+                                                     HashMap::new()))));
+
         Editor {
             state: state.clone(),
             sm: SpritesMap::new(state.clone()),
             se: SpriteEditor::new(state.clone()),
+            widgets: widgets,
         }
     }
 
@@ -428,14 +587,24 @@ impl Editor {
         true
     }
 
-    pub fn draw(&mut self,  players: Arc<Mutex<Players>>, screen: &mut Screen) -> f64 {
+    pub fn draw(&mut self, players: Arc<Mutex<Players>>, screen: &mut Screen) -> f64 {
         let current_time = time::now();
 
         screen.cls();
 
         self.state.lock().unwrap().update(players.clone());
-        self.sm.update();
+        self.sm.update(screen);
         self.se.update(players.clone(), screen);
+
+        for widget in &self.widgets {
+            widget.lock().unwrap().update();
+        }
+
+        for widget in &self.widgets {
+            if widget.lock().unwrap().is_click() {
+                info!("CLICKED");
+            }
+        }
 
         // Draw contour
         screen.rectfill(0, 0, 128, 8, 11);
@@ -449,6 +618,10 @@ impl Editor {
 
         // Draw sprite editor
         self.se.draw(screen);
+
+        for widget in &self.widgets {
+            widget.lock().unwrap().draw(screen);
+        }
 
         let diff_time = time::now() - current_time;
         let nanoseconds = (diff_time.num_nanoseconds().unwrap() as f64) -
