@@ -1,7 +1,9 @@
 use gfx::Screen;
 use config::Players;
 use std::sync::{Arc, Mutex};
+use std::cmp::{max, min};
 use std::collections::HashMap;
+
 use px8::PX8Config;
 use time;
 
@@ -332,13 +334,14 @@ pub enum EditorState {
 pub struct MapEditor {
     state: Arc<Mutex<State>>,
     coord: [i32; 4],
-    offset_x: u32,
-    offset_y: u32,
+    offset_x: i32,
+    offset_y: i32,
     available_zooms: [f32; 3],
     idx_zoom: u32,
     zoom: f32,
     cache: [u32; 128*32],
     select_field: [i32; 2],
+    size_sprite: u32,
 }
 
 impl MapEditor {
@@ -353,6 +356,7 @@ impl MapEditor {
             zoom: 1.,
             cache: [0; 128*32],
             select_field: [0, 8],
+            size_sprite: 8,
         }
     }
 
@@ -365,6 +369,32 @@ impl MapEditor {
     }
 
     pub fn update(&mut self, players: Arc<Mutex<Players>>, screen: &mut Screen) {
+        if players.lock().unwrap().btnp(0, 0) {
+            self.offset_x -= 8;
+            self.offset_x = max(0, self.offset_x);
+        }
+
+        if players.lock().unwrap().btnp(0, 1) {
+            self.offset_x += 8;
+            self.offset_x = min(((128. - 16. * self.zoom) * self.zoom).floor() as i32, self.offset_x);
+        }
+
+        if players.lock().unwrap().btnp(0, 2) {
+            self.offset_y -= 8;
+            self.offset_y = max(0, self.offset_y);
+        }
+
+        if players.lock().unwrap().btnp(0, 3) {
+            self.offset_y += 8;
+            self.offset_y = min(((32. - 8. * self.zoom) * self.zoom).floor() as i32, self.offset_y);
+        }
+
+
+        if players.lock().unwrap().btnp(0, 4) {
+            self.idx_zoom = (self.idx_zoom + 1) % self.available_zooms.len() as u32;
+            self.zoom = self.available_zooms[self.idx_zoom as usize];
+            self.size_sprite = (8. * self.zoom).floor() as u32;
+        }
 
     }
 
@@ -374,10 +404,10 @@ impl MapEditor {
 
         // draw map
         let mut idx_y = 0;
-        for y in self.offset_y..self.offset_y + (8./self.zoom).floor() as u32 {
+        for y in self.offset_y as u32..self.offset_y as u32 + (8./self.zoom).floor() as u32 {
             let mut idx_x = 0;
 
-            for x in self.offset_x..self.offset_x + (16./self.zoom).floor() as u32 {
+            for x in self.offset_x as u32 ..self.offset_x as u32 + (16./self.zoom).floor() as u32 {
                 let offset = x + y * 128;
 
                 let sprite_number = self.cache[offset as usize];
