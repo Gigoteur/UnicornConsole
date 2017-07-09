@@ -287,6 +287,19 @@ impl Screen {
         self._reset_cliprect();
     }
 
+    pub fn mode_width(&mut self) -> usize {
+        self.width
+    }
+
+
+    pub fn mode_height(&mut self) -> usize {
+        self.height
+    }
+
+    pub fn mode_aspect_ratio(&mut self) -> f32 {
+        self.aspect_ratio
+    }
+
     pub fn _reset_transparency(&mut self) {
         self.transparency_map = [false; 256];
         self.transparency_map[0] = true;
@@ -1058,7 +1071,7 @@ impl Screen {
     }
 
     pub fn mset(&mut self, x: i32, y: i32, v: u32) {
-        //debug!("MSET x {:?} y {:?} v {:?}", x, y, v);
+        info!("MSET x {:?} y {:?} v {:?}", x, y, v);
 
         if x < 0 || y < 0 {
             return;

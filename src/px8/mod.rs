@@ -703,6 +703,8 @@ impl PX8 {
     pub fn reset(&mut self) {
         info!("[PX8] Reset");
 
+        self.screen.lock().unwrap().mode(128, 128, 1.);
+
         self.configuration.lock().unwrap().toggle_mouse(false);
 
         self.palettes.lock().unwrap().init();
@@ -1095,7 +1097,7 @@ impl PX8 {
                 .set_map(cartridge.cartridge.map.map);
 
             if editor {
-                self.editor.init(self.configuration.clone());
+                self.editor.init(self.configuration.clone(), &mut self.screen.lock().unwrap());
                 self.state = PX8State::EDITOR;
             } else {
                 self.state = PX8State::RUN;
@@ -1222,7 +1224,7 @@ impl PX8 {
             self.state = PX8State::RUN;
             self.reset();
         } else {
-            self.editor.init(self.configuration.clone());
+            self.editor.init(self.configuration.clone(), &mut self.screen.lock().unwrap());
             self.editing = true;
             self.state = PX8State::EDITOR;
         }

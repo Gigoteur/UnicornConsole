@@ -45,7 +45,7 @@ impl State {
             mouse_state: 0,
             mouse_statep: 0,
 
-            idx_sprites_batch: 88,
+            idx_sprites_batch: 200,
             current_sprite: 0,
 
             x_zoom_sprite: 0,
@@ -194,7 +194,7 @@ impl PalettePicker {
     pub fn new(state: Arc<Mutex<State>>) -> PalettePicker {
         PalettePicker {
             state: state,
-            idx_x: 80,
+            idx_x: 192,
             idx_y: 16,
             current_color: 0,
             current_selection_x: 0,
@@ -213,10 +213,10 @@ impl PalettePicker {
             if point_in_rect(mouse_x, mouse_y,
                              idx_x_zoom_sprite as i32,
                              idx_y_zoom_sprite as i32,
-                             (idx_x_zoom_sprite + 8 * 8) as i32,
-                             (idx_y_zoom_sprite + 8 * 8) as i32) {
-                let idx_x = ((mouse_x - idx_x_zoom_sprite as i32) as f64 * zoom_sprite as f64 / 8.).floor() as u32;
-                let idx_y = ((mouse_y - idx_y_zoom_sprite as i32) as f64 * zoom_sprite as f64 / 8.).floor() as u32;
+                             (idx_x_zoom_sprite + 128) as i32,
+                             (idx_y_zoom_sprite + 128) as i32) {
+                let idx_x = ((mouse_x - idx_x_zoom_sprite as i32) as f64 * zoom_sprite as f64 / 16.).floor() as u32;
+                let idx_y = ((mouse_y - idx_y_zoom_sprite as i32) as f64 * zoom_sprite as f64 / 16.).floor() as u32;
 
                 let x_zoom_sprite = self.state.lock().unwrap().x_zoom_sprite;
                 let y_zoom_sprite = self.state.lock().unwrap().y_zoom_sprite;
@@ -291,9 +291,9 @@ impl Flags {
 
         for i in self.values.iter() {
             let flag = screen.fget(idx_sprite, *i as u8);
-            let mut color = 0;
+            let mut color = 8;
             if flag {
-                color = 7;
+                color = 11;
             }
             self.flags.insert(*i, color);
 
@@ -303,7 +303,7 @@ impl Flags {
                 let mouse_y = self.state.lock().unwrap().mouse_y;
 
                 if point_in_rect(mouse_x, mouse_y,
-                                 80+idx, 74, 82+idx, 76) {
+                                 128+idx, 193, 130+idx, 195) {
                     screen.fset(idx_sprite, *i as u8, !flag);
                 }
             }
@@ -318,7 +318,7 @@ impl Flags {
         for k in self.values.iter() {
             let color = self.flags[k];
 
-            screen.rectfill(80 + idx, 74, 82 + idx, 76, color as i32);
+            screen.rectfill(128 + idx, 193, 130 + idx, 195, color as i32);
 
             idx += 6
         }
@@ -349,7 +349,7 @@ impl MapEditor {
     pub fn new(state: Arc<Mutex<State>>) -> MapEditor {
         MapEditor {
             state: state.clone(),
-            coord: [0, 8, 128, 78],
+            coord: [0, 8, 240, 190],
             offset_x: 0,
             offset_y: 0,
             available_zooms: [1., 0.5, 0.25],
@@ -378,7 +378,7 @@ impl MapEditor {
 
         if players.lock().unwrap().btnp(0, 1) {
             self.offset_x += 8;
-            self.offset_x = min(((128. - 16. * self.zoom) * self.zoom).floor() as i32, self.offset_x);
+            self.offset_x = min(((128. - 24. * self.zoom) * self.zoom).floor() as i32, self.offset_x);
         }
 
         if players.lock().unwrap().btnp(0, 2) {
@@ -388,7 +388,7 @@ impl MapEditor {
 
         if players.lock().unwrap().btnp(0, 3) {
             self.offset_y += 8;
-            self.offset_y = min(((32. - 8. * self.zoom) * self.zoom).floor() as i32, self.offset_y);
+            self.offset_y = min(((32. - 16. * self.zoom) * self.zoom).floor() as i32, self.offset_y);
         }
 
 
@@ -406,8 +406,8 @@ impl MapEditor {
                          self.coord[2], self.coord[3]) {
             let mouse_state = self.state.lock().unwrap().mouse_state;
 
-            self.select_field[0] = mouse_x - mouse_x % self.size_sprite;
-            self.select_field[1] = mouse_y - mouse_y % self.size_sprite;
+            self.select_field[0] = min(192, mouse_x - mouse_x % self.size_sprite);
+            self.select_field[1] = min(192, mouse_y - mouse_y % self.size_sprite);
 
             let new_x = ((self.select_field[0] + self.offset_x * self.size_sprite) as f64 / self.size_sprite as f64).floor() as u32;
             let new_y = ((self.select_field[1] - self.coord[1] + self.offset_y * self.size_sprite) as f64 / self.size_sprite as f64).floor() as u32;
@@ -416,22 +416,17 @@ impl MapEditor {
 
                 for x in 0u32..zoom_sprite as u32 {
                     for y in 0u32..zoom_sprite as u32 {
-                        let current_sprite = self.state.lock().unwrap().current_sprite;
+                        let current_sprite = self.state.lock().unwrap().current_sprite+x+y*16;
 
                         let idx = ((new_x + x) as f64 + (new_y + y) as f64 * 128.).floor() as usize;
-                        self.cache[idx] = current_sprite + x + y * 16;
+                        self.cache[idx] = current_sprite;
                         screen.mset((new_x + x) as i32, (new_y + y) as i32, current_sprite);
                     }
                 }
-
             }
-
             self.current_sprite[0] = new_x;
             self.current_sprite[1] = new_y;
-
         }
-
-
     }
 
     pub fn draw(&mut self, screen: &mut Screen) {
@@ -440,10 +435,10 @@ impl MapEditor {
 
         // draw map
         let mut idx_y = 0;
-        for y in self.offset_y as u32..self.offset_y as u32 + (8./self.zoom).floor() as u32 {
+        for y in self.offset_y as u32..self.offset_y as u32 + (16./self.zoom).floor() as u32 {
             let mut idx_x = 0;
 
-            for x in self.offset_x as u32 ..self.offset_x as u32 + (16./self.zoom).floor() as u32 {
+            for x in self.offset_x as u32 ..self.offset_x as u32 + (24./self.zoom).floor() as u32 {
                 let offset = x + y * 128;
 
                 let sprite_number = self.cache[offset as usize];
@@ -473,7 +468,10 @@ impl MapEditor {
                     self.select_field[1],
                     self.select_field[0] + (8. * self.zoom * zoom_sprite as f32).floor() as i32,
                     self.select_field[1] + (8. * self.zoom * zoom_sprite as f32).floor() as i32,
-                    7)
+                    7);
+
+        // Draw info
+        screen.print(format!("{:?} {:?}", self.current_sprite[0], self.current_sprite[1]), 80, 193, 7);
     }
 }
 
@@ -502,7 +500,6 @@ impl SpriteEditor {
 
             self.state.lock().unwrap().zoom_sprite = sprite_available_zooms[new_idx_zoom_sprite as usize];
         }
-
         /*
 
         if players.lock().unwrap().btnp(0, 0) {
@@ -533,8 +530,6 @@ impl SpriteEditor {
     pub fn draw(&mut self, screen: &mut Screen) {
         self.pp.draw(screen);
 
-        screen.print(format!("{:?}", self.state.lock().unwrap().current_sprite), 80, 64, 7);
-
         let x_zoom_sprite = self.state.lock().unwrap().x_zoom_sprite;
         let y_zoom_sprite = self.state.lock().unwrap().y_zoom_sprite;
         let zoom_sprite = self.state.lock().unwrap().zoom_sprite;
@@ -548,8 +543,8 @@ impl SpriteEditor {
                     8*zoom_sprite as u32,
                     idx_x_zoom_sprite as i32,
                     idx_y_zoom_sprite as i32,
-                    8*8,
-                    8*8,
+                    128,
+                    128,
                     false,
                     false);
     }
@@ -565,14 +560,14 @@ pub struct SpritesMap {
 impl SpritesMap {
     pub fn new(state: Arc<Mutex<State>>) -> SpritesMap {
         let mut buttons_map = Vec::new();
-        buttons_map.push(Arc::new(Mutex::new(Button::new(96, 79, 100, 87, 2, "1".to_string(), true))));
-        buttons_map.push(Arc::new(Mutex::new(Button::new(101, 79, 105, 87, 2, "2".to_string(), false))));
-        buttons_map.push(Arc::new(Mutex::new(Button::new(106, 79, 110, 87, 2, "3".to_string(), false))));
-        buttons_map.push(Arc::new(Mutex::new(Button::new(111, 79, 115, 87, 2, "4".to_string(), false))));
+        buttons_map.push(Arc::new(Mutex::new(Button::new(208, 191, 212, 199, 2, "1".to_string(), true))));
+        buttons_map.push(Arc::new(Mutex::new(Button::new(213, 191, 217, 199, 2, "2".to_string(), false))));
+        buttons_map.push(Arc::new(Mutex::new(Button::new(218, 191, 222, 199, 2, "3".to_string(), false))));
+        buttons_map.push(Arc::new(Mutex::new(Button::new(223, 191, 228, 199, 2, "4".to_string(), false))));
 
         SpritesMap {
             state: state.clone(),
-            buttons: [96, 79, 115, 87],
+            buttons: [208, 191, 228, 199],
             buttons_map: buttons_map.clone(),
             flags: Flags::new(state.clone()),
         }
@@ -604,7 +599,7 @@ impl SpritesMap {
 
             let idx_sprites_batch = self.state.lock().unwrap().idx_sprites_batch;
 
-            if (mouse_y >= self.state.lock().unwrap().idx_sprites_batch) && mouse_y < 120 {
+            if (mouse_y >= self.state.lock().unwrap().idx_sprites_batch) && mouse_y < 232 {
                 let y = ((mouse_y - idx_sprites_batch) as f64 / 8.).floor() as u32;
                 let x = (mouse_x as f64 / 8.).floor() as u32;
 
@@ -670,9 +665,13 @@ impl SpritesMap {
             let on_current_sprite_y = self.state.lock().unwrap().on_current_sprite_y;
 
             screen.print(format!("{:?},{:?}", on_current_sprite_x, on_current_sprite_y),
-                         0, 120,
+                         0, 232,
                          5);
         }
+
+        screen.print(format!("{:?}", self.state.lock().unwrap().current_sprite),
+                     64, 191,
+                     7);
     }
 }
 
@@ -691,7 +690,7 @@ impl Editor {
 
         let mut widgets = Vec::new();
 
-        widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(), "SPRITES".to_string(), 110, 1, 8, 6,
+        widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(), "SPRITES".to_string(), 222, 1, 8, 6,
                                                        vec![6, 11, 11, 11, 11, 11, 11, 6,
                                                             11, 6, 6, 6, 6, 6, 6, 11,
                                                             11, 6, 11, 11, 11, 11, 6, 11,
@@ -699,7 +698,7 @@ impl Editor {
                                                             11, 6, 6, 6, 6, 6, 6, 11,
                                                             6, 11, 11, 11, 11, 11, 11, 6],
                                                         HashMap::new()))));
-        widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(), "MAP".to_string(), 119, 1, 8, 6,
+        widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(), "MAP".to_string(), 231, 1, 8, 6,
                                                      vec![11, 11, 11, 11, 11, 11, 11, 11,
                                                           11, 6, 6, 6, 6, 6, 6, 11,
                                                           11, 6, 11, 11, 11, 11, 6, 11,
@@ -718,9 +717,11 @@ impl Editor {
         }
     }
 
-    pub fn init(&mut self, config: Arc<Mutex<PX8Config>>) {
+    pub fn init(&mut self, config: Arc<Mutex<PX8Config>>, screen: &mut Screen) {
         info!("[EDITOR] Init");
         config.lock().unwrap().toggle_mouse(true);
+
+        screen.mode(240, 236, 1.);
     }
 
     pub fn update(&mut self, players: Arc<Mutex<Players>>) -> bool {
@@ -757,12 +758,14 @@ impl Editor {
             }
         }
 
+        let width = screen.mode_width() as i32;
+
         // Draw contour
-        screen.rectfill(0, 0, 128, 8, 11);
-        screen.rectfill(0, 120, 128, 128, 11);
-        screen.rectfill(0, 75, 128, 87, 5);
-        screen.rectfill(0, 9, 8, 77, 5);
-        screen.rectfill(75, 9, 128, 76, 5);
+        screen.rectfill(0, 0, width, 8, 11);
+        screen.rectfill(0, width-8, width, width, 11);
+        screen.rectfill(0, 139, width, 199, 5);
+        screen.rectfill(0, 9, 8, 189, 5);
+        screen.rectfill(140, 9, width, 190, 5);
 
         // Draw sprites map
         self.sm.draw(screen);

@@ -195,6 +195,18 @@ pub mod plugin {
         Ok(0)
     }
 
+    def mode_get_width(&self) -> PyResult<usize> {
+        Ok(self.screen(py).lock().unwrap().mode_width())
+    }
+
+    def mode_get_height(&self) -> PyResult<usize> {
+        Ok(self.screen(py).lock().unwrap().mode_height())
+    }
+
+    def mode_get_aspect_ratio(&self) -> PyResult<f32> {
+        Ok(self.screen(py).lock().unwrap().mode_aspect_ratio())
+    }
+
     def palt(&self, c: i32, t: bool) -> PyResult<i32> {
         self.screen(py).lock().unwrap().palt(c, t);
         Ok(0)
