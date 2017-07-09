@@ -341,7 +341,8 @@ pub struct MapEditor {
     zoom: f32,
     cache: [u32; 128*32],
     select_field: [i32; 2],
-    size_sprite: u32,
+    size_sprite: i32,
+    current_sprite: [u32; 2],
 }
 
 impl MapEditor {
@@ -357,6 +358,7 @@ impl MapEditor {
             cache: [0; 128*32],
             select_field: [0, 8],
             size_sprite: 8,
+            current_sprite: [0, 0],
         }
     }
 
@@ -393,8 +395,42 @@ impl MapEditor {
         if players.lock().unwrap().btnp(0, 4) {
             self.idx_zoom = (self.idx_zoom + 1) % self.available_zooms.len() as u32;
             self.zoom = self.available_zooms[self.idx_zoom as usize];
-            self.size_sprite = (8. * self.zoom).floor() as u32;
+            self.size_sprite = (8. * self.zoom).floor() as i32;
         }
+
+        let mouse_x = self.state.lock().unwrap().mouse_x;
+        let mouse_y = self.state.lock().unwrap().mouse_y;
+
+        if point_in_rect(mouse_x, mouse_y,
+                         self.coord[0], self.coord[1],
+                         self.coord[2], self.coord[3]) {
+            let mouse_state = self.state.lock().unwrap().mouse_state;
+
+            self.select_field[0] = mouse_x - mouse_x % self.size_sprite;
+            self.select_field[1] = mouse_y - mouse_y % self.size_sprite;
+
+            let new_x = ((self.select_field[0] + self.offset_x * self.size_sprite) as f64 / self.size_sprite as f64).floor() as u32;
+            let new_y = ((self.select_field[1] - self.coord[1] + self.offset_y * self.size_sprite) as f64 / self.size_sprite as f64).floor() as u32;
+            if mouse_state == 1 {
+                let zoom_sprite = self.state.lock().unwrap().zoom_sprite;
+
+                for x in 0u32..zoom_sprite as u32 {
+                    for y in 0u32..zoom_sprite as u32 {
+                        let current_sprite = self.state.lock().unwrap().current_sprite;
+
+                        let idx = ((new_x + x) as f64 + (new_y + y) as f64 * 128.).floor() as usize;
+                        self.cache[idx] = current_sprite + x + y * 16;
+                        screen.mset((new_x + x) as i32, (new_y + y) as i32, current_sprite);
+                    }
+                }
+
+            }
+
+            self.current_sprite[0] = new_x;
+            self.current_sprite[1] = new_y;
+
+        }
+
 
     }
 
