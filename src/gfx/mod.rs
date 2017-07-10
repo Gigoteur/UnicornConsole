@@ -403,6 +403,7 @@ impl Screen {
             "bbc" => &fonts::bbc::FONT,
             "cbmII" => &fonts::cbmii::FONT,
             "appleII" => &fonts::appleii::FONT,
+            "trollmini" => &fonts::trollmini::FONT,
             _ => &fonts::pico8::FONT,
         }
     }

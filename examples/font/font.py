@@ -19,6 +19,7 @@ FONTS = [
     "bbc",
     "cbmII",
     "appleII",
+    "trollmini",
 ]
 
 frame = 0
