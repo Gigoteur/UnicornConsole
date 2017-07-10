@@ -14,6 +14,7 @@ use px8::gfx;
 use px8::cartridge;
 use px8::px8::RustPlugin;
 use px8::config::Players;
+use px8::px8::info;
 
 pub struct HelloWorld {
     pub sprite_filename: String,

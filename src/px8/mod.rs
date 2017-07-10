@@ -975,11 +975,15 @@ impl PX8 {
         let cartridge = &mut self.cartridges[self.current_cartridge].cartridge;
 
         let output_filename = &cartridge.filename.clone();
-        info!("[PX8] Saving the current cartridge in {:?}",
+        info!("[PX8][SAVE] Saving the current cartridge in {:?}",
               output_filename);
 
+        info!("[PX8][SAVE] Set the new sprites");
         cartridge.gfx.set_sprites(screen.sprites.clone());
+        info!("[PX8][SAVE] Set the new map");
         cartridge.map.set_map(screen.map);
+        info!("[PX8][SAVE] Set the new flags");
+        cartridge.gff.set_flags(screen.sprites.clone());
 
         match cartridge.format {
             CartridgeFormat::P8Format => {

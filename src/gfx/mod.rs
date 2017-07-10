@@ -5,6 +5,7 @@ use std::fmt;
 use px8;
 use std::cmp;
 use std::ptr;
+use num_traits::pow;
 
 // Fixed pitch font definition
 #[allow(dead_code)]
@@ -40,19 +41,12 @@ impl Sprite {
     }
 
     pub fn is_flags_set(&self, value: u8) -> bool {
-        let mut value = value << 1;
-
-        if value == 0 {
-            value = 1;
-        }
-
-        (self.flags & value) != 0
+        (self.flags & pow(2, value as usize)) != 0
     }
 
     pub fn is_bit_flags_set(&self, value: u8) -> bool {
         (self.flags & value) != 0
     }
-
 
     pub fn get_flags(&self) -> u8 {
         self.flags
@@ -60,9 +54,9 @@ impl Sprite {
 
     pub fn set_flag(&mut self, flag: u8, value: bool) {
         if value {
-            self.flags |= flag << 1;
+            self.flags |= pow(2, flag as usize);
         } else {
-            self.flags &= !flag << 1;
+            self.flags &= !(1 << flag);
         }
     }
 
@@ -152,6 +146,38 @@ impl fmt::Debug for Sprite {
         }
 
         write!(f, "{}", data_matrix)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Sprite;
+
+    #[test]
+    fn test_sprite_flags() {
+        let mut s = Sprite::new([0; 64]);
+        s.set_flag(0, true);
+        assert_eq!(s.is_flags_set(0), true);
+
+        s.set_flag(7, true);
+        assert_eq!(s.is_flags_set(7), true);
+
+        s.set_flag(7, false);
+        assert_eq!(s.is_flags_set(7), false);
+    }
+
+    #[test]
+    fn test_sprite_flags2() {
+        let mut s = Sprite::new([0; 64]);
+        s.set_flags(131);
+        assert_eq!(s.is_flags_set(0), true);
+        assert_eq!(s.is_flags_set(1), true);
+        assert_eq!(s.is_flags_set(2), false);
+        assert_eq!(s.is_flags_set(3), false);
+        assert_eq!(s.is_flags_set(4), false);
+        assert_eq!(s.is_flags_set(5), false);
+        assert_eq!(s.is_flags_set(6), false);
+        assert_eq!(s.is_flags_set(7), true);
     }
 }
 
@@ -1071,7 +1097,7 @@ impl Screen {
     }
 
     pub fn mset(&mut self, x: i32, y: i32, v: u32) {
-        info!("MSET x {:?} y {:?} v {:?}", x, y, v);
+        //info!("MSET x {:?} y {:?} v {:?}", x, y, v);
 
         if x < 0 || y < 0 {
             return;

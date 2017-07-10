@@ -598,6 +598,19 @@ impl CartridgeGFF {
 
         data
     }
+
+    pub fn set_flags(&mut self, sprites: Vec<Sprite>) {
+        let mut idx = 0;
+        for s in &sprites {
+            if idx <= self.flags.len() {
+                self.flags[idx] = s.flags;
+            } else {
+                self.flags.push(s.flags);
+            }
+
+            idx += 1;
+        }
+    }
 }
 
 pub struct CartridgeMusic {}
