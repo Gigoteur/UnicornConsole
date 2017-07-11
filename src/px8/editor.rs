@@ -138,7 +138,7 @@ pub struct Widget {
 }
 
 impl Widget {
-    pub fn new(state: Arc<Mutex<State>>, name: String, x: u32, y: u32, w: u32, h: u32, data: Vec<u8>, highlight: HashMap<u32, u32>) -> Widget {
+    pub fn new(state: Arc<Mutex<State>>, name: String, x: u32, y: u32, w: u32, h: u32, data: Vec<u8>, highlight: HashMap<u32, u32>, clicked: bool) -> Widget {
         Widget {
             state: state,
             name: name,
@@ -150,8 +150,12 @@ impl Widget {
             h: h,
             data: data,
             highlight: highlight,
-            clicked: false
+            clicked: clicked
         }
+    }
+
+    pub fn reset(&mut self) {
+        self.clicked = false;
     }
 
     pub fn is_click(&mut self) -> bool {
@@ -160,9 +164,10 @@ impl Widget {
 
     pub fn update(&mut self) {
         let mouse_state = self.state.lock().unwrap().mouse_state;
-        self.clicked = false;
 
         if mouse_state == 1 {
+            self.clicked = false;
+
             let mouse_x = self.state.lock().unwrap().mouse_x as u32;
             let mouse_y = self.state.lock().unwrap().mouse_y as u32;
 
@@ -175,7 +180,13 @@ impl Widget {
         let mut idx_h = 0;
 
         for pixel in &self.data {
-            screen.pset((self.x1+idx_w) as i32, (self.y1+idx_h) as i32, *pixel as i32);
+            if self.highlight.len() > 0 && self.clicked {
+                let pixel = *pixel as u32;
+                let pp = self.highlight.get(&pixel).unwrap_or(&pixel);
+                screen.pset((self.x1+idx_w) as i32, (self.y1+idx_h) as i32, *pp as i32);
+            } else {
+                screen.pset((self.x1+idx_w) as i32, (self.y1+idx_h) as i32, *pixel as i32);
+            }
 
             idx_w += 1;
             if idx_w == self.w {
@@ -511,18 +522,148 @@ impl MapEditor {
 pub struct SpriteEditor {
     state: Arc<Mutex<State>>,
     pp: PalettePicker,
+    widgets: Vec<Arc<Mutex<Widget>>>,
+    buffer_copy: Vec<u8>,
+    buffer_copy_size: [u32; 2],
 }
 
 impl SpriteEditor {
     pub fn new(state: Arc<Mutex<State>>) -> SpriteEditor {
+
+        let mut widgets = Vec::new();
+
+        widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(), "ERASE".to_string(), 150, 90, 8, 8,
+                                                       vec![6, 6, 6, 6, 6, 6, 6, 6,
+                                                            6, 6, 5, 5, 5, 5, 6, 6,
+                                                            6, 5, 6, 5, 5, 6, 5, 6,
+                                                            6, 5, 5, 6, 6, 5, 5, 6,
+                                                            6, 5, 5, 6, 6, 5, 5, 6,
+                                                            6, 5, 6, 5, 5, 6, 5, 6,
+                                                            6, 6, 5, 5, 5, 5, 6, 6,
+                                                            6, 6, 6, 6, 6, 6, 6, 6],
+                                                        HashMap::new(), false))));
+        widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(), "COPY".to_string(), 160, 90, 8, 8,
+                                                       vec![5, 5, 5, 5, 5, 5, 5, 5,
+                                                            5, 5, 5, 6, 6, 6, 6, 6,
+                                                            5, 6, 6, 6, 5, 5, 5, 6,
+                                                            5, 6, 5, 6, 5, 5, 5, 6,
+                                                            5, 6, 5, 6, 5, 5, 5, 6,
+                                                            5, 6, 5, 6, 5, 5, 5, 6,
+                                                            5, 6, 6, 6, 6, 6, 6, 6,
+                                                            5, 5, 5, 5, 5, 5, 5, 5],
+                                                        HashMap::new(), false))));
+        widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(), "PASTE".to_string(), 170, 90, 8, 8,
+                                                       vec![5, 5, 5, 5, 5, 5, 5, 5,
+                                                            5, 6, 6, 6, 6, 6, 6, 5,
+                                                            5, 6, 5, 5, 5, 5, 6, 5,
+                                                            5, 6, 5, 5, 5, 5, 6, 5,
+                                                            5, 6, 5, 5, 5, 5, 6, 5,
+                                                            5, 6, 5, 5, 5, 5, 6, 5,
+                                                            5, 6, 6, 6, 6, 6, 6, 5,
+                                                            5, 5, 5, 5, 5, 5, 5, 5],
+                                                        HashMap::new(), false))));
+        widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(), "ROTATE LEFT".to_string(), 180, 90, 8, 8,
+                                                       vec![5, 5, 6, 5, 5, 5, 5, 5,
+                                                            5, 6, 5, 5, 5, 5, 5, 5,
+                                                            6, 6, 6, 6, 6, 6, 6, 5,
+                                                            5, 6, 5, 5, 5, 5, 6, 5,
+                                                            5, 5, 6, 5, 5, 5, 6, 5,
+                                                            5, 5, 5, 5, 5, 6, 6, 6,
+                                                            5, 5, 5, 5, 5, 6, 6, 6,
+                                                            5, 5, 5, 5, 5, 5, 5, 5],
+                                                        HashMap::new(), false))));
+        widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(), "ROTATE RIGHT".to_string(), 190, 90, 8, 8,
+                                                       vec![5, 5, 5, 5, 5, 6, 5, 5,
+                                                            5, 5, 5, 5, 5, 5, 6, 5,
+                                                            5, 6, 6, 6, 6, 6, 6, 6,
+                                                            5, 6, 5, 5, 5, 5, 6, 5,
+                                                            5, 6, 5, 5, 5, 6, 5, 5,
+                                                            6, 6, 6, 5, 5, 5, 5, 5,
+                                                            6, 6, 6, 5, 5, 5, 5, 5,
+                                                            5, 5, 5, 5, 5, 5, 5, 5],
+                                                        HashMap::new(), false))));
+        widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(), "FILL".to_string(), 200, 90, 8, 8,
+                                                       vec![5, 5, 5, 5, 5, 5, 5, 5,
+                                                            5, 5, 6, 6, 6, 6, 6, 5,
+                                                            5, 5, 6, 6, 6, 6, 6, 5,
+                                                            5, 5, 6, 6, 6, 6, 6, 5,
+                                                            5, 5, 6, 6, 6, 6, 6, 5,
+                                                            5, 6, 5, 5, 5, 5, 5, 5,
+                                                            5, 6, 6, 5, 5, 5, 5, 5,
+                                                            5, 6, 6, 5, 5, 5, 5, 5],
+                                                        HashMap::new(), false))));                                                                                                                                                                                                                                 
         SpriteEditor {
             state: state.clone(),
             pp: PalettePicker::new(state.clone()),
+            widgets: widgets,
+            buffer_copy: Vec::new(),
+            buffer_copy_size: [0, 0],
         }
     }
 
     pub fn update(&mut self, players: Arc<Mutex<Players>>, screen: &mut Screen) {
         self.pp.update(screen);
+
+        for widget in &self.widgets {
+            widget.lock().unwrap().reset();
+            widget.lock().unwrap().update();
+        }
+
+        for widget in &self.widgets {
+            let is_click = widget.lock().unwrap().is_click();
+            let zoom_sprite = self.state.lock().unwrap().zoom_sprite;
+            let x_zoom_sprite = self.state.lock().unwrap().x_zoom_sprite;
+            let y_zoom_sprite = self.state.lock().unwrap().y_zoom_sprite;
+
+            if is_click {
+                let name = widget.lock().unwrap().name.clone();
+                if name == "ERASE" {
+                    info!("[PX8][EDITOR] Erase");
+
+                    for x in 0..8*zoom_sprite {
+                        for y in 0..8*zoom_sprite {
+                            screen.sset(x_zoom_sprite + x, y_zoom_sprite + y, 0);
+                        }
+                    }
+                }
+
+                if name == "COPY" {
+                    info!("[PX8][EDITOR] Copy");
+
+                    self.buffer_copy.clear();
+
+                    self.buffer_copy_size[0] = 8*zoom_sprite;
+                    self.buffer_copy_size[1] = 8*zoom_sprite;
+
+                    for _ in 0..8*zoom_sprite {
+                        for _ in 0..8*zoom_sprite {
+                            self.buffer_copy.push(0);
+                        }
+                    }
+
+                    for x in 0..8*zoom_sprite {
+                        for y in 0..8*zoom_sprite {
+                            self.buffer_copy[(x+y*8*zoom_sprite) as usize] = screen.sget(x_zoom_sprite + x, y_zoom_sprite + y);
+                        }
+                    }
+                }
+
+                if name == "PASTE" {
+                    if self.buffer_copy.len() > 0 {
+                        info!("[PX8][EDITOR] Paste");
+
+                        for x in 0..8*zoom_sprite {
+                            for y in 0..8*zoom_sprite {
+                                screen.sset(x_zoom_sprite + x,
+                                            y_zoom_sprite + y,
+                                            self.buffer_copy[(x+y*8*zoom_sprite) as usize] as i32);
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
 
         if players.lock().unwrap().btnp(0, 4) {
             let idx_zoom_sprite = self.state.lock().unwrap().idx_zoom_sprite;
@@ -555,6 +696,10 @@ impl SpriteEditor {
                     128,
                     false,
                     false);
+
+        for widget in &self.widgets {
+            widget.lock().unwrap().draw(screen);
+        }
     }
 }
 
@@ -698,6 +843,8 @@ impl Editor {
         let state = Arc::new(Mutex::new(State::new()));
 
         let mut widgets = Vec::new();
+        let mut highlight = HashMap::new();
+        highlight.insert(6, 10);
 
         widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(), "SPRITES".to_string(), 222, 1, 8, 6,
                                                        vec![6, 11, 11, 11, 11, 11, 11, 6,
@@ -706,7 +853,7 @@ impl Editor {
                                                             11, 6, 11, 11, 11, 11, 6, 11,
                                                             11, 6, 6, 6, 6, 6, 6, 11,
                                                             6, 11, 11, 11, 11, 11, 11, 6],
-                                                        HashMap::new()))));
+                                                        highlight.clone(), true))));
         widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(), "MAP".to_string(), 231, 1, 8, 6,
                                                      vec![11, 11, 11, 11, 11, 11, 11, 11,
                                                           11, 6, 6, 6, 6, 6, 6, 11,
@@ -714,7 +861,7 @@ impl Editor {
                                                           11, 6, 11, 11, 11, 11, 6, 11,
                                                           11, 6, 6, 6, 6, 6, 6, 11,
                                                           11, 11, 11, 11, 11, 11, 11, 11],
-                                                     HashMap::new()))));
+                                                     highlight.clone(), false))));
 
         Editor {
             state: state.clone(),
