@@ -582,7 +582,7 @@ impl SpriteEditor {
                                                             6, 6, 6, 5, 5, 5, 5, 5,
                                                             5, 5, 5, 5, 5, 5, 5, 5],
                                                         HashMap::new(), false))));
-        widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(), "FILL".to_string(), 200, 90, 8, 8,
+     /*   widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(), "FILL".to_string(), 200, 90, 8, 8,
                                                        vec![5, 5, 5, 5, 5, 5, 5, 5,
                                                             5, 5, 6, 6, 6, 6, 6, 5,
                                                             5, 5, 6, 6, 6, 6, 6, 5,
@@ -591,7 +591,7 @@ impl SpriteEditor {
                                                             5, 6, 5, 5, 5, 5, 5, 5,
                                                             5, 6, 6, 5, 5, 5, 5, 5,
                                                             5, 6, 6, 5, 5, 5, 5, 5],
-                                                        HashMap::new(), false))));                                                                                                                                                                                                                                 
+                                                        HashMap::new(), false))));*/                                                                                                                                                                                                                                 
         SpriteEditor {
             state: state.clone(),
             pp: PalettePicker::new(state.clone()),
@@ -604,16 +604,19 @@ impl SpriteEditor {
     pub fn update(&mut self, players: Arc<Mutex<Players>>, screen: &mut Screen) {
         self.pp.update(screen);
 
+        // Update widgets
         for widget in &self.widgets {
             widget.lock().unwrap().reset();
             widget.lock().unwrap().update();
         }
 
+        let zoom_sprite = self.state.lock().unwrap().zoom_sprite;
+        let x_zoom_sprite = self.state.lock().unwrap().x_zoom_sprite;
+        let y_zoom_sprite = self.state.lock().unwrap().y_zoom_sprite;
+
         for widget in &self.widgets {
             let is_click = widget.lock().unwrap().is_click();
-            let zoom_sprite = self.state.lock().unwrap().zoom_sprite;
-            let x_zoom_sprite = self.state.lock().unwrap().x_zoom_sprite;
-            let y_zoom_sprite = self.state.lock().unwrap().y_zoom_sprite;
+
 
             if is_click {
                 let name = widget.lock().unwrap().name.clone();
@@ -661,7 +664,78 @@ impl SpriteEditor {
                         }
                     }
                 }
+                // Rotate right
+                if name == "ROTATE RIGHT" {
+                    info!("[PX8][EDITOR] Rotate Right");
 
+                    let mut buffer_copy = Vec::new();
+
+                    for _ in 0..8*zoom_sprite {
+                        for _ in 0..8*zoom_sprite {
+                            buffer_copy.push(0);
+                        }
+                    }
+
+                    for x in 0..8*zoom_sprite {
+                        for y in 0..8*zoom_sprite {
+                            buffer_copy[(y+x*8*zoom_sprite) as usize] = screen.sget(x_zoom_sprite + x, y_zoom_sprite + y);
+                        }
+                    }
+
+                    let m = 8*zoom_sprite;
+                    for i in 0..(8*zoom_sprite)/2 {
+                        for j in 0..8*zoom_sprite {
+                            let tmp = buffer_copy[((m - (i + 1)) + j * 8 * zoom_sprite) as usize];
+                            buffer_copy[((m - (i + 1)) + j * 8 * zoom_sprite) as usize] = buffer_copy[(i + j * 8 * zoom_sprite) as usize];
+                            buffer_copy[(i + j * 8 * zoom_sprite) as usize] = tmp;
+                        }
+                    }
+
+                    for x in 0..8*zoom_sprite {
+                        for y in 0..8*zoom_sprite {
+                            screen.sset(x_zoom_sprite + x,
+                                        y_zoom_sprite + y,
+                                        buffer_copy[(x+y*8*zoom_sprite) as usize] as i32);
+                        }
+                    }
+                }
+                // Rotate left
+                if name == "ROTATE LEFT" {
+                    info!("[PX8][EDITOR] Rotate Left");
+
+                    let mut buffer_copy = Vec::new();
+
+                    for _ in 0..8*zoom_sprite {
+                        for _ in 0..8*zoom_sprite {
+                            buffer_copy.push(0);
+                        }
+                    }
+
+                    for x in 0..8*zoom_sprite {
+                        for y in 0..8*zoom_sprite {
+                            buffer_copy[(y+x*8*zoom_sprite) as usize] = screen.sget(x_zoom_sprite + x, y_zoom_sprite + y);
+                        }
+                    }
+
+                    let m = 8*zoom_sprite;
+                    for i in 0..(8*zoom_sprite)/2 {
+                        for j in 0..8*zoom_sprite {
+                            let right = (j + (m - (i + 1)) * 8 * zoom_sprite) as usize;
+                            let left = (j + i * 8 * zoom_sprite) as usize;
+                            let tmp = buffer_copy[right];
+                            buffer_copy[right] = buffer_copy[left];
+                            buffer_copy[left] = tmp;
+                        }
+                    }
+
+                    for x in 0..8*zoom_sprite {
+                        for y in 0..8*zoom_sprite {
+                            screen.sset(x_zoom_sprite + x,
+                                        y_zoom_sprite + y,
+                                        buffer_copy[(x+y*8*zoom_sprite) as usize] as i32);
+                        }
+                    }
+                }
             }
         }
 
@@ -673,6 +747,128 @@ impl SpriteEditor {
             self.state.lock().unwrap().idx_zoom_sprite = new_idx_zoom_sprite;
 
             self.state.lock().unwrap().zoom_sprite = sprite_available_zooms[new_idx_zoom_sprite as usize];
+        }
+
+        // shift sprite
+        // shift left
+        if players.lock().unwrap().btnp(0, 0) {
+            let mut buffer_copy = Vec::new();
+
+            for _ in 0..8*zoom_sprite {
+                for _ in 0..8*zoom_sprite {
+                    buffer_copy.push(0);
+                }
+            }
+
+            for x in 0..8*zoom_sprite {
+                for y in 0..8*zoom_sprite {
+                    buffer_copy[(y+x*8*zoom_sprite) as usize] = screen.sget(x_zoom_sprite + x, y_zoom_sprite + y);
+                }
+            }
+
+            let (a, b) = buffer_copy.split_at(8*zoom_sprite as usize);
+            let mut spun_vector: Vec<u8> = vec![];
+            spun_vector.extend_from_slice(b);
+            spun_vector.extend_from_slice(a);
+
+            for x in 0..8*zoom_sprite {
+                for y in 0..8*zoom_sprite {
+                    screen.sset(x_zoom_sprite + x,
+                                y_zoom_sprite + y,
+                                spun_vector[(y+x*8*zoom_sprite) as usize] as i32);
+                }
+            }
+        }
+        // shift right
+        if players.lock().unwrap().btnp(0, 1) {
+            let mut buffer_copy = Vec::new();
+
+            for _ in 0..8*zoom_sprite {
+                for _ in 0..8*zoom_sprite {
+                    buffer_copy.push(0);
+                }
+            }
+
+            for x in 0..8*zoom_sprite {
+                for y in 0..8*zoom_sprite {
+                    buffer_copy[(y+x*8*zoom_sprite) as usize] = screen.sget(x_zoom_sprite + x, y_zoom_sprite + y);
+                }
+            }
+
+            let max_size = (8*zoom_sprite*8*zoom_sprite) - (8*zoom_sprite);
+            let (a, b) = buffer_copy.split_at(max_size as usize);
+            let mut spun_vector: Vec<u8> = vec![];
+            spun_vector.extend_from_slice(b);
+            spun_vector.extend_from_slice(a);
+
+            for x in 0..8*zoom_sprite {
+                for y in 0..8*zoom_sprite {
+                    screen.sset(x_zoom_sprite + x,
+                                y_zoom_sprite + y,
+                                spun_vector[(y+x*8*zoom_sprite) as usize] as i32);
+                }
+            }
+        }
+
+        // shift down
+        if players.lock().unwrap().btnp(0, 2) {
+            let mut buffer_copy = Vec::new();
+
+            for _ in 0..8*zoom_sprite {
+                for _ in 0..8*zoom_sprite {
+                    buffer_copy.push(0);
+                }
+            }
+
+            for x in 0..8*zoom_sprite {
+                for y in 0..8*zoom_sprite {
+                    buffer_copy[(x+y*8*zoom_sprite) as usize] = screen.sget(x_zoom_sprite + x, y_zoom_sprite + y);
+                }
+            }
+        
+            let (a, b) = buffer_copy.split_at(8*zoom_sprite as usize);
+            let mut spun_vector: Vec<u8> = vec![];
+            spun_vector.extend_from_slice(b);
+            spun_vector.extend_from_slice(a);
+
+            for x in 0..8*zoom_sprite {
+                for y in 0..8*zoom_sprite {
+                    screen.sset(x_zoom_sprite + x,
+                                y_zoom_sprite + y,
+                                spun_vector[(x+y*8*zoom_sprite) as usize] as i32);
+                }
+            }
+        }
+
+        // shift up
+        if players.lock().unwrap().btnp(0, 3) {
+            let mut buffer_copy = Vec::new();
+
+            for _ in 0..8*zoom_sprite {
+                for _ in 0..8*zoom_sprite {
+                    buffer_copy.push(0);
+                }
+            }
+
+            for x in 0..8*zoom_sprite {
+                for y in 0..8*zoom_sprite {
+                    buffer_copy[(x+y*8*zoom_sprite) as usize] = screen.sget(x_zoom_sprite + x, y_zoom_sprite + y);
+                }
+            }
+            
+            let max_size = (8*zoom_sprite*8*zoom_sprite) - (8*zoom_sprite);
+            let (a, b) = buffer_copy.split_at(max_size as usize);
+            let mut spun_vector: Vec<u8> = vec![];
+            spun_vector.extend_from_slice(b);
+            spun_vector.extend_from_slice(a);
+
+            for x in 0..8*zoom_sprite {
+                for y in 0..8*zoom_sprite {
+                    screen.sset(x_zoom_sprite + x,
+                                y_zoom_sprite + y,
+                                spun_vector[(x+y*8*zoom_sprite) as usize] as i32);
+                }
+            }
         }
     }
 
