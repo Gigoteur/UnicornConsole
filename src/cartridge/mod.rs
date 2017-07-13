@@ -466,6 +466,13 @@ impl CartridgeGFX {
             }
         }
 
+        // Fill with empty sprites
+        if sprites.len() == 0 {
+            for i in 0..128 {
+                sprites.push(Sprite::new([0; 64]));
+            }
+        }
+
         CartridgeGFX { sprites: sprites }
     }
 
@@ -1192,7 +1199,6 @@ impl Cartridge {
     pub fn set_mode(&mut self, mode: bool) {
         self.code.mode = mode;
     }
-
 
     pub fn save_in_p8(&mut self, filename: &str) {
         info!("Save the modified cartridge in P8 format {:?}", filename);

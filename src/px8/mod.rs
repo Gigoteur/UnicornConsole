@@ -234,6 +234,14 @@ impl Menu {
             .to_string()
     }
 
+    pub fn get_current_filename(&mut self) -> String {
+        if self.cartridges.len() > 0 {
+            return self.cartridges[self.idx as usize].as_path().to_str().unwrap().to_string();
+        }
+
+        "".to_string()
+    }
+
     pub fn draw(&mut self, screen: &mut gfx::Screen) {
         screen.cls();
 
@@ -1110,7 +1118,27 @@ impl PX8 {
 
         ret
     }
+/*
+    pub fn load_cartridge_empty(&mut self) -> bool {
+        info!("[PX8] Load empty cartridge");
 
+        let mut cartridge;
+
+        match Cartridge::from_empty("Empty") {
+                Ok(c) => cartridge = c,
+                Err(e) => panic!("[PX8] Impossible to load an empty cartridge {:?}", e),
+        }
+
+        let mut px8_cartridge = PX8Cartridge::new(cartridge);
+        let ret = self._load_cartridge(&mut px8_cartridge, false);
+        if ret {
+            self.add_cartridge(px8_cartridge);
+            self.init();
+        }
+
+        ret
+    }
+*/
     pub fn load_cartridge(&mut self, filename: &str, editor: bool, mode: PX8Mode) -> bool {
         let mut cartridge;
 
@@ -1228,6 +1256,12 @@ impl PX8 {
             self.state = PX8State::RUN;
             self.reset();
         } else {
+            info!("[PX8] Back to {:?}", self.cartridges.len());
+            if self.cartridges.len() == 0 {
+                let filename = self.menu.get_current_filename().clone();
+                self.load_cartridge(filename.as_str(), false, PX8Mode::PX8);
+            }
+
             self.editor.init(self.configuration.clone(), &mut self.screen.lock().unwrap());
             self.editing = true;
             self.state = PX8State::EDITOR;

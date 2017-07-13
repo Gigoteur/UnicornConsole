@@ -532,7 +532,7 @@ impl SpriteEditor {
 
         let mut widgets = Vec::new();
 
-        widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(), "ERASE".to_string(), 150, 90, 8, 8,
+        widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(), "ERASE".to_string(), 160, 90, 8, 8,
                                                        vec![6, 6, 6, 6, 6, 6, 6, 6,
                                                             6, 6, 5, 5, 5, 5, 6, 6,
                                                             6, 5, 6, 5, 5, 6, 5, 6,
@@ -542,7 +542,7 @@ impl SpriteEditor {
                                                             6, 6, 5, 5, 5, 5, 6, 6,
                                                             6, 6, 6, 6, 6, 6, 6, 6],
                                                         HashMap::new(), false))));
-        widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(), "COPY".to_string(), 160, 90, 8, 8,
+        widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(), "COPY".to_string(), 170, 90, 8, 8,
                                                        vec![5, 5, 5, 5, 5, 5, 5, 5,
                                                             5, 5, 5, 6, 6, 6, 6, 6,
                                                             5, 6, 6, 6, 5, 5, 5, 6,
@@ -552,7 +552,7 @@ impl SpriteEditor {
                                                             5, 6, 6, 6, 6, 6, 6, 6,
                                                             5, 5, 5, 5, 5, 5, 5, 5],
                                                         HashMap::new(), false))));
-        widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(), "PASTE".to_string(), 170, 90, 8, 8,
+        widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(), "PASTE".to_string(), 180, 90, 8, 8,
                                                        vec![5, 5, 5, 5, 5, 5, 5, 5,
                                                             5, 6, 6, 6, 6, 6, 6, 5,
                                                             5, 6, 5, 5, 5, 5, 6, 5,
@@ -562,7 +562,7 @@ impl SpriteEditor {
                                                             5, 6, 6, 6, 6, 6, 6, 5,
                                                             5, 5, 5, 5, 5, 5, 5, 5],
                                                         HashMap::new(), false))));
-        widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(), "ROTATE LEFT".to_string(), 180, 90, 8, 8,
+        widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(), "ROTATE LEFT".to_string(), 190, 90, 8, 8,
                                                        vec![5, 5, 6, 5, 5, 5, 5, 5,
                                                             5, 6, 5, 5, 5, 5, 5, 5,
                                                             6, 6, 6, 6, 6, 6, 6, 5,
@@ -572,7 +572,7 @@ impl SpriteEditor {
                                                             5, 5, 5, 5, 5, 6, 6, 6,
                                                             5, 5, 5, 5, 5, 5, 5, 5],
                                                         HashMap::new(), false))));
-        widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(), "ROTATE RIGHT".to_string(), 190, 90, 8, 8,
+        widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(), "ROTATE RIGHT".to_string(), 200, 90, 8, 8,
                                                        vec![5, 5, 5, 5, 5, 6, 5, 5,
                                                             5, 5, 5, 5, 5, 5, 6, 5,
                                                             5, 6, 6, 6, 6, 6, 6, 6,
