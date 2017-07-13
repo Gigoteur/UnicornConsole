@@ -159,11 +159,17 @@ pub fn draw_logo(screen: &mut gfx::Screen) {
         0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0 ];
 
-    screen
-        .print("Powered by PX8".to_string(), 64, 112, 7);
+    let width = screen.width;
+    let height = screen.height;
 
-    let idx_x = 114;
-    let idx_y = 120;
+    screen
+        .print("Powered by PX8".to_string(),
+        (width/2) as i32,
+        (height-16) as i32,
+        7);
+
+    let idx_x = (width - 14) as i32;
+    let idx_y = (height - 8) as i32;
 
     let mut x = 0;
     let mut y = 0;
@@ -244,6 +250,8 @@ impl Menu {
 
     pub fn draw(&mut self, screen: &mut gfx::Screen) {
         screen.cls();
+
+        screen.mode(128, 128, 1.);
 
         if self.cartridges.len() > 0 {
             let mut filename = self.cartridges[self.idx as usize]
@@ -1109,7 +1117,9 @@ impl PX8 {
                 .set_map(cartridge.cartridge.map.map);
 
             if editor {
-                self.editor.init(self.configuration.clone(), &mut self.screen.lock().unwrap());
+                let filename = self.menu.get_current_filename().clone();
+
+                self.editor.init(self.configuration.clone(), &mut self.screen.lock().unwrap(), filename);
                 self.state = PX8State::EDITOR;
             } else {
                 self.state = PX8State::RUN;
@@ -1261,8 +1271,10 @@ impl PX8 {
                 let filename = self.menu.get_current_filename().clone();
                 self.load_cartridge(filename.as_str(), false, PX8Mode::PX8);
             }
+            
+            let filename = self.menu.get_current_filename().clone();
 
-            self.editor.init(self.configuration.clone(), &mut self.screen.lock().unwrap());
+            self.editor.init(self.configuration.clone(), &mut self.screen.lock().unwrap(), filename);
             self.editing = true;
             self.state = PX8State::EDITOR;
         }

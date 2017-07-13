@@ -515,7 +515,8 @@ impl MapEditor {
                              self.current_sprite[0],
                              self.current_sprite[1],
                              self.cache[(self.current_sprite[0] + self.current_sprite[1] * 128) as usize]),
-                     0, 0, 7);
+                     self.coord[2] + 1, self.coord[1],
+                     7);
     }
 }
 
@@ -1032,6 +1033,7 @@ pub struct Editor {
     me: MapEditor,
     se: SpriteEditor,
     widgets: Vec<Arc<Mutex<Widget>>>,
+    filename: String,
 }
 
 impl Editor {
@@ -1066,11 +1068,13 @@ impl Editor {
             me: MapEditor::new(state.clone()),
             se: SpriteEditor::new(state.clone()),
             widgets: widgets,
+            filename: "".to_string()
         }
     }
 
-    pub fn init(&mut self, config: Arc<Mutex<PX8Config>>, screen: &mut Screen) {
+    pub fn init(&mut self, config: Arc<Mutex<PX8Config>>, screen: &mut Screen, filename: String) {
         info!("[EDITOR] Init");
+        self.filename = filename;
         config.lock().unwrap().toggle_mouse(true);
 
         screen.mode(240, 236, 1.);
@@ -1123,6 +1127,9 @@ impl Editor {
         screen.rectfill(0, 9, 8, 189, 5);
         screen.rectfill(139, 9, width, 190, 5);
         screen.rectfill(idx_sprite_info[0], idx_sprite_info[1], width, height-9, 5);
+
+        // Print current filename
+        screen.print(self.filename.clone(), 0, 0, 7);
 
         // Draw sprites map
         self.sm.draw(screen);
