@@ -1,6 +1,6 @@
 [package]
 
-name = "lua"
+name = "px8_plugin_lua"
 version = "0.0.11"
 authors = ["J.C. Moyer"]
 description = "Bindings to Lua 5.3"

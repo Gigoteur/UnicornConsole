@@ -1,4 +1,4 @@
-#[cfg(feature = "lua")]
+#[cfg(feature = "px8_plugin_lua")]
 pub mod plugin {
     use std::sync::{Arc, Mutex};
 
@@ -2351,7 +2351,7 @@ pub mod plugin {
          ("dset", Some(PX8Lua::lua_dset))];
 }
 
-#[cfg(not(feature = "lua"))]
+#[cfg(not(feature = "px8_plugin_lua"))]
 pub mod plugin {
     use std::sync::{Arc, Mutex};
 
