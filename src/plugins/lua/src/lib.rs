@@ -23,7 +23,7 @@
 //! Rust bindings for Lua 5.3 and beyond documentation.
 //! Original Lua library documentation [here](https://www.lua.org/manual/5.3/).
 
-#![crate_name = "lua"]
+#![crate_name = "px8_plugin_lua"]
 #![crate_type = "lib"]
 
 pub extern crate libc;

@@ -1,5 +1,5 @@
-#[cfg(feature = "lua")]
-extern crate lua;
+#[cfg(feature = "px8_plugin_lua")]
+extern crate px8_plugin_lua;
 
 #[cfg(feature = "cpython")]
 #[macro_use]

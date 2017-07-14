@@ -5,9 +5,9 @@ pub mod plugin {
     use rand;
     use rand::Rng;
 
-    use lua;
-    use lua::ffi::lua_State;
-    use lua::{State, Function, ThreadStatus};
+    use px8_plugin_lua as lua;
+    use px8_plugin_lua::ffi::lua_State;
+    use px8_plugin_lua::{State, Function, ThreadStatus};
     use libc::c_int;
 
     use config::Players;
