@@ -1078,10 +1078,10 @@ impl Editor {
         config.lock().unwrap().toggle_mouse(true);
 
         screen.mode(240, 236, 1.);
+        screen.font("pico-8");
     }
 
     pub fn update(&mut self, players: Arc<Mutex<Players>>) -> bool {
-
         true
     }
 
