@@ -3,7 +3,7 @@
 name = "px8_plugin_lua"
 version = "0.0.11"
 authors = ["J.C. Moyer"]
-description = "Bindings to Lua 5.3"
+description = "Bindings to Lua 5.3 with some modification for PX8"
 documentation = "https://docs.rs/lua"
 repository = "https://github.com/jcmoyer/rust-lua53"
 readme = "README.md"

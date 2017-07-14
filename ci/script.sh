@@ -2,10 +2,9 @@ set -ex
 
 main() {
    # cargo build --release
-   # cargo build --release --features="sdl_renderer"
-   # cargo build --release --features="cpython"
-   # cargo build --release --features="lua"
-    cargo build --release --features="cpython lua"
+    cargo build --release --features="cpython"
+    cargo build --release --features="px8_plugin_lua"
+    cargo build --release --features="cpython px8_plugin_lua"
 }
 
 main_deploy() {
