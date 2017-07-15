@@ -531,7 +531,7 @@ impl CartridgeGFX {
             }
 
             for idx in idx_sprites..idx_sprites + 16 {
-                let gfx_sprites = self.sprites[idx].clone();
+                let mut gfx_sprites = self.sprites[idx].clone();
 
                 data.push_str(&gfx_sprites.get_line(line));
             }
