@@ -163,8 +163,8 @@ pub fn draw_logo(screen: &mut gfx::Screen) {
     let height = screen.height;
 
     screen
-        .print("Powered by PX8".to_string(),
-        (width/2) as i32,
+        .print(format!("Powered by PX8 {:?}.{:?}.{:?}", VERSION, MAJOR_VERSION, MINOR_VERSION).to_string(),
+        (width/3) as i32,
         (height-16) as i32,
         7);
 
@@ -653,6 +653,9 @@ pub struct PX8 {
     pub draw_return: bool,
     pub update_return: bool,
     pub mouse_spr: Vec<u8>,
+    pub version: u32,
+    pub major_version: u32,
+    pub minor_version: u32,
 }
 
 impl PX8 {
@@ -687,6 +690,9 @@ impl PX8 {
             draw_return: true,
             update_return: true,
             mouse_spr: PX8::mouse_sprite(),
+            version: VERSION,
+            major_version: MAJOR_VERSION,
+            minor_version: MINOR_VERSION,
         }
     }
 
@@ -1003,10 +1009,13 @@ impl PX8 {
 
         match cartridge.format {
             CartridgeFormat::P8Format => {
-                cartridge.save_in_p8(output_filename);
+                cartridge.save_in_p8(output_filename, 
+                                     format!("{:?}.{:?}.{:?}", self.version, self.major_version, self.minor_version).as_str());
             }
             CartridgeFormat::PngFormat => {
-                cartridge.save_in_p8(output_filename);
+                cartridge.save_in_p8(output_filename,
+                                     format!("{:?}.{:?}.{:?}", self.version, self.major_version, self.minor_version).as_str());
+
             }
             CartridgeFormat::Px8Format => {
                 cartridge.save_in_dpx8();

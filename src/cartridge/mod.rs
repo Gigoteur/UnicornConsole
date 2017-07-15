@@ -1200,7 +1200,7 @@ impl Cartridge {
         self.code.mode = mode;
     }
 
-    pub fn save_in_p8(&mut self, filename: &str) {
+    pub fn save_in_p8(&mut self, filename: &str, version: &str) {
         info!("Save the modified cartridge in P8 format {:?}", filename);
 
         let mut f = File::create(filename).unwrap();
@@ -1212,7 +1212,7 @@ impl Cartridge {
             }
             _ => {
                 f.write_all(b"Saved by PX8\n").unwrap();
-                f.write_all(b"Version 0.0.4\n").unwrap();
+                f.write_all(format!("Version {:?}\n", version).as_bytes()).unwrap();
             }
         }
 

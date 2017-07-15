@@ -1,6 +1,6 @@
 [package]
 name = "px8"
-version = "0.0.4"
+version = "0.0.5"
 authors = ["hallucino <d@t0t0.fr>"]
 description = "Open source fantasy console in Rust"
 documentation = "https://github.com/Gigoteur/PX8/blob/master/README.md"

@@ -63,6 +63,8 @@ mod sound;
 use gfx::Scale;
 use cartridge::Cartridge;
 
+include!(concat!(env!("OUT_DIR"), "/parameters.rs"));
+
 fn print_usage(program: &str, opts: &Options) {
     let brief = format!("Usage: {} FILE [options]", program);
     print!("{}", opts.usage(&brief));
@@ -189,7 +191,8 @@ fn main() {
                 Ok(mut c) => {
                     println!("{:?}", c);
 
-                    c.save_in_p8(&matches.opt_str("t").unwrap());
+                    c.save_in_p8(&matches.opt_str("t").unwrap(),
+                                format!("{:?}.{:?}.{:?}", VERSION, MAJOR_VERSION, MINOR_VERSION).as_str());
                 }
                 Err(e) => panic!(e),
             }
