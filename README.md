@@ -142,15 +142,24 @@ Right now you need to export the DYLD_FALLBACK_LIBRARY_PATH env variable for the
    * export DYLD_FALLBACK_LIBRARY_PATH=/usr/local/Cellar/python3/3.5.1/Frameworks/Python.framework/Versions/3.5/lib
 
 
-## Build for Linux/Windows/OSX
+## Build
 
 **The first thing to do is to install Rust, so please go to [rustup](https://www.rustup.rs/) and follow all instructions.**
 
-You could build PX8 with cargo directly, in release mode for example, with the support of Python and Lua.
+The build is the same for all platforms (Linux/OSX/Windows).
+
+You must build PX8 with cargo directly in release mode to have the best perf. And you can choose to disable the following plugins for the cartridge:
+  * cpython
+  * px8_plugin_lua (rust-lua53 with modification)
+
+
+For example to have all features:
 
 ```
-cargo build --features="cpython lua" --release 
+cargo build --features="cpython px8_plugin_lua" --release 
 ```
+
+
 
 ## Resolution
 
