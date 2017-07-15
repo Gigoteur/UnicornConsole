@@ -51,6 +51,10 @@ optional = true
 version="0.0.11"
 path="src/plugins/lua"
 
+[dependencies.dyon]
+version = "0.24.5"
+features = ["debug_resolve"]
+
 [dependencies.sdl2]
 version = "0.27.2"
 default-features = false

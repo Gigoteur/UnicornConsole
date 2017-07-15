@@ -1068,7 +1068,7 @@ impl PX8 {
         self.add_cartridge(px8_cartridge);
     }
 
-    pub fn _load_cartridge(&mut self, cartridge: &mut PX8Cartridge, editor: bool) -> bool {
+    pub fn _load_cartridge(&mut self, cartridge: &mut PX8Cartridge, editor: bool, filename: &str) -> bool {
         info!("[PX8] Loading cartridge");
 
         let data = cartridge.get_code();
@@ -1126,9 +1126,7 @@ impl PX8 {
                 .set_map(cartridge.cartridge.map.map);
 
             if editor {
-                let filename = self.menu.get_current_filename().clone();
-
-                self.editor.init(self.configuration.clone(), &mut self.screen.lock().unwrap(), filename);
+                self.editor.init(self.configuration.clone(), &mut self.screen.lock().unwrap(), String::from(filename));
                 self.state = PX8State::EDITOR;
             } else {
                 self.state = PX8State::RUN;
@@ -1137,27 +1135,7 @@ impl PX8 {
 
         ret
     }
-/*
-    pub fn load_cartridge_empty(&mut self) -> bool {
-        info!("[PX8] Load empty cartridge");
 
-        let mut cartridge;
-
-        match Cartridge::from_empty("Empty") {
-                Ok(c) => cartridge = c,
-                Err(e) => panic!("[PX8] Impossible to load an empty cartridge {:?}", e),
-        }
-
-        let mut px8_cartridge = PX8Cartridge::new(cartridge);
-        let ret = self._load_cartridge(&mut px8_cartridge, false);
-        if ret {
-            self.add_cartridge(px8_cartridge);
-            self.init();
-        }
-
-        ret
-    }
-*/
     pub fn load_cartridge(&mut self, filename: &str, editor: bool, mode: PX8Mode) -> bool {
         let mut cartridge;
 
@@ -1187,7 +1165,7 @@ impl PX8 {
 
         cartridge.set_mode(mode == PX8Mode::PICO8);
         let mut px8_cartridge = PX8Cartridge::new(cartridge);
-        let ret = self._load_cartridge(&mut px8_cartridge, editor);
+        let ret = self._load_cartridge(&mut px8_cartridge, editor, filename);
         if ret {
             self.add_cartridge(px8_cartridge);
             self.init();
@@ -1234,7 +1212,7 @@ impl PX8 {
 
         cartridge.set_mode(mode == PX8Mode::PICO8);
         let mut px8_cartridge = PX8Cartridge::new(cartridge);
-        let ret = self._load_cartridge(&mut px8_cartridge, editor);
+        let ret = self._load_cartridge(&mut px8_cartridge, editor, filename);
         if ret {
             self.add_cartridge(px8_cartridge);
             self.init();
