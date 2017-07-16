@@ -1,4 +1,5 @@
 pub mod gfx_editor;
+pub mod text_editor;
 
 use gfx::Screen;
 use config::Players;
@@ -10,12 +11,14 @@ use px8::PX8Config;
 #[derive(Debug)]
 pub enum STATE {
     GFX_EDITOR,
+    TEXT_EDITOR,
     MUSIC_EDITOR,
 }
 
 pub struct Editor {
     state: STATE,
     gfx_editor: gfx_editor::GFXEditor,
+    txt_editor: text_editor::TextEditor,
     filename: String,
 }
 
@@ -24,6 +27,7 @@ impl Editor {
         Editor {
             state: STATE::GFX_EDITOR,
             gfx_editor: gfx_editor::GFXEditor::new(),
+            txt_editor: text_editor::TextEditor::new(),
             filename: "".to_string()
         }
     }
@@ -36,7 +40,8 @@ impl Editor {
         screen.mode(240, 236, 1.);
         screen.font("pico-8");
 
-        self.gfx_editor.init(config, screen);   
+        self.gfx_editor.init(config.clone(), screen);   
+        self.txt_editor.init(config.clone(), screen);   
     }
 
     pub fn update(&mut self, players: Arc<Mutex<Players>>) -> bool {
@@ -59,6 +64,7 @@ impl Editor {
 
         match self.state {
             STATE::GFX_EDITOR => { self.gfx_editor.draw(players, screen); }
+            STATE::TEXT_EDITOR => { self.txt_editor.draw(players, screen); }
             STATE::MUSIC_EDITOR => { }
         }
 
