@@ -33,25 +33,24 @@
   
 PX8 is an Open Source Fantasy Console (128x128 pixels default resolution) in Rust, by using a cartridge that contains the code/gfx/music. The code could be in Python/Lua, or you could create directly everything in pure Rust by using it as a library.
 
+Specifications:
  * 128x128 pixels default resolution
- * Predefined palettes (pico-8, c64, etc)
- * Python 3 / Lua 5.X support for the cartridge without tokens limit
+ * Predefined 16 colour palettes (pico-8, c64, etc)
+ * Python 3 / Lua 5.3 support for the cartridge without tokens limit
  * Desktop/Mobile/Browser (Emscripten) support
  * Controls with dpad + 2 buttons (gamecontroller/joystick support)
- * Unlimited sprites (8x8)
- * Map support (128x32)
- * Editor for the sprite and map data
+ * Unlimited 8x8 sprites
+ * Map 128x32 8-bit cels
+ * Editor for the sprite / map
  * PX8 format to be able to use your favorite code editor for Python/Lua/Rust
  * Mutliple fonts support (pico-8, bbc, cbmII, appleII)
  * Change the screen definition dynamically and the aspect ratio
  * Screenshot (PNG) / Video recording (GIF)
  * Pico-8 compatibility + cartridge (P8/P8.PNG) format support
  
-It works on all platforms (Linux/OSX/Windows), in the browser (via Emscripten), and on tiny hardware like Raspberry Pi 2/3.
+It works on all platforms (Linux/OSX/Windows/Raspberry PI), in the browser (via Emscripten).
 
-The console is inspired from the awesome [Pico-8](http://www.lexaloffle.com/pico-8.php), so there is a [compatibility](https://github.com/Gigoteur/PX8/wiki/Pico-8-compatibility) mode (not 100%, and it is not the goal of the project) available with Pico-8 console and cartridges (P8/PNG).
-  
-You can follow the development [here](https://hallucino.itch.io/px8/devlog).
+You can follow the development of the project [here](https://hallucino.itch.io/px8/devlog).
 
 [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=T9NLJWMVWRMVU&lc=FR&item_name=Gigoteur&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted)
 
@@ -362,3 +361,7 @@ mset | :white_check_mark: | :white_check_mark: | :white_check_mark:
 
 
 More details here about each function with the arguments: [API](https://github.com/Gigoteur/PX8/wiki/API-Documentation)
+
+
+The console is inspired from the awesome [Pico-8](http://www.lexaloffle.com/pico-8.php), so there is a [compatibility](https://github.com/Gigoteur/PX8/wiki/Pico-8-compatibility) mode (not 100%, and it is not the goal of the project) available with Pico-8 console and cartridges (P8/PNG).
+  
