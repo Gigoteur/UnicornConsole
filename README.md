@@ -61,8 +61,6 @@ You can follow the development of the project [here](https://hallucino.itch.io/p
 
 ![](http://i.imgur.com/um3gmWh.gif)
 
-![](http://i.imgur.com/NfdxTrT.gif)
-
 Editor mode:
 
 ![](http://i.imgur.com/hh8OiR8.gif)
@@ -70,6 +68,11 @@ Editor mode:
 ![](http://i.imgur.com/hD22SD8.gif)
 
 ![](http://i.imgur.com/m6d2dUL.gif)
+
+Multiple resolution support:
+
+![](http://i.imgur.com/NfdxTrT.gif)
+
 
 More advanced examples:
 
