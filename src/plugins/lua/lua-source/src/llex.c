@@ -440,6 +440,10 @@ static int llex (LexState *ls, SemInfo *seminfo) {
       }
       case '-': {  /* '-' or '--' (comment) */
         next(ls);
+        if (ls->current == '=') {
+          next(ls);
+          return TK_SCMINUS; // '-='
+        }
         if (ls->current != '-') return '-';
         /* else is a comment */
         next(ls);
@@ -486,6 +490,10 @@ static int llex (LexState *ls, SemInfo *seminfo) {
       }
       case '/': {
         next(ls);
+        if (ls->current == '=') {
+          next(ls);
+          return TK_SCDIV; // '/='
+        }
         if (check_next1(ls, '/')) return TK_IDIV;
         else return '/';
       }
@@ -512,6 +520,21 @@ static int llex (LexState *ls, SemInfo *seminfo) {
         }
         else if (!lisdigit(ls->current)) return '.';
         else return read_numeral(ls, seminfo);
+      }
+      case '%': {   /* '%' or '%=' */
+        next(ls);
+        if (check_next1(ls, '=')) return TK_SCMOD;
+        else return '%';
+      }
+      case '*': {   /* '*' or '*=' */
+        next(ls);
+        if (check_next1(ls, '=')) return TK_SCMUL;
+        else return '*';
+      }
+      case '+': {   /* '+' or '+=' */
+        next(ls);
+        if (check_next1(ls, '=')) return TK_SCPLUS;
+        else return '+';
       }
       case '0': case '1': case '2': case '3': case '4':
       case '5': case '6': case '7': case '8': case '9': {

@@ -81,17 +81,6 @@ impl CartridgeLua {
             let mut line = line.to_string();
 
             if pico8_support {
-                //  lua = lua:gsub("(%S+)%s*([%+-%*/%%])=","%1 = %1 %2 ")
-                let re = Regex::new(r"(?P<X>\S+)\s*(?P<Z>[\+\*%/-])=").unwrap();
-                if re.is_match(&line) {
-                    let line_clone = line.clone();
-                    let after = re.replace_all(&line_clone, "$X = $X $Z $Y");
-                    debug!("MODIFY {:?} \t=> {:?}", line_clone, after);
-
-                    line.clear();
-                    line.push_str(&after);
-                }
-
                 let re = Regex::new(r"!=").unwrap();
                 if re.is_match(&line) {
                     let line_clone = line.clone();
@@ -138,32 +127,6 @@ impl CartridgeLua {
 
                     line.clear();
                 }
-
-                //  lua = lua:gsub('if%s*(%b())%s*([^\n]*)\n',function(a,b)
-
-                //		local nl = a:find('\n')
-                //local th = b:find('%f[%w]then%f[%W]')
-                //local an = b:find('%f[%w]and%f[%W]')
-                //local o = b:find('%f[%w]or%f[%W]')
-                //if nl or th or an or o then
-                //return string.format('if %s %s\n',a,b)
-                //else
-                //return "if "..a:sub(2,#a-1).." then "..b.." end\n"
-                //end
-
-                /*let re = Regex::new(r"if\s*\((?P<X>.*)\)(?P<Y>[^\n]*)").unwrap();
-            if re.is_match(&line) {
-                let re_then = Regex::new(r"then").unwrap();
-                if !re_then.is_match(&line) {
-                    println!("MATCH {:?}", line);
-                    let after = re.replace_all(&line, "if $X then $Y end\n");
-                    println!("\t=> {:?}", after);
-
-
-                    line.clear();
-                    line.push_str(&after);
-                }
-            }*/
             }
 
             line.push('\n');

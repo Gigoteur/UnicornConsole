@@ -2,7 +2,6 @@ px8 / python cartridge
 version 1
 __lua__
 
-
 function _init()
 end
 

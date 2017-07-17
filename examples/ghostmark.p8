@@ -46,8 +46,8 @@ function Item:__init()
 end
 
 function Item:update()
-    self.x = self.x + self.vx
-    self.y = self.y + self.vy
+    self.x += self.vx
+    self.y += self.vy
 
     if self.x<0 or self.x>128 then
         self.vx = -self.vx

@@ -1175,6 +1175,41 @@ static void assignment (LexState *ls, struct LHS_assign *lh, int nvars) {
 }
 
 
+static void compound_assign_op (LexState *ls, expdesc *v) {
+  int line;
+  BinOpr op = OPR_NOBINOPR;
+  FuncState *fs = ls->fs;
+  expdesc e = *v, v2;
+  switch (ls->t.token) {
+    case TK_SCPLUS:
+      op = OPR_ADD;
+      break;
+    case TK_SCMINUS:
+      op = OPR_SUB;
+      break;
+    case TK_SCMUL:
+      op = OPR_MUL;
+      break;
+    case TK_SCDIV:
+      op = OPR_DIV;
+      break;
+    case TK_SCMOD:
+      op = OPR_MOD;
+      break;
+  }
+  luaK_reserveregs(fs,fs->freereg-fs->nactvar); /* reserve all registers needed by the lvalue */
+  luaX_next(ls);
+  line = ls->linenumber;
+  enterlevel(ls);
+  luaK_infix(fs,op,&e);
+  expr(ls, &v2);
+  luaK_posfix(fs, op, &e, &v2, line);
+  leavelevel(ls);
+  luaK_exp2nextreg(fs, &e);
+  luaK_setoneret(ls->fs, &e);
+  luaK_storevar(ls->fs, v, &e);
+}
+
 static int cond (LexState *ls) {
   /* cond -> exp */
   expdesc v;
@@ -1494,6 +1529,14 @@ static void exprstat (LexState *ls) {
   if (ls->t.token == '=' || ls->t.token == ',') { /* stat -> assignment ? */
     v.prev = NULL;
     assignment(ls, &v, 1);
+  }
+  else if (ls->t.token == TK_SCPLUS ||
+   ls->t.token == TK_SCMINUS ||
+   ls->t.token == TK_SCMUL ||
+   ls->t.token == TK_SCDIV ||
+   ls->t.token == TK_SCMOD) {
+    v.prev = NULL;
+    compound_assign_op(ls, &v.v);
   }
   else {  /* stat -> func */
     check_condition(ls, v.v.k == VCALL, "syntax error");

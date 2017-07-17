@@ -86,40 +86,56 @@ pub mod plugin {
 
             /* Audio */
             /* Music */
-            lua_state.do_string(r#"music_load = function(filename)
+            let value = lua_state.do_string(r#"music_load = function(filename)
               PX8Object:music_load(filename)
               end
               "#);
-            lua_state.do_string(r#"music_play = function(filename, loops)
+            info!("[PLUGIN][LUA][PX8][MUSIC_LOAD] = {:?}", value);
+
+            let value = lua_state.do_string(r#"music_play = function(filename, loops)
               PX8Object:music_play(filename, loops)
               end
               "#);
-            lua_state.do_string(r#"music_pause = function()
+            info!("[PLUGIN][LUA][PX8][MUSIC_PLAY] = {:?}", value);
+
+            let value = lua_state.do_string(r#"music_pause = function()
               PX8Object:music_pause()
               end
               "#);
-            lua_state.do_string(r#"music_resume = function()
+            info!("[PLUGIN][LUA][PX8][MUSIC_PAUSE] = {:?}", value);
+
+            let value = lua_state.do_string(r#"music_resume = function()
               PX8Object:music_resume()
               end
               "#);
-            lua_state.do_string(r#"music_stop = function()
+            info!("[PLUGIN][LUA][PX8][MUSIC_RESUME] = {:?}", value);
+
+            let value = lua_state.do_string(r#"music_stop = function()
               PX8Object:music_stop()
               end
               "#);
-            lua_state.do_string(r#"music_rewind = function()
+            info!("[PLUGIN][LUA][PX8][MUSIC_STOP] = {:?}", value);
+
+            let value = lua_state.do_string(r#"music_rewind = function()
               PX8Object:music_rewind()
               end
               "#);
-            lua_state.do_string(r#"music_volume = function(volume)
+            info!("[PLUGIN][LUA][PX8][MUSIC_REWIND] = {:?}", value);
+
+            let value = lua_state.do_string(r#"music_volume = function(volume)
               PX8Object:music_volume(volume)
               end
               "#);
+            info!("[PLUGIN][LUA][PX8][MUSIC_VOLUME] = {:?}", value);
+
             /* Sound */
-            lua_state.do_string(r#"sound_load = function(filename)
+            let value = lua_state.do_string(r#"sound_load = function(filename)
               PX8Object:sound_load(filename)
               end
               "#);
-            lua_state.do_string(r#"sound_play = function(filename, loops, channel)
+            info!("[PLUGIN][LUA][PX8][SOUND_LOAD] = {:?}", value);
+
+            let value = lua_state.do_string(r#"sound_play = function(filename, loops, channel)
               if loops == nil then
                 loops = 0
               end
@@ -131,7 +147,9 @@ pub mod plugin {
               PX8Object:sound_play(filename, loops, channel)
               end
               "#);
-            lua_state.do_string(r#"sound_pause = function(channel)
+            info!("[PLUGIN][LUA][PX8][SOUND_PLAY] = {:?}", value);
+
+            let value = lua_state.do_string(r#"sound_pause = function(channel)
               if channel == nil then
                 channel = -1
               end
@@ -139,7 +157,9 @@ pub mod plugin {
               PX8Object:sound_pause(channel)
               end
               "#);
-            lua_state.do_string(r#"sound_resume = function(channel)
+            info!("[PLUGIN][LUA][PX8][SOUND_PAUSE] = {:?}", value);
+
+            let value = lua_state.do_string(r#"sound_resume = function(channel)
               if channel == nil then
                 channel = -1
               end
@@ -147,7 +167,9 @@ pub mod plugin {
               PX8Object:sound_resume(channel)
               end
               "#);
-            lua_state.do_string(r#"sound_stop = function(channel)
+            info!("[PLUGIN][LUA][PX8][SOUND_RESUME] = {:?}", value);
+
+            let value = lua_state.do_string(r#"sound_stop = function(channel)
               if channel == nil then
                 channel = -1
               end
@@ -155,7 +177,9 @@ pub mod plugin {
               PX8Object:sound_stop(channel)
               end
               "#);
-            lua_state.do_string(r#"sound_volume = function(volume, channel)
+            info!("[PLUGIN][LUA][PX8][SOUND_STOP] = {:?}", value);
+
+            let value = lua_state.do_string(r#"sound_volume = function(volume, channel)
               if channel == nil then
                 channel = -1
               end
@@ -163,7 +187,9 @@ pub mod plugin {
               PX8Object:sound_volume(volume, channel)
               end
               "#);
-            lua_state.do_string(r#"sound_isplaying = function(channel)
+            info!("[PLUGIN][LUA][PX8][SOUND_VOLUME] = {:?}", value);
+
+            let value = lua_state.do_string(r#"sound_isplaying = function(channel)
               if channel == nil then
                 channel = -1
               end
@@ -171,8 +197,9 @@ pub mod plugin {
               return PX8Object:sound_isplaying(channel)
               end
               "#);
+            info!("[PLUGIN][LUA][PX8][SOUND_ISPLAYING] = {:?}", value);
 
-            lua_state.do_string(r#"camera = function(x, y)
+            let value = lua_state.do_string(r#"camera = function(x, y)
 
               x = math.floor(x)
               y = math.floor(y)
@@ -180,8 +207,9 @@ pub mod plugin {
               PX8Object:camera(x, y)
               end
               "#);
+            info!("[PLUGIN][LUA][PX8][CAMERA] = {:?}", value);
 
-            lua_state.do_string(r#"btn = function(x, p)
+            let value = lua_state.do_string(r#"btn = function(x, p)
 
               x = math.floor(x)
 
@@ -192,7 +220,9 @@ pub mod plugin {
               return PX8Object:btn(p, x) == 1
               end
               "#);
-            lua_state.do_string(r#"btnp = function(x, p)
+            info!("[PLUGIN][LUA][PX8][TBN] = {:?}", value);
+
+            let value = lua_state.do_string(r#"btnp = function(x, p)
 
               x = math.floor(x)
 
@@ -203,9 +233,10 @@ pub mod plugin {
               return PX8Object:btnp(p, x) == 1
               end
               "#);
+            info!("[PLUGIN][LUA][PX8][BTNP] = {:?}", value);
 
 
-            lua_state.do_string(r#"rect = function(x0, y0, x1, y1, color)
+            let value = lua_state.do_string(r#"rect = function(x0, y0, x1, y1, color)
 
               x0 = math.floor(x0)
               y0 = math.floor(y0)
@@ -221,7 +252,9 @@ pub mod plugin {
               PX8Object:rect(x0, y0, x1, y1, color)
               end
               "#);
-            lua_state.do_string(r#"rectfill = function(x0, y0, x1, y1, color)
+            info!("[PLUGIN][LUA][PX8][RECT] = {:?}", value);
+
+            let value = lua_state.do_string(r#"rectfill = function(x0, y0, x1, y1, color)
 
               x0 = math.floor(x0)
               y0 = math.floor(y0)
@@ -237,7 +270,9 @@ pub mod plugin {
               PX8Object:rectfill(x0, y0, x1, y1, color)
               end
               "#);
-            lua_state.do_string(r#"circ = function(x, y, r, color)
+            info!("[PLUGIN][LUA][PX8][RECTFILL] = {:?}", value);
+
+            let value = lua_state.do_string(r#"circ = function(x, y, r, color)
               x = math.floor(x)
               y = math.floor(y)
               r = math.floor(r)
@@ -251,7 +286,9 @@ pub mod plugin {
               PX8Object:circ(x, y, r, color)
               end
               "#);
-            lua_state.do_string(r#"circfill = function(x, y, r, color)
+            info!("[PLUGIN][LUA][PX8][CIRC] = {:?}", value);
+
+            let value = lua_state.do_string(r#"circfill = function(x, y, r, color)
               x = math.floor(x)
               y = math.floor(y)
               r = math.floor(r)
@@ -265,7 +302,9 @@ pub mod plugin {
               PX8Object:circfill(x, y, r, color)
               end
               "#);
-            lua_state.do_string(r#"clip = function(x, y, w, h)
+            info!("[PLUGIN][LUA][PX8][CIRCFILL] = {:?}", value);
+
+            let value = lua_state.do_string(r#"clip = function(x, y, w, h)
               if x == nil then
                 x = -1
               end
@@ -287,7 +326,9 @@ pub mod plugin {
               PX8Object:clip(x, y, w, h)
               end
               "#);
-            lua_state.do_string(r#"ellipse = function(x, y, rx, ry, color)
+            info!("[PLUGIN][LUA][PX8][CLIP] = {:?}", value);
+
+            let value = lua_state.do_string(r#"ellipse = function(x, y, rx, ry, color)
               x = math.floor(x)
               y = math.floor(y)
               rx = math.floor(rx)
@@ -302,7 +343,9 @@ pub mod plugin {
               PX8Object:ellipse(x, y, rx, ry, color)
               end
               "#);
-            lua_state.do_string(r#"ellipsefill = function(x, y, rx, ry, color)
+            info!("[PLUGIN][LUA][PX8][ELLIPSE] = {:?}", value);
+
+            let value = lua_state.do_string(r#"ellipsefill = function(x, y, rx, ry, color)
               x = math.floor(x)
               y = math.floor(y)
               rx = math.floor(rx)
@@ -317,7 +360,9 @@ pub mod plugin {
               PX8Object:ellipsefill(x, y, rx, ry, color)
               end
               "#);
-            lua_state.do_string(r#"fget = function(idx, flag)
+            info!("[PLUGIN][LUA][PX8][ELLIPSEFILL] = {:?}", value);
+
+            let value = lua_state.do_string(r#"fget = function(idx, flag)
               idx = math.floor(idx)
               flag = math.floor(flag)
 
@@ -329,7 +374,9 @@ pub mod plugin {
 
               end
               "#);
-            lua_state.do_string(r#"fset = function(idx, flag, value)
+            info!("[PLUGIN][LUA][PX8][FGET] = {:?}", value);
+
+            let value = lua_state.do_string(r#"fset = function(idx, flag, value)
               idx = math.floor(idx)
               flag = math.floor(flag)
 
@@ -345,7 +392,9 @@ pub mod plugin {
 
               end
               "#);
-            lua_state.do_string(r#"line = function(x0, y0, x1, y1, color)
+            info!("[PLUGIN][LUA][PX8][FSET] = {:?}", value);
+
+            let value = lua_state.do_string(r#"line = function(x0, y0, x1, y1, color)
 
               x0 = math.floor(x0)
               y0 = math.floor(y0)
@@ -361,7 +410,9 @@ pub mod plugin {
               PX8Object:line(x0, y0, x1, y1, color)
               end
               "#);
-            lua_state.do_string(r#"trigon = function(x1, y1, x2, y2, x3, y3, color)
+            info!("[PLUGIN][LUA][PX8][LINE] = {:?}", value);
+
+            let value = lua_state.do_string(r#"trigon = function(x1, y1, x2, y2, x3, y3, color)
               x1 = math.floor(x1)
               y1 = math.floor(y1)
               x2 = math.floor(x2)
@@ -378,8 +429,9 @@ pub mod plugin {
               PX8Object:trigon(x1, y1, x2, y2, x3, y3, color)
               end
               "#);
+            info!("[PLUGIN][LUA][PX8][TRIGON] = {:?}", value);
 
-            lua_state.do_string(r#"rnd = function(x)
+            let value = lua_state.do_string(r#"rnd = function(x)
               if x == nil then
                 x = 1
               end
@@ -388,18 +440,21 @@ pub mod plugin {
               return PX8Object:rnd(x)
               end
               "#);
+            info!("[PLUGIN][LUA][PX8][RND] = {:?}", value);
 
-            lua_state.do_string(r#"add = function(t, v)
+            let value = lua_state.do_string(r#"add = function(t, v)
               t[#t+1] = v
               end
               "#);
+            info!("[PLUGIN][LUA][PX8][ADD] = {:?}", value);
 
-            lua_state.do_string(r#"cls = function()
+            let value = lua_state.do_string(r#"cls = function()
               PX8Object:cls()
               end
               "#);
+            info!("[PLUGIN][LUA][PX8][CLS] = {:?}", value);
 
-            lua_state.do_string(r#"mode = function(w, h, a)
+            let value = lua_state.do_string(r#"mode = function(w, h, a)
               if w == nil then
                 w = 128
               end
@@ -415,8 +470,9 @@ pub mod plugin {
               PX8Object:mode(w, h, a)
               end
               "#);
+            info!("[PLUGIN][LUA][PX8][MODE] = {:?}", value);
 
-            lua_state.do_string(r#"palt = function(c, t)
+            let value = lua_state.do_string(r#"palt = function(c, t)
               c = math.floor(c)
 
               if t == true then
@@ -428,8 +484,9 @@ pub mod plugin {
               PX8Object:palt(c, t)
               end
               "#);
+            info!("[PLUGIN][LUA][PX8][PALT] = {:?}", value);
 
-            lua_state.do_string(r#"pal = function(c0, c1, p)
+            let value = lua_state.do_string(r#"pal = function(c0, c1, p)
               if c0 == nil then
                 c0 = -1
               end
@@ -445,8 +502,9 @@ pub mod plugin {
               PX8Object:pal(c0, c1, p)
               end
               "#);
+            info!("[PLUGIN][LUA][PX8][PAL] = {:?}", value);
 
-            lua_state.do_string(r#"font = function(name)
+            let value = lua_state.do_string(r#"font = function(name)
 
               if name == nil then
                 name = "pico8"
@@ -456,9 +514,9 @@ pub mod plugin {
 
               end
               "#);
+            info!("[PLUGIN][LUA][PX8][FONT] = {:?}", value);
 
-
-            lua_state.do_string(r#"pset = function(x, y, color)
+            let value = lua_state.do_string(r#"pset = function(x, y, color)
               x = math.floor(x)
               y = math.floor(y)
 
@@ -472,25 +530,27 @@ pub mod plugin {
 
               end
               "#);
+            info!("[PLUGIN][LUA][PX8][PSET] = {:?}", value);
 
-            lua_state.do_string(r#"pget = function(x, y)
+            let value = lua_state.do_string(r#"pget = function(x, y)
               x = math.floor(x)
               y = math.floor(y)
 
               return PX8Object:pget(x, y)
               end
               "#);
+            info!("[PLUGIN][LUA][PX8][PGET] = {:?}", value);
 
-            lua_state.do_string(r#"sget = function(x, y)
+            let value = lua_state.do_string(r#"sget = function(x, y)
               x = math.floor(x)
               y = math.floor(y)
 
               return PX8Object:sget(x, y)
               end
               "#);
+            info!("[PLUGIN][LUA][PX8][SGET] = {:?}", value);
 
-
-            lua_state.do_string(r#"sset = function(x, y, color)
+            let value = lua_state.do_string(r#"sset = function(x, y, color)
               x = math.floor(x)
               y = math.floor(y)
 
@@ -503,18 +563,21 @@ pub mod plugin {
               PX8Object:sset(x, y, c)
               end
               "#);
+            info!("[PLUGIN][LUA][PX8][SSET] = {:?}", value);
 
-            lua_state.do_string(r#"noise = function(x, y, z)
+            let value = lua_state.do_string(r#"noise = function(x, y, z)
               return PX8Object:noise(x, y, z)
               end
               "#);
+            info!("[PLUGIN][LUA][PX8][NOISE] = {:?}", value);
 
-            lua_state.do_string(r#"noise_set_seed = function(seed)
+            let value = lua_state.do_string(r#"noise_set_seed = function(seed)
               return PX8Object:noise_set_seed(seed)
               end
               "#);
+            info!("[PLUGIN][LUA][PX8][NOISE_SET_SEED] = {:?}", value);
 
-            lua_state.do_string(r#"map = function(cel_x, cel_y, sx, sy, cel_w, cel_h, layer)
+            let value = lua_state.do_string(r#"map = function(cel_x, cel_y, sx, sy, cel_w, cel_h, layer)
 
               cel_x = math.floor(cel_x)
               cel_y = math.floor(cel_y)
@@ -523,7 +586,6 @@ pub mod plugin {
               cel_w = math.floor(cel_w)
               cel_h = math.floor(cel_h)
 
-
               if layer == nil then
                 layer = 0
               end
@@ -531,21 +593,24 @@ pub mod plugin {
               PX8Object:map(cel_x, cel_y, sx, sy, cel_w, cel_h, layer)
               end
               "#);
+            info!("[PLUGIN][LUA][PX8][MAP] = {:?}", value);
 
-            lua_state.do_string(r#"mapdraw = function(cel_x, cel_y, sx, sy, cel_w, cel_h, layer)
+            let value = lua_state.do_string(r#"mapdraw = function(cel_x, cel_y, sx, sy, cel_w, cel_h, layer)
                 map(cel_x, cel_y, sx, sy, cel_w, cel_h, layer)
                 end
                 "#);
+            info!("[PLUGIN][LUA][PX8][MAPDRAW] = {:?}", value);
 
-            lua_state.do_string(r#"mget = function(x, y)
+            let value = lua_state.do_string(r#"mget = function(x, y)
               x = math.floor(x)
               y = math.floor(y)
 
               return PX8Object:mget(x, y)
               end
               "#);
+            info!("[PLUGIN][LUA][PX8][MGET] = {:?}", value);
 
-            lua_state.do_string(r#"mset = function(x, y, v)
+            let value = lua_state.do_string(r#"mset = function(x, y, v)
               x = math.floor(x)
               y = math.floor(y)
               v = math.floor(v)
@@ -553,8 +618,9 @@ pub mod plugin {
               PX8Object:mset(x, y, v)
               end
               "#);
+            info!("[PLUGIN][LUA][PX8][MSET] = {:?}", value);
 
-            lua_state.do_string(r#"spr = function(n, x, y, w, h, flip_x, flip_y)
+            let value = lua_state.do_string(r#"spr = function(n, x, y, w, h, flip_x, flip_y)
 
               n = math.floor(n)
               x = math.floor(x)
@@ -587,8 +653,9 @@ pub mod plugin {
               PX8Object:spr(n, x, y, w, h, flip_x, flip_y)
               end
               "#);
+            info!("[PLUGIN][LUA][PX8][SPR] = {:?}", value);
 
-            lua_state.do_string(r#"sspr = function(sx, sy, sw, sh, dx, dy, dw, dh, flip_x, flip_y)
+            let value = lua_state.do_string(r#"sspr = function(sx, sy, sw, sh, dx, dy, dw, dh, flip_x, flip_y)
               sx = math.floor(sx)
               sy = math.floor(sy)
               sw = math.floor(sw)
@@ -624,9 +691,9 @@ pub mod plugin {
               PX8Object:sspr(sx, sy, sw, sh, dx, dy, dw, dh, flip_x, flip_y)
               end
               "#);
+            info!("[PLUGIN][LUA][PX8][SSPR] = {:?}", value);
 
-            lua_state.do_string(r#"print = function(str, x, y, col)
-
+            let value = lua_state.do_string(r#"print = function(str, x, y, col)
               if x == nil then
                 x = -1
               end
@@ -647,86 +714,106 @@ pub mod plugin {
 
               end
               "#);
+            info!("[PLUGIN][LUA][PX8][PRINT] = {:?}", value);
 
-            lua_state.do_string(r#"time = function()
+            let value = lua_state.do_string(r#"time = function()
                 v  = PX8Object:time()
                 return v
               end
               "#);
+            info!("[PLUGIN][LUA][PX8][TIME] = {:?}", value);
 
-            lua_state.do_string(r#"sfx = function(n, channel, offset)
+            let value = lua_state.do_string(r#"sfx = function(n, channel, offset)
               end
               "#);
+            info!("[PLUGIN][LUA][PX8][SFX] = {:?}", value);
 
-            lua_state.do_string(r#"music = function(n, fade_len, channel_mask)
+            let value = lua_state.do_string(r#"music = function(n, fade_len, channel_mask)
               end
               "#);
+            info!("[PLUGIN][LUA][PX8][MUSIC] = {:?}", value);
 
-            lua_state.do_string(r#"flip = function()
+            let value = lua_state.do_string(r#"flip = function()
               end
               "#);
+            info!("[PLUGIN][LUA][PX8][FLIP] = {:?}", value);
 
-            lua_state.do_string(r#"color = function(c)
+            let value = lua_state.do_string(r#"color = function(c)
                 c = math.floor(c)
                 PX8Object:color(c)
               end
               "#);
+            info!("[PLUGIN][LUA][PX8][COLOR] = {:?}", value);
 
-            lua_state.do_string(r#"peek = function(addr)
+            let value = lua_state.do_string(r#"peek = function(addr)
                 return 0
               end
               "#);
+            info!("[PLUGIN][LUA][PX8][PEEK] = {:?}", value);
 
-            lua_state.do_string(r#"poke = function(addr, val)
+            let value = lua_state.do_string(r#"poke = function(addr, val)
               end
               "#);
+            info!("[PLUGIN][LUA][PX8][POKE] = {:?}", value);
 
-            lua_state.do_string(r#"stat = function(x)
+            let value = lua_state.do_string(r#"stat = function(x)
                 v = PX8Object:stat(x)
                 return v
               end
               "#);
-
+            info!("[PLUGIN][LUA][PX8][STAT] = {:?}", value);
 
             /* CARTDATA */
-            lua_state.do_string(r#"cartdata = function(x)
+            let value = lua_state.do_string(r#"cartdata = function(x)
               x = math.floor(x)
               PX8Object:cartdata(x)
               end
               "#);
+            info!("[PLUGIN][LUA][PX8][CARTDATA] = {:?}", value);
 
-            lua_state.do_string(r#"dget = function(x)
+            let value = lua_state.do_string(r#"dget = function(x)
               x = math.floor(x)
               return PX8Object:dget(x)
               end
               "#);
+            info!("[PLUGIN][LUA][PX8][DGET] = {:?}", value);
 
-            lua_state.do_string(r#"dset = function(x, y)
+            let value = lua_state.do_string(r#"dset = function(x, y)
               x = math.floor(x)
               y = math.floor(y)
 
               PX8Object:dset(x, y)
               end
               "#);
+            info!("[PLUGIN][LUA][PX8][DSET] = {:?}", value);
 
             /* PICO8 compatible functions */
 
-            lua_state.do_string(r#"
+            let value = lua_state.do_string(r#"
+              function warning(msg)
+                log(debug.traceback("WARNING: "..msg,3))
+              end
+
+
                function min(a,b)
                     if a == nil or b == nil then
-                            warning('min a or b are nil returning 0')
+                            warning("min a or b are nil returning 0")
                             return 0
                     end
-                    if a < b then return a end
+                    if a < b then
+                        return a
+                    end
                     return b
                 end
 
                 function max(a,b)
                         if a == nil or b == nil then
-                                warning('max a or b are nil returning 0')
+                                warning("max a or b are nil returning 0")
                                 return 0
                         end
-                        if a > b then return a end
+                        if a > b then
+                            return a
+                        end
                         return b
                 end
 
@@ -740,7 +827,7 @@ pub mod plugin {
 
               function add(a,v)
                 if a == nil then
-                  warning('add to nil')
+                  warning("add to nil")
                   return
                 end
                 table.insert(a,v)
@@ -748,18 +835,14 @@ pub mod plugin {
 
               function del(a,dv)
                 if a == nil then
-                  warning('del from nil')
+                  warning("del from nil")
                   return
                 end
                 for i,v in ipairs(a) do
-                  if v==dv then
+                  if v==dv  then
                     table.remove(a,i)
                   end
                 end
-              end
-
-              function warning(msg)
-                log(debug.traceback("WARNING: "..msg,3))
               end
 
               function foreach(a,f)
@@ -777,14 +860,17 @@ pub mod plugin {
               end
 
               function all(a)
-              local i = 0
-              local n = #a
-              return function()
-                i = i + 1
-                if i <= n then return a[i] end
+                local i = 0
+                local n = #a
+                return function()
+                    i = i + 1
+                    if i <= n  then
+                        return a[i]
+                    end
+                end
               end
-            end
               "#);
+            info!("[PLUGIN][LUA] LOADED MIN/MAX FUNCTIONS = {:?}", value);
 
             let value = lua_state.do_string(r#"
 
