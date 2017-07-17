@@ -940,13 +940,13 @@ pub mod plugin {
             let filename = state.check_string(2);
 
             let sound = state2.with_extra(|extra| {
-                let data = extra
-                    .as_ref()
-                    .unwrap()
-                    .downcast_ref::<ExtraData>()
-                    .unwrap();
-                data.sound.clone()
-            });
+                                              let data = extra
+                                                  .as_ref()
+                                                  .unwrap()
+                                                  .downcast_ref::<ExtraData>()
+                                                  .unwrap();
+                                              data.sound.clone()
+                                          });
 
             sound.lock().unwrap().load(filename.to_string());
 
@@ -963,15 +963,18 @@ pub mod plugin {
             let loops = state2.check_integer(2);
 
             let sound = state2.with_extra(|extra| {
-                let data = extra
-                    .as_ref()
-                    .unwrap()
-                    .downcast_ref::<ExtraData>()
-                    .unwrap();
-                data.sound.clone()
-            });
+                                              let data = extra
+                                                  .as_ref()
+                                                  .unwrap()
+                                                  .downcast_ref::<ExtraData>()
+                                                  .unwrap();
+                                              data.sound.clone()
+                                          });
 
-            sound.lock().unwrap().play(filename.to_string(), loops as i32);
+            sound
+                .lock()
+                .unwrap()
+                .play(filename.to_string(), loops as i32);
 
             1
         }
@@ -982,13 +985,13 @@ pub mod plugin {
             let mut state = State::from_ptr(lua_context);
 
             let sound = state.with_extra(|extra| {
-                let data = extra
-                    .as_ref()
-                    .unwrap()
-                    .downcast_ref::<ExtraData>()
-                    .unwrap();
-                data.sound.clone()
-            });
+                                             let data = extra
+                                                 .as_ref()
+                                                 .unwrap()
+                                                 .downcast_ref::<ExtraData>()
+                                                 .unwrap();
+                                             data.sound.clone()
+                                         });
 
             sound.lock().unwrap().pause();
 
@@ -1001,13 +1004,13 @@ pub mod plugin {
             let mut state = State::from_ptr(lua_context);
 
             let sound = state.with_extra(|extra| {
-                let data = extra
-                    .as_ref()
-                    .unwrap()
-                    .downcast_ref::<ExtraData>()
-                    .unwrap();
-                data.sound.clone()
-            });
+                                             let data = extra
+                                                 .as_ref()
+                                                 .unwrap()
+                                                 .downcast_ref::<ExtraData>()
+                                                 .unwrap();
+                                             data.sound.clone()
+                                         });
 
             sound.lock().unwrap().resume();
 
@@ -1020,13 +1023,13 @@ pub mod plugin {
             let mut state = State::from_ptr(lua_context);
 
             let sound = state.with_extra(|extra| {
-                let data = extra
-                    .as_ref()
-                    .unwrap()
-                    .downcast_ref::<ExtraData>()
-                    .unwrap();
-                data.sound.clone()
-            });
+                                             let data = extra
+                                                 .as_ref()
+                                                 .unwrap()
+                                                 .downcast_ref::<ExtraData>()
+                                                 .unwrap();
+                                             data.sound.clone()
+                                         });
 
             sound.lock().unwrap().stop();
 
@@ -1040,13 +1043,13 @@ pub mod plugin {
             let mut state = State::from_ptr(lua_context);
 
             let sound = state.with_extra(|extra| {
-                let data = extra
-                    .as_ref()
-                    .unwrap()
-                    .downcast_ref::<ExtraData>()
-                    .unwrap();
-                data.sound.clone()
-            });
+                                             let data = extra
+                                                 .as_ref()
+                                                 .unwrap()
+                                                 .downcast_ref::<ExtraData>()
+                                                 .unwrap();
+                                             data.sound.clone()
+                                         });
 
             sound.lock().unwrap().rewind();
 
@@ -1061,13 +1064,13 @@ pub mod plugin {
             let volume = state.check_integer(2);
 
             let sound = state.with_extra(|extra| {
-                let data = extra
-                    .as_ref()
-                    .unwrap()
-                    .downcast_ref::<ExtraData>()
-                    .unwrap();
-                data.sound.clone()
-            });
+                                             let data = extra
+                                                 .as_ref()
+                                                 .unwrap()
+                                                 .downcast_ref::<ExtraData>()
+                                                 .unwrap();
+                                             data.sound.clone()
+                                         });
 
             sound.lock().unwrap().volume(volume as i32);
 
@@ -1083,13 +1086,13 @@ pub mod plugin {
             let filename = state.check_string(2);
 
             let sound = state2.with_extra(|extra| {
-                let data = extra
-                    .as_ref()
-                    .unwrap()
-                    .downcast_ref::<ExtraData>()
-                    .unwrap();
-                data.sound.clone()
-            });
+                                              let data = extra
+                                                  .as_ref()
+                                                  .unwrap()
+                                                  .downcast_ref::<ExtraData>()
+                                                  .unwrap();
+                                              data.sound.clone()
+                                          });
 
             sound.lock().unwrap().sound_load(filename.to_string());
 
@@ -1107,15 +1110,18 @@ pub mod plugin {
             let channel = state2.check_integer(4);
 
             let sound = state2.with_extra(|extra| {
-                let data = extra
-                    .as_ref()
-                    .unwrap()
-                    .downcast_ref::<ExtraData>()
-                    .unwrap();
-                data.sound.clone()
-            });
+                                              let data = extra
+                                                  .as_ref()
+                                                  .unwrap()
+                                                  .downcast_ref::<ExtraData>()
+                                                  .unwrap();
+                                              data.sound.clone()
+                                          });
 
-            sound.lock().unwrap().sound_play(filename.to_string(), loops as i32, channel as i32);
+            sound
+                .lock()
+                .unwrap()
+                .sound_play(filename.to_string(), loops as i32, channel as i32);
 
             1
         }
@@ -1128,13 +1134,13 @@ pub mod plugin {
             let channel = state.check_integer(2);
 
             let sound = state.with_extra(|extra| {
-                let data = extra
-                    .as_ref()
-                    .unwrap()
-                    .downcast_ref::<ExtraData>()
-                    .unwrap();
-                data.sound.clone()
-            });
+                                             let data = extra
+                                                 .as_ref()
+                                                 .unwrap()
+                                                 .downcast_ref::<ExtraData>()
+                                                 .unwrap();
+                                             data.sound.clone()
+                                         });
 
             sound.lock().unwrap().sound_pause(channel as i32);
 
@@ -1149,13 +1155,13 @@ pub mod plugin {
             let channel = state.check_integer(2);
 
             let sound = state.with_extra(|extra| {
-                let data = extra
-                    .as_ref()
-                    .unwrap()
-                    .downcast_ref::<ExtraData>()
-                    .unwrap();
-                data.sound.clone()
-            });
+                                             let data = extra
+                                                 .as_ref()
+                                                 .unwrap()
+                                                 .downcast_ref::<ExtraData>()
+                                                 .unwrap();
+                                             data.sound.clone()
+                                         });
 
             sound.lock().unwrap().sound_resume(channel as i32);
 
@@ -1170,13 +1176,13 @@ pub mod plugin {
             let channel = state.check_integer(2);
 
             let sound = state.with_extra(|extra| {
-                let data = extra
-                    .as_ref()
-                    .unwrap()
-                    .downcast_ref::<ExtraData>()
-                    .unwrap();
-                data.sound.clone()
-            });
+                                             let data = extra
+                                                 .as_ref()
+                                                 .unwrap()
+                                                 .downcast_ref::<ExtraData>()
+                                                 .unwrap();
+                                             data.sound.clone()
+                                         });
 
             sound.lock().unwrap().sound_stop(channel as i32);
 
@@ -1192,15 +1198,18 @@ pub mod plugin {
             let volume = state.check_integer(3);
 
             let sound = state.with_extra(|extra| {
-                let data = extra
-                    .as_ref()
-                    .unwrap()
-                    .downcast_ref::<ExtraData>()
-                    .unwrap();
-                data.sound.clone()
-            });
+                                             let data = extra
+                                                 .as_ref()
+                                                 .unwrap()
+                                                 .downcast_ref::<ExtraData>()
+                                                 .unwrap();
+                                             data.sound.clone()
+                                         });
 
-            sound.lock().unwrap().sound_volume(channel as i32, volume as i32);
+            sound
+                .lock()
+                .unwrap()
+                .sound_volume(channel as i32, volume as i32);
 
             1
         }
@@ -1213,13 +1222,13 @@ pub mod plugin {
             let channel = state.check_integer(2);
 
             let sound = state.with_extra(|extra| {
-                let data = extra
-                    .as_ref()
-                    .unwrap()
-                    .downcast_ref::<ExtraData>()
-                    .unwrap();
-                data.sound.clone()
-            });
+                                             let data = extra
+                                                 .as_ref()
+                                                 .unwrap()
+                                                 .downcast_ref::<ExtraData>()
+                                                 .unwrap();
+                                             data.sound.clone()
+                                         });
 
             let value = sound.lock().unwrap().sound_isplaying(channel as i32);
             state.push_bool(value);

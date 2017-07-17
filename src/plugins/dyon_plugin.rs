@@ -11,13 +11,11 @@ pub mod plugin {
     use px8::noise::Noise;
     use px8::PX8Config;
 
-    pub struct DyonPlugin {
-    }
+    pub struct DyonPlugin {}
 
     impl DyonPlugin {
         pub fn new() -> DyonPlugin {
-            DyonPlugin {
-            }
+            DyonPlugin {}
         }
 
 

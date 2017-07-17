@@ -8,15 +8,11 @@ use px8::PX8Config;
 use time;
 
 
-pub struct TextEditor {
-
-}
+pub struct TextEditor {}
 
 impl TextEditor {
     pub fn new() -> TextEditor {
-        TextEditor {
-
-        }
+        TextEditor {}
     }
 
     pub fn init(&mut self, config: Arc<Mutex<PX8Config>>, screen: &mut Screen) {
@@ -27,7 +23,5 @@ impl TextEditor {
         true
     }
 
-    pub fn draw(&mut self, players: Arc<Mutex<Players>>, screen: &mut Screen) {
-
-    }
+    pub fn draw(&mut self, players: Arc<Mutex<Players>>, screen: &mut Screen) {}
 }

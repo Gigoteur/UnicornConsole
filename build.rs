@@ -28,9 +28,12 @@ fn prebuild() -> io::Result<()> {
                            map_height.parse::<u32>().unwrap())
                            .as_bytes())
         .unwrap();
-    f.write_all(format!("pub const VERSION: u32 = 0;\n").as_bytes()).unwrap();
-    f.write_all(format!("pub const MAJOR_VERSION: u32 = 0;\n").as_bytes()).unwrap();
-    f.write_all(format!("pub const MINOR_VERSION: u32 = 5;\n").as_bytes()).unwrap();
+    f.write_all(format!("pub const VERSION: u32 = 0;\n").as_bytes())
+        .unwrap();
+    f.write_all(format!("pub const MAJOR_VERSION: u32 = 0;\n").as_bytes())
+        .unwrap();
+    f.write_all(format!("pub const MINOR_VERSION: u32 = 5;\n").as_bytes())
+        .unwrap();
 
     Ok(())
 }

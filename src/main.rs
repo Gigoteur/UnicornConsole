@@ -190,7 +190,8 @@ fn main() {
                     println!("{:?}", c);
 
                     c.save_in_p8(&matches.opt_str("t").unwrap(),
-                                format!("{:?}.{:?}.{:?}", VERSION, MAJOR_VERSION, MINOR_VERSION).as_str());
+                                 format!("{:?}.{:?}.{:?}", VERSION, MAJOR_VERSION, MINOR_VERSION)
+                                     .as_str());
                 }
                 Err(e) => panic!(e),
             }

@@ -9,7 +9,13 @@ use time;
 
 use px8::PX8Config;
 
-pub fn point_in_rect(x: i32, y: i32, coord_x1: i32, coord_y1: i32, coord_x2: i32, coord_y2: i32) -> bool {
+pub fn point_in_rect(x: i32,
+                     y: i32,
+                     coord_x1: i32,
+                     coord_y1: i32,
+                     coord_x2: i32,
+                     coord_y2: i32)
+                     -> bool {
     (coord_x1 <= x && x < coord_x2) && (coord_y1 <= y && y < coord_y2)
 }
 
@@ -95,7 +101,16 @@ pub struct Widget {
 }
 
 impl Widget {
-    pub fn new(state: Arc<Mutex<State>>, name: String, x: u32, y: u32, w: u32, h: u32, data: Vec<u8>, highlight: HashMap<u32, u32>, clicked: bool) -> Widget {
+    pub fn new(state: Arc<Mutex<State>>,
+               name: String,
+               x: u32,
+               y: u32,
+               w: u32,
+               h: u32,
+               data: Vec<u8>,
+               highlight: HashMap<u32, u32>,
+               clicked: bool)
+               -> Widget {
         Widget {
             state: state,
             name: name,
@@ -107,7 +122,7 @@ impl Widget {
             h: h,
             data: data,
             highlight: highlight,
-            clicked: clicked
+            clicked: clicked,
         }
     }
 
@@ -128,7 +143,8 @@ impl Widget {
             let mouse_x = self.state.lock().unwrap().mouse_x as u32;
             let mouse_y = self.state.lock().unwrap().mouse_y as u32;
 
-            self.clicked = (self.x1 <= mouse_x && mouse_x < self.x2) && (self.y1 <= mouse_y && mouse_y < self.y2);
+            self.clicked = (self.x1 <= mouse_x && mouse_x < self.x2) &&
+                           (self.y1 <= mouse_y && mouse_y < self.y2);
         }
     }
 
@@ -140,9 +156,13 @@ impl Widget {
             if self.highlight.len() > 0 && self.clicked {
                 let pixel = *pixel as u32;
                 let pp = self.highlight.get(&pixel).unwrap_or(&pixel);
-                screen.pset((self.x1+idx_w) as i32, (self.y1+idx_h) as i32, *pp as i32);
+                screen.pset((self.x1 + idx_w) as i32,
+                            (self.y1 + idx_h) as i32,
+                            *pp as i32);
             } else {
-                screen.pset((self.x1+idx_w) as i32, (self.y1+idx_h) as i32, *pixel as i32);
+                screen.pset((self.x1 + idx_w) as i32,
+                            (self.y1 + idx_h) as i32,
+                            *pixel as i32);
             }
 
             idx_w += 1;
@@ -175,7 +195,7 @@ impl Editor {
             state: STATE::GFX_EDITOR,
             gfx_editor: gfx_editor::GFXEditor::new(),
             txt_editor: text_editor::TextEditor::new(),
-            filename: "".to_string()
+            filename: "".to_string(),
         }
     }
 
@@ -187,8 +207,8 @@ impl Editor {
         screen.mode(240, 236, 1.);
         screen.font("pico-8");
 
-        self.gfx_editor.init(config.clone(), screen);   
-        self.txt_editor.init(config.clone(), screen);   
+        self.gfx_editor.init(config.clone(), screen);
+        self.txt_editor.init(config.clone(), screen);
     }
 
     pub fn update(&mut self, players: Arc<Mutex<Players>>) -> bool {
@@ -204,20 +224,24 @@ impl Editor {
         let height = screen.mode_height() as i32;
 
         screen.rectfill(0, 0, width, 8, 11);
-        screen.rectfill(0, height-8, width, height, 11);
+        screen.rectfill(0, height - 8, width, height, 11);
 
         // Print current filename
         screen.print(self.filename.clone(), 0, 0, 7);
 
         match self.state {
-            STATE::GFX_EDITOR => { self.gfx_editor.draw(players, screen); }
-            STATE::TEXT_EDITOR => { self.txt_editor.draw(players, screen); }
-            STATE::MUSIC_EDITOR => { }
+            STATE::GFX_EDITOR => {
+                self.gfx_editor.draw(players, screen);
+            }
+            STATE::TEXT_EDITOR => {
+                self.txt_editor.draw(players, screen);
+            }
+            STATE::MUSIC_EDITOR => {}
         }
 
         let diff_time = time::now() - current_time;
         let nanoseconds = (diff_time.num_nanoseconds().unwrap() as f64) -
-            (diff_time.num_seconds() * 1000000000) as f64;
+                          (diff_time.num_seconds() * 1000000000) as f64;
 
         diff_time.num_seconds() as f64 + nanoseconds / 1000000000.0
     }

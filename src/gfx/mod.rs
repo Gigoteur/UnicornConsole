@@ -32,7 +32,11 @@ pub struct Sprite {
     pub flags: u8,
 }
 
-impl Clone for Sprite { fn clone(&self) -> Sprite { *self } }
+impl Clone for Sprite {
+    fn clone(&self) -> Sprite {
+        *self
+    }
+}
 
 impl Sprite {
     pub fn new(d: [u8; 64]) -> Sprite {
@@ -1061,7 +1065,7 @@ impl Screen {
                     if layer == 0 || sprite.is_bit_flags_set(layer) {
                         let mut index = 0;
 
-                    for (_, c) in sprite.data.iter_mut().enumerate() {
+                        for (_, c) in sprite.data.iter_mut().enumerate() {
                             if !self.is_transparent(*c as u32) {
                                 self.putpixel_(new_x, new_y, *c as u32);
                             }

@@ -7,7 +7,7 @@ pub static FONT: gfx::Font = gfx::Font {
     left_bearing: 1,
     top_bearing: 1,
     advance_width: 8, // 1 greater than glyph width
-    line_height: 9,  // 1 greater than glyph height
+    line_height: 9, // 1 greater than glyph height
     glyph_data: &GLYPHS,
 };
 

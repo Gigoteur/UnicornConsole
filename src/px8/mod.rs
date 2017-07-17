@@ -242,7 +242,11 @@ impl Menu {
 
     pub fn get_current_filename(&mut self) -> String {
         if self.cartridges.len() > 0 {
-            return self.cartridges[self.idx as usize].as_path().to_str().unwrap().to_string();
+            return self.cartridges[self.idx as usize]
+                       .as_path()
+                       .to_str()
+                       .unwrap()
+                       .to_string();
         }
 
         "".to_string()
@@ -825,7 +829,9 @@ impl PX8 {
                 self.menu.draw(&mut self.screen.lock().unwrap());
             }
             PX8State::EDITOR => {
-                self.draw_time = self.editor.draw(self.players.clone(), &mut self.screen.lock().unwrap()) * 1000.0;
+                self.draw_time = self.editor
+                    .draw(self.players.clone(), &mut self.screen.lock().unwrap()) *
+                                 1000.0;
             }
         }
 
@@ -840,9 +846,7 @@ impl PX8 {
                         self.screen
                             .lock()
                             .unwrap()
-                            .putpixel_direct(mouse_x + x as i32,
-                                             mouse_y + y as i32,
-                                             pixel as u32);
+                            .putpixel_direct(mouse_x + x as i32, mouse_y + y as i32, pixel as u32);
                     }
                 }
             }
@@ -989,7 +993,7 @@ impl PX8 {
 
     pub fn save_current_cartridge(&mut self) {
         if !self.editing {
-            return
+            return;
         }
 
         let screen = &self.screen.lock().unwrap();
@@ -1009,12 +1013,20 @@ impl PX8 {
 
         match cartridge.format {
             CartridgeFormat::P8Format => {
-                cartridge.save_in_p8(output_filename, 
-                                     format!("{:?}.{:?}.{:?}", self.version, self.major_version, self.minor_version).as_str());
+                cartridge.save_in_p8(output_filename,
+                                     format!("{:?}.{:?}.{:?}",
+                                             self.version,
+                                             self.major_version,
+                                             self.minor_version)
+                                             .as_str());
             }
             CartridgeFormat::PngFormat => {
                 cartridge.save_in_p8(output_filename,
-                                     format!("{:?}.{:?}.{:?}", self.version, self.major_version, self.minor_version).as_str());
+                                     format!("{:?}.{:?}.{:?}",
+                                             self.version,
+                                             self.major_version,
+                                             self.minor_version)
+                                             .as_str());
 
             }
             CartridgeFormat::Px8Format => {
@@ -1068,7 +1080,11 @@ impl PX8 {
         self.add_cartridge(px8_cartridge);
     }
 
-    pub fn _load_cartridge(&mut self, cartridge: &mut PX8Cartridge, editor: bool, filename: &str) -> bool {
+    pub fn _load_cartridge(&mut self,
+                           cartridge: &mut PX8Cartridge,
+                           editor: bool,
+                           filename: &str)
+                           -> bool {
         info!("[PX8] Loading cartridge");
 
         let data = cartridge.get_code();
@@ -1126,7 +1142,10 @@ impl PX8 {
                 .set_map(cartridge.cartridge.map.map);
 
             if editor {
-                self.editor.init(self.configuration.clone(), &mut self.screen.lock().unwrap(), String::from(filename));
+                self.editor
+                    .init(self.configuration.clone(),
+                          &mut self.screen.lock().unwrap(),
+                          String::from(filename));
                 self.state = PX8State::EDITOR;
             } else {
                 self.state = PX8State::RUN;
@@ -1258,10 +1277,13 @@ impl PX8 {
                 let filename = self.menu.get_current_filename().clone();
                 self.load_cartridge(filename.as_str(), false, PX8Mode::PX8);
             }
-            
+
             let filename = self.menu.get_current_filename().clone();
 
-            self.editor.init(self.configuration.clone(), &mut self.screen.lock().unwrap(), filename);
+            self.editor
+                .init(self.configuration.clone(),
+                      &mut self.screen.lock().unwrap(),
+                      filename);
             self.editing = true;
             self.state = PX8State::EDITOR;
         }
