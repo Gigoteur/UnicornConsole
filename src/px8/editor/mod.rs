@@ -1,5 +1,5 @@
 pub mod gfx_editor;
-pub mod text_editor;
+pub mod text;
 
 use gfx::Screen;
 use config::Players;
@@ -185,7 +185,7 @@ pub enum STATE {
 pub struct Editor {
     state: STATE,
     gfx_editor: gfx_editor::GFXEditor,
-    txt_editor: text_editor::TextEditor,
+    txt_editor: text::TextEditor,
     filename: String,
 }
 
@@ -194,7 +194,7 @@ impl Editor {
         Editor {
             state: STATE::GFX_EDITOR,
             gfx_editor: gfx_editor::GFXEditor::new(),
-            txt_editor: text_editor::TextEditor::new(),
+            txt_editor: text::TextEditor::new(),
             filename: "".to_string(),
         }
     }

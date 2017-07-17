@@ -55,15 +55,15 @@ def perftest(name, f, iterations):
 
 tests = [
     ('spr', spr_test, 200000),
-#    ("cls", cls, 1000000),
-#    ("small_rect", small_rect, 1000000),
-#    ("small_rectfill", small_rectfill, 1000000),
-#    ("large_rect", large_rect, 100000),
-#    ("large_rectfill", large_rectfill, 10000),
-#    ("text", text, 100000),
-#    ("line", line_test, 100000),
-#    ("circ", circ_test, 100000),
-#    ("circfill", circfill_test, 10000),
+    ("cls", cls, 1000000),
+    ("small_rect", small_rect, 1000000),
+    ("small_rectfill", small_rectfill, 1000000),
+    ("large_rect", large_rect, 100000),
+    ("large_rectfill", large_rectfill, 10000),
+    ("text", text, 100000),
+    ("line", line_test, 100000),
+    ("circ", circ_test, 100000),
+    ("circfill", circfill_test, 10000),
 ]
 
 

@@ -362,6 +362,7 @@ impl Screen {
         self.frame_buffer.copy_from_slice(&self.saved_frame_buffer);
     }
 
+    #[inline]
     pub fn _find_color(&mut self, col: i32) -> u32 {
         if col == -1 { self.color } else { col as u32 }
     }
@@ -394,10 +395,12 @@ impl Screen {
         }
     }
 
+    #[inline]
     pub fn pixel_offset(&self, x: i32, y: i32) -> usize {
         (x as usize) + ((y as usize) * self.width)
     }
 
+    #[inline]
     pub fn putpixel_direct(&mut self, x: i32, y: i32, col: u32) {
         if x < 0 || y < 0 || x >= self.width as i32 || y >= self.height as i32 {
             return;
@@ -407,6 +410,7 @@ impl Screen {
         self.frame_buffer[offset] = col as u8;
     }
 
+    #[inline]
     pub fn putpixel_(&mut self, x: i32, y: i32, col: u32) {
         // Make camera adjustment
         let x = x - self.camera.x;
@@ -423,6 +427,7 @@ impl Screen {
         self.frame_buffer[offset] = draw_col;
     }
 
+    #[inline]
     pub fn color(&mut self, col: i32) {
         if (col >= 0) && (col <= 255) {
             self.color = col as u32;
@@ -440,10 +445,12 @@ impl Screen {
         }
     }
 
+    #[inline]
     pub fn putpixel(&mut self, x: i32, y: i32, col: u32) {
         self.putpixel_(x, y, col);
     }
 
+    #[inline]
     pub fn getpixel(&mut self, x: usize, y: usize) -> u32 {
         let x = (x as i32 - self.camera.x) as usize;
         let y = (y as i32 - self.camera.y) as usize;
@@ -522,6 +529,7 @@ impl Screen {
         self._print(string, x, y, col, false);
     }
 
+    #[inline]
     pub fn _print(&mut self, string: String, x: i32, y: i32, col: i32, force: bool) {
         let mut x = x;
         let y = y + self.font.top_bearing;
@@ -1215,6 +1223,7 @@ impl Screen {
         }
     }
 
+    #[inline]
     pub fn is_transparent(&self, value: u32) -> bool {
         if value <= 255 {
             self.transparency_map[value as usize]
