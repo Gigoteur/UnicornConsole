@@ -27,12 +27,6 @@ pub mod plugin {
         pub sound: Arc<Mutex<Sound>>,
     }
 
-    #[derive(Clone, Debug)]
-    pub enum LuaPluginError {
-        //ThreadStatus(String),
-        //Other(String),
-    }
-
     pub struct LuaPlugin {
         lua_state: Arc<Mutex<lua::State>>,
         loaded_code: bool,
@@ -81,8 +75,11 @@ pub mod plugin {
             lua_state.pop(2);
 
             /* Create the PX8Lua object */
-            lua_state.do_string("PX8Object = PX8Lua.new()");
-            lua_state.do_string(r#"debug_print = print"#);
+            let value = lua_state.do_string("PX8Object = PX8Lua.new()");
+            info!("[PLUGIN][LUA][PX8][CREATE PX8 OBJECT] = {:?}", value);
+
+            let value = lua_state.do_string(r#"debug_print = print"#);
+            info!("[PLUGIN][LUA][PX8][EXPORT DEBUG PRINT FUNCTION] = {:?}", value);
 
             /* Audio */
             /* Music */
@@ -717,8 +714,7 @@ pub mod plugin {
             info!("[PLUGIN][LUA][PX8][PRINT] = {:?}", value);
 
             let value = lua_state.do_string(r#"time = function()
-                v  = PX8Object:time()
-                return v
+                return PX8Object:time()
               end
               "#);
             info!("[PLUGIN][LUA][PX8][TIME] = {:?}", value);
@@ -794,37 +790,6 @@ pub mod plugin {
                 log(debug.traceback("WARNING: "..msg,3))
               end
 
-
-               function min(a,b)
-                    if a == nil or b == nil then
-                            warning("min a or b are nil returning 0")
-                            return 0
-                    end
-                    if a < b then
-                        return a
-                    end
-                    return b
-                end
-
-                function max(a,b)
-                        if a == nil or b == nil then
-                                warning("max a or b are nil returning 0")
-                                return 0
-                        end
-                        if a > b then
-                            return a
-                        end
-                        return b
-                end
-
-                function mid(x,y,z)
-                        x = x or 0
-                        y = y or 0
-                        z = z or 0
-                        return x > y and x or y > z and z or y
-                end
-
-
               function add(a,v)
                 if a == nil then
                   warning("add to nil")
@@ -869,11 +834,40 @@ pub mod plugin {
                     end
                 end
               end
+
+              sub = string.sub
               "#);
-            info!("[PLUGIN][LUA] LOADED MIN/MAX FUNCTIONS = {:?}", value);
+            info!("[PLUGIN][LUA] LOADED LUA FUNCTIONS = {:?}", value);
 
             let value = lua_state.do_string(r#"
+            function min(a,b)
+                if a == nil or b == nil then
+                        warning("min a or b are nil returning 0")
+                        return 0
+                end
+                if a < b then
+                    return a
+                end
+                return b
+            end
 
+            function max(a,b)
+                if a == nil or b == nil then
+                        warning("max a or b are nil returning 0")
+                        return 0
+                end
+                if a > b then
+                    return a
+                end
+                return b
+            end
+
+            function mid(x,y,z)
+                x = x or 0
+                y = y or 0
+                z = z or 0
+                return x > y and x or y > z and z or y
+            end
             function __pico_angle(a)
               -- FIXME: why does this work?
               return (((a - math.pi) / (math.pi*2)) + 0.25) % 1.0
@@ -926,11 +920,8 @@ pub mod plugin {
               y = math.floor(y)
               return x >> y
             end
-
-            sub = string.sub
             "#);
-
-            info!("[PLUGIN][LUA] LOADED FUNCTIONS = {:?}", value);
+            info!("[PLUGIN][LUA] LOADED MATH FUNCTIONS = {:?}", value);
         }
 
         pub fn init(&mut self) {
