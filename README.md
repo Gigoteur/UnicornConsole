@@ -15,9 +15,9 @@
 
   * [Demos](#demos)
   * [Download](#download)
+    + [Build](#build)
     + [Binaries](#binaries)
   * [Requirements](#requirements)
-  * [Build](#build)
   * [Resolution](#resolution)
   * [Coordinate System](#coordinate-system)
   * [Keyboard Shortcut](#keyboard-shortcut)
@@ -108,6 +108,24 @@ git clone https://github.com/Gigoteur/PX8.git
 cd PX8
 ```
 
+
+### Build
+
+**The first thing to do is to install Rust, so please go to [rustup](https://www.rustup.rs/) and follow all instructions.**
+
+The build is the same for all platforms (Linux/OSX/Windows).
+
+You must build PX8 with cargo directly in release mode to have the best perf. And you can choose to disable the following plugins for the cartridge:
+  * cpython
+  * px8_plugin_lua (rust-lua53 with modification)
+
+
+For example to have all features:
+
+```
+cargo build --features="cpython px8_plugin_lua" --release 
+```
+
 ### Binaries
 
 Or you can get latest binaries for multiples platforms directly on [itch.io](https://hallucino.itch.io/px8).
@@ -134,7 +152,7 @@ Packages for Debian/Ubuntu:
 
 ##### Raspberry Pi
 
-Please enable the GL Driver (7 - Advanced Options -> Ac - GL Driver -> Yes) via:
+Please enable the GL Driver to speed up the console (7 - Advanced Options -> Ac - GL Driver -> Yes) via:
 ```
 sudo raspi-config
 ```
@@ -148,24 +166,6 @@ Install external dependencies via brew:
    
 Right now you need to export the DYLD_FALLBACK_LIBRARY_PATH env variable for the python support, e.g:
    * export DYLD_FALLBACK_LIBRARY_PATH=/usr/local/Cellar/python3/3.5.1/Frameworks/Python.framework/Versions/3.5/lib
-
-
-## Build
-
-**The first thing to do is to install Rust, so please go to [rustup](https://www.rustup.rs/) and follow all instructions.**
-
-The build is the same for all platforms (Linux/OSX/Windows).
-
-You must build PX8 with cargo directly in release mode to have the best perf. And you can choose to disable the following plugins for the cartridge:
-  * cpython
-  * px8_plugin_lua (rust-lua53 with modification)
-
-
-For example to have all features:
-
-```
-cargo build --features="cpython px8_plugin_lua" --release 
-```
 
 
 
@@ -218,7 +218,7 @@ System shortcut:
   * F3: Take a screenshot (png)
   * F4: Take a video (gif)
   * F5: Save the current cartridge's data (if opened with editor mode)
-  * F6: Switch between editor/play mode (if opened with editor mode)
+  * F6: Switch between editor/play mode
   * F7: Switch to the next available palette
   
 ## Run a cartridge
@@ -249,7 +249,7 @@ or some fancy demos:
 
 ## Edit a cartridge
 
-You can edit the GFX in the cartridge by using the specific '-e' option, and alternate between the run mode and the editor with 'F6':
+You can edit directly the GFX (Sprites + Map) with the 'F6' hotkey (to alternate between the run mode and the editor), or to open the cartridge by using the specific '-e' option:
 ```
 ./target/release/px8 -s 4 -e ./games/ski/ski.px8
 ```
@@ -287,6 +287,8 @@ You will be able to find more technical documentation in the [wiki](https://gith
 
 ### Python
 
+The syntax of Python program is exactly the same that the Python 3.
+
 You can create a classical Python program, all you need is to define the previous functions (_init, _update, _draw), and you can import any packages.
 
 
@@ -302,6 +304,10 @@ def _draw():
 ```
 
 ### Lua
+
+This is a modified version of Lua 5.3.4 that supports:
+  * Compound-assignment operators (+=,-=,*=,/=,%=)
+
 
 ```lua
 function _init()
