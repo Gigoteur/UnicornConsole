@@ -525,6 +525,11 @@ impl Screen {
         self._print(string, x, y, col, true);
     }
 
+
+    pub fn print_char(&mut self, data: char, x: i32, y: i32, col: i32) {
+        self._print(data.to_string(), x, y, col, false);
+    }
+
     pub fn print(&mut self, string: String, x: i32, y: i32, col: i32) {
         self._print(string, x, y, col, false);
     }

@@ -124,7 +124,7 @@ impl CartridgeLua {
                 let re = Regex::new(r"if\(_update60").unwrap();
                 if re.is_match(&line) {
                     debug!("REMOVE update60");
-
+                    
                     line.clear();
                 }
             }

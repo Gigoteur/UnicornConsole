@@ -995,9 +995,7 @@ pub struct GFXEditor {
 }
 
 impl GFXEditor {
-    pub fn new() -> GFXEditor {
-        let state = Arc::new(Mutex::new(State::new()));
-
+    pub fn new(state: Arc<Mutex<State>>) -> GFXEditor {
         let mut widgets = Vec::new();
         let mut highlight = HashMap::new();
         highlight.insert(6, 10);
@@ -1048,7 +1046,6 @@ impl GFXEditor {
     }
 
     pub fn draw(&mut self, players: Arc<Mutex<Players>>, screen: &mut Screen) {
-        self.state.lock().unwrap().update(players.clone());
         self.sm.update(screen);
         match self.state_editor {
             EditorState::SPRITE_EDITOR => {

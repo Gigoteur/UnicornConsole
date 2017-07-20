@@ -19,6 +19,7 @@ pub fn point_in_rect(x: i32,
     (coord_x1 <= x && x < coord_x2) && (coord_y1 <= y && y < coord_y2)
 }
 
+#[derive(Clone, Copy)]
 pub struct State {
     mouse_x: i32,
     mouse_y: i32,
@@ -183,35 +184,73 @@ pub enum STATE {
 }
 
 pub struct Editor {
-    state: STATE,
+    state: Arc<Mutex<State>>,
+    state_editor: STATE,
     gfx_editor: gfx_editor::GFXEditor,
     txt_editor: text::TextEditor,
     filename: String,
+    widgets: Vec<Arc<Mutex<Widget>>>,
 }
 
 impl Editor {
     pub fn new() -> Editor {
+        let state = Arc::new(Mutex::new(State::new()));
+        let mut highlight = HashMap::new();
+        highlight.insert(6, 10);
+
+        let mut widgets = Vec::new();
+        widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(),
+                                                     "GFX".to_string(),
+                                                     128,
+                                                     1,
+                                                     8,
+                                                     6,
+                                                     vec![11, 11, 11, 6, 6, 11, 11, 11,
+                                                          11, 11, 11, 6, 6, 11, 11, 11,
+                                                          11, 6, 6, 6, 6, 6, 6, 11,
+                                                          11, 6, 6, 6, 6, 6, 6, 11,
+                                                          11, 11, 11, 6, 6, 11, 11, 11,
+                                                          11, 11, 11, 6, 6, 11, 11, 11],
+                                                     highlight.clone(),
+                                                     true))));
+        widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(),
+                                                     "TEXT".to_string(),
+                                                     140,
+                                                     1,
+                                                     8,
+                                                     6,
+                                                     vec![6, 11, 11, 11, 11, 11, 11, 6, 11, 6,
+                                                          6, 6, 6, 6, 6, 11, 11, 6, 11, 11,
+                                                          11, 11, 6, 11, 11, 6, 11, 11, 11,
+                                                          11, 6, 11, 11, 6, 6, 6, 6, 6, 6, 11,
+                                                          6, 11, 11, 11, 11, 11, 11, 6],
+                                                     highlight.clone(),
+                                                     false))));
+
         Editor {
-            state: STATE::GFX_EDITOR,
-            gfx_editor: gfx_editor::GFXEditor::new(),
-            txt_editor: text::TextEditor::new(),
+            state: state.clone(),
+            state_editor: STATE::GFX_EDITOR,
+            gfx_editor: gfx_editor::GFXEditor::new(state.clone()),
+            txt_editor: text::TextEditor::new(state.clone()),
             filename: "".to_string(),
+            widgets: widgets,
         }
     }
 
-    pub fn init(&mut self, config: Arc<Mutex<PX8Config>>, screen: &mut Screen, filename: String) {
+    pub fn init(&mut self, config: Arc<Mutex<PX8Config>>, screen: &mut Screen, filename: String, code: String) {
         info!("[EDITOR] Init {:?}", filename);
-        self.filename = filename;
+        self.filename = filename.clone();
         config.lock().unwrap().toggle_mouse(true);
 
         screen.mode(240, 236, 1.);
         screen.font("pico-8");
 
         self.gfx_editor.init(config.clone(), screen);
-        self.txt_editor.init(config.clone(), screen);
+        self.txt_editor.init(config.clone(), screen, filename.clone(), code);
     }
 
     pub fn update(&mut self, players: Arc<Mutex<Players>>) -> bool {
+        self.state.lock().unwrap().update(players.clone());
         true
     }
 
@@ -229,7 +268,26 @@ impl Editor {
         // Print current filename
         screen.print(self.filename.clone(), 0, 0, 7);
 
-        match self.state {
+        for widget in &self.widgets {
+            widget.lock().unwrap().reset();
+            widget.lock().unwrap().update();
+        }
+        for widget in &self.widgets {
+            let is_click = widget.lock().unwrap().is_click();
+            if is_click {
+                if widget.lock().unwrap().name == "GFX" {
+                    self.state_editor = STATE::GFX_EDITOR;
+                }
+                if widget.lock().unwrap().name == "TEXT" {
+                    self.state_editor = STATE::TEXT_EDITOR;
+                }
+            }
+        }
+        for widget in &self.widgets {
+            widget.lock().unwrap().draw(screen);
+        }
+
+        match self.state_editor {
             STATE::GFX_EDITOR => {
                 self.gfx_editor.draw(players, screen);
             }

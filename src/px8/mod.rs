@@ -1103,7 +1103,7 @@ impl PX8 {
                           self.noise.clone(),
                           self.sound.clone());
 
-                ret = cartridge.lua_plugin.load_code(data);
+                ret = cartridge.lua_plugin.load_code(data.clone());
             }
             Code::PYTHON => {
                 info!("[PX8] Loading PYTHON Plugin");
@@ -1118,7 +1118,7 @@ impl PX8 {
                           self.noise.clone(),
                           self.configuration.clone());
 
-                ret = cartridge.python_plugin.load_code(data);
+                ret = cartridge.python_plugin.load_code(data.clone());
             }
             _ => (),
         }
@@ -1145,7 +1145,8 @@ impl PX8 {
                 self.editor
                     .init(self.configuration.clone(),
                           &mut self.screen.lock().unwrap(),
-                          String::from(filename));
+                          String::from(filename),
+                          data.clone());
                 self.state = PX8State::EDITOR;
             } else {
                 self.state = PX8State::RUN;
@@ -1280,10 +1281,13 @@ impl PX8 {
 
             let filename = self.menu.get_current_filename().clone();
 
+            let code = self.cartridges[self.current_cartridge].get_code();
+
             self.editor
                 .init(self.configuration.clone(),
                       &mut self.screen.lock().unwrap(),
-                      filename);
+                      filename,
+                      code);
             self.editing = true;
             self.state = PX8State::EDITOR;
         }
