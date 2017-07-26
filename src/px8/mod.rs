@@ -937,20 +937,17 @@ impl PX8 {
             info!("[PX8] Creating ImageBuffer {:?}", buffer.len());
 
             let image =
-                image::ImageBuffer::from_raw(screen.width as u32, screen.height as u32, buffer)
+                image::ImageBuffer::from_raw(screen.height as u32, screen.width as u32, buffer)
                     .unwrap();
 
             info!("[PX8] Rotating image");
             let image = image::DynamicImage::ImageRgb8(image)
-                .rotate90()
-                .resize((screen.width * scale) as u32,
-                        (screen.height * scale) as u32,
-                        image::FilterType::Nearest)
-                .fliph();
+                .rotate270()
+                .flipv();
 
             info!("[PX8] Creating gif Frame");
-            let mut frame = gif::Frame::from_rgb((screen.width * scale) as u16,
-                                                 (screen.height * scale) as u16,
+            let mut frame = gif::Frame::from_rgb(screen.width as u16,
+                                                 screen.height as u16,
                                                  &image.raw_pixels());
 
             frame.delay = 1;
@@ -961,30 +958,30 @@ impl PX8 {
     }
 
     pub fn screenshot(&mut self, filename: &str) {
-        info!("[PX8] Taking screenshot in {:?}", filename);
-
         let mut screen = &mut self.screen.lock().unwrap();
 
-        let mut buffer: Vec<u8> = Vec::new();
+        info!("[PX8] Taking screenshot {:?}x{:?} in {:?}", screen.width, screen.height, filename);
 
+        let mut buffer: Vec<u8> = vec![0; (screen.width*screen.height) * 3];
+
+        let mut idx = 0;
         for x in 0..screen.width {
             for y in 0..screen.height {
                 let value = screen.pget(x as u32, y as u32);
                 let rgb_value = PALETTE.lock().unwrap().get_rgb(value);
 
-                buffer.push(rgb_value.r);
-                buffer.push(rgb_value.g);
-                buffer.push(rgb_value.b);
+                buffer[idx] = rgb_value.r;
+                buffer[idx + 1] = rgb_value.g;
+                buffer[idx + 2] = rgb_value.b;
+                
+                idx += 3;
             }
         }
 
-        let image = image::ImageBuffer::from_raw(screen.width as u32, screen.height as u32, buffer)
+        let image = image::ImageBuffer::from_raw(screen.height as u32, screen.width as u32, buffer)
             .unwrap();
         let image = image::DynamicImage::ImageRgb8(image)
             .rotate270()
-            .resize((screen.width * 4) as u32,
-                    (screen.height * 4) as u32,
-                    image::FilterType::Nearest)
             .flipv();
 
         let mut output = File::create(&Path::new(filename)).unwrap();

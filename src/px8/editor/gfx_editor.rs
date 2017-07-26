@@ -50,9 +50,9 @@ impl Button {
 
     pub fn draw(&mut self, screen: &mut Screen) {
         screen.rectfill(self.x1, self.y1, self.x2, self.y2, self.color as i32);
-        let mut color = 3;
+        let mut color = 1;
         if self.clicked {
-            color = 1;
+            color = 7;
         }
         screen.print(self.text.clone(), self.x1 + 1, self.y1, color);
     }
