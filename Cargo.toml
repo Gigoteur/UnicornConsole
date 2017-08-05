@@ -59,3 +59,7 @@ features = ["debug_resolve"]
 version = "0.27.2"
 default-features = false
 features=["mixer"]
+
+[dependencies.chiptune]
+version="0.0.1"
+git="https://github.com/Gigoteur/chiptune-rs"

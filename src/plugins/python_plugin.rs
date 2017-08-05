@@ -19,6 +19,13 @@ pub mod plugin {
     py_class!(class PX8Audio |py| {
     data sound: Arc<Mutex<Sound>>;
 
+    // Chiptune
+    
+    def chiptune_play(&self, filetype: i32, filename: String, loops: i32, start_position: i32) -> PyResult<i32> {
+        self.sound(py).lock().unwrap().chiptune_play(filetype, filename, loops, start_position);
+        Ok(0)
+    }
+
     // Music
     def music_load(&self, filename: String) -> PyResult<i32> {
         Ok(self.sound(py).lock().unwrap().load(filename))

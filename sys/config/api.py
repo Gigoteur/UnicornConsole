@@ -4,6 +4,9 @@ from math import frexp, copysign
 from sys import float_info
 
 # Audio
+def chiptune_play(filetype, filename, loops, start_position):
+    return px8_audio.chiptune_play(filetype, filename, loops, start_position)
+
 def music_load(filename):
     return px8_audio.music_load(filename)
 
@@ -46,6 +49,7 @@ def sound_volume(volume, channel=-1):
 def sound_isplaying(channel=-1):
     return px8_audio.sound_isplaying(channel)
 
+globals()["chiptune_play"] = chiptune_play
 globals()["music_load"] = music_load
 globals()["music_play"] = music_play
 globals()["music_stop"] = music_stop

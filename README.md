@@ -233,12 +233,12 @@ You should be able to run it directly by providing the path of the cartridge:
 
 You could run the API demos:
 ```
-./target/release/px8 -s 4 ./examples/api_demos.py 
+./target/release/px8 -s 4 ./examples/api_demos.p8
 ```
 
 or some fancy demos:
 ```
-./target/release/px8 -s 4 ./examples/demos.py
+./target/release/px8 -s 4 ./examples/demos.p8
 ./target/release/px8 -s 4 ./examples/voxel/voxel.px8
 ./target/release/px8 -s 4 ./examples/pong/pong.px8
 ./target/release/px8 -s 4 ./games/ski/ski.px8

@@ -5,6 +5,7 @@
 WAV_FILE = "./examples/assets/piano.wav"
 SOUND_GUN_FILE = "./examples/assets/gun.wav"
 SOUND_FIREWORKS_FILE = "./examples/assets/fireworks.wav"
+KLYSTRACK_MUSIC = "./examples/assets/AmsterdamBoppe.kto"
 
 class Button(object):
     def __init__(self, x1, y1, x2, y2, color, text, highlight=False):
@@ -75,6 +76,7 @@ MENU = {
 
 def _init():
     show_mouse()
+    chiptune_play(0, KLYSTRACK_MUSIC, 0, 0)
     music_load(WAV_FILE)
     sound_load(SOUND_GUN_FILE)
     sound_load(SOUND_FIREWORKS_FILE)

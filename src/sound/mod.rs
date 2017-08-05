@@ -1,8 +1,11 @@
 pub mod song;
 
+
 pub mod sound {
     use std::sync::mpsc;
     use px8::packet;
+
+    use chiptune;
 
     use std::collections::HashMap;
     use sdl2;
@@ -10,6 +13,9 @@ pub mod sound {
     use std::sync::{Arc, Mutex};
 
     pub struct SoundInternal {
+        player: chiptune::Chiptune,
+        chiptune_song_tracks: HashMap<String, chiptune::ChiptuneSong>,
+        chiptune_sound_tracks: HashMap<String, chiptune::ChiptuneSound>,
         music_tracks: HashMap<String, mixer::Music>,
         sound_tracks: HashMap<String, mixer::Chunk>,
         pub csend: mpsc::Sender<Vec<u8>>,
@@ -21,6 +27,9 @@ pub mod sound {
             let (csend, crecv) = mpsc::channel();
 
             SoundInternal {
+                player: chiptune::Chiptune::new(),
+                chiptune_song_tracks: HashMap::new(),
+                chiptune_sound_tracks: HashMap::new(),
                 music_tracks: HashMap::new(),
                 sound_tracks: HashMap::new(),
                 csend: csend,
@@ -29,17 +38,6 @@ pub mod sound {
         }
 
         pub fn init(&mut self) {
-            let _ = mixer::init(mixer::INIT_MP3 | mixer::INIT_FLAC | mixer::INIT_MOD |
-                                mixer::INIT_FLUIDSYNTH |
-                                mixer::INIT_MODPLUG |
-                                mixer::INIT_OGG)
-                    .unwrap();
-            mixer::open_audio(mixer::DEFAULT_FREQUENCY,
-                              mixer::DEFAULT_FORMAT,
-                              mixer::DEFAULT_CHANNELS,
-                              1024)
-                    .unwrap();
-            mixer::allocate_channels(16);
             info!("query spec => {:?}", sdl2::mixer::query_spec());
         }
 
@@ -63,6 +61,50 @@ pub mod sound {
             for sound_packet in self.crecv.try_iter() {
                 debug!("[SOUND] PACKET {:?}", sound_packet);
                 match packet::read_packet(sound_packet).unwrap() {
+                    // Chiptune
+                    packet::Packet::ChiptunePlay(res) => {
+                        let filename = res.filename.clone();
+                        // New song -> Load it before
+                        if res.filetype == 0 {
+                            if !self.chiptune_song_tracks.contains_key(&filename) {
+                                   let song = self.player.load_song(filename.clone());
+                                    match song {
+                                        Ok(chip_song) => {
+                                            self.chiptune_song_tracks.insert(filename.clone(), chip_song);
+                                        }
+
+                                        Err(e) => error!("ERROR to load the song {:?}", e),
+                                    }
+                            }
+                            match self.chiptune_song_tracks.get_mut(&filename) {
+                                Some(mut song) => {
+                                    self.player.play_song(&mut song, res.start_position);
+                                    self.player.set_looping(res.loops);
+                                }
+                                None => {},
+                            }
+                        }
+
+                        // New sound effect
+                        if res.filetype == 1 {
+                            if !self.chiptune_sound_tracks.contains_key(&filename) {
+                                   let sound = self.player.load_sound(filename.clone());
+                                    match sound {
+                                        Ok(chip_sound) => {
+                                            self.chiptune_sound_tracks.insert(filename.clone(), chip_sound);
+                                        }
+
+                                        Err(e) => error!("ERROR to load the song {:?}", e),
+                                    }
+                            }
+                            match self.chiptune_sound_tracks.get_mut(&filename) {
+                                Some(mut sound) => {
+                                    self.player.play_sound(&mut sound);
+                                }
+                                None => {},
+                            }
+                        }
+                    }
                     // Music
                     packet::Packet::LoadMusic(res) => {
                         let filename = res.filename.clone();
@@ -139,6 +181,15 @@ pub mod sound {
                 csend: csend,
                 channels: [false; 16],
             }
+        }
+
+        pub fn chiptune_play(&mut self, filetype: i32, filename: String, loops: i32, start_position: i32) {
+            debug!("[SOUND] Chiptune PLAY {:?}", filename);
+            let p = packet::ChiptunePlay { filetype: filetype,
+                                           filename: filename,
+                                           loops: loops,
+                                           start_position: start_position };
+            self.csend.send(packet::write_packet(p).unwrap()).unwrap();
         }
 
         // Music

@@ -10,6 +10,8 @@ extern crate dyon;
 extern crate sdl2;
 extern crate getopts;
 
+extern crate chiptune;
+
 extern crate nalgebra;
 
 extern crate image;
