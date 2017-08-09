@@ -7,7 +7,7 @@ import random
 # Original code is here: http://tic.computer/play?cart=122
 
 def _init():
-    pass
+    mode
 
 def _update():
     pass

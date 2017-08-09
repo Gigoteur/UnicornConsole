@@ -636,7 +636,7 @@ pub struct PX8 {
     pub screen: Arc<Mutex<gfx::Screen>>,
     pub info: Arc<Mutex<info::Info>>,
     pub sound: Arc<Mutex<Sound>>,
-    pub sound_internal: SoundInternal,
+    pub sound_internal: Arc<Mutex<SoundInternal>>,
     pub palettes: Arc<Mutex<Palettes>>,
     pub players: Arc<Mutex<Players>>,
     pub configuration: Arc<Mutex<PX8Config>>,
@@ -666,8 +666,8 @@ impl PX8 {
     pub fn new() -> PX8 {
         info!("[PX8] Creating new PX8");
 
-        let sound_internal = SoundInternal::new();
-        let csend = sound_internal.csend.clone();
+        let sound_internal = Arc::new(Mutex::new(SoundInternal::new()));
+        let csend = sound_internal.lock().unwrap().csend.clone();
 
         PX8 {
             screen: Arc::new(Mutex::new(gfx::Screen::new(128, 128))),
@@ -702,16 +702,16 @@ impl PX8 {
 
     pub fn setup(&mut self) {
         info!("[PX8] Setup");
-        self.sound_internal.init();
+        self.sound_internal.lock().unwrap().init();
         self.reset();
     }
 
     pub fn update_sound(&mut self) {
-        self.sound_internal.update(self.sound.clone());
+        self.sound_internal.lock().unwrap().update(self.sound.clone());
     }
 
     pub fn stop(&mut self) {
-        self.sound_internal.stop();
+        self.sound_internal.lock().unwrap().stop();
     }
 
     #[cfg_attr(rustfmt, rustfmt_skip)]
@@ -789,7 +789,7 @@ impl PX8 {
                 if self.pause_menu.quit() {
                     self.menu.reset();
                     self.state = PX8State::INTERACTIVE;
-                    self.sound_internal.stop();
+                    self.sound_internal.lock().unwrap().stop();
                 }
 
                 return self.pause_menu.update(self.players.clone());
@@ -830,7 +830,7 @@ impl PX8 {
             }
             PX8State::EDITOR => {
                 self.draw_time = self.editor
-                    .draw(self.players.clone(), &mut self.screen.lock().unwrap()) *
+                    .draw(self.players.clone(), &mut self.screen.lock().unwrap(), self.sound_internal.clone()) *
                                  1000.0;
             }
         }
@@ -1045,13 +1045,13 @@ impl PX8 {
                     self.state = PX8State::RUN;
                 }
                 screen.restore();
-                self.sound_internal.resume();
+                self.sound_internal.lock().unwrap().resume();
             }
             PX8State::RUN => {
                 self.pause_menu.reset();
                 self.state = PX8State::PAUSE;
                 screen.save();
-                self.sound_internal.pause();
+                self.sound_internal.lock().unwrap().pause();
             }
             PX8State::INTERACTIVE => {
                 self.pause_menu.reset();
@@ -1062,7 +1062,7 @@ impl PX8 {
                 self.pause_menu.reset();
                 self.state = PX8State::PAUSE;
                 screen.save();
-                self.sound_internal.pause();
+                self.sound_internal.lock().unwrap().stop();
             }
         }
         info!("[PX8] End Switch pause");
@@ -1287,6 +1287,7 @@ impl PX8 {
                       code);
             self.editing = true;
             self.state = PX8State::EDITOR;
+            self.sound_internal.lock().unwrap().stop();
         }
     }
 

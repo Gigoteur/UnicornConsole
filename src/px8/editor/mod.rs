@@ -1,4 +1,5 @@
 pub mod gfx_editor;
+pub mod music_editor;
 pub mod text;
 
 use gfx::Screen;
@@ -6,6 +7,8 @@ use config::Players;
 use std::sync::{Arc, Mutex};
 use std::collections::HashMap;
 use time;
+
+use sound::sound::SoundInternal;
 
 use px8::PX8Config;
 
@@ -188,6 +191,7 @@ pub struct Editor {
     state_editor: STATE,
     gfx_editor: gfx_editor::GFXEditor,
     txt_editor: text::TextEditor,
+    music_editor: music_editor::MusicEditor,
     filename: String,
     widgets: Vec<Arc<Mutex<Widget>>>,
 }
@@ -227,11 +231,27 @@ impl Editor {
                                                      highlight.clone(),
                                                      false))));
 
+        widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(),
+                                                     "MUSIC".to_string(),
+                                                     152,
+                                                     1,
+                                                     8,
+                                                     6,
+                                                     vec![11, 11, 11, 6, 6, 11, 11, 11,
+                                                          11, 11, 6, 6, 6, 6, 11, 11,
+                                                          11, 6, 11, 11, 11, 11, 6, 11,
+                                                          11, 6, 11, 11, 11, 11, 6, 11,
+                                                          11, 11, 6, 6, 6, 6, 11, 11,
+                                                          11, 11, 11, 6, 6, 11, 11, 11],
+                                                     highlight.clone(),
+                                                     false))));
+
         Editor {
             state: state.clone(),
             state_editor: STATE::GFX_EDITOR,
             gfx_editor: gfx_editor::GFXEditor::new(state.clone()),
             txt_editor: text::TextEditor::new(state.clone()),
+            music_editor: music_editor::MusicEditor::new(state.clone()),
             filename: "".to_string(),
             widgets: widgets,
         }
@@ -247,6 +267,7 @@ impl Editor {
 
         self.gfx_editor.init(config.clone(), screen);
         self.txt_editor.init(config.clone(), screen, filename.clone(), code);
+        self.music_editor.init(config.clone(), screen);
     }
 
     pub fn update(&mut self, players: Arc<Mutex<Players>>) -> bool {
@@ -254,7 +275,7 @@ impl Editor {
         true
     }
 
-    pub fn draw(&mut self, players: Arc<Mutex<Players>>, screen: &mut Screen) -> f64 {
+    pub fn draw(&mut self, players: Arc<Mutex<Players>>, screen: &mut Screen, sound: Arc<Mutex<SoundInternal>>) -> f64 {
         let current_time = time::now();
 
         screen.cls();
@@ -277,9 +298,10 @@ impl Editor {
             if is_click {
                 if widget.lock().unwrap().name == "GFX" {
                     self.state_editor = STATE::GFX_EDITOR;
-                }
-                if widget.lock().unwrap().name == "TEXT" {
+                } else if widget.lock().unwrap().name == "TEXT" {
                     self.state_editor = STATE::TEXT_EDITOR;
+                } else if widget.lock().unwrap().name == "MUSIC" {
+                    self.state_editor = STATE::MUSIC_EDITOR;
                 }
             }
         }
@@ -294,7 +316,9 @@ impl Editor {
             STATE::TEXT_EDITOR => {
                 self.txt_editor.draw(players, screen);
             }
-            STATE::MUSIC_EDITOR => {}
+            STATE::MUSIC_EDITOR => {
+                self.music_editor.draw(players, screen, sound.clone());
+            }
         }
 
         let diff_time = time::now() - current_time;

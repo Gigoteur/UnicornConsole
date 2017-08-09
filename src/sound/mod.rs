@@ -14,7 +14,7 @@ pub mod sound {
 
     pub struct SoundInternal {
         player: chiptune::Chiptune,
-        chiptune_song_tracks: HashMap<String, chiptune::ChiptuneSong>,
+        chiptune_music_tracks: HashMap<String, chiptune::ChiptuneSong>,
         chiptune_sound_tracks: HashMap<String, chiptune::ChiptuneSound>,
         music_tracks: HashMap<String, mixer::Music>,
         sound_tracks: HashMap<String, mixer::Chunk>,
@@ -28,7 +28,7 @@ pub mod sound {
 
             SoundInternal {
                 player: chiptune::Chiptune::new(),
-                chiptune_song_tracks: HashMap::new(),
+                chiptune_music_tracks: HashMap::new(),
                 chiptune_sound_tracks: HashMap::new(),
                 music_tracks: HashMap::new(),
                 sound_tracks: HashMap::new(),
@@ -42,18 +42,24 @@ pub mod sound {
         }
 
         pub fn pause(&mut self) {
+            info!("[SOUND] Pause");
             sdl2::mixer::Music::pause();
             sdl2::mixer::channel(-1).pause();
+            self.player.pause(1);
         }
 
         pub fn resume(&mut self) {
+            info!("[SOUND] Resume");
             sdl2::mixer::Music::resume();
             sdl2::mixer::channel(-1).resume();
+            self.player.pause(0);
         }
 
         pub fn stop(&mut self) {
+            info!("[SOUND] Stop");
             sdl2::mixer::Music::halt();
             sdl2::mixer::channel(-1).halt();
+            self.player.stop();
         }
 
 
@@ -66,19 +72,19 @@ pub mod sound {
                         let filename = res.filename.clone();
                         // New song -> Load it before
                         if res.filetype == 0 {
-                            if !self.chiptune_song_tracks.contains_key(&filename) {
-                                   let song = self.player.load_song(filename.clone());
+                            if !self.chiptune_music_tracks.contains_key(&filename) {
+                                    let song = self.player.load_music(filename.clone());
                                     match song {
                                         Ok(chip_song) => {
-                                            self.chiptune_song_tracks.insert(filename.clone(), chip_song);
+                                            self.chiptune_music_tracks.insert(filename.clone(), chip_song);
                                         }
 
                                         Err(e) => error!("ERROR to load the song {:?}", e),
                                     }
                             }
-                            match self.chiptune_song_tracks.get_mut(&filename) {
+                            match self.chiptune_music_tracks.get_mut(&filename) {
                                 Some(mut song) => {
-                                    self.player.play_song(&mut song, res.start_position);
+                                    self.player.play_music(&mut song, res.start_position);
                                     self.player.set_looping(res.loops);
                                 }
                                 None => {},
@@ -88,7 +94,7 @@ pub mod sound {
                         // New sound effect
                         if res.filetype == 1 {
                             if !self.chiptune_sound_tracks.contains_key(&filename) {
-                                   let sound = self.player.load_sound(filename.clone());
+                                    let sound = self.player.load_sound(filename.clone());
                                     match sound {
                                         Ok(chip_sound) => {
                                             self.chiptune_sound_tracks.insert(filename.clone(), chip_sound);
@@ -99,12 +105,51 @@ pub mod sound {
                             }
                             match self.chiptune_sound_tracks.get_mut(&filename) {
                                 Some(mut sound) => {
-                                    self.player.play_sound(&mut sound);
+                                    self.player.play_sound(&mut sound, -1, 0, chiptune::CYD_PAN_CENTER);
                                 }
                                 None => {},
                             }
                         }
                     }
+                    packet::Packet::ChiptuneStop(res) => {
+                        if res.music == 1 && res.sound == 1 {
+                            self.player.stop();
+                        }
+
+                        if res.music == 1 && res.sound == 0 {
+                            self.player.stop_music();
+                        }
+
+                        if res.music == 0 && res.sound == 1 {
+                            self.player.stop_sound();
+                        }
+                    }
+                    packet::Packet::ChiptunePause(res) => {
+                        if res.music == 1 && res.sound == 1 {
+                            self.player.pause(1);
+                        }
+
+                        if res.music == 1 && res.sound == 0 {
+                            self.player.pause_music(1);
+                        }
+
+                        if res.music == 0 && res.sound == 1 {
+                            self.player.pause_sound(1);
+                        }
+                    }
+                    packet::Packet::ChiptuneResume(res) => {
+                        if res.music == 1 && res.sound == 1 {
+                            self.player.pause(0);
+                        }
+
+                        if res.music == 1 && res.sound == 0 {
+                            self.player.pause_music(0);
+                        }
+
+                        if res.music == 0 && res.sound == 1 {
+                            self.player.pause_sound(0);
+                        }
+                    }                    
                     // Music
                     packet::Packet::LoadMusic(res) => {
                         let filename = res.filename.clone();
@@ -183,12 +228,28 @@ pub mod sound {
             }
         }
 
+        // Chiptune
         pub fn chiptune_play(&mut self, filetype: i32, filename: String, loops: i32, start_position: i32) {
             debug!("[SOUND] Chiptune PLAY {:?}", filename);
-            let p = packet::ChiptunePlay { filetype: filetype,
-                                           filename: filename,
-                                           loops: loops,
-                                           start_position: start_position };
+            let p = packet::ChiptunePlay { filetype: filetype, filename: filename, loops: loops, start_position: start_position };
+            self.csend.send(packet::write_packet(p).unwrap()).unwrap();
+        }
+
+        pub fn chiptune_stop(&mut self, music: i32, sound: i32) {
+            debug!("[SOUND] Chiptune STOP");
+            let p = packet::ChiptuneStop { music: music, sound: sound };
+            self.csend.send(packet::write_packet(p).unwrap()).unwrap();
+        }
+
+        pub fn chiptune_pause(&mut self, music: i32, sound: i32) {
+            debug!("[SOUND] Chiptune Pause");
+            let p = packet::ChiptunePause { music: music, sound: sound };
+            self.csend.send(packet::write_packet(p).unwrap()).unwrap();
+        }
+
+        pub fn chiptune_resume(&mut self, music: i32, sound: i32) {
+            debug!("[SOUND] Chiptune Resume");
+            let p = packet::ChiptuneResume { music: music, sound: sound };
             self.csend.send(packet::write_packet(p).unwrap()).unwrap();
         }
 

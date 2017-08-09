@@ -5,6 +5,7 @@ __lua__
 -- Original code is here: http://tic.computer/play?cart=122
 
 function _init()
+    mode(320, 240)
 end
 
 function _update()
@@ -37,8 +38,8 @@ Items = {}
 Item = class(nil,"Stuff")
 
 function Item:__init()
-    self.x = math.random(10,128)
-    self.y = math.random(10,128)
+    self.x = math.random(10,320)
+    self.y = math.random(10,240)
     self.vx = math.random(-10,10) / 10.0
     self.vy = math.random(-10,10) / 10.0
     self.color = math.random(15)
@@ -49,11 +50,11 @@ function Item:update()
     self.x += self.vx
     self.y += self.vy
 
-    if self.x<0 or self.x>128 then
+    if self.x<0 or self.x>320 then
         self.vx = -self.vx
     end
-    if self.y>128 then
-        self.y = 128
+    if self.y>240 then
+        self.y = 240
         self.vy = -(math.random(100)/25.0)
     end
 
