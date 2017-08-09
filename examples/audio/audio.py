@@ -29,13 +29,27 @@ class Button(object):
     def is_click(self):
         return self.clicked
 
+class Text(object):
+    def __init__(self, x, y, color, text):
+        self.x = x
+        self.y = y
+        self.color = color
+        self.text = text
+
+    def update(self, x, y):
+        pass
+    
+    def draw(self):
+        px8_print(str(chiptune_position()), self.x, self.y, self.color)
+
 class InteractiveNumber(object):
-    def __init__(self, x, y, color):
+    def __init__(self, x, y, color, volume_fct):
         self.x = x
         self.y = y
         self.color = color
         self.value = 128
         self.text = 'Unknown'
+        self.volume_fct = volume_fct
 
         base_x_rect = self.x - 4
         base_y_rect = self.y - 4
@@ -57,7 +71,7 @@ class InteractiveNumber(object):
             self.value = min(128, self.value)
 
         if rect_min_clicked or rect_plus_clicked:
-            music_volume(self.value)
+            self.volume_fct(self.value)
 
     def draw(self):
         rectfill(self.rect_minus[0], self.rect_minus[1], self.rect_minus[2], self.rect_minus[3], self.color)
@@ -65,7 +79,7 @@ class InteractiveNumber(object):
         px8_print(str(self.value), self.rect_minus[0]-15, self.rect_minus[1]-4 , 7)
 
 WAV_MENU = {
-    'Volume': InteractiveNumber(18, 24, 7),
+    'Volume': InteractiveNumber(18, 24, 7, music_volume),
     'Play': Button(20, 20, 40, 28, 7, 'Play'),
     'Stop': Button(42, 20, 62, 28, 7, 'Stop'),
     'Pause': Button(64, 20, 84, 28, 7, 'Pause'),
@@ -75,13 +89,12 @@ WAV_MENU = {
 }
 
 CHIPTUNE_MENU = {
-    'Volume': InteractiveNumber(18, 74, 7),
+    'Volume': InteractiveNumber(18, 74, 7, chiptune_volume),
     'Play': Button(20, 70, 40, 78, 7, 'Play'),
     'Stop': Button(42, 70, 62, 78, 7, 'Stop'),
     'Pause': Button(64, 70, 84, 78, 7, 'Pause'),
     'Resume': Button(86, 70, 110, 78, 7, 'Resume'),
-   # 'Gun': Button(20, 30, 40, 38, 7, 'Gun'),
-   # 'Fireworks': Button(42, 30, 80, 38, 7, 'Fireworks'),
+    'Position': Text(8, 80, 7, 'Position'),
 }
 
 def _init():

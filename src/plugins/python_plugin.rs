@@ -40,7 +40,16 @@ pub mod plugin {
         self.sound(py).lock().unwrap().chiptune_resume(music, sound);
         Ok(0)
     }
-    
+
+    def chiptune_volume(&self, volume: i32) -> PyResult<i32> {
+        self.sound(py).lock().unwrap().chiptune_volume(volume);
+        Ok(0)
+    }
+
+    def chiptune_position(&self) -> PyResult<i32> {
+        Ok(self.sound(py).lock().unwrap().chiptune_get_position())
+    }
+
     // Music
     def music_load(&self, filename: String) -> PyResult<i32> {
         Ok(self.sound(py).lock().unwrap().load(filename))

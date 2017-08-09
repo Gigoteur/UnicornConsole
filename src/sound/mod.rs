@@ -149,7 +149,11 @@ pub mod sound {
                         if res.music == 0 && res.sound == 1 {
                             self.player.pause_sound(0);
                         }
-                    }                    
+                    }
+                    packet::Packet::ChiptuneVolume(res) => {
+                        self.player.set_volume(res.volume);
+                    }
+            
                     // Music
                     packet::Packet::LoadMusic(res) => {
                         let filename = res.filename.clone();
@@ -212,12 +216,15 @@ pub mod sound {
             for i in 0..16 {
                 sound.lock().unwrap().channels[i] = sdl2::mixer::channel(i as i32).is_playing();
             }
+
+            sound.lock().unwrap().chiptune_position = self.player.get_position();
         }
     }
 
     pub struct Sound {
         csend: mpsc::Sender<Vec<u8>>,
         channels: [bool; 16],
+        chiptune_position: i32,
     }
 
     impl Sound {
@@ -225,6 +232,7 @@ pub mod sound {
             Sound {
                 csend: csend,
                 channels: [false; 16],
+                chiptune_position: 0,
             }
         }
 
@@ -251,6 +259,16 @@ pub mod sound {
             debug!("[SOUND] Chiptune Resume");
             let p = packet::ChiptuneResume { music: music, sound: sound };
             self.csend.send(packet::write_packet(p).unwrap()).unwrap();
+        }
+
+        pub fn chiptune_volume(&mut self, volume: i32) {
+            debug!("[SOUND] Chiptune volume");
+            let p = packet::ChiptuneVolume { volume: volume };
+            self.csend.send(packet::write_packet(p).unwrap()).unwrap();
+        }
+
+        pub fn chiptune_get_position(&mut self) -> i32 {
+            self.chiptune_position
         }
 
         // Music
@@ -299,7 +317,6 @@ pub mod sound {
             let p = packet::VolumeMusic { volume: volume };
             self.csend.send(packet::write_packet(p).unwrap()).unwrap();
         }
-
 
         // Sound
         pub fn sound_load(&mut self, filename: String) -> i32 {

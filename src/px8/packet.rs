@@ -214,6 +214,9 @@ create_packets!(
         field music: i32 =,
         field sound: i32 =,
     }
+    packet ChiptuneVolume {
+        field volume: i32 =,
+    }
     packet LoadMusic {
         field filename: String =,
     }
