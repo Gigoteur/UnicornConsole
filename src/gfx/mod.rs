@@ -1177,22 +1177,25 @@ impl Screen {
 
         let mut ret = Vec::with_capacity((w2 * h2) as usize);
 
-        x_ratio = ((w1 << 16) / w2) + 1;
-        y_ratio = ((h1 << 16) / h2) + 1;
+        x_ratio = (w1 << 16) / w2;
+        y_ratio = (h1 << 16) / h2;
 
-        /*debug!("SSPR H1 {:?} W1 {:?} H2 {:?} W2 {:?} X RATIO {:?} Y RATIO {:?}",
+        /*debug!("SSPR H1 {:?} W1 {:?} H2 {:?} W2 {:?} X RATIO {:?} Y RATIO {:?} RET {:?} V {:?}",
                h1,
                w1,
                h2,
                w2,
                x_ratio,
-               y_ratio);*/
+               y_ratio,
+               ret.capacity(),
+               v.len());*/
 
         for i in 0..h2 {
             for j in 0..w2 {
                 x2 = (j * x_ratio) >> 16;
                 y2 = (i * y_ratio) >> 16;
-                ret.insert((i * w2 + j) as usize, v[(y2 * w1 + x2) as usize]);
+                let idx = (y2 * w1 + x2) as usize;
+                ret.insert((i * w2 + j) as usize, v[idx]);
             }
         }
 
@@ -1218,12 +1221,12 @@ impl Screen {
         for j in 0..h2 {
             for i in 0..w2 {
                 let d: u8 = ret[idx];
-                idx += 1;
                 if d != 0 {
                     if !self.is_transparent(d as u32) {
                         self.putpixel_(i as i32 + dx, j as i32 + dy, d as u32);
                     }
                 }
+                idx += 1;
             }
         }
     }

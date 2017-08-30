@@ -217,7 +217,7 @@ pub mod sound {
                 sound.lock().unwrap().channels[i] = sdl2::mixer::channel(i as i32).is_playing();
             }
 
-            sound.lock().unwrap().chiptune_position = self.player.get_position();
+            sound.lock().unwrap().chiptune_position = self.player.get_music_position();
         }
     }
 
