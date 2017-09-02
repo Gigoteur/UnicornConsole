@@ -21,8 +21,8 @@ pub mod plugin {
 
     // Chiptune
     
-    def chiptune_play(&self, filetype: i32, filename: String, loops: i32, start_position: i32) -> PyResult<i32> {
-        self.sound(py).lock().unwrap().chiptune_play(filetype, filename, loops, start_position);
+    def chiptune_play(&self, filetype: i32, channel: i32, filename: String, loops: i32, start_position: i32) -> PyResult<i32> {
+        self.sound(py).lock().unwrap().chiptune_play(filetype, channel, filename, loops, start_position);
         Ok(0)
     }
 

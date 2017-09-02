@@ -5,7 +5,9 @@
 WAV_FILE = "./examples/assets/piano.wav"
 SOUND_GUN_FILE = "./examples/assets/gun.wav"
 SOUND_FIREWORKS_FILE = "./examples/assets/fireworks.wav"
-KLYSTRACK_MUSIC = "./examples/assets/AmsterdamBoppe.kt"
+CHIPTUNE_MUSIC = "./examples/assets/AmsterdamBoppe.kt"
+CHIPTUNE_SOUND_1 = "./examples/assets/the_horror.ki"
+CHIPTUNE_SOUND_2 = "./examples/assets/clap.ki"
 
 class Button(object):
     def __init__(self, x1, y1, x2, y2, color, text, highlight=False):
@@ -95,6 +97,8 @@ CHIPTUNE_MENU = {
     'Pause': Button(64, 70, 84, 78, 7, 'Pause'),
     'Resume': Button(86, 70, 110, 78, 7, 'Resume'),
     'Position': Text(8, 80, 7, 'Position'),
+    'Sound1': Button(20, 80, 46, 88, 7, 'Sound1'),
+    'Sound2': Button(48, 80, 74, 88, 7, 'Sound2'),
 }
 
 def _init():
@@ -131,13 +135,17 @@ def _update():
         for item in CHIPTUNE_MENU.values():
             item.update(mousex, mousey)
             if item.text =='Play' and item.is_click():
-                chiptune_play(0, KLYSTRACK_MUSIC, 0, 0)
+                chiptune_play(0, CHIPTUNE_MUSIC, 0, 0)
             elif item.text =='Stop' and item.is_click():
                 chiptune_stop()
             elif item.text =='Pause' and item.is_click():
                 chiptune_pause()
             elif item.text =='Resume' and item.is_click():
                 chiptune_resume()
+            elif item.text =='Sound1' and item.is_click():
+                chiptune_play(1, CHIPTUNE_SOUND_1)
+            elif item.text =='Sound2' and item.is_click():
+                chiptune_play(1, CHIPTUNE_SOUND_2)
 
 def _draw():
     cls()

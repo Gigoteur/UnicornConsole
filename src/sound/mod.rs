@@ -105,7 +105,7 @@ pub mod sound {
                             }
                             match self.chiptune_sound_tracks.get_mut(&filename) {
                                 Some(mut sound) => {
-                                    self.player.play_sound(&mut sound, -1, 0, chiptune::CYD_PAN_CENTER);
+                                    self.player.play_sound(&mut sound, res.channel, 13312, chiptune::CYD_PAN_CENTER, 50);
                                 }
                                 None => {},
                             }
@@ -237,9 +237,9 @@ pub mod sound {
         }
 
         // Chiptune
-        pub fn chiptune_play(&mut self, filetype: i32, filename: String, loops: i32, start_position: i32) {
+        pub fn chiptune_play(&mut self, filetype: i32, channel: i32, filename: String, loops: i32, start_position: i32) {
             debug!("[SOUND] Chiptune PLAY {:?}", filename);
-            let p = packet::ChiptunePlay { filetype: filetype, filename: filename, loops: loops, start_position: start_position };
+            let p = packet::ChiptunePlay { filetype: filetype, channel: channel, filename: filename, loops: loops, start_position: start_position };
             self.csend.send(packet::write_packet(p).unwrap()).unwrap();
         }
 

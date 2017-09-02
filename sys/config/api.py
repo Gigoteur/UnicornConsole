@@ -4,9 +4,10 @@ from math import frexp, copysign
 from sys import float_info
 
 # Audio
-# Chiptune
-def chiptune_play(filetype, filename, loops, start_position):
-    px8_audio.chiptune_play(filetype, filename, loops, start_position)
+
+#@ Chiptune
+def chiptune_play(filetype, filename, loops=0, start_position=0, channel=-1):
+    px8_audio.chiptune_play(filetype, channel, filename, loops, start_position)
 
 def chiptune_stop(music=1, sound=1):
     px8_audio.chiptune_stop(music, sound)
@@ -23,7 +24,7 @@ def chiptune_volume(volume):
 def chiptune_position():
     return px8_audio.chiptune_position()
 
-# Classic music
+## Classic music
 def music_load(filename):
     return px8_audio.music_load(filename)
 
