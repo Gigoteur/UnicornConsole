@@ -6,9 +6,6 @@ __lua__
 -- how to make firework-style
 -- particles
 
-sound_load("./examples/assets/fireworks.wav")
-
-
 function _init()
  -- crate a table for
  -- particles
@@ -38,7 +35,7 @@ function _draw()
 end
 
 function boom(_x,_y)
- sound_play("./examples/assets/fireworks.wav")
+ chiptune_play(1, "./examples/assets/clap.ki")
 
  -- crate 100 particles at a location
  for i=0,100 do

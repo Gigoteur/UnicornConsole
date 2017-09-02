@@ -126,6 +126,24 @@ pub mod plugin {
             info!("[PLUGIN][LUA][PX8][MUSIC_VOLUME] = {:?}", value);
 
             /* Sound */
+            let value = lua_state.do_string(r#"chiptune_play = function(filetype, filename, loops, start_position, channel)
+              if start_position == nil then
+                start_position = 0
+              end
+
+              if loops == nil then
+                loops = 0
+              end
+
+              if channel == nil then
+                channel = -1
+              end
+
+              PX8Object:chiptune_play(filetype, filename, loops, start_position, channel)
+              end
+              "#);
+            info!("[PLUGIN][LUA][PX8][SOUND_PLAY] = {:?}", value);
+
             let value = lua_state.do_string(r#"sound_load = function(filename)
               PX8Object:sound_load(filename)
               end
@@ -1172,6 +1190,35 @@ pub mod plugin {
                                           });
 
             sound.lock().unwrap().sound_load(filename.to_string());
+
+            1
+        }
+
+        unsafe extern "C" fn lua_chiptune_play(lua_context: *mut lua_State) -> c_int {
+            debug!("LUA CHIPTUNE PLAY");
+
+            let mut state = State::from_ptr(lua_context);
+            let mut state2 = State::from_ptr(lua_context);
+
+            let filetype = state2.check_integer(2);
+            let filename = state.check_string(3);
+            let loops = state2.check_integer(4);
+            let start_position = state2.check_integer(5);
+            let channel = state2.check_integer(6);
+
+            let sound = state2.with_extra(|extra| {
+                                              let data = extra
+                                                  .as_ref()
+                                                  .unwrap()
+                                                  .downcast_ref::<ExtraData>()
+                                                  .unwrap();
+                                              data.sound.clone()
+                                          });
+
+            sound
+                .lock()
+                .unwrap()
+                .chiptune_play(filetype as i32, channel as i32, filename.to_string(), loops as i32, start_position as i32);
 
             1
         }
@@ -2361,7 +2408,7 @@ pub mod plugin {
         }
     }
 
-    pub const PX8LUA_LIB: [(&'static str, Function); 54] =
+    pub const PX8LUA_LIB: [(&'static str, Function); 55] =
         [("new", Some(PX8Lua::lua_new)),
          ("music_load", Some(PX8Lua::lua_music_load)),
          ("music_play", Some(PX8Lua::lua_music_play)),
@@ -2370,6 +2417,8 @@ pub mod plugin {
          ("music_resume", Some(PX8Lua::lua_music_resume)),
          ("music_rewind", Some(PX8Lua::lua_music_rewind)),
          ("music_volume", Some(PX8Lua::lua_music_volume)),
+
+         ("chiptune_play", Some(PX8Lua::lua_chiptune_play)),
 
          ("sound_load", Some(PX8Lua::lua_sound_load)),
          ("sound_play", Some(PX8Lua::lua_sound_play)),

@@ -10,8 +10,6 @@ check http://www.lexaloffle.com/bbs/?uid=12981
 for updates
 ]]
 
-sound_load("./examples/assets/fireworks.wav")
-
 function p_create(x,y,color,speed,direction)  
   p={}
   p.x=x
@@ -59,7 +57,7 @@ function _update()
       for i=1,200 do
         add(particules, p_create(x,y,c,rnd(4)+1,rnd(1)))
       end
-      sound_play("./examples/assets/fireworks.wav")
+      chiptune_play(1, "./examples/assets/clap.ki")
 
     end
   end

@@ -113,38 +113,38 @@ def _update():
 
         for item in WAV_MENU.values():
             item.update(mousex, mousey)
-            if item.text =='Play' and item.is_click():
+            if item.text == 'Play' and item.is_click():
                 print("Play")
                 music_play(WAV_FILE)
-            elif item.text =='Stop' and item.is_click():
+            elif item.text == 'Stop' and item.is_click():
                 print("Stop")
                 music_stop()
-            elif item.text =='Pause' and item.is_click():
+            elif item.text == 'Pause' and item.is_click():
                 print("Pause")
                 music_pause()
-            elif item.text =='Resume' and item.is_click():
+            elif item.text == 'Resume' and item.is_click():
                 print("Resume")
                 music_resume()
-            elif item.text =='Gun' and item.is_click():
+            elif item.text == 'Gun' and item.is_click():
                 print("Play gun sound")
                 sound_play(SOUND_GUN_FILE)
-            if item.text =='Fireworks' and item.is_click():
+            if item.text == 'Fireworks' and item.is_click():
                 print("Play fireworks sound")
                 sound_play(SOUND_FIREWORKS_FILE)
 
         for item in CHIPTUNE_MENU.values():
             item.update(mousex, mousey)
-            if item.text =='Play' and item.is_click():
+            if item.text == 'Play' and item.is_click():
                 chiptune_play(0, CHIPTUNE_MUSIC, 0, 0)
-            elif item.text =='Stop' and item.is_click():
+            elif item.text == 'Stop' and item.is_click():
                 chiptune_stop()
-            elif item.text =='Pause' and item.is_click():
+            elif item.text == 'Pause' and item.is_click():
                 chiptune_pause()
-            elif item.text =='Resume' and item.is_click():
+            elif item.text == 'Resume' and item.is_click():
                 chiptune_resume()
-            elif item.text =='Sound1' and item.is_click():
+            elif item.text == 'Sound1' and item.is_click():
                 chiptune_play(1, CHIPTUNE_SOUND_1)
-            elif item.text =='Sound2' and item.is_click():
+            elif item.text == 'Sound2' and item.is_click():
                 chiptune_play(1, CHIPTUNE_SOUND_2)
 
 def _draw():
