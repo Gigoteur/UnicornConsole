@@ -11,7 +11,7 @@ RUN apt-get update && \
     make \
     pkg-config
 
-RUN apt-get install -y curl wget libreadline-dev libsdl2-mixer-dev libsdl2-dev python-dev python3-dev g++ gcc libc6 libc6-dev binutils git make file ca-certificates zip dpkg-dev
+RUN apt-get install -y curl wget libsdl2-mixer-dev libsdl2-dev python-dev python3-dev g++ gcc libc6 libc6-dev binutils git make file ca-certificates zip dpkg-dev
 
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 ENV PATH /root/.cargo/bin:$PATH
