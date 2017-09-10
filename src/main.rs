@@ -5,8 +5,6 @@ extern crate px8_plugin_lua;
 #[macro_use]
 extern crate cpython;
 
-extern crate dyon;
-
 extern crate sdl2;
 extern crate getopts;
 

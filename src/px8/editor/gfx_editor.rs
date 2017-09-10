@@ -512,16 +512,19 @@ impl SpriteEditor {
                                                           5, 5, 5, 5],
                                                      HashMap::new(),
                                                      false))));
-        /*   widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(), "FILL".to_string(), 200, 90, 8, 8,
-                                                       vec![5, 5, 5, 5, 5, 5, 5, 5,
-                                                            5, 5, 6, 6, 6, 6, 6, 5,
-                                                            5, 5, 6, 6, 6, 6, 6, 5,
-                                                            5, 5, 6, 6, 6, 6, 6, 5,
-                                                            5, 5, 6, 6, 6, 6, 6, 5,
-                                                            5, 6, 5, 5, 5, 5, 5, 5,
-                                                            5, 6, 6, 5, 5, 5, 5, 5,
-                                                            5, 6, 6, 5, 5, 5, 5, 5],
-                                                        HashMap::new(), false))));*/
+        widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(),
+                                                     "FILL".to_string(),
+                                                     210, 90, 8, 8,
+                                                     vec![5, 5, 5, 5, 5, 5, 5, 5,
+                                                          5, 5, 6, 6, 6, 6, 6, 5,
+                                                          5, 5, 6, 6, 6, 6, 6, 5,
+                                                          5, 5, 6, 6, 6, 6, 6, 5,
+                                                          5, 5, 6, 6, 6, 6, 6, 5,
+                                                          5, 6, 5, 5, 5, 5, 5, 5,
+                                                          5, 6, 6, 5, 5, 5, 5, 5,
+                                                          5, 6, 6, 5, 5, 5, 5, 5],
+                                                     HashMap::new(),
+                                                     false))));
 
         SpriteEditor {
             state: state.clone(),
@@ -532,8 +535,85 @@ impl SpriteEditor {
         }
     }
 
+    pub fn copy(&mut self, screen: &mut Screen) {
+        info!("[PX8][EDITOR] Copy");
+
+        let zoom_sprite = self.state.lock().unwrap().zoom_sprite;
+        let x_zoom_sprite = self.state.lock().unwrap().x_zoom_sprite;
+        let y_zoom_sprite = self.state.lock().unwrap().y_zoom_sprite;
+
+        self.buffer_copy.clear();
+
+        self.buffer_copy_size[0] = 8 * zoom_sprite;
+        self.buffer_copy_size[1] = 8 * zoom_sprite;
+
+        for _ in 0..8 * zoom_sprite {
+            for _ in 0..8 * zoom_sprite {
+                self.buffer_copy.push(0);
+            }
+        }
+
+        for x in 0..8 * zoom_sprite {
+            for y in 0..8 * zoom_sprite {
+                self.buffer_copy[(x + y * 8 * zoom_sprite) as usize] =
+                    screen.sget(x_zoom_sprite + x, y_zoom_sprite + y);
+            }
+        }
+    }
+
+    pub fn paste(&mut self, screen: &mut Screen) {
+        if self.buffer_copy.len() > 0 {
+            info!("[PX8][EDITOR] Paste");
+
+            let zoom_sprite = self.state.lock().unwrap().zoom_sprite;
+            let x_zoom_sprite = self.state.lock().unwrap().x_zoom_sprite;
+            let y_zoom_sprite = self.state.lock().unwrap().y_zoom_sprite;
+
+            for x in 0..8 * zoom_sprite {
+                for y in 0..8 * zoom_sprite {
+                    screen.sset(x_zoom_sprite + x,
+                                y_zoom_sprite + y,
+                                self.buffer_copy[(x + y * 8 * zoom_sprite) as usize] as
+                                i32);
+                }
+            }
+        }
+    }
+
+    pub fn erase(&mut self, screen: &mut Screen) {
+        info!("[PX8][EDITOR] Erase");
+        
+        let zoom_sprite = self.state.lock().unwrap().zoom_sprite;
+        let x_zoom_sprite = self.state.lock().unwrap().x_zoom_sprite;
+        let y_zoom_sprite = self.state.lock().unwrap().y_zoom_sprite;
+
+        for x in 0..8 * zoom_sprite {
+            for y in 0..8 * zoom_sprite {
+                screen.sset(x_zoom_sprite + x, y_zoom_sprite + y, 0);
+            }
+        }
+    }
+    pub fn cut(&mut self, screen: &mut Screen) {
+        info!("[PX8][EDITOR] Cut");
+
+        self.copy(screen);
+        self.erase(screen);
+    }
+
     pub fn update(&mut self, players: Arc<Mutex<Players>>, screen: &mut Screen) {
         self.pp.update(screen);
+
+        if players.lock().unwrap().btnp2(1073741948) {
+            self.copy(screen);
+        }
+
+        if players.lock().unwrap().btnp2(1073741949) {
+            self.paste(screen);
+        }
+
+        if players.lock().unwrap().btnp2(1073741947) {
+            self.cut(screen);
+        }
 
         // Update widgets
         for widget in &self.widgets {
@@ -545,57 +625,21 @@ impl SpriteEditor {
         let x_zoom_sprite = self.state.lock().unwrap().x_zoom_sprite;
         let y_zoom_sprite = self.state.lock().unwrap().y_zoom_sprite;
 
-        for widget in &self.widgets {
+        for widget in &self.widgets.clone() {
             let is_click = widget.lock().unwrap().is_click();
-
 
             if is_click {
                 let name = widget.lock().unwrap().name.clone();
                 if name == "ERASE" {
-                    info!("[PX8][EDITOR] Erase");
-
-                    for x in 0..8 * zoom_sprite {
-                        for y in 0..8 * zoom_sprite {
-                            screen.sset(x_zoom_sprite + x, y_zoom_sprite + y, 0);
-                        }
-                    }
+                    self.erase(screen);
                 }
 
                 if name == "COPY" {
-                    info!("[PX8][EDITOR] Copy");
-
-                    self.buffer_copy.clear();
-
-                    self.buffer_copy_size[0] = 8 * zoom_sprite;
-                    self.buffer_copy_size[1] = 8 * zoom_sprite;
-
-                    for _ in 0..8 * zoom_sprite {
-                        for _ in 0..8 * zoom_sprite {
-                            self.buffer_copy.push(0);
-                        }
-                    }
-
-                    for x in 0..8 * zoom_sprite {
-                        for y in 0..8 * zoom_sprite {
-                            self.buffer_copy[(x + y * 8 * zoom_sprite) as usize] =
-                                screen.sget(x_zoom_sprite + x, y_zoom_sprite + y);
-                        }
-                    }
+                    self.copy(screen);
                 }
 
                 if name == "PASTE" {
-                    if self.buffer_copy.len() > 0 {
-                        info!("[PX8][EDITOR] Paste");
-
-                        for x in 0..8 * zoom_sprite {
-                            for y in 0..8 * zoom_sprite {
-                                screen.sset(x_zoom_sprite + x,
-                                            y_zoom_sprite + y,
-                                            self.buffer_copy[(x + y * 8 * zoom_sprite) as usize] as
-                                            i32);
-                            }
-                        }
-                    }
+                    self.paste(screen);
                 }
                 // Rotate right
                 if name == "ROTATE RIGHT" {

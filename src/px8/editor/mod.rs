@@ -314,7 +314,7 @@ impl Editor {
                 self.gfx_editor.draw(players, screen);
             }
             STATE::TEXT_EDITOR => {
-                self.txt_editor.draw(players, screen);
+            //    self.txt_editor.draw(players, screen);
             }
             STATE::MUSIC_EDITOR => {
                 self.music_editor.draw(players, screen, sound.clone());

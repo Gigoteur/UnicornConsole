@@ -34,16 +34,16 @@ impl TextEditor {
     }
 
     pub fn init(&mut self, config: Arc<Mutex<PX8Config>>, screen: &mut Screen, filename: String, code: String) {
-        info!("[GFX_EDITOR] Init");
+        info!("[TXT_EDITOR] Init");
 
-        info!("[GFX_EDITOR] {:?}", self.pos());
+        info!("[TFX_EDITOR] {:?}", self.pos());
 
-        let mut new_buffer: Buffer = SplitBuffer::from_str(&code).into();
+       /* let mut new_buffer: Buffer = SplitBuffer::from_str(&code).into();
         new_buffer.title = Some(filename);
 
         let new_buffer_index = self.buffers.new_buffer(new_buffer);
         self.buffers.switch_to(new_buffer_index);
-        self.hint();
+        self.hint();*/
     }
 
     pub fn update(&mut self, players: Arc<Mutex<Players>>) -> bool {

@@ -570,6 +570,11 @@ impl CartridgeGFF {
     }
 
     pub fn set_flags(&mut self, sprites: Vec<Sprite>) {
+        if self.flags.len() != sprites.len() {
+            warn!("Wrong number of flags {:?}, {:?}", self.flags.len(), sprites.len());
+            return;
+        }
+
         let mut idx = 0;
         for s in &sprites {
             if idx <= self.flags.len() {

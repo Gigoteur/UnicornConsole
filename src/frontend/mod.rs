@@ -12,7 +12,7 @@ use std::path::Path;
 use chrono::Local;
 
 use sdl2::controller::Axis;
-use sdl2::keyboard::Keycode;
+use sdl2::keyboard::{Keycode, Scancode};
 
 use renderer;
 use px8;
@@ -265,9 +265,6 @@ impl Frontend {
 
                 match event {
                     Event::Quit { .. } => break 'main,
-                    Event::KeyDown { keycode: Some(keycode), .. } if keycode == Keycode::Escape => {
-                        break 'main
-                    }
                     Event::Window { win_event: WindowEvent::SizeChanged(_, _), .. } => {
                         self.renderer
                             .update_viewport(&self.px8.screen.lock().unwrap());
@@ -288,14 +285,19 @@ impl Frontend {
                     }
                     Event::KeyDown {
                         keycode: Some(keycode),
+                        keymod: keymod,
                         repeat,
                         ..
                     } => {
+                        if keycode == Keycode::Escape {
+                            break 'main
+                        }
+
                         self.px8
                             .players
                             .lock()
                             .unwrap()
-                            .key_down(keycode, repeat, self.elapsed_time);
+                            .key_down(keymod, keycode, repeat, self.elapsed_time);
 
                         if keycode == Keycode::F2 {
                             self.px8.configuration.lock().unwrap().toggle_info_overlay();
@@ -332,8 +334,8 @@ impl Frontend {
                             self.px8.switch_pause();
                         }
                     }
-                    Event::KeyUp { keycode: Some(keycode), .. } => {
-                        self.px8.players.lock().unwrap().key_up(keycode);
+                    Event::KeyUp { keycode: Some(keycode), keymod: keymod, .. } => {
+                        self.px8.players.lock().unwrap().key_up(keymod, keycode);
                     }
 
                     Event::ControllerButtonDown { which: id, button, .. } => {

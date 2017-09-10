@@ -3,6 +3,7 @@ pub mod controllers;
 
 use self::keys::PX8Key;
 use sdl2::mouse::MouseButton;
+use sdl2::keyboard;
 use sdl2::keyboard::Keycode;
 use std::collections::HashMap;
 
@@ -159,8 +160,20 @@ impl Players {
         }
     }
 
-    pub fn key_down(&mut self, keycode: Keycode, repeat: bool, elapsed: f64) {
-        debug!("KEY {:?} {:?} {:?} -> DOWN", keycode, repeat, elapsed);
+    pub fn key_down(&mut self, keymod: keyboard::Mod, keycode: Keycode, repeat: bool, elapsed: f64) {
+        debug!("KEY {:?} {:?} {:?} {:?} -> DOWN", keymod, keycode, repeat, elapsed);
+        
+        let mut keycode = keycode;
+
+        if keymod == keyboard::LCTRLMOD || keymod == keyboard::RCTRLMOD || keymod == keyboard::LGUIMOD || keymod == keyboard::RGUIMOD {
+            if keycode == Keycode::C {
+                keycode = Keycode::Copy;
+            } else if keycode == Keycode::V {
+                keycode = Keycode::Paste;
+            } else if keycode == Keycode::X {
+                keycode = Keycode::Cut;
+            }
+        }
 
         if self.akeys.contains_key(&keycode) {
             if !self.akeys[&keycode] {
@@ -217,8 +230,20 @@ impl Players {
         }
     }
 
-    pub fn key_up(&mut self, keycode: Keycode) {
+    pub fn key_up(&mut self, keymod: keyboard::Mod, keycode: Keycode) {
         debug!("KEYCODE {:?} UP", keycode);
+
+        let mut keycode = keycode;
+
+        if keymod == keyboard::LCTRLMOD || keymod == keyboard::RCTRLMOD || keymod == keyboard::LGUIMOD || keymod == keyboard::RGUIMOD {
+            if keycode == Keycode::C {
+                keycode = Keycode::Copy;
+            } else if keycode == Keycode::V {
+                keycode = Keycode::Paste;
+            } else if keycode == Keycode::X {
+                keycode = Keycode::Cut;
+            }
+        }
 
         self.akeys.insert(keycode, false);
         self.akeys_quick.insert(keycode, false);
