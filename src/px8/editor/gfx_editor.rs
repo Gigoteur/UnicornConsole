@@ -107,9 +107,26 @@ impl PalettePicker {
                 let x_zoom_sprite = self.state.lock().unwrap().x_zoom_sprite;
                 let y_zoom_sprite = self.state.lock().unwrap().y_zoom_sprite;
 
-                screen.sset(x_zoom_sprite + idx_x as u32,
-                            y_zoom_sprite + idx_y as u32,
-                            self.current_color as i32);
+                let fill_action = self.state.lock().unwrap().fill_action;
+
+                if fill_action {
+                    let color_to_replace = screen.sget(x_zoom_sprite + idx_x,  y_zoom_sprite + idx_y);
+
+                    for x in 0..8 * zoom_sprite {
+                        for y in 0..8 * zoom_sprite {
+                            let current_color = screen.sget(x_zoom_sprite + x,  y_zoom_sprite + y);
+                            if color_to_replace == current_color {
+                                screen.sset(x_zoom_sprite + x,
+                                            y_zoom_sprite + y,
+                                            self.current_color as i32);
+                            }
+                        }
+                    }
+                } else {
+                    screen.sset(x_zoom_sprite + idx_x as u32,
+                                y_zoom_sprite + idx_y as u32,
+                                self.current_color as i32);
+                }
             }
 
             if point_in_rect(mouse_x,
@@ -130,7 +147,7 @@ impl PalettePicker {
 
     pub fn draw(&mut self, screen: &mut Screen) {
         let mut idx = 0;
-        let mut x = self.idx_x;
+        let x = self.idx_x;
         let mut y = self.idx_y;
 
         for i in 0..16 {
@@ -441,6 +458,8 @@ impl SpriteEditor {
     pub fn new(state: Arc<Mutex<State>>) -> SpriteEditor {
 
         let mut widgets = Vec::new();
+        let mut highlight = HashMap::new();
+        highlight.insert(6, 10);
 
         widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(),
                                                      "ERASE".to_string(),
@@ -455,7 +474,7 @@ impl SpriteEditor {
                                                           6, 6, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6,
                                                           6, 6, 6, 6],
                                                      HashMap::new(),
-                                                     false))));
+                                                     false, false))));
         widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(),
                                                      "COPY".to_string(),
                                                      170,
@@ -469,7 +488,7 @@ impl SpriteEditor {
                                                           5, 6, 6, 6, 6, 6, 6, 6, 5, 5, 5, 5,
                                                           5, 5, 5, 5],
                                                      HashMap::new(),
-                                                     false))));
+                                                     false, false))));
         widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(),
                                                      "PASTE".to_string(),
                                                      180,
@@ -483,7 +502,7 @@ impl SpriteEditor {
                                                           5, 6, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5,
                                                           5, 5, 5, 5],
                                                      HashMap::new(),
-                                                     false))));
+                                                     false, false))));
         widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(),
                                                      "ROTATE LEFT".to_string(),
                                                      190,
@@ -497,7 +516,7 @@ impl SpriteEditor {
                                                           5, 5, 5, 5, 5, 6, 6, 6, 5, 5, 5, 5,
                                                           5, 5, 5, 5],
                                                      HashMap::new(),
-                                                     false))));
+                                                     false, false))));
         widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(),
                                                      "ROTATE RIGHT".to_string(),
                                                      200,
@@ -511,7 +530,7 @@ impl SpriteEditor {
                                                           6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5,
                                                           5, 5, 5, 5],
                                                      HashMap::new(),
-                                                     false))));
+                                                     false, false))));
         widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(),
                                                      "FILL".to_string(),
                                                      210, 90, 8, 8,
@@ -523,8 +542,8 @@ impl SpriteEditor {
                                                           5, 6, 5, 5, 5, 5, 5, 5,
                                                           5, 6, 6, 5, 5, 5, 5, 5,
                                                           5, 6, 6, 5, 5, 5, 5, 5],
-                                                     HashMap::new(),
-                                                     false))));
+                                                     highlight.clone(),
+                                                     false, true))));
 
         SpriteEditor {
             state: state.clone(),
@@ -617,7 +636,6 @@ impl SpriteEditor {
 
         // Update widgets
         for widget in &self.widgets {
-            widget.lock().unwrap().reset();
             widget.lock().unwrap().update();
         }
 
@@ -625,11 +643,16 @@ impl SpriteEditor {
         let x_zoom_sprite = self.state.lock().unwrap().x_zoom_sprite;
         let y_zoom_sprite = self.state.lock().unwrap().y_zoom_sprite;
 
+        self.state.lock().unwrap().fill_action = false;
         for widget in &self.widgets.clone() {
             let is_click = widget.lock().unwrap().is_click();
 
             if is_click {
                 let name = widget.lock().unwrap().name.clone();
+                if name == "FILL" {
+                    self.state.lock().unwrap().fill_action = true;
+                }
+
                 if name == "ERASE" {
                     self.erase(screen);
                 }
@@ -1056,7 +1079,7 @@ impl GFXEditor {
                                                           11, 6, 11, 11, 6, 6, 6, 6, 6, 6, 11,
                                                           6, 11, 11, 11, 11, 11, 11, 6],
                                                      highlight.clone(),
-                                                     true))));
+                                                     true, true))));
         widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(),
                                                      "MAP".to_string(),
                                                      231,
@@ -1069,7 +1092,7 @@ impl GFXEditor {
                                                           11, 6, 11, 11, 6, 6, 6, 6, 6, 6, 11,
                                                           11, 11, 11, 11, 11, 11, 11, 11],
                                                      highlight.clone(),
-                                                     false))));
+                                                     false, true))));
 
         GFXEditor {
             state: state.clone(),
@@ -1081,11 +1104,25 @@ impl GFXEditor {
         }
     }
 
-    pub fn init(&mut self, config: Arc<Mutex<PX8Config>>, screen: &mut Screen) {
+    pub fn init(&mut self, _config: Arc<Mutex<PX8Config>>, _screen: &mut Screen) {
         info!("[GFX_EDITOR] Init");
     }
 
     pub fn update(&mut self, players: Arc<Mutex<Players>>) -> bool {
+        let mut is_clickable = false;
+        for widget in &self.widgets {
+            is_clickable = widget.lock().unwrap().is_clickable();
+            if is_clickable {
+                break;
+            }
+        }
+
+        if is_clickable {
+            for widget in &self.widgets {
+                widget.lock().unwrap().update();
+            }
+        }
+
         true
     }
 
@@ -1098,10 +1135,6 @@ impl GFXEditor {
             EditorState::MAP_EDITOR => {
                 self.me.update(players.clone(), screen);
             }
-        }
-
-        for widget in &self.widgets {
-            widget.lock().unwrap().update();
         }
 
         for widget in &self.widgets {

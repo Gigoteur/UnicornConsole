@@ -315,7 +315,7 @@ impl Frontend {
                                                     &dt.format("%Y-%m-%d-%H-%M-%S.gif")
                                                          .to_string()));
                             } else {
-                                self.px8.stop_record(self.scale.factor());
+                                self.px8.stop_record();
                             }
                         } else if keycode == Keycode::F5 {
                             if editor {

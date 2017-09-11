@@ -49,6 +49,8 @@ pub struct State {
     on_current_sprite_x: u32,
     on_current_sprite_y: u32,
     on_current_sprite: bool,
+
+    fill_action: bool,
 }
 
 impl State {
@@ -79,6 +81,8 @@ impl State {
             on_current_sprite_x: 0,
             on_current_sprite_y: 0,
             on_current_sprite: false,
+
+            fill_action: false,
         }
     }
 
@@ -102,6 +106,7 @@ pub struct Widget {
     data: Vec<u8>,
     highlight: HashMap<u32, u32>,
     clicked: bool,
+    long_clicked: bool,
 }
 
 impl Widget {
@@ -113,7 +118,8 @@ impl Widget {
                h: u32,
                data: Vec<u8>,
                highlight: HashMap<u32, u32>,
-               clicked: bool)
+               clicked: bool,
+               long_clicked: bool)
                -> Widget {
         Widget {
             state: state,
@@ -127,11 +133,8 @@ impl Widget {
             data: data,
             highlight: highlight,
             clicked: clicked,
+            long_clicked: long_clicked,
         }
-    }
-
-    pub fn reset(&mut self) {
-        self.clicked = false;
     }
 
     pub fn is_click(&mut self) -> bool {
@@ -142,14 +145,40 @@ impl Widget {
         let mouse_state = self.state.lock().unwrap().mouse_state;
 
         if mouse_state == 1 {
-            self.clicked = false;
-
             let mouse_x = self.state.lock().unwrap().mouse_x as u32;
             let mouse_y = self.state.lock().unwrap().mouse_y as u32;
 
-            self.clicked = (self.x1 <= mouse_x && mouse_x < self.x2) &&
-                           (self.y1 <= mouse_y && mouse_y < self.y2);
+            let is_clicked = (self.x1 <= mouse_x && mouse_x < self.x2) &&
+                             (self.y1 <= mouse_y && mouse_y < self.y2);
+
+            if self.long_clicked {
+                if is_clicked && self.clicked {
+                    self.clicked = !self.clicked;
+                } else {
+                    self.clicked = is_clicked;
+                }
+            } else {
+                self.clicked = is_clicked;
+            }
+        } else {
+            if !self.long_clicked {
+                self.clicked = false;
+            }
         }
+    }
+
+    pub fn is_clickable(&mut self) -> bool {
+        let mouse_state = self.state.lock().unwrap().mouse_state;
+
+        if mouse_state == 1 {
+            let mouse_x = self.state.lock().unwrap().mouse_x as u32;
+            let mouse_y = self.state.lock().unwrap().mouse_y as u32;
+            return (self.x1 <= mouse_x && mouse_x < self.x2) &&
+                    (self.y1 <= mouse_y && mouse_y < self.y2);
+    
+        }
+
+        false
     }
 
     pub fn draw(&mut self, screen: &mut Screen) {
@@ -216,7 +245,7 @@ impl Editor {
                                                           11, 11, 11, 6, 6, 11, 11, 11,
                                                           11, 11, 11, 6, 6, 11, 11, 11],
                                                      highlight.clone(),
-                                                     true))));
+                                                     true, true))));
         widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(),
                                                      "TEXT".to_string(),
                                                      140,
@@ -229,7 +258,7 @@ impl Editor {
                                                           11, 6, 11, 11, 6, 6, 6, 6, 6, 6, 11,
                                                           6, 11, 11, 11, 11, 11, 11, 6],
                                                      highlight.clone(),
-                                                     false))));
+                                                     false, true))));
 
         widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(),
                                                      "MUSIC".to_string(),
@@ -244,7 +273,7 @@ impl Editor {
                                                           11, 11, 6, 6, 6, 6, 11, 11,
                                                           11, 11, 11, 6, 6, 11, 11, 11],
                                                      highlight.clone(),
-                                                     false))));
+                                                     false, true))));
 
         Editor {
             state: state.clone(),
@@ -272,6 +301,46 @@ impl Editor {
 
     pub fn update(&mut self, players: Arc<Mutex<Players>>) -> bool {
         self.state.lock().unwrap().update(players.clone());
+
+        let mut is_clickable = false;
+        for widget in &self.widgets {
+            is_clickable = widget.lock().unwrap().is_clickable();
+            if is_clickable {
+                break;
+            }
+        }
+
+        if is_clickable {
+            for widget in &self.widgets {
+                widget.lock().unwrap().update();
+            }
+        }
+
+        for widget in &self.widgets {
+            let is_click = widget.lock().unwrap().is_click();
+            if is_click {
+                if widget.lock().unwrap().name == "GFX" {
+                    self.state_editor = STATE::GFX_EDITOR;
+                } else if widget.lock().unwrap().name == "TEXT" {
+                    self.state_editor = STATE::TEXT_EDITOR;
+                } else if widget.lock().unwrap().name == "MUSIC" {
+                    self.state_editor = STATE::MUSIC_EDITOR;
+                }
+            }
+        }
+
+        match self.state_editor {
+            STATE::GFX_EDITOR => {
+                self.gfx_editor.update(players.clone());
+            }
+            STATE::TEXT_EDITOR => {
+            //    self.txt_editor.draw(players, screen);
+            }
+            STATE::MUSIC_EDITOR => {
+                self.music_editor.update(players.clone());
+            }
+        }
+
         true
     }
 
@@ -289,22 +358,6 @@ impl Editor {
         // Print current filename
         screen.print(self.filename.clone(), 0, 0, 7);
 
-        for widget in &self.widgets {
-            widget.lock().unwrap().reset();
-            widget.lock().unwrap().update();
-        }
-        for widget in &self.widgets {
-            let is_click = widget.lock().unwrap().is_click();
-            if is_click {
-                if widget.lock().unwrap().name == "GFX" {
-                    self.state_editor = STATE::GFX_EDITOR;
-                } else if widget.lock().unwrap().name == "TEXT" {
-                    self.state_editor = STATE::TEXT_EDITOR;
-                } else if widget.lock().unwrap().name == "MUSIC" {
-                    self.state_editor = STATE::MUSIC_EDITOR;
-                }
-            }
-        }
         for widget in &self.widgets {
             widget.lock().unwrap().draw(screen);
         }

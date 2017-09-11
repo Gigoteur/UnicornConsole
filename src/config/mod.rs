@@ -175,12 +175,9 @@ impl Players {
             }
         }
 
-        if self.akeys.contains_key(&keycode) {
-            if !self.akeys[&keycode] {
-                self.akeys_quick.insert(keycode, true);
-            }
-        }
         self.akeys.insert(keycode, true);
+        self.akeys_quick.insert(keycode, true);
+
         self.all_frames.insert(keycode, elapsed);
 
         if let (Some(key), player) = self::keys::map_keycode(keycode) {

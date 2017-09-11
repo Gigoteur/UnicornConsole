@@ -310,10 +310,6 @@ impl CartridgeCode {
         self.filename = filename.to_string();
     }
 
-    pub fn set_name(&mut self, name: String) {
-        self.code_type = name.clone();
-    }
-
     pub fn get_name(&mut self) -> String {
         self.code_type.clone()
     }
@@ -373,7 +369,7 @@ impl CartridgeGFX {
     pub fn empty() -> CartridgeGFX {
         // Fill with empty sprites
         let mut sprites: Vec<Sprite> = Vec::new();
-        for i in 0..128 {
+        for _ in 0..128 {
             sprites.push(Sprite::new([0; 64]));
         }
 
@@ -431,7 +427,7 @@ impl CartridgeGFX {
 
         // Fill with empty sprites
         if sprites.len() == 0 {
-            for i in 0..128 {
+            for _ in 0..128 {
                 sprites.push(Sprite::new([0; 64]));
             }
         }

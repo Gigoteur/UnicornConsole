@@ -610,15 +610,6 @@ impl PX8Cartridge {
         }
     }
 
-    pub fn set_code_type(&mut self, code: Code) {
-        match code {
-            Code::PYTHON => self.cartridge.code.set_name("python".to_string()),
-            Code::LUA => self.cartridge.code.set_name("lua".to_string()),
-            _ => (),
-        }
-
-    }
-
     pub fn get_code_type(&mut self) -> Code {
         match self.cartridge.code.get_name().as_ref() {
             "lua" => Code::LUA,
@@ -898,7 +889,7 @@ impl PX8 {
         self.record.nb += 1;
     }
 
-    pub fn stop_record(&mut self, scale: usize) {
+    pub fn stop_record(&mut self) {
         info!("[PX8] Stop to record the frame {:?}",
               self.record.images.len());
 
