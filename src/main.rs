@@ -182,6 +182,13 @@ fn main() {
                 }
                 Err(e) => panic!(e),
             }
+        } else if input.contains(".dpx8") {
+            match Cartridge::from_dpx8_file(&input) {
+                Ok(c) => {
+                    println!("{:?}", c);
+                }
+                Err(e) => panic!(e),
+            }
         }
     } else if matches.opt_present("t") {
         if input.contains(".png") {

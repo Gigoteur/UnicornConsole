@@ -1160,6 +1160,89 @@ impl Cartridge {
            })
     }
 
+    pub fn from_dpx8_file(filename: &str) -> Result<Cartridge, Error> {
+        let code_section = Vec::new();
+
+        let f2 = try!(File::open(filename));
+        let buf_reader = BufReader::new(f2);
+
+        let re_delim_section = Regex::new(SECTION_DELIM_RE).unwrap();
+
+        let mut sections: HashMap<String, Vec<(String)>> = HashMap::new();
+
+        let mut section_name = "".to_string();
+
+        let mut new_section;
+
+        for line in buf_reader.lines() {
+            let l = line.unwrap();
+            if re_delim_section.is_match(l.as_str()) {
+                debug!("NEW SECTION {:?}", l);
+                section_name = l.clone();
+
+                let vec_section = Vec::new();
+                sections.insert(section_name.clone(), vec_section);
+                new_section = false;
+            } else {
+                new_section = true;
+            }
+
+            if new_section {
+                match sections.get_mut(&section_name) {
+                    Some(vec_section2) => vec_section2.push(l),
+                    _ => debug!("Impossible to find section {:?}", section_name),
+                }
+            }
+        }
+
+        for (section_name, section) in &sections {
+            debug!("{}: \"{}\"", section_name, section.len());
+        }
+
+        let cartridge_gfx;
+        let cartridge_gff;
+        let mut cartridge_code;
+        let cartridge_map;
+        let cartridge_music;
+
+        cartridge_code = CartridgeCode::new("python".to_string(), &code_section);
+        cartridge_code.set_filename("empty.py");
+
+        match sections.get_mut("__gfx__") {
+            Some(vec_section) => cartridge_gfx = CartridgeGFX::new(vec_section),
+            _ => cartridge_gfx = CartridgeGFX::empty(),
+        }
+
+        match sections.get_mut("__map__") {
+            Some(vec_section) => cartridge_map = CartridgeMap::new(vec_section),
+            _ => cartridge_map = CartridgeMap::empty(),
+        }
+
+        match sections.get_mut("__gff__") {
+            Some(vec_section) => cartridge_gff = CartridgeGFF::new(vec_section),
+            _ => cartridge_gff = CartridgeGFF::empty(),
+        }
+
+        match sections.get_mut("__music__") {
+            Some(vec_section) => cartridge_music = CartridgeMusic::new(vec_section),
+            _ => cartridge_music = CartridgeMusic::empty(),
+        }
+
+
+        Ok(Cartridge {
+               filename: "empty.py".to_string(),
+               data_filename: filename.to_string(),
+               header: "".to_string(),
+               version: "".to_string(),
+               gfx: cartridge_gfx,
+               code: cartridge_code,
+               map: cartridge_map,
+               gff: cartridge_gff,
+               music: cartridge_music,
+               format: CartridgeFormat::Px8Format,
+           })
+    }
+
     pub fn set_mode(&mut self, mode: bool) {
         self.code.mode = mode;
     }

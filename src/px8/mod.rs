@@ -1070,8 +1070,7 @@ impl PX8 {
 
     pub fn _load_cartridge(&mut self,
                            cartridge: &mut PX8Cartridge,
-                           editor: bool,
-                           filename: &str)
+                           editor: bool)
                            -> bool {
         info!("[PX8] Loading cartridge");
 
@@ -1133,7 +1132,7 @@ impl PX8 {
                 self.editor
                     .init(self.configuration.clone(),
                           &mut self.screen.lock().unwrap(),
-                          String::from(filename),
+                          cartridge.cartridge.filename.clone(),
                           data.clone());
                 self.state = PX8State::EDITOR;
             } else {
@@ -1167,13 +1166,18 @@ impl PX8 {
                 Ok(c) => cartridge = c,
                 Err(e) => panic!("[PX8] Impossible to load the px8 cartridge {:?}", e),
             }
+        } else if filename.contains(".dpx8") {
+            match Cartridge::from_dpx8_file(filename) {
+                Ok(c) => cartridge = c,
+                Err(e) => panic!("[PX8] Impossible to load the dpx8 cartridge {:?}", e),
+            }
         } else {
             panic!("[PX8] Unknown file format !");
         }
 
         cartridge.set_mode(mode == PX8Mode::PICO8);
         let mut px8_cartridge = PX8Cartridge::new(cartridge);
-        let ret = self._load_cartridge(&mut px8_cartridge, editor, filename);
+        let ret = self._load_cartridge(&mut px8_cartridge, editor);
         if ret {
             self.add_cartridge(px8_cartridge);
             self.init();
@@ -1220,7 +1224,7 @@ impl PX8 {
 
         cartridge.set_mode(mode == PX8Mode::PICO8);
         let mut px8_cartridge = PX8Cartridge::new(cartridge);
-        let ret = self._load_cartridge(&mut px8_cartridge, editor, filename);
+        let ret = self._load_cartridge(&mut px8_cartridge, editor);
         if ret {
             self.add_cartridge(px8_cartridge);
             self.init();
