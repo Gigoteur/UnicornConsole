@@ -13,7 +13,6 @@
 
 # PX8
 
-  * [Demos](#demos)
   * [Download](#download)
     + [Build](#build)
     + [Binaries](#binaries)
@@ -55,9 +54,6 @@ You can follow the development of the project [here](https://hallucino.itch.io/p
 
 [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=T9NLJWMVWRMVU&lc=FR&item_name=Gigoteur&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted)
 
-## Demos
-**The time for each frame is slow (10ms) in the GIF, and doesn't correspond to the speed of the game.**
-
 ![](http://i.imgur.com/tzoNZAa.gif)
 
 Editor mode:
@@ -71,10 +67,6 @@ Editor mode:
 Multiple resolution support:
 
 ![](http://i.imgur.com/NfdxTrT.gif)
-
-Noise support:
-
-![](http://i.imgur.com/um3gmWh.gif)
 
 
 More advanced examples:
@@ -98,6 +90,9 @@ https://github.com/Gigoteur/PX8/tree/master/games/BR
 * Flappy bird clone(http://p1xl.com/files/flappy.p8):
 https://github.com/Gigoteur/PX8/tree/master/games/flappy
 ![](http://i.imgur.com/Wg5jR9t.gif)
+
+* Noise support:
+![](http://i.imgur.com/um3gmWh.gif)
 
 More [gifs](https://github.com/Gigoteur/PX8/wiki/Examples) ?
 
