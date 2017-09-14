@@ -129,12 +129,10 @@ cargo build --features="cpython px8_plugin_lua" --release
 
 ### Binaries
 
-Or you can get latest binaries for multiples platforms directly on [itch.io](https://hallucino.itch.io/px8).
-Only the Raspberry PI and Linux builds are free to download, but you can build your own executable for free (see the BUILD instruction):
+Or you can get latest binaries for many platforms directly on [itch.io](https://hallucino.itch.io/px8) or you can build your own executable for free (see the BUILD instruction):
   * [Raspberry Pi 3](https://hallucino.itch.io/px8)
   * [Linux x64](https://hallucino.itch.io/px8)
-  * [Windows x64 - python only](https://hallucino.itch.io/px8/purchase) and install [Python](https://www.python.org/)
-  * [Windows x64 - lua only](https://hallucino.itch.io/px8/purchase)
+  * [Windows x64](https://hallucino.itch.io/px8/purchase) and install [Python](https://www.python.org/)
   * [OSX](https://hallucino.itch.io/px8/purchase)
 
 ## Requirements
@@ -221,6 +219,7 @@ System shortcut:
   * F5: Save the current cartridge's data (if opened with editor mode)
   * F6: Switch between editor/play mode
   * F7: Switch to the next available palette
+  * P: Pause the console
   
 ## Run a cartridge
 
