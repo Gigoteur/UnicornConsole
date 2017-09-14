@@ -92,6 +92,7 @@ https://github.com/Gigoteur/PX8/tree/master/games/flappy
 ![](http://i.imgur.com/Wg5jR9t.gif)
 
 * Noise support:
+
 ![](http://i.imgur.com/um3gmWh.gif)
 
 More [gifs](https://github.com/Gigoteur/PX8/wiki/Examples) ?
