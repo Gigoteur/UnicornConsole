@@ -18,7 +18,6 @@
 
   * [Download](#download)
     + [Build](#build)
-    + [Binaries](#binaries)
   * [Requirements](#requirements)
   * [Resolution](#resolution)
   * [Coordinate System](#coordinate-system)
@@ -103,12 +102,18 @@ More [gifs](https://github.com/Gigoteur/PX8/wiki/Examples) ?
 
 ## Download
 
-You can get directly the latest version via git:
+You can get prebuild binaries for many platforms directly on [itch.io](https://hallucino.itch.io/px8) or you can build your own executable for free (see the BUILD instruction):
+  * [Raspberry Pi 3](https://hallucino.itch.io/px8/purchase)
+  * [Linux x64](https://hallucino.itch.io/px8/purchase)
+  * [Windows x64](https://hallucino.itch.io/px8/purchase) and install [Python](https://www.python.org/)
+  * [OSX](https://hallucino.itch.io/px8/purchase)
+  
+### Source code
+You can get directly the source code of the latest version via git:
 ```
 git clone https://github.com/Gigoteur/PX8.git
 cd PX8
 ```
-
 
 ### Build
 
@@ -126,14 +131,6 @@ For example to have all features:
 ```
 cargo build --features="cpython px8_plugin_lua" --release 
 ```
-
-### Binaries
-
-Or you can get latest binaries for many platforms directly on [itch.io](https://hallucino.itch.io/px8) or you can build your own executable for free (see the BUILD instruction):
-  * [Raspberry Pi 3](https://hallucino.itch.io/px8/purchase)
-  * [Linux x64](https://hallucino.itch.io/px8/purchase)
-  * [Windows x64](https://hallucino.itch.io/px8/purchase) and install [Python](https://www.python.org/)
-  * [OSX](https://hallucino.itch.io/px8/purchase)
 
 ## Requirements
 
