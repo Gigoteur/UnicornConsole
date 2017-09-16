@@ -9,6 +9,9 @@
   <a href="https://crates.io/crates/px8">
       <img src="http://meritbadge.herokuapp.com/px8" alt="PX8 Crate">
   </a>
+  <a href="LICENSE">
+      <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="LICENSE">
+  </a>
 </p>
 
 # PX8
@@ -127,8 +130,8 @@ cargo build --features="cpython px8_plugin_lua" --release
 ### Binaries
 
 Or you can get latest binaries for many platforms directly on [itch.io](https://hallucino.itch.io/px8) or you can build your own executable for free (see the BUILD instruction):
-  * [Raspberry Pi 3](https://hallucino.itch.io/px8)
-  * [Linux x64](https://hallucino.itch.io/px8)
+  * [Raspberry Pi 3](https://hallucino.itch.io/px8/purchase)
+  * [Linux x64](https://hallucino.itch.io/px8/purchase)
   * [Windows x64](https://hallucino.itch.io/px8/purchase) and install [Python](https://www.python.org/)
   * [OSX](https://hallucino.itch.io/px8/purchase)
 
