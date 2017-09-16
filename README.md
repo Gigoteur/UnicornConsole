@@ -26,6 +26,7 @@
   * [How to create a new cartridge](#how-to-create-a-new-cartridge)
     + [Python](#python)
     + [Lua](#lua)
+  * [Tutorials](#tutorials)
   * [Cartridge format](#cartridge-format)
   * [API documentation](#api-documentation)
   
@@ -202,6 +203,8 @@ Each pixel can be access from 0 to 128 (or the new defined width/height) :
 
 ## Keyboard Shortcut
 
+Right now only 2 players could play a cartridge.
+
 Player 1:
   * cursors, Z,X / C,V / N,M
 
@@ -247,9 +250,9 @@ or some fancy demos:
 
 You can edit directly the GFX (Sprites + Map) with the 'F6' hotkey (to alternate between the run mode and the editor), or to open the cartridge by using the specific '-e' option:
 ```
-./target/release/px8 -s 4 -e ./games/ski/ski.px8
+./target/release/px8 -e ./games/ski/ski.px8
 ```
-and you can save the GFX with 'F5'.
+and you can save the GFX data with 'F5'.
 
 ## Display options
 
@@ -319,6 +322,15 @@ function _draw()
 end
 ```
 
+## Tutorials
+
+  * [Introduction](https://github.com/Gigoteur/PX8/wiki)
+  * [Hello World](https://github.com/Gigoteur/PX8/wiki/Tutorial:-HelloWorld)
+  * [Use the editors](https://github.com/Gigoteur/PX8/wiki/Editor)
+  * [Create your map](https://github.com/Gigoteur/PX8/wiki/Tutorial:-Map)
+  * [Use a physical engine for fun](https://github.com/Gigoteur/PX8/wiki/Tutorial:-Physical-engine)
+  * [Space shooter tutorial !](https://github.com/Gigoteur/PX8/wiki/Tutorial:-Space-Shooter)
+  * [Create a raycasting engine](https://github.com/Gigoteur/PX8/wiki/Tutorial:-Raycasting-Engine)
 
 ## Cartridge format
 
