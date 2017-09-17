@@ -9,14 +9,15 @@
   <a href="https://crates.io/crates/px8">
       <img src="http://meritbadge.herokuapp.com/px8" alt="PX8 Crate">
   </a>
+  <a href="LICENSE">
+      <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="LICENSE">
+  </a>
 </p>
 
 # PX8
 
-  * [Demos](#demos)
   * [Download](#download)
     + [Build](#build)
-    + [Binaries](#binaries)
   * [Requirements](#requirements)
   * [Resolution](#resolution)
   * [Coordinate System](#coordinate-system)
@@ -27,6 +28,7 @@
   * [How to create a new cartridge](#how-to-create-a-new-cartridge)
     + [Python](#python)
     + [Lua](#lua)
+  * [Tutorials](#tutorials)
   * [Cartridge format](#cartridge-format)
   * [API documentation](#api-documentation)
   
@@ -55,9 +57,6 @@ You can follow the development of the project [here](https://hallucino.itch.io/p
 
 [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=T9NLJWMVWRMVU&lc=FR&item_name=Gigoteur&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted)
 
-## Demos
-**The time for each frame is slow (10ms) in the GIF, and doesn't correspond to the speed of the game.**
-
 ![](http://i.imgur.com/tzoNZAa.gif)
 
 Editor mode:
@@ -71,10 +70,6 @@ Editor mode:
 Multiple resolution support:
 
 ![](http://i.imgur.com/NfdxTrT.gif)
-
-Noise support:
-
-![](http://i.imgur.com/um3gmWh.gif)
 
 
 More advanced examples:
@@ -99,16 +94,26 @@ https://github.com/Gigoteur/PX8/tree/master/games/BR
 https://github.com/Gigoteur/PX8/tree/master/games/flappy
 ![](http://i.imgur.com/Wg5jR9t.gif)
 
+* Noise support:
+
+![](http://i.imgur.com/um3gmWh.gif)
+
 More [gifs](https://github.com/Gigoteur/PX8/wiki/Examples) ?
 
 ## Download
 
-You can get directly the latest version via git:
+You can get prebuild binaries for many platforms directly on [itch.io](https://hallucino.itch.io/px8) or you can build your own executable for free (see the BUILD instruction):
+  * [Raspberry Pi 3](https://hallucino.itch.io/px8/purchase)
+  * [Linux x64](https://hallucino.itch.io/px8/purchase)
+  * [Windows x64](https://hallucino.itch.io/px8/purchase) and install [Python](https://www.python.org/)
+  * [OSX](https://hallucino.itch.io/px8/purchase)
+  
+### Source code
+You can get directly the source code of the latest version via git:
 ```
 git clone https://github.com/Gigoteur/PX8.git
 cd PX8
 ```
-
 
 ### Build
 
@@ -126,16 +131,6 @@ For example to have all features:
 ```
 cargo build --features="cpython px8_plugin_lua" --release 
 ```
-
-### Binaries
-
-Or you can get latest binaries for multiples platforms directly on [itch.io](https://hallucino.itch.io/px8).
-Only the Raspberry PI and Linux builds are free to download, but you can build your own executable for free (see the BUILD instruction):
-  * [Raspberry Pi 3](https://hallucino.itch.io/px8)
-  * [Linux x64](https://hallucino.itch.io/px8)
-  * [Windows x64 - python only](https://hallucino.itch.io/px8/purchase) and install [Python](https://www.python.org/)
-  * [Windows x64 - lua only](https://hallucino.itch.io/px8/purchase)
-  * [OSX](https://hallucino.itch.io/px8/purchase)
 
 ## Requirements
 
@@ -208,6 +203,8 @@ Each pixel can be access from 0 to 128 (or the new defined width/height) :
 
 ## Keyboard Shortcut
 
+Right now only 2 players could play a cartridge.
+
 Player 1:
   * cursors, Z,X / C,V / N,M
 
@@ -221,6 +218,7 @@ System shortcut:
   * F5: Save the current cartridge's data (if opened with editor mode)
   * F6: Switch between editor/play mode
   * F7: Switch to the next available palette
+  * P: Pause the console
   
 ## Run a cartridge
 
@@ -252,9 +250,9 @@ or some fancy demos:
 
 You can edit directly the GFX (Sprites + Map) with the 'F6' hotkey (to alternate between the run mode and the editor), or to open the cartridge by using the specific '-e' option:
 ```
-./target/release/px8 -s 4 -e ./games/ski/ski.px8
+./target/release/px8 -e ./games/ski/ski.px8
 ```
-and you can save the GFX with 'F5'.
+and you can save the GFX data with 'F5'.
 
 ## Display options
 
@@ -324,6 +322,15 @@ function _draw()
 end
 ```
 
+## Tutorials
+
+  * [Introduction](https://github.com/Gigoteur/PX8/wiki)
+  * [Hello World](https://github.com/Gigoteur/PX8/wiki/Tutorial:-HelloWorld)
+  * [Use the editors](https://github.com/Gigoteur/PX8/wiki/Editor)
+  * [Create your map](https://github.com/Gigoteur/PX8/wiki/Tutorial:-Map)
+  * [Use a physical engine for fun](https://github.com/Gigoteur/PX8/wiki/Tutorial:-Physical-engine)
+  * [Space shooter tutorial !](https://github.com/Gigoteur/PX8/wiki/Tutorial:-Space-Shooter)
+  * [Create a raycasting engine](https://github.com/Gigoteur/PX8/wiki/Tutorial:-Raycasting-Engine)
 
 ## Cartridge format
 
