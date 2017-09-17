@@ -38,16 +38,45 @@ class StarsBackground(object):
                 sf.color = (sf.color==5) and 6 or 5
             line(sf.x, sf.lasty, sf.x, sf.y, sf.color)
 
+class Ship(object):
+    def __init__(self, x, y, sp, h):
+        self.x = x
+        self.y = y
+        self.sp = sp
+        self.h = h
+        self.max_h = h
+        self.t = 0
+
+    def update(self):
+        if(self.t%6<3):
+            self.sp=1
+        else:
+            self.sp=2
+
+        self.t += 1
+
+    def draw(self):
+        spr(self.sp,self.x,self.y)
+
+        for i in range(0, self.max_h):
+            if i <= self.h:
+                spr(33,80+6*i,3)
+            else:
+                spr(34,80+6*i,3)
+
 class Invaders(object):
     def __init__(self, background):
+        self.ship = Ship(sp=1, x=60, y=60, h=4)
         self.background = background()
 
     def update(self):
         self.background.update()
+        self.ship.update()
 
     def draw(self):
         cls()
         self.background.draw()
+        self.ship.draw()
 
 I = None
 def _init():
