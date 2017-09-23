@@ -17,6 +17,13 @@ class Cell(object):
 
 DELTA = 1e-10
 
+def sign(x):
+  if x > 0:
+      return 1
+  if x == 0:
+      return 0
+  return -1
+
 def nearest(x, a, b):
     if abs(a - x) < abs(b - x):
         return a
@@ -39,9 +46,44 @@ def rect_getSquareDistance(x1,y1,w1,h1, x2,y2,w2,h2):
     dy = y1 - y2 + (h1 - h2)/2
     return dx*dx + dy*dy
 
+def rect_getSegmentIntersectionIndices(x,y,w,h, x1,y1,x2,y2, ti1,ti2):
+    ti1, ti2 = ti1 or 0, ti2 or 1
+    dx, dy = x2-x1, y2-y1
+    nx, ny = 0, 0
+    nx1, ny1, nx2, ny2 = 0,0,0,0
+    p, q, r = 0, 0, 0
+
+    for side in range(1,5):
+        if  side == 1:
+            nx,ny,p,q = -1,  0, -dx, x1 - x     #-- left
+        elif side == 2:
+            nx,ny,p,q =  1,  0,  dx, x + w - x1 #-- right
+        elif side == 3:
+            nx,ny,p,q =  0, -1, -dy, y1 - y     #-- top
+        else:
+            nx,ny,p,q =  0,  1,  dy, y + h - y1 #-- bottom
+
+        if p == 0:
+            if q <= 0:
+                return None, None, None, None, None, None
+        else:
+            r = q / p
+            if p < 0:
+                if r > ti2:
+                    return None, None, None, None, None, None
+                elif r > ti1:
+                    ti1,nx1,ny1 = r,nx,ny
+            else: #-- p > 0
+                if r < ti1:
+                    return None, None, None, None, None, None
+                elif r < ti2:
+                    ti2,nx2,ny2 = r,nx,ny
+
+    return ti1, ti2, nx1, ny1, nx2, ny2
+
 # Adding same things like https://github.com/kikito/bump.lua
 class Collisions(object):
-    def __init__(self, cellsize=1):
+    def __init__(self, cellsize=8):
         self.rects = {}
         self.cellsize = cellsize
         self.rows = {}
@@ -55,8 +97,6 @@ class Collisions(object):
         cr,cb = math.ceil((x+w) / cellsize), math.ceil((y+h) / cellsize)
         return cx, cy, cr - cx + 1, cb - cy + 1
 
-
-
     def rect_detectCollision(self, x1, y1, w1, h1, x2, y2, w2, h2, goalX, goalY):
         goalX = goalX or x1
         goalY = goalY or y1
@@ -66,11 +106,12 @@ class Collisions(object):
         print(x, y, w, h)
 
         ti = None
+        overlaps = None
         if rect_containsPoint(x,y,w,h, 0,0):
-            print("ICI")
             px, py = rect_getNearestCorner(x,y,w,h, 0, 0)
             wi, hi = min(w1, abs(px)), min(h1, abs(py)) # -- area of intersection
             ti = -wi * hi
+            overlaps = True
         else:
             pass
         print(ti)
@@ -78,7 +119,31 @@ class Collisions(object):
         if not ti:
             return None
 
-        return {'ti': ti}
+        if overlaps:
+            if dx == 0 and dy == 0:
+                px, py = rect_getNearestCorner(x,y,w,h, 0,0)
+                if abs(px) < abs(py):
+                    py = 0
+                else:
+                    px = 0
+                nx, ny = sign(px), sign(py)
+                tx, ty = x1 + px, y1 + py
+            else:
+                ti1, _, nx, ny, _, _ = rect_getSegmentIntersectionIndices(x, y, w, h, 0, 0, dx, dy, -math.inf, 1)
+                if not ti1:
+                    return
+                tx, ty = x1 + dx * ti1, y1 + dy * ti1
+        else:
+            tx, ty = x1 + dx * ti, y1 + dy * ti
+        
+        return {'overlaps': overlaps,
+                'ti': ti,
+                'move': {'x': dx, 'y': dy},
+                'normal': {'x': nx, 'y': ny},
+                'touch': {'x': tx, 'y': ty},
+                'itemRect': {'x': x1, 'y': y1, 'w': w1, 'h': h1},
+                'otherRect': {'x': x2, 'y': y2, 'w': w2, 'h': h2}
+                }
 
     def slide(self, col, x,y,w,h, goalX, goalY):
         goalX = goalX or x
@@ -144,7 +209,8 @@ class Collisions(object):
                  ox, oy, ow, oh = self.getRect(other)
                  print(ox, oy, ow, oh)
                  col = self.rect_detectCollision(x, y, w, h, ox, oy, ow, oh, goalX, goalY)
-                 print(col)
+                 if col:
+                     collisions.append(col)
 
         return collisions, len(collisions)
 
@@ -157,8 +223,13 @@ class Collisions(object):
 
     def check(self, item, goalX, goalY):
         cols = []
+
         x, y, w, h = self.getRect(item)
         projected_cols, projected_len = self.project(item, x, y, w, h, goalX, goalY)
+        if projected_len:
+            print("ICI", projected_cols[0])
+            goalX, goalY = projected_cols[0]['touch']['x'], projected_cols[0]['touch']['y']
+
         #print(projected_cols, projected_len)
 
         return goalX, goalY, cols, len(cols)
@@ -185,11 +256,12 @@ class Collisions(object):
     def removeItemFromCell(self, item, cx, cy):
         print("removeItemFromCell", item)
         row = self.rows.get(cy)
-        if not row or not row.get(cx) or not row[cx].items[item]:
+        if not row or not row.get(cx) or not row[cx].items.get(item):
             return False
 
         cell = row.get(cx)
-        del cell.items[item]
+        if item in cell.items:
+            del cell.items[item]
         cell.itemCount = cell.itemCount - 1
         if cell.itemCount == 0:
             del self.nonEmptyCells[cell]
@@ -233,6 +305,10 @@ class Collisions(object):
         
             rect = self.rects.get(item)
             rect.x, rect.y, rect.w, rect.h = x2, y2, w2, h2
+    
+    def draw(self):
+        for rect_ in self.rects.values():
+            rect(rect_.x, rect_.y, rect_.x + rect_.w, rect_.y+rect_.h, 7)
 
 C = Collisions()
 
@@ -252,6 +328,10 @@ def world_move(item, goalX, goalY):
 def world_remove(item):
     global C
     C.remove(item)
+
+def world_draw_debug():
+    global C
+    C.draw()
 
 class SF(object):
     def __init__(self, max_speed, scroll_speed):
@@ -339,7 +419,7 @@ class Bullet(object):
         future_x = self.x + self.dx
         future_y = self.y + self.dy
 
-        next_x, next_y, cols, len_cols = world_move(self, future_x, future_y)
+        next_x, next_y, cols, len_cols = world_move(self.name, future_x, future_y)
         if cols:
             print("COLLISIONS", cols)
         self.x, self.y = next_x, next_y
@@ -362,6 +442,7 @@ class Bullets(object):
     def update(self):
         to_del = []
         for k, b in enumerate(self.bullets):
+            print(k, b)
             b.update()
             if b.x < 0 or b.x > SIZE_X or b.y < 0 or b.y > SIZE_Y:
                to_del.append(b)
@@ -449,7 +530,7 @@ class Invaders(object):
         self.ship.update(self.t)
 
         if btnp(4):
-            self.bullets.add(3, self.ship.x, self.ship.y, 0, -3)
+            self.bullets.add(3, self.ship.x, self.ship.y-8, 0, -3)
 
         self.t += 1
 
@@ -466,6 +547,7 @@ class Invaders(object):
 
     def draw_debug(self):
         global C
+        world_draw_debug()
         px8_print("BULLETS %d" % len(self.bullets.bullets), 0, SIZE_X - 16, 7)
         px8_print("COLLISIONS %d" % len(C.rects), 0, SIZE_X - 8, 7)
 
