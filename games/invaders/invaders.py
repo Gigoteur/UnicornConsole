@@ -103,7 +103,7 @@ class Collisions(object):
 
         dx, dy = goalX - x1, goalY - y1
         x,y,w,h = rect_getDiff(x1,y1,w1,h1, x2,y2,w2,h2)
-        print(x, y, w, h)
+        #print(x, y, w, h)
 
         ti = None
         overlaps = None
@@ -113,8 +113,13 @@ class Collisions(object):
             ti = -wi * hi
             overlaps = True
         else:
-            pass
-        print(ti)
+            ti1, ti2, nx1, ny1, _, _ = rect_getSegmentIntersectionIndices(x,y,w,h, 0,0,dx,dy, -math.inf, math.inf)
+
+            if ti1 and (ti1 < 1) and (abs(ti1 - ti2) >= DELTA) and (0 < ti1 + DELTA or 0 == ti1 and ti2 > 0):
+                ti, nx, ny = ti1, nx1, ny1
+                overlaps = False
+
+        #print(ti)
         
         if not ti:
             return None
@@ -165,12 +170,11 @@ class Collisions(object):
         return goalX, goalY, cols, len_
 
     def addItemToCell(self, item, cx, cy):
-        print("addItemToCell", item, cx, cy)
+        #print("addItemToCell", item, cx, cy)
         self.rows[cy] = self.rows.get(cy) or {}
         row = self.rows[cy]
         row[cx] = row.get(cx) or Cell(itemCount = 0, x = cx, y = cy)
         cell = row[cx]
-        print("CELL", cell)
         self.nonEmptyCells[cell] = True
         if not cell.items.get(item):
             cell.items[item] = True
@@ -203,46 +207,59 @@ class Collisions(object):
         cl, ct, cw, ch = self.grid_toCellRect(self.cellsize, tl, tt, tw, th)
         #print("PROJECT grid_toCellRect", cl, ct, cw, ch)
         dictItemsInCellRect = self.getDictItemsInCellRect(cl, ct, cw, ch)
-        print("PROJECT getDictItemsInCellRect", item, dictItemsInCellRect)
+        #print("PROJECT getDictItemsInCellRect", item, dictItemsInCellRect)
         for other in dictItemsInCellRect:
             if not visited.get(other):
                  ox, oy, ow, oh = self.getRect(other)
-                 print(ox, oy, ow, oh)
                  col = self.rect_detectCollision(x, y, w, h, ox, oy, ow, oh, goalX, goalY)
                  if col:
+                     col['other'] = other
                      collisions.append(col)
 
         return collisions, len(collisions)
 
     def getRect(self, item):
-        rect = self.rects.get(item)
+        rect = self.rects.get(item.name)
         if not rect:
             return 0, 0, 0, 0
 
         return rect.x, rect.y, rect.w, rect.h
 
     def check(self, item, goalX, goalY):
+        #print("CHECK", item)
         cols = []
 
         x, y, w, h = self.getRect(item)
         projected_cols, projected_len = self.project(item, x, y, w, h, goalX, goalY)
-        if projected_len:
-            print("ICI", projected_cols[0])
-            goalX, goalY = projected_cols[0]['touch']['x'], projected_cols[0]['touch']['y']
+        for projected_col in projected_cols:
+            touch = projected_col['touch']
+            move = projected_col['move']
+            normal = projected_col['normal']
+
+            sx, sy = touch['x'], touch['y']
+
+            if move['x'] != 0 or move['y'] != 0:
+                if normal['x'] == 0:
+                    sx = goalX
+                else:
+                    sy = goalY
+
+            goalX, goalY = sx, sy
+            cols.append(projected_col)
 
         #print(projected_cols, projected_len)
 
         return goalX, goalY, cols, len(cols)
 
     def add(self, item, x, y, w, h):
-        obj = self.rects.get(item)
+        obj = self.rects.get(item.name)
         if obj:
             print("Data %s is already present" % item)
             return
 
         print("ADD", item, x, y, w, h)
 
-        self.rects[item] = Rect(x, y, w, h)
+        self.rects[item.name] = Rect(x, y, w, h)
         cl, ct, cw, ch = self.grid_toCellRect(self.cellsize, x, y, w, h)
 
         print(item, x, y, w, h, self.getRect(item))
@@ -254,7 +271,7 @@ class Collisions(object):
                 self.addItemToCell(item, cx, cy)
 
     def removeItemFromCell(self, item, cx, cy):
-        print("removeItemFromCell", item)
+        #print("removeItemFromCell", item)
         row = self.rows.get(cy)
         if not row or not row.get(cx) or not row[cx].items.get(item):
             return False
@@ -268,10 +285,10 @@ class Collisions(object):
         return True
 
     def remove(self, item):
-        print("REMOVE ", item)
+        #print("REMOVE ", item)
         x, y, w, h = self.getRect(item)
 
-        del self.rects[item]
+        del self.rects[item.name]
 
         cl,ct,cw,ch = self.grid_toCellRect(self.cellsize, x, y, w, h)
         for cy in range(ct, ct+ch-1):
@@ -303,7 +320,7 @@ class Collisions(object):
                         if cyOut or cx < cl1 or cx > cr1:
                             self.addItemToCell(item, cx, cy)
         
-            rect = self.rects.get(item)
+            rect = self.rects.get(item.name)
             rect.x, rect.y, rect.w, rect.h = x2, y2, w2, h2
     
     def draw(self):
@@ -318,6 +335,11 @@ def world_add(name, x, y, w, h):
    # world_add("A", 0, 0, 64, 256)
    #     actualX, actualY, cols, len = world_move("B", 0, 64)
 
+def world_check(item, goalX, goalY):
+    global C
+    actualX, actualY, cols, len_ = C.check(item, goalX, goalY)
+    return actualX, actualY, cols, len_
+
 def world_move(item, goalX, goalY):
     global C
     actualX, actualY, cols, len_ = C.check(item, goalX, goalY)
@@ -331,7 +353,7 @@ def world_remove(item):
 
 def world_draw_debug():
     global C
-    C.draw()
+    #C.draw()
 
 class SF(object):
     def __init__(self, max_speed, scroll_speed):
@@ -374,17 +396,37 @@ class StarsBackground(object):
             line(sf.x, sf.lasty, sf.x, sf.y, sf.color)
 
 class Enemy(object):
-    def __init__(self, sp, m_x, m_y, x, y, r):
+    def __init__(self, idx, sp, m_x, m_y, x, y, r):
+        self.name = str(self) + str(idx)
         self.sp = sp
         self.m_x = m_x
         self.m_y = m_y
         self.x = x
         self.y = y
         self.r = r
+        self.die = False
+        self.speed = 0.5
+
+    def set_die(self):
+        self.die = True
 
     def update(self, t):
-        self.x = self.r*sin(t/50) + self.m_x
-        self.y = self.r*cos(t/50) + self.m_y
+        if self.die:
+            return False
+
+        future_x = self.r*sin(t/100) + self.m_x
+        future_y = self.r*cos(t/100) + self.m_y + self.speed
+
+        next_x, next_y, cols, len_cols = world_move(self, future_x, future_y)
+        if cols:
+            print("COLLISIONS ENEMY", cols)
+            #('ooo')
+            return False
+        else:
+            self.m_y += self.speed
+
+        self.x, self.y = next_x, next_y
+        return True
 
     def draw(self):
         spr(self.sp, self.x, self.y)
@@ -392,12 +434,25 @@ class Enemy(object):
 class Enemies(object):
     def __init__(self, nb):
         self.enemies = []
-        for i in range(0, nb):
-            self.enemies.append(Enemy(sp=17, m_x=i*16, m_y=60-i*8, x=-32, y=-32, r=12))
+        self.nb = nb
+        self.respawn()
+
+    def respawn(self):
+        for i in range(0, self.nb):
+            enemy = Enemy(idx=i, sp=17, m_x=i*16, m_y=60-i*16, x=80, y=64+i*16, r=32)
+            self.enemies.append(enemy)
+            world_add(enemy, enemy.x, enemy.y, 8, 8)
 
     def update(self, t):
-        for e in self.enemies:
-            e.update(t)
+        self.to_del = []
+        for k, e in enumerate(self.enemies):
+            if not e.update(t) or (e.y > SIZE_Y):
+               self.to_del.append(e)
+
+    def remove(self):
+        for remove_element in self.to_del:
+            enemy = self.enemies.pop(self.enemies.index(remove_element))
+            world_remove(enemy)
 
     def draw(self):
         for e in self.enemies:
@@ -407,22 +462,34 @@ class Enemies(object):
         return self.enemies
 
 class Bullet(object):
-    def __init__(self, name, sp, x, y, dx, dy):
+    def __init__(self, name, sp, x, y, vel_inc=1.2):
         self.name = name
         self.sp = sp
         self.x = x
         self.y = y
-        self.dx = dx
-        self.dy = dy
+        self.dx = 0
+        self.dy = 0
+        self.vel_inc = vel_inc
+        self.max_inc = 2.0
 
     def update(self):
-        future_x = self.x + self.dx
-        future_y = self.y + self.dy
+        dy = self.dy - self.vel_inc
 
-        next_x, next_y, cols, len_cols = world_move(self.name, future_x, future_y)
+        future_x = self.x
+        future_y = self.y + dy
+
+        next_x, next_y, cols, len_cols = world_move(self, future_x, future_y)
         if cols:
-            print("COLLISIONS", cols)
+            print("COLLISIONS BULLET", cols)
+            for col in cols:
+                col['other'].set_die()
+            return False
+
+        self.dy = dy
         self.x, self.y = next_x, next_y
+        _, self.dx, self.dy = clampvec_getlen(self.dx, self.dy, self.max_inc)
+
+        return True
 
     def draw(self):
         spr(self.sp, self.x, self.y)
@@ -432,25 +499,24 @@ class Bullets(object):
         self.bullets = []
         self.idx = 0
 
-    def add(self, sp, x, y, dx, dy):
-        bullet = Bullet("bullet", sp, x, y, dx, dy)
+    def add(self, sp, x, y):
+        bullet = Bullet("bullet", sp, x, y)
         bullet.name = str(bullet) + str(self.idx)
         self.bullets.append(bullet)
-        world_add(bullet.name, bullet.x, bullet.y, 8, 8)
+        world_add(bullet, bullet.x, bullet.y, 2, 3)
         self.idx += 1
 
     def update(self):
-        to_del = []
+        self.to_del = []
         for k, b in enumerate(self.bullets):
-            print(k, b)
-            b.update()
-            if b.x < 0 or b.x > SIZE_X or b.y < 0 or b.y > SIZE_Y:
-               to_del.append(b)
+            if not b.update() or (b.x < 0 or b.x > SIZE_X or b.y < 0 or b.y > SIZE_Y):
+               self.to_del.append(b)
 
+    def remove(self):
         # delete bullets outside the screen
-        for remove_element in to_del:
+        for remove_element in self.to_del:
             bullet = self.bullets.pop(self.bullets.index(remove_element))
-            world_remove(bullet.name)
+            world_remove(bullet)
 
     def draw(self):
         for b in self.bullets:
@@ -459,13 +525,35 @@ class Bullets(object):
     def get(self):
         return self.bullets
 
+def muls(ax, ay, b):
+    return ax*b, ay*b
+
+def dot(ax, ay, bx, by):
+    return ax*bx+ay*by
+
+def clampvec_getlen(vx, vy, n):
+    l = sqrt(dot(vx,vy,vx,vy))
+    if l > n:
+        vx, vy = muls(vx, vy, n/l)
+        l = n
+    return l, vx, vy
+
 class Ship(object):
     def __init__(self, x, y, sp, h):
         self.x = x
         self.y = y
+        self.dx = 0
+        self.dy = 0
+        self.vel_inc = 1.5
+        self.max_inc = 2.0
         self.sp = sp
         self.h = h
         self.max_h = h
+        self.name = "ship"
+        self.die = False
+
+    def set_die(self):
+        self.die = True
 
     def update(self, t):
         if(t%6<3):
@@ -473,22 +561,30 @@ class Ship(object):
         else:
             self.sp=2
 
-        future_x = self.x
-        future_y = self.y
+        dx = 0
+        dy = 0
 
         if btn(0):
-            future_x-=1
+            dx = self.dx - self.vel_inc
         if btn(1):
-            future_x+=1
+            dx = self.dx + self.vel_inc
         if btn(2):
-            future_y-=1
+            dy = self.dy - self.vel_inc
         if btn(3):
-            future_y+=1
+            dy = self.dy + self.vel_inc
+        
+        future_x = self.x+dx
+        future_y = self.y+dy
 
         next_x, next_y, cols, len_cols = world_move(self, future_x, future_y)
         if cols:
-            print("COLLISIONS", cols)
+            print("COLLISIONS SHIP", cols)
+
+        self.dx = dx
+        self.dy = dy
+
         self.x, self.y = next_x, next_y
+        _, self.dx, self.dy = clampvec_getlen(self.dx, self.dy, self.max_inc)
 
     def draw(self):
         spr(self.sp,self.x,self.y)
@@ -500,16 +596,25 @@ class Ship(object):
                 spr(34,SIZE_X-32+6*i,3)
 
 class Block(object):
-    def __init__(self, x, y, w, h):
+    def __init__(self, name, x, y, w, h):
         self.x = x
         self.y = y
         self.w = w
         self.h = h
+        self.name = name
 
         world_add(self, x, y, w, h)
 
+    def set_die(self):
+        pass
+
+    def update(self):
+        next_x, next_y, cols, len_cols = world_check(self, self.x, self.y)
+        if cols:
+            print("COLLISIONS BLOCK", cols)
+
     def draw(self):
-        rectfill(self.x, self.y, self.x+self.w, self.y+self.h, 8)
+        rectfill(self.x, self.y, self.x+self.w, self.y+self.h, 10)
 
 class Invaders(object):
     def __init__(self, background):
@@ -517,20 +622,29 @@ class Invaders(object):
         self.background = background()
         self.bullets = Bullets()
         self.enemies = Enemies(10)
-        self.block = Block(128, 128, 10, 10)
+        self.block = Block("block", 128, 128, 10, 10)
         self.t = 0
 
         world_add(self.ship, self.ship.x, self.ship.y, 8, 8)
 
     def update(self):
         self.background.update()
-
-        self.enemies.update(self.t)
-        self.bullets.update()
-        self.ship.update(self.t)
+        
+        if len(self.enemies.get()) == 0:
+            self.enemies.respawn()
 
         if btnp(4):
-            self.bullets.add(3, self.ship.x, self.ship.y-8, 0, -3)
+            self.bullets.add(3, self.ship.x+2, self.ship.y-8)
+
+        self.enemies.update(self.t)
+
+        self.bullets.update()
+        self.block.update()
+        self.ship.update(self.t)
+
+        self.bullets.remove()
+        self.enemies.remove()
+
 
         self.t += 1
 
@@ -548,7 +662,7 @@ class Invaders(object):
     def draw_debug(self):
         global C
         world_draw_debug()
-        px8_print("BULLETS %d" % len(self.bullets.bullets), 0, SIZE_X - 16, 7)
+        px8_print("SHIP %d %d BULLETS %d" % (self.ship.x, self.ship.y, len(self.bullets.bullets)), 0, SIZE_X - 16, 7)
         px8_print("COLLISIONS %d" % len(C.rects), 0, SIZE_X - 8, 7)
 
 I = None
