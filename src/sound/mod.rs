@@ -10,13 +10,13 @@ pub mod sound {
     use std::sync::{Arc, Mutex};
 
     pub struct SoundInternal {
-        player: chiptune::Chiptune,
-        chiptune_music_tracks: HashMap<String, chiptune::ChiptuneSong>,
-        chiptune_sound_tracks: HashMap<String, chiptune::ChiptuneSound>,
-        music_tracks: HashMap<String, mixer::Music>,
-        sound_tracks: HashMap<String, mixer::Chunk>,
+        pub player: chiptune::Chiptune,
+        pub chiptune_music_tracks: HashMap<String, chiptune::ChiptuneSong>,
+        pub chiptune_sound_tracks: HashMap<String, chiptune::ChiptuneSound>,
+        pub music_tracks: HashMap<String, mixer::Music>,
+        pub sound_tracks: HashMap<String, mixer::Chunk>,
         pub csend: mpsc::Sender<Vec<u8>>,
-        crecv: mpsc::Receiver<Vec<u8>>,
+        pub crecv: mpsc::Receiver<Vec<u8>>,
     }
 
     impl SoundInternal {

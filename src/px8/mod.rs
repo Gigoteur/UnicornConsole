@@ -6,7 +6,6 @@ pub mod noise;
 pub mod math;
 pub mod packet;
 pub mod wfc;
-pub mod collision;
 
 use std::collections::HashMap;
 use std::io::Cursor;
@@ -629,7 +628,6 @@ pub struct PX8 {
     pub info: Arc<Mutex<info::Info>>,
     pub sound: Arc<Mutex<Sound>>,
     pub sound_internal: Arc<Mutex<SoundInternal>>,
-    pub collision: Arc<Mutex<collision::Collision>>,
     pub palettes: Arc<Mutex<Palettes>>,
     pub players: Arc<Mutex<Players>>,
     pub configuration: Arc<Mutex<PX8Config>>,
@@ -666,7 +664,6 @@ impl PX8 {
             screen: Arc::new(Mutex::new(gfx::Screen::new(128, 128))),
             sound_internal: sound_internal,
             sound: Arc::new(Mutex::new(Sound::new(csend))),
-            collision: Arc::new(Mutex::new(collision::Collision::new(32))),
             info: Arc::new(Mutex::new(info::Info::new())),
             palettes: Arc::new(Mutex::new(Palettes::new())),
             players: Arc::new(Mutex::new(Players::new())),

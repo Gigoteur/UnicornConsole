@@ -10,12 +10,21 @@ use time;
 
 use sound::sound::SoundInternal;
 
+
+static KEYS_NOTE: [char; 29] = [
+    'z', 's', 'x', 'd', 'c', 'v', 'g', 'b', 'h', 'n', 'j', 'm',
+    'q', '2', 'w', '3', 'e', 'r', '5', 't', '6', 'y', '7', 'u',
+    'i', '9', 'o', '0', 'p',
+];
+
 pub struct MusicEditor {
+    selected_sounds: String,
 }
 
 impl MusicEditor {
     pub fn new(state: Arc<Mutex<State>>) -> MusicEditor {
         MusicEditor {
+            selected_sounds: "".to_string(),
         }
     }
 
@@ -28,5 +37,12 @@ impl MusicEditor {
     }
 
     pub fn draw(&mut self, players: Arc<Mutex<Players>>, screen: &mut Screen, sound: Arc<Mutex<SoundInternal>>) {
+
+        // Draw contour
+        screen.rectfill(0, 16, 240, 24, 7);
+        screen.print("Inst".to_string(), 0, 16, 9);
+        for (name, track) in &sound.lock().unwrap().chiptune_sound_tracks {
+
+        }
     }
 }

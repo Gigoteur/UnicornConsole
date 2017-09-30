@@ -41,6 +41,10 @@ class Vec2(object):
     def len(self):
         return sqrt(self.x*self.x+self.y*self.y)
 
+    def _set(self, vec2):
+        self.x = vec2.x
+        self.y = vec2.y
+
     def _add(self, b):
         self.x = self.x + b.x
         self.y = self.y + b.y
@@ -117,6 +121,7 @@ class Trees(object):
 
     def update(self, x, y, cell, cam, cells, blobs):
         trees = cell.trees
+
         cellp = Vec2(
             cam.pos.x%self.cell_size-x*self.cell_size,
             cam.pos.y%self.cell_size-y*self.cell_size
@@ -134,7 +139,10 @@ class Trees(object):
             tree.leaves[1] = [leaves_1.x, leaves_1.y]
             tree.leaves[2] = [leaves_2.x, leaves_2.y]
 
-            blobs.add_blob(Vec2((cells.pos.x+x) * self.cell_size, (cells.pos.y+y)*self.cell_size).add(tree.pos), tree.girth)
+            tree_pos = Vec2((cells.pos.x+x) * self.cell_size, (cells.pos.y+y)*self.cell_size).add(tree.pos)
+            #blobs.add_blob(tree_pos, tree.girth)
+            tree.name = str(tree)
+            world_add(tree, tree_pos.x, tree_pos.y, 3, 3)
 
     def draw(self, a, b, cell, cam, shadow):
         camera(
@@ -229,11 +237,13 @@ class Building(object):
         self.height = height
         self.color = color
         self.s = Vec2(0, 0)
+        self.name = str(self)
 
 class Buildings(object):
     def __init__(self, config):
         self.config = config
         self.cell_size = self.config.cell_size
+        self.buildings = {}
 
     def update(self, x, y, cell, cam, cells, blobs):
         building = cell.building
@@ -252,6 +262,8 @@ class Buildings(object):
                     p1.x += i
                 else:
                     p1.y += i
+                world_add(tree, p1.x, p1.y, s2)
+
                 blobs.add_blob(
                     p1,
                     s2
@@ -264,6 +276,8 @@ class Buildings(object):
                 p2.y += s1-s2/2
 
             if p2.dist(p1) > 2:
+                #world_add(tree, tree_pos.x, tree_pos.y, 3, 3)
+
                 blobs.add_blob(
                     p2,
                     s2
@@ -704,11 +718,16 @@ class Player2(object):
         self.r = 4
         self.r2 = self.r * self.r
         self.height = 4
+        self.name = 'player'
 
         self.c=[8, 7, 3]
 
+        world_add(self, self.pos.x, self.pos.y, 8, 8)
+
     def update(self):
         v_dif = Vec2(0, 0)
+        v = Vec2(self.v.x, self.v.y)
+
         if btn(0):
             v_dif.x -= self.speed.x
         if btn(1):
@@ -722,24 +741,30 @@ class Player2(object):
             pass
 
         if abs(v_dif.x)+abs(v_dif.y) > 0.01:
-            self.v._add(v_dif)
+            v._add(v_dif)
             self.a_o=self.a
-            self.a=atan2(self.v.x, self.v.y)
+            self.a=atan2(v.x, v.y)
 
-        self.v._mul(self.damping)
+        v._mul(self.damping)
 
-        if abs(self.v.x) < 0.01:
-            self.v.x = 0
-        if abs(self.v.y) < 0.01:
-            self.v.y = 0
+        if abs(v.x) < 0.01:
+            v.x = 0
+        if abs(v.y) < 0.01:
+            v.y = 0
 
-        self.cur_speed=self.v.len()
+        self.cur_speed=v.len()
         if self.cur_speed > self.max_speed:
-            self.v._mul(self.max_speed/self.cur_speed)
+            v._mul(self.max_speed/self.cur_speed)
             self.cur_speed=self.max_speed
 
-        self.pos._add(self.v)
+        future_pos = self.pos.add(v)
+        actualX, actualY, cols, len_cols = world_move(self, future_pos.x, future_pos.y)
+        print(actualX, actualY, cols, len_cols)
+        if cols:
+            print("COLLISIONS", cols)
 
+        self.v._set(v)
+        self.pos._set(Vec2(actualX, actualY))
         self._update_boundaries()
 
     def _update_boundaries(self):
@@ -757,26 +782,26 @@ class Player2(object):
 
     def draw_shadow(self):
         circfill(
-            self.pos.x+SHADOW_OFFSET.x*self.height,
-            self.pos.y+SHADOW_OFFSET.y*self.height,
+            self.pos.x+4+SHADOW_OFFSET.x*self.height,
+            self.pos.y+4+SHADOW_OFFSET.y*self.height,
             self.r,5)
 
     def draw(self):
         s = self.cur_speed/self.max_speed*self.r/5+0.5
-        p1=Vec2(self.pos.x,self.pos.y)
+        p1=Vec2(self.pos.x, self.pos.y)
         p2=Vec2(p1.x + self.height*cos(self.a)*s, p1.y+self.height*sin(self.a)*s)
 
 
-        circfill(p1.x, p1.y, self.r*3/4, self.c[0])
+        circfill(p1.x+4, p1.y+4, self.r*3/4, self.c[0])
 
         p2=p1.lerp(p2,0.5)
-        circfill(p2.x, p2.y, self.r/1.8, self.c[1])
+        circfill(p2.x+4, p2.y+4, self.r/1.8, self.c[1])
 
         #p2=p1.lerp(p2,0.75)
         #circfill(p2.x,p2.y,self.r/2, self.c[2])
 
         p2=p1.lerp(p2,0.5)
-        pset(p2.x,p2.y,0)
+        pset(p2.x+4, p2.y+4, 0)
 
 
 ################################# NPC #######################################
@@ -794,8 +819,11 @@ class NPC(object):
         self.r = 4
         self.r2 = self.r * self.r
         self.height = 4
+        self.name = 'npc'
 
         self.c=[10, 7, 3]
+
+        world_add(self, self.pos.x, self.pos.y, 8, 8)
 
     def update(self):
         v_dif = Vec2(0, 0)
@@ -987,7 +1015,8 @@ class World(object):
 
         # Reset / Debug
         camera(0, 0)
-        px8_print("P X %.2f Y %.2f %.2f %.2f" % (self.player.pos.x, self.player.pos.y,self.player.v.x, self.player.v.y), 0, SIZE_Y-16)
+        world_draw_debug(self.camera.pos.x, self.camera.pos.y)
+        px8_print("P X %.2f Y %.2f %.2f %.2f" % (self.player.pos.x, self.player.pos.y, self.player.v.x, self.player.v.y), 0, SIZE_Y-16)
         px8_print("B %d C X %d Y %d" % (self.blobs.len(), flr(self.camera.pos.x), flr(self.camera.pos.y)), 0, SIZE_Y-8)
 
     def draw_minicart(self):
