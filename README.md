@@ -46,7 +46,7 @@ Specifications:
  * Editor for the sprite / map
  * PX8 format to be able to use your favorite code editor for Python/Lua/Rust
  * Mutliple fonts support (pico-8, bbc, cbmII, appleII)
- * Audio support (wav/mp3/etc) and an integrated ![Chiptune] (https://github.com/kometbomb/klystron/) with Klystrack 
+ * Audio support (wav/mp3/etc) and an integrated ![Chiptune](https://github.com/kometbomb/klystron/) with Klystrack 
  * Change the screen definition dynamically and the aspect ratio dynamically
  * Screenshot (PNG) / Video recording (GIF)
  * Pico-8 compatibility + cartridge (P8/P8.PNG) format support
