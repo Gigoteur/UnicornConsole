@@ -136,14 +136,12 @@ cargo build --features="cpython px8_plugin_lua" --release
 
 You will need multiple things:
   * SDL2
-  * SDL2_mixer
   * python3
 
 #### Linux
 
 Packages for Debian/Ubuntu:
   * libsdl2-dev
-  * libsdl2-mixer-dev
   * libpython3-dev
 
 ##### Raspberry Pi
@@ -158,7 +156,6 @@ sudo raspi-config
 Install external dependencies via brew:
    * brew install python3
    * brew install sdl2
-   * brew install sdl2_mixer
    
 Right now you need to export the DYLD_FALLBACK_LIBRARY_PATH env variable for the python support, e.g:
    * export DYLD_FALLBACK_LIBRARY_PATH=/usr/local/Cellar/python3/3.5.1/Frameworks/Python.framework/Versions/3.5/lib

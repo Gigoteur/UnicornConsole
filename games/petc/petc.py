@@ -76,6 +76,19 @@ class Vec2(object):
     def dist(self, b):
         return self.sub(b).len()
     
+def muls(ax, ay, b):
+    return ax*b, ay*b
+
+def dot(ax, ay, bx, by):
+    return ax*bx+ay*by
+
+def clampvec_getlen(vx, vy, n):
+    l = sqrt(dot(vx,vy,vx,vy))
+    if l > n:
+        vx, vy = muls(vx, vy, n/l)
+        l = n
+    return l, vx, vy
+
 SHADOW_OFFSET = Vec2(2, 3).normalize().mul(0.2)
 PERSPECTIVE_OFFSET = Vec2(64, 80)
 
@@ -140,7 +153,6 @@ class Trees(object):
             tree.leaves[2] = [leaves_2.x, leaves_2.y]
 
             tree_pos = Vec2((cells.pos.x+x) * self.cell_size, (cells.pos.y+y)*self.cell_size).add(tree.pos)
-            #blobs.add_blob(tree_pos, tree.girth)
             tree.name = str(tree)
             world_add(tree, tree_pos.x, tree_pos.y, 3, 3)
 
@@ -262,7 +274,7 @@ class Buildings(object):
                     p1.x += i
                 else:
                     p1.y += i
-                world_add(tree, p1.x, p1.y, s2)
+                #world_add(tree, p1.x, p1.y, s2)
 
                 blobs.add_blob(
                     p1,
@@ -618,6 +630,75 @@ class Bullets(object):
             bullet.draw()
 
 
+################################# Bullet #######################################
+class Bullet(object):
+    def __init__(self, name, sp, x, y, vel_inc=1.8):
+        self.name = name
+        self.sp = sp
+        self.x = x
+        self.y = y
+        self.dx = 0
+        self.dy = 0
+        self.vel_inc = vel_inc
+        self.max_inc = 2.0
+
+    def set_die(self):
+        pass
+
+    def update(self):
+        dy = self.dy - self.vel_inc
+
+        future_x = self.x
+        future_y = self.y + dy
+
+        next_x, next_y, cols, len_cols = world_move(self, future_x, future_y)
+        if cols:
+            print("COLLISIONS BULLET", cols)
+            for col in cols:
+                col['other'].set_die()
+            return False
+
+        self.dy = dy
+        self.x, self.y = next_x, next_y
+        _, self.dx, self.dy = clampvec_getlen(self.dx, self.dy, self.max_inc)
+
+        return True
+
+    def draw(self):
+        palt(0, True)
+        spr(self.sp, self.x, self.y)
+
+class Bullets(object):
+    def __init__(self):
+        self.bullets = []
+        self.idx = 0
+
+    def add(self, sp, x, y):
+        bullet = Bullet("bullet", sp, x, y)
+        bullet.name = str(bullet) + str(self.idx)
+        self.bullets.append(bullet)
+        world_add(bullet, bullet.x, bullet.y, 2, 3)
+        self.idx += 1
+
+    def update(self):
+        self.to_del = []
+        for k, b in enumerate(self.bullets):
+            if not b.update():# or (b.x < 0 or b.x > SIZE_X or b.y < 0 or b.y > SIZE_Y):
+               self.to_del.append(b)
+
+    def remove(self):
+        # delete bullets outside the screen
+        for remove_element in self.to_del:
+            bullet = self.bullets.pop(self.bullets.index(remove_element))
+            world_remove(bullet)
+
+    def draw(self):
+        for b in self.bullets:
+            b.draw()
+
+    def get(self):
+        return self.bullets
+
 ################################# Player #######################################
 class Player(object):
     def __init__(self, vec2):
@@ -645,9 +726,6 @@ class Player(object):
             v_dif.y -= self.speed.y
         if btn(3):
             v_dif.y += self.speed.y
-
-        if btnp(4):
-            pass
 
         if abs(v_dif.x)+abs(v_dif.y) > 0.01:
             self.v._add(v_dif)
@@ -706,7 +784,7 @@ class Player(object):
 
 
 class Player2(object):
-    def __init__(self, vec2):
+    def __init__(self, vec2, bullets):
         self.pos = vec2
         self.v = Vec2(0, 0)
         self.speed=Vec2(0.7,0.7)
@@ -719,6 +797,7 @@ class Player2(object):
         self.r2 = self.r * self.r
         self.height = 4
         self.name = 'player'
+        self.bullets = bullets
 
         self.c=[8, 7, 3]
 
@@ -737,15 +816,17 @@ class Player2(object):
         if btn(3):
             v_dif.y += self.speed.y
 
-        if btnp(4):
-            pass
-
         if abs(v_dif.x)+abs(v_dif.y) > 0.01:
             v._add(v_dif)
             self.a_o=self.a
             self.a=atan2(v.x, v.y)
 
         v._mul(self.damping)
+
+        print("A", self.a)
+        
+        if btnp(4):
+            self.bullets.add(67, self.pos.x+2, self.pos.y-8)
 
         if abs(v.x) < 0.01:
             v.x = 0
@@ -940,7 +1021,9 @@ class World(object):
         self.config = Configuration(self.biomes, self.blobs)
 
         self.M = MapFormat(CreateRandomWorld())
-        self.player = Player2(Vec2(128, 128))
+        self.bullets = Bullets()
+        
+        self.player = Player2(Vec2(128, 128), self.bullets)
         self.npcs = NPCs()
 
         self.camera = Camera(Vec2(0,0))
@@ -972,6 +1055,7 @@ class World(object):
         self.cells.set_pos(Vec2(flr(self.camera.pos.x/CELL_SIZE),
                                 flr(self.camera.pos.y/CELL_SIZE)))
 
+        self.bullets.update()
 
         for x in range(0, CELL_FILL):
             for y in range(0, CELL_FILL):
@@ -1013,11 +1097,13 @@ class World(object):
 
         self.draw_minicart()
 
+        self.bullets.draw()
+
         # Reset / Debug
         camera(0, 0)
         world_draw_debug(self.camera.pos.x, self.camera.pos.y)
         px8_print("P X %.2f Y %.2f %.2f %.2f" % (self.player.pos.x, self.player.pos.y, self.player.v.x, self.player.v.y), 0, SIZE_Y-16)
-        px8_print("B %d C X %d Y %d" % (self.blobs.len(), flr(self.camera.pos.x), flr(self.camera.pos.y)), 0, SIZE_Y-8)
+        px8_print("B %d C X %d Y %d" % (len(self.bullets.bullets), flr(self.camera.pos.x), flr(self.camera.pos.y)), 0, SIZE_Y-8)
 
     def draw_minicart(self):
         camera(0, 0)

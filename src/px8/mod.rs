@@ -131,12 +131,13 @@ pub enum PX8Mode {
     PICO8,
 }
 
-#[derive(Debug)]
+#[derive(Debug,PartialEq)]
 pub enum PX8State {
     RUN,
     PAUSE,
     EDITOR,
     INTERACTIVE,
+    BOOT,
 }
 
 pub enum Code {
@@ -184,6 +185,42 @@ pub fn draw_logo(screen: &mut gfx::Screen) {
             screen.pset(idx_x + x, idx_y + y, c);
         }
         x += 1;
+    }
+}
+
+pub struct Boot {
+    t: i64,
+    value: f64,
+    length: f64,
+}
+
+impl Boot {
+    pub fn new() -> Boot {
+        Boot {
+            t: 0,
+            value: -1.0,
+            length: 1.0,
+        }
+    }
+
+    pub fn update(&mut self,  info: Arc<Mutex<info::Info>>, sound: Arc<Mutex<Sound>>) -> bool {
+        self.t += 1;
+
+        let value = info.lock().unwrap().time_sec();
+        if self.value == -1.0 {
+            self.value = value;
+        }
+
+        (value - self.value) > self.length
+    }
+
+    pub fn draw(&mut self, screen: &mut gfx::Screen) {
+        let mut color = 7;
+        if (self.t % 2) == 0 {
+            color = 8;
+        }
+        screen.print("Booting ....".to_string(), 20, 64, color);
+        draw_logo(screen);
     }
 }
 
@@ -635,9 +672,11 @@ pub struct PX8 {
     pub cartridges: Vec<PX8Cartridge>,
     pub editor: editor::Editor,
     pub editing: bool,
+    pub boot: Boot,
     pub menu: Menu,
     pub current_cartridge: usize,
     pub current_code_type: Code,
+    pub interactive: bool,
     pub state: PX8State,
     pub pause_menu: PauseMenu,
     pub fps: f64,
@@ -674,7 +713,9 @@ impl PX8 {
             editing: false,
             current_cartridge: 0,
             current_code_type: Code::UNKNOWN,
-            state: PX8State::RUN,
+            interactive: false,
+            state: PX8State::BOOT,
+            boot: Boot::new(),
             pause_menu: PauseMenu::new(),
             menu: Menu::new(),
             fps: 0.0,
@@ -734,7 +775,7 @@ impl PX8 {
 
     pub fn init_interactive(&mut self) {
         self.menu.reset();
-        self.state = PX8State::INTERACTIVE;
+        self.interactive = true;
     }
 
     pub fn next_palette(&mut self) {
@@ -772,6 +813,15 @@ impl PX8 {
 
     pub fn update(&mut self) -> bool {
         match self.state {
+            PX8State::BOOT => {
+                if self.boot.update(self.info.clone(), self.sound.clone()) {
+                    if self.interactive {
+                        self.state = PX8State::INTERACTIVE;
+                    } else {
+                        self.state = PX8State::RUN;
+                    }
+                }
+            }
             PX8State::PAUSE => {
                 if self.pause_menu.stop() {
                     self.state = PX8State::RUN;
@@ -810,6 +860,9 @@ impl PX8 {
 
     pub fn draw(&mut self) {
         match self.state {
+            PX8State::BOOT => {
+                self.boot.draw(&mut self.screen.lock().unwrap());
+            }
             PX8State::PAUSE => {
                 self.pause_menu.draw(&mut self.screen.lock().unwrap());
             }
@@ -1055,6 +1108,7 @@ impl PX8 {
                 screen.save();
                 self.sound_internal.lock().unwrap().stop();
             }
+            PX8State::BOOT => {}
         }
         info!("[PX8] End Switch pause");
     }
@@ -1235,6 +1289,10 @@ impl PX8 {
 
     pub fn switch_code(&mut self) {
         info!("[PX8] Switch code");
+
+        if self.state == PX8State::BOOT {
+            return;
+        }
 
         let idx = self.current_cartridge;
 

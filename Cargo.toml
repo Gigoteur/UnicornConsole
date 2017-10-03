@@ -16,6 +16,10 @@ exclude = [ ".idea/*", ".travis.yml" ]
 [lib]
 name       = "px8"
 path       = "src/lib.rs"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[target.'cfg(target_os="android")'.dependencies]
+jni = { version = "0.4", default-features = false }
 
 [features]
 default = []
@@ -54,8 +58,8 @@ path="src/plugins/lua"
 [dependencies.sdl2]
 version = "0.27.2"
 default-features = false
-features=["mixer"]
 
 [dependencies.chiptune]
 version="0.0.1"
-git="https://github.com/Gigoteur/chiptune-rs"
+path="./src/chiptune"
+#git="https://github.com/Gigoteur/chiptune-rs"

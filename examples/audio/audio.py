@@ -2,9 +2,6 @@
 #version 1
 #__python__
 
-WAV_FILE = "./examples/assets/piano.wav"
-SOUND_GUN_FILE = "./examples/assets/gun.wav"
-SOUND_FIREWORKS_FILE = "./examples/assets/fireworks.wav"
 CHIPTUNE_MUSIC = "./examples/assets/AmsterdamBoppe.kt"
 CHIPTUNE_SOUND_1 = "./examples/assets/the_horror.ki"
 CHIPTUNE_SOUND_2 = "./examples/assets/clap.ki"
@@ -80,16 +77,6 @@ class InteractiveNumber(object):
         rectfill(self.rect_plus[0], self.rect_plus[1], self.rect_plus[2], self.rect_plus[3], self.color)
         px8_print(str(self.value), self.rect_minus[0]-15, self.rect_minus[1]-4 , 7)
 
-WAV_MENU = {
-    'Volume': InteractiveNumber(18, 24, 7, music_volume),
-    'Play': Button(20, 20, 40, 28, 7, 'Play'),
-    'Stop': Button(42, 20, 62, 28, 7, 'Stop'),
-    'Pause': Button(64, 20, 84, 28, 7, 'Pause'),
-    'Resume': Button(86, 20, 110, 28, 7, 'Resume'),
-    'Gun': Button(20, 30, 40, 38, 7, 'Gun'),
-    'Fireworks': Button(42, 30, 80, 38, 7, 'Fireworks'),
-}
-
 CHIPTUNE_MENU = {
     'Volume': InteractiveNumber(18, 74, 7, chiptune_volume),
     'Play': Button(20, 70, 40, 78, 7, 'Play'),
@@ -103,34 +90,10 @@ CHIPTUNE_MENU = {
 
 def _init():
     show_mouse()
-    music_load(WAV_FILE)
-    sound_load(SOUND_GUN_FILE)
-    sound_load(SOUND_FIREWORKS_FILE)
 
 def _update():
     if mouse_state():
         mousex, mousey = mouse_x(), mouse_y()
-
-        for item in WAV_MENU.values():
-            item.update(mousex, mousey)
-            if item.text == 'Play' and item.is_click():
-                print("Play")
-                music_play(WAV_FILE)
-            elif item.text == 'Stop' and item.is_click():
-                print("Stop")
-                music_stop()
-            elif item.text == 'Pause' and item.is_click():
-                print("Pause")
-                music_pause()
-            elif item.text == 'Resume' and item.is_click():
-                print("Resume")
-                music_resume()
-            elif item.text == 'Gun' and item.is_click():
-                print("Play gun sound")
-                sound_play(SOUND_GUN_FILE)
-            if item.text == 'Fireworks' and item.is_click():
-                print("Play fireworks sound")
-                sound_play(SOUND_FIREWORKS_FILE)
 
         for item in CHIPTUNE_MENU.values():
             item.update(mousex, mousey)
@@ -149,18 +112,6 @@ def _update():
 
 def _draw():
     cls()
-
-    px8_print("WAV", 10, 10, 7)
-    for item in WAV_MENU.values():
-        item.draw()
-
-    idx = 10
-    for i in range(0, 16):
-        is_playing = sound_isplaying(i)
-        color = 7
-        if is_playing:
-            color = 8
-        circfill(idx+i*5, 50, 1, color)
 
     px8_print("CHIPTUNE", 10, 60, 7)
     for item in CHIPTUNE_MENU.values():

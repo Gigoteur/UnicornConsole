@@ -218,50 +218,6 @@ create_packets!(
     packet ChiptuneVolume {
         field volume: i32 =,
     }
-    packet LoadMusic {
-        field filename: String =,
-    }
-    packet PlayMusic {
-        field filename: String =,
-        field loops: i32 =,
-    }
-    packet StopMusic {
-        field filename: String =,
-    }
-    packet PauseMusic {
-        field filename: String =,
-    }
-    packet ResumeMusic {
-        field filename: String =,
-    }
-    packet RewindMusic {
-        field filename: String =,
-    }
-    packet VolumeMusic {
-        field volume: i32 =,
-    }
-
-    packet LoadSound {
-        field filename: String =,
-    }
-    packet PlaySound {
-        field filename: String =,
-        field loops: i32 =,
-        field channel: i32 =,
-    }
-    packet StopSound {
-        field channel: i32 =,
-    }
-     packet PauseSound {
-        field channel: i32 =,
-    }
-    packet ResumeSound {
-        field channel: i32 =,
-    }
-    packet VolumeSound {
-        field volume: i32 =,
-        field channel: i32 =,
-    }
 );
 
 
