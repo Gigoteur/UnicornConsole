@@ -46,8 +46,8 @@ Specifications:
  * Editor for the sprite / map
  * PX8 format to be able to use your favorite code editor for Python/Lua/Rust
  * Mutliple fonts support (pico-8, bbc, cbmII, appleII)
- * Audio support with an integrated ![Chiptune](https://github.com/kometbomb/klystron/)
- * Change the screen definition dynamically and the aspect ratio
+ * Audio support (wav/mp3/etc) and an integrated ![Chiptune](https://github.com/kometbomb/klystron/) with Klystrack 
+ * Change the screen definition dynamically and the aspect ratio dynamically
  * Screenshot (PNG) / Video recording (GIF)
  * Pico-8 compatibility + cartridge (P8/P8.PNG) format support
  
@@ -102,7 +102,7 @@ More [gifs](https://github.com/Gigoteur/PX8/wiki/Examples) ?
 
 ## Download
 
-You can get prebuild binaries for many platforms directly on [itch.io](https://hallucino.itch.io/px8) or you can build your own executable for free (see the BUILD instruction):
+You can get prebuild binaries for many platforms directly on [itch.io](https://hallucino.itch.io/px8) or you can build your own executable with the latest changements (see the BUILD instruction):
   * [Raspberry Pi 3](https://hallucino.itch.io/px8/purchase)
   * [Linux x64](https://hallucino.itch.io/px8/purchase)
   * [Windows x64](https://hallucino.itch.io/px8/purchase) and install [Python](https://www.python.org/)
