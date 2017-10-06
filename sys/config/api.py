@@ -4,30 +4,34 @@ from math import frexp, copysign
 from sys import float_info
 
 # Audio
-def chiptune_play(filetype, filename, loops=0, start_position=0, channel=-1):
-    px8_audio.chiptune_play(filetype, channel, filename, loops, start_position)
+def music(id=-1, filename="", loops=0, start_position=0, channel=-1):
+    px8_audio.chiptune_music(id, filename, channel, loops, start_position)
 
-def chiptune_stop(music=1, sound=1):
-    px8_audio.chiptune_stop(music, sound)
+def sfx(id=-1, filename="", loops=0, channel=-1):
+    px8_audio.chiptune_sfx(id, filename, channel, loops)
 
-def chiptune_pause(music=1, sound=1):
-    px8_audio.chiptune_pause(music, sound)
+def music_stop():
+    px8_audio.chiptune_stop()
 
-def chiptune_resume(music=1, sound=1):
-    px8_audio.chiptune_resume(music, sound)
+def music_pause():
+    px8_audio.chiptune_pause()
 
-def chiptune_volume(volume):
+def music_resume():
+    px8_audio.chiptune_resume()
+
+def music_volume(volume):
     px8_audio.chiptune_volume(volume)
 
-def chiptune_position():
+def music_position():
     return px8_audio.chiptune_position()
 
-globals()["chiptune_play"] = chiptune_play
-globals()["chiptune_stop"] = chiptune_stop
-globals()["chiptune_pause"] = chiptune_pause
-globals()["chiptune_resume"] = chiptune_resume
-globals()["chiptune_volume"] = chiptune_volume
-globals()["chiptune_position"] = chiptune_position
+globals()["music"] = music
+globals()["sfx"] = sfx
+globals()["music_stop"] = music_stop
+globals()["music_pause"] = music_pause
+globals()["music_resume"] = music_resume
+globals()["music_volume"] = music_volume
+globals()["music_position"] = music_position
 
 # Cart Data
 

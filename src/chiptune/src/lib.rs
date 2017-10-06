@@ -7,7 +7,7 @@ extern crate libc;
 
 use std::cmp;
 use std::ffi::CString;
-use libc::{c_int, c_ushort};
+use libc::{c_int, c_ushort, c_void};
 
 #[derive(Debug, Clone, Copy)]
 pub enum ChiptuneError {
@@ -267,6 +267,20 @@ impl Chiptune {
     }
   }
 
+  pub fn load_music_from_memory(&mut self, data: Vec<u8>) -> Result<ChiptuneSong, ChiptuneError> {
+    unsafe {
+      let data_size = data.len() as i32;
+      let data = CString::from_vec_unchecked(data);
+      
+      let s = ffi::Chiptune_LoadMusicFromMemory(self.P, data.as_ptr() as *mut c_void, data_size);
+      if s.is_null() {
+        Err(ChiptuneError::LoadingError)
+      } else {
+        Ok(ChiptuneSong { S: s })
+      }
+    }
+  }
+
   pub fn play_music(&mut self, song: &mut ChiptuneSong, start_position: c_int) {
     unsafe {
       ffi::Chiptune_PlayMusic(self.P, song.S, start_position);
@@ -277,6 +291,20 @@ impl Chiptune {
     unsafe {
       let path = CString::new(path).unwrap();
       let s = ffi::Chiptune_LoadSound(self.P, path.as_ptr());
+      if s.is_null() {
+        Err(ChiptuneError::LoadingError)
+      } else {
+        Ok(ChiptuneSound { S: s })
+      }
+    }
+  }
+
+  pub fn load_sound_from_memory(&mut self, data: Vec<u8>) -> Result<ChiptuneSound, ChiptuneError> {
+    unsafe {
+      let data_size = data.len() as i32;
+      let data = CString::from_vec_unchecked(data);
+      
+      let s = ffi::Chiptune_LoadSoundFromMemory(self.P, data.as_ptr() as *mut c_void, data_size) as *mut ffi::MusInstrument;
       if s.is_null() {
         Err(ChiptuneError::LoadingError)
       } else {

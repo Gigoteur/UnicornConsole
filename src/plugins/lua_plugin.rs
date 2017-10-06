@@ -912,13 +912,13 @@ pub mod plugin {
             1
         }
 
-        unsafe extern "C" fn lua_chiptune_play(lua_context: *mut lua_State) -> c_int {
-            debug!("LUA CHIPTUNE PLAY");
+        unsafe extern "C" fn lua_chiptune_music(lua_context: *mut lua_State) -> c_int {
+            debug!("LUA CHIPTUNE MUSIC");
 
             let mut state = State::from_ptr(lua_context);
             let mut state2 = State::from_ptr(lua_context);
 
-            let filetype = state2.check_integer(2);
+            let id = state2.check_integer(2);
             let filename = state.check_string(3);
             let loops = state2.check_integer(4);
             let start_position = state2.check_integer(5);
@@ -936,7 +936,7 @@ pub mod plugin {
             sound
                 .lock()
                 .unwrap()
-                .chiptune_play(filetype as i32, channel as i32, filename.to_string(), loops as i32, start_position as i32);
+                .music(id as i32, filename.to_string(), channel as i32, loops as i32, start_position as i32);
 
             1
         }
@@ -1992,7 +1992,7 @@ pub mod plugin {
     pub const PX8LUA_LIB: [(&'static str, Function); 41] =
         [("new", Some(PX8Lua::lua_new)),
 
-         ("chiptune_play", Some(PX8Lua::lua_chiptune_play)),
+         ("music", Some(PX8Lua::lua_chiptune_music)),
 
          ("camera", Some(PX8Lua::lua_camera)),
          ("color", Some(PX8Lua::lua_color)),

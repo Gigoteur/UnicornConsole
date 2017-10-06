@@ -209,6 +209,9 @@ impl Boot {
         let value = info.lock().unwrap().time_sec();
         if self.value == -1.0 {
             self.value = value;
+            //sound.lock().unwrap().music(-1, include_bytes!("../../sys/assets/px8.ki"), -1, -1, 0);
+            sound.lock().unwrap().music(-1, "../../sys/assets/px8.ki".to_string(), -1, -1, 0);
+
         }
 
         (value - self.value) > self.length
@@ -815,6 +818,7 @@ impl PX8 {
         match self.state {
             PX8State::BOOT => {
                 if self.boot.update(self.info.clone(), self.sound.clone()) {
+                    self.sound_internal.lock().unwrap().stop();
                     if self.interactive {
                         self.state = PX8State::INTERACTIVE;
                     } else {

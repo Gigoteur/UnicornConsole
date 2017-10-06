@@ -19,30 +19,35 @@ pub mod plugin {
     py_class!(class PX8Audio |py| {
     data sound: Arc<Mutex<Sound>>;
 
-    // Chiptune
+    // Audio
     
-    def chiptune_play(&self, filetype: i32, channel: i32, filename: String, loops: i32, start_position: i32) -> PyResult<i32> {
-        self.sound(py).lock().unwrap().chiptune_play(filetype, channel, filename, loops, start_position);
+    def chiptune_music(&self, id: i32, filename: String, channel: i32, loops: i32, start_position: i32) -> PyResult<i32> {
+        self.sound(py).lock().unwrap().music(id, filename, channel, loops, start_position);
         Ok(0)
     }
 
-    def chiptune_stop(&self, music: i32, sound: i32) -> PyResult<i32> {
-        self.sound(py).lock().unwrap().chiptune_stop(music, sound);
+    def chiptune_sfx(&self, id: i32, filename: String, channel: i32, loops: i32) -> PyResult<i32> {
+        self.sound(py).lock().unwrap().sfx(id, filename, channel, loops);
+        Ok(0)
+    }
+
+    def chiptune_stop(&self) -> PyResult<i32> {
+        self.sound(py).lock().unwrap().music_stop();
         Ok(0)
     }
     
-    def chiptune_pause(&self, music: i32, sound: i32) -> PyResult<i32> {
-        self.sound(py).lock().unwrap().chiptune_pause(music, sound);
+    def chiptune_pause(&self) -> PyResult<i32> {
+        self.sound(py).lock().unwrap().music_pause();
         Ok(0)
     }
     
-    def chiptune_resume(&self, music: i32, sound: i32) -> PyResult<i32> {
-        self.sound(py).lock().unwrap().chiptune_resume(music, sound);
+    def chiptune_resume(&self) -> PyResult<i32> {
+        self.sound(py).lock().unwrap().music_resume();
         Ok(0)
     }
 
     def chiptune_volume(&self, volume: i32) -> PyResult<i32> {
-        self.sound(py).lock().unwrap().chiptune_volume(volume);
+        self.sound(py).lock().unwrap().music_volume(volume);
         Ok(0)
     }
 

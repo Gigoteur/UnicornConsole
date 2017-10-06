@@ -39,7 +39,7 @@ class Text(object):
         pass
     
     def draw(self):
-        px8_print(str(chiptune_position()), self.x, self.y, self.color)
+        px8_print(str(music_position()), self.x, self.y, self.color)
 
 class InteractiveNumber(object):
     def __init__(self, x, y, color, volume_fct):
@@ -78,7 +78,7 @@ class InteractiveNumber(object):
         px8_print(str(self.value), self.rect_minus[0]-15, self.rect_minus[1]-4 , 7)
 
 CHIPTUNE_MENU = {
-    'Volume': InteractiveNumber(18, 74, 7, chiptune_volume),
+    'Volume': InteractiveNumber(18, 74, 7, music_volume),
     'Play': Button(20, 70, 40, 78, 7, 'Play'),
     'Stop': Button(42, 70, 62, 78, 7, 'Stop'),
     'Pause': Button(64, 70, 84, 78, 7, 'Pause'),
@@ -98,17 +98,17 @@ def _update():
         for item in CHIPTUNE_MENU.values():
             item.update(mousex, mousey)
             if item.text == 'Play' and item.is_click():
-                chiptune_play(0, CHIPTUNE_MUSIC, 0, 0)
+                music(-1, CHIPTUNE_MUSIC, 0, 0)
             elif item.text == 'Stop' and item.is_click():
-                chiptune_stop()
+                music_stop()
             elif item.text == 'Pause' and item.is_click():
-                chiptune_pause()
+                music_pause()
             elif item.text == 'Resume' and item.is_click():
-                chiptune_resume()
+                music_resume()
             elif item.text == 'Sound1' and item.is_click():
-                chiptune_play(1, CHIPTUNE_SOUND_1)
+                sfx(-1, CHIPTUNE_SOUND_1)
             elif item.text == 'Sound2' and item.is_click():
-                chiptune_play(1, CHIPTUNE_SOUND_2)
+                sfx(-1, CHIPTUNE_SOUND_2)
 
 def _draw():
     cls()

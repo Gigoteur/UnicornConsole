@@ -62,4 +62,3 @@ default-features = false
 [dependencies.chiptune]
 version="0.0.1"
 path="./src/chiptune"
-#git="https://github.com/Gigoteur/chiptune-rs"

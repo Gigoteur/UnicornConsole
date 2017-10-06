@@ -196,24 +196,23 @@ macro_rules! create_packets {
 }
 
 create_packets!(
-    packet ChiptunePlay {
-        field filetype: i32 =,
+    packet ChiptuneMusic {
         field channel: i32 =,
+        field id: i32 =,
         field filename: String =,
         field loops: i32 =,
         field start_position: i32 =,
     }
-    packet ChiptuneStop {
-        field music: i32 =,
-        field sound: i32 =,
+    packet ChiptuneSFX {
+        field channel: i32 =,
+        field id: i32 =,
+        field filename: String =,
+        field loops: i32 =,
     }
-    packet ChiptunePause {
-        field music: i32 =,
-        field sound: i32 =,
-    }
-    packet ChiptuneResume {
-        field music: i32 =,
-        field sound: i32 =,
+    packet ChiptuneMusicState {
+        field stop: bool =,
+        field pause: bool =,
+        field resume: bool =,
     }
     packet ChiptuneVolume {
         field volume: i32 =,

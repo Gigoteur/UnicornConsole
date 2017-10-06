@@ -5,7 +5,6 @@ pub mod sound {
     use chiptune;
 
     use std::collections::HashMap;
-    use sdl2;
     use std::sync::{Arc, Mutex};
 
     pub struct SoundInternal {
@@ -52,59 +51,57 @@ pub mod sound {
             for sound_packet in self.crecv.try_iter() {
                 debug!("[SOUND] PACKET {:?}", sound_packet);
                 match packet::read_packet(sound_packet).unwrap() {
-                    // Chiptune
-                    packet::Packet::ChiptunePlay(res) => {
+                    packet::Packet::ChiptuneMusic(res) => {
                         let filename = res.filename.clone();
                         // New song -> Load it before
-                        if res.filetype == 0 {
-                            if !self.chiptune_music_tracks.contains_key(&filename) {
-                                    let song = self.player.load_music(filename.clone());
-                                    match song {
-                                        Ok(chip_song) => {
-                                            self.chiptune_music_tracks.insert(filename.clone(), chip_song);
-                                        }
-
-                                        Err(e) => error!("ERROR to load the song {:?}", e),
+                        if !self.chiptune_music_tracks.contains_key(&filename) {
+                                let song = self.player.load_music(filename.clone());
+                                match song {
+                                    Ok(chip_song) => {
+                                        self.chiptune_music_tracks.insert(filename.clone(), chip_song);
                                     }
-                            }
-                            match self.chiptune_music_tracks.get_mut(&filename) {
-                                Some(mut song) => {
-                                    self.player.play_music(&mut song, res.start_position);
-                                    self.player.set_looping(res.loops);
+
+                                    Err(e) => error!("ERROR to load the song {:?}", e),
                                 }
-                                None => {},
-                            }
                         }
-
-                        // New sound effect
-                        if res.filetype == 1 {
-                            if !self.chiptune_sound_tracks.contains_key(&filename) {
-                                    let sound = self.player.load_sound(filename.clone());
-                                    match sound {
-                                        Ok(chip_sound) => {
-                                            self.chiptune_sound_tracks.insert(filename.clone(), chip_sound);
-                                        }
-
-                                        Err(e) => error!("ERROR to load the song {:?}", e),
-                                    }
+                        match self.chiptune_music_tracks.get_mut(&filename) {
+                            Some(mut song) => {
+                                self.player.play_music(&mut song, res.start_position);
+                                self.player.set_looping(res.loops);
                             }
-                            match self.chiptune_sound_tracks.get_mut(&filename) {
-                                Some(mut sound) => {
-                                    self.player.play_sound(&mut sound, res.channel, 13312, chiptune::CYD_PAN_CENTER, 50);
-                                }
-                                None => {},
-                            }
+                            None => {},
                         }
                     }
-                    packet::Packet::ChiptuneStop(res) => {
-                        self.player.stop();
+                    packet::Packet::ChiptuneSFX(res) => {
+                        let filename = res.filename.clone();
+
+                        if !self.chiptune_sound_tracks.contains_key(&filename) {
+                            let sound = self.player.load_sound(filename.clone());
+                            match sound {
+                                Ok(chip_sound) => {
+                                    self.chiptune_sound_tracks.insert(filename.clone(), chip_sound);
+                                }
+
+                                Err(e) => error!("ERROR to load the song {:?}", e),
+                            }
+                        }
+                        match self.chiptune_sound_tracks.get_mut(&filename) {
+                            Some(mut sound) => {
+                                self.player.play_sound(&mut sound, res.channel, 13312, chiptune::CYD_PAN_CENTER, 50);
+                            }
+                            None => {},
+                        }
                     }
-                    packet::Packet::ChiptunePause(res) => {
-                        self.player.pause(1);
+                    packet::Packet::ChiptuneMusicState(res) => {
+                        if res.stop {
+                            self.player.stop();
+                        } else if res.pause {
+                            self.player.pause(1);
+                        } else if res.resume {
+                            self.player.pause(0);
+                        }
                     }
-                    packet::Packet::ChiptuneResume(res) => {
-                        self.player.pause(0);
-                    }
+
                     packet::Packet::ChiptuneVolume(res) => {
                         self.player.set_volume(res.volume);
                     }
@@ -129,31 +126,37 @@ pub mod sound {
         }
 
         // Chiptune
-        pub fn chiptune_play(&mut self, filetype: i32, channel: i32, filename: String, loops: i32, start_position: i32) {
-            debug!("[SOUND] Chiptune PLAY {:?}", filename);
-            let p = packet::ChiptunePlay { filetype: filetype, channel: channel, filename: filename, loops: loops, start_position: start_position };
+        pub fn music(&mut self, id: i32, filename: String, channel: i32,  loops: i32, start_position: i32) {
+            debug!("[SOUND] Chiptune Music PLAY {:?}", filename);
+            let p = packet::ChiptuneMusic { id: id, channel: channel, filename: filename, loops: loops, start_position: start_position };
             self.csend.send(packet::write_packet(p).unwrap()).unwrap();
         }
 
-        pub fn chiptune_stop(&mut self, music: i32, sound: i32) {
+        pub fn sfx(&mut self, id: i32, filename: String, channel: i32, loops: i32) {
+            debug!("[SOUND] Chiptune SFX Play {:?}", id);
+            let p = packet::ChiptuneSFX { id: id, filename: filename, channel: channel, loops: loops };
+            self.csend.send(packet::write_packet(p).unwrap()).unwrap();
+        }
+
+        pub fn music_stop(&mut self) {
             debug!("[SOUND] Chiptune STOP");
-            let p = packet::ChiptuneStop { music: music, sound: sound };
+            let p = packet::ChiptuneMusicState { stop: true, pause: false, resume: false };
             self.csend.send(packet::write_packet(p).unwrap()).unwrap();
         }
 
-        pub fn chiptune_pause(&mut self, music: i32, sound: i32) {
+        pub fn music_pause(&mut self) {
             debug!("[SOUND] Chiptune Pause");
-            let p = packet::ChiptunePause { music: music, sound: sound };
+            let p = packet::ChiptuneMusicState { stop: false, pause: true, resume: false };
             self.csend.send(packet::write_packet(p).unwrap()).unwrap();
         }
 
-        pub fn chiptune_resume(&mut self, music: i32, sound: i32) {
+        pub fn music_resume(&mut self) {
             debug!("[SOUND] Chiptune Resume");
-            let p = packet::ChiptuneResume { music: music, sound: sound };
+            let p = packet::ChiptuneMusicState { stop: false, pause: false, resume: true };
             self.csend.send(packet::write_packet(p).unwrap()).unwrap();
         }
 
-        pub fn chiptune_volume(&mut self, volume: i32) {
+        pub fn music_volume(&mut self, volume: i32) {
             debug!("[SOUND] Chiptune volume");
             let p = packet::ChiptuneVolume { volume: volume };
             self.csend.send(packet::write_packet(p).unwrap()).unwrap();

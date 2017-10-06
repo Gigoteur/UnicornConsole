@@ -148,6 +148,37 @@ KLYSAPI ChiptuneSong* Chiptune_LoadMusicFromMemory(ChiptunePlayer* player, void 
 }
 
 
+KLYSAPI ChiptuneSound* Chiptune_LoadSoundFromMemory(ChiptunePlayer* player, void *data, int data_size)
+{
+#ifndef USESDL_RWOPS
+	RWops *ops = calloc(sizeof(*ops), 1);
+	ops->read = RWread;
+	ops->close = RWclose;
+	ops->mem.base = data;
+	ops->mem.length = data_size;
+#else
+	RWops *ops = SDL_RWFromMem(data, data_size);
+#endif
+
+    ChiptuneSound *sound = calloc(sizeof(*sound), 1);
+
+	if (mus_load_instrument_RW2(ops, &sound->sound, NULL))
+	{
+		return sound;
+	}
+	else
+	{
+		free(sound);
+#ifndef USESDL_RWOPS
+		RWclose(ops);
+#else
+		SDL_RWclose(ops);
+#endif
+		return NULL;
+	}
+}
+
+
 KLYSAPI void Chiptune_FreeSong(ChiptuneSong *song)
 {
 	int i = 0;

@@ -70,6 +70,7 @@ KLYSAPI extern ChiptuneSound * Chiptune_LoadSound(ChiptunePlayer* player, const 
  * @return @c ChiptuneSong or @c NULL if there was an error.
  */
 KLYSAPI extern ChiptuneSong * Chiptune_LoadMusicFromMemory(ChiptunePlayer* player, void *data, int data_size);
+KLYSAPI extern ChiptuneSound* Chiptune_LoadSoundFromMemory(ChiptunePlayer* player, void *data, int data_size);
 
 /**
  * Free memory reserved for a @c ChiptuneSong instance
