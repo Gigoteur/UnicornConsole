@@ -41,8 +41,8 @@ impl MusicEditor {
         // Draw contour
         screen.rectfill(0, 16, 240, 24, 7);
         screen.print("Inst".to_string(), 0, 16, 9);
-        for (name, track) in &sound.lock().unwrap().chiptune_sound_tracks {
+       // for (name, track) in &sound.lock().unwrap().chiptune_sound_tracks {
 
-        }
+       // }
     }
 }

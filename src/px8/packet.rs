@@ -64,6 +64,16 @@ impl Serializable for u32 {
     }
 }
 
+impl Serializable for u16 {
+    fn read_from<R: io::Read>(buf: &mut R) -> Result<u16, Error> {
+        Result::Ok(try!(buf.read_u16::<BigEndian>()))
+    }
+    fn write_to<W: io::Write>(&self, buf: &mut W) -> Result<(), Error> {
+        try!(buf.write_u16::<BigEndian>(*self));
+        Result::Ok(())
+    }
+}
+
 impl Serializable for Vec<u8> {
     fn read_from<R: io::Read>(buf: &mut R) -> Result<Vec<u8>, Error> {
         let mut v = Vec::new();
@@ -208,6 +218,9 @@ create_packets!(
         field id: i32 =,
         field filename: String =,
         field loops: i32 =,
+        field note: u16 =,
+        field panning: i32 =,
+        field rate: i32 =,
     }
     packet ChiptuneMusicState {
         field stop: bool =,

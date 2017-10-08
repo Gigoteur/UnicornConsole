@@ -1,8 +1,6 @@
 #include "chiptune.h"
 #include "music.h"
 
-//#include <SDL2/SDL_mixer.h>
-
 
 int main(int argc, char *argv[]) {
 
@@ -11,12 +9,6 @@ int main(int argc, char *argv[]) {
 	ChiptuneSound *sound, *sound2;
 
     SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO|SDL_INIT_NOPARACHUTE|SDL_INIT_TIMER);
-    
-   // if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 1024) == -1)
-   // {
-   //   printf("%s", Mix_GetError());
-    //  return -1;
-   // }
 
     printf("CREATE PLAYER\n");
 	player = Chiptune_CreatePlayer(44100);
@@ -28,8 +20,13 @@ int main(int argc, char *argv[]) {
 
     printf("Play Music\n");	
     Chiptune_PlayMusic(player, song, 0);
-	printf("[E] Play Music\n");
-
+    printf("[E] Play Music\n");
+    
+    sleep(1);
+    Chiptune_Pause(player, 1);    
+    
+    sleep(5);
+    
     printf("Load Sound\n");
     sound = Chiptune_LoadSound(player, "./assets/sounds/the_horror.ki");
     sound2 = Chiptune_LoadSound(player, "./assets/sounds/clap.ki");

@@ -11,7 +11,7 @@ ifdef COMSPEC
 	SDLFLAGS := -I c:/mingw/include/SDL2
 	SDLLIBS :=  -lSDL2main -lSDL2 -lSDL2_image -lwinmm
 else
-	SDLFLAGS := `sdl2-config --cflags` -U_FORTIFY_SOURCE
+	SDLFLAGS := `sdl2-config --cflags`
 	SDLLIBS := `sdl2-config --libs`
 endif
 

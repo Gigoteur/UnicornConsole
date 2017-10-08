@@ -26,8 +26,8 @@ pub mod plugin {
         Ok(0)
     }
 
-    def chiptune_sfx(&self, id: i32, filename: String, channel: i32, loops: i32) -> PyResult<i32> {
-        self.sound(py).lock().unwrap().sfx(id, filename, channel, loops);
+    def chiptune_sfx(&self, id: i32, filename: String, channel: i32, note: u16, panning: i32, rate: i32, loops: i32) -> PyResult<i32> {
+        self.sound(py).lock().unwrap().sfx(id, filename, channel, note, panning, rate, loops);
         Ok(0)
     }
 

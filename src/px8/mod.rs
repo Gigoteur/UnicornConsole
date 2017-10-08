@@ -33,6 +33,7 @@ use self::noise::Noise;
 use gfx;
 use cartridge::{Cartridge, CartridgeFormat};
 use sound::sound::{Sound, SoundInternal};
+use chiptune;
 
 include!(concat!(env!("OUT_DIR"), "/parameters.rs"));
 
@@ -209,9 +210,8 @@ impl Boot {
         let value = info.lock().unwrap().time_sec();
         if self.value == -1.0 {
             self.value = value;
-            //sound.lock().unwrap().music(-1, include_bytes!("../../sys/assets/px8.ki"), -1, -1, 0);
-            sound.lock().unwrap().music(-1, "../../sys/assets/px8.ki".to_string(), -1, -1, 0);
-
+            //sound.lock().unwrap().sfx(-1, include_bytes!("../../sys/assets/px8.ki"), -1, -1);
+            sound.lock().unwrap().sfx(-1, "./sys/assets/px8.ki".to_string(), -1, 13312, chiptune::CYD_PAN_CENTER, 50, -1);
         }
 
         (value - self.value) > self.length
@@ -629,6 +629,8 @@ pub struct PX8Cartridge {
     pub lua_plugin: LuaPlugin,
     pub python_plugin: PythonPlugin,
     pub rust_plugin: Vec<Box<RustPlugin>>,
+    pub music_tracks: HashMap<String, chiptune::ChiptuneSong>,
+    pub sound_tracks: HashMap<String, chiptune::ChiptuneSound>,
 }
 
 impl PX8Cartridge {
@@ -638,6 +640,8 @@ impl PX8Cartridge {
             lua_plugin: LuaPlugin::new(),
             python_plugin: PythonPlugin::new(),
             rust_plugin: Vec::new(),
+            music_tracks: HashMap::new(),
+            sound_tracks: HashMap::new(),
         }
     }
 
@@ -647,6 +651,8 @@ impl PX8Cartridge {
             lua_plugin: LuaPlugin::new(),
             python_plugin: PythonPlugin::new(),
             rust_plugin: Vec::new(),
+            music_tracks: HashMap::new(),
+            sound_tracks: HashMap::new(),
         }
     }
 
@@ -737,12 +743,17 @@ impl PX8 {
 
     pub fn setup(&mut self) {
         info!("[PX8] Setup");
+        
+        let mut px8_cartridge = PX8Cartridge::empty();
+        self.add_cartridge(px8_cartridge);
+
         self.sound_internal.lock().unwrap().init();
         self.reset();
     }
 
     pub fn update_sound(&mut self) {
-        self.sound_internal.lock().unwrap().update(self.sound.clone());
+        let mut cartridge = self.cartridges.get_mut(self.current_cartridge).unwrap();
+        self.sound_internal.lock().unwrap().update(&mut cartridge, self.sound.clone());
     }
 
     pub fn stop(&mut self) {

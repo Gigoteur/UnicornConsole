@@ -222,10 +222,7 @@ KLYSAPI void Chiptune_PlayMusic(ChiptunePlayer *player, ChiptuneSong *song, int 
 	player->cyd_music.wavetable_entries = song->wavetable_entries;
 	cyd_set_callback(&player->cyd_music, mus_advance_tick, &player->mus_music, song->song.song_rate);
 	mus_set_fx(&player->mus_music, &song->song);
-	
-	if (song->song.num_channels > player->cyd_music.n_channels)
-		cyd_reserve_channels(&player->cyd_music, song->song.num_channels);
-	
+		
 	mus_set_song(&player->mus_music, &song->song, start_position);
 }
 

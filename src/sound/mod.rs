@@ -1,16 +1,14 @@
 pub mod sound {
     use std::sync::mpsc;
     use px8::packet;
+    use px8::PX8Cartridge;
 
     use chiptune;
 
-    use std::collections::HashMap;
     use std::sync::{Arc, Mutex};
 
     pub struct SoundInternal {
         pub player: chiptune::Chiptune,
-        pub chiptune_music_tracks: HashMap<String, chiptune::ChiptuneSong>,
-        pub chiptune_sound_tracks: HashMap<String, chiptune::ChiptuneSound>,
         pub csend: mpsc::Sender<Vec<u8>>,
         pub crecv: mpsc::Receiver<Vec<u8>>,
     }
@@ -21,8 +19,6 @@ pub mod sound {
 
             SoundInternal {
                 player: chiptune::Chiptune::new(),
-                chiptune_music_tracks: HashMap::new(),
-                chiptune_sound_tracks: HashMap::new(),
                 csend: csend,
                 crecv: crecv,
             }
@@ -47,24 +43,24 @@ pub mod sound {
         }
 
 
-        pub fn update(&mut self, sound: Arc<Mutex<Sound>>) {
+        pub fn update(&mut self, cartridge: &mut PX8Cartridge, sound: Arc<Mutex<Sound>>) {
             for sound_packet in self.crecv.try_iter() {
                 debug!("[SOUND] PACKET {:?}", sound_packet);
                 match packet::read_packet(sound_packet).unwrap() {
                     packet::Packet::ChiptuneMusic(res) => {
                         let filename = res.filename.clone();
                         // New song -> Load it before
-                        if !self.chiptune_music_tracks.contains_key(&filename) {
+                        if !cartridge.music_tracks.contains_key(&filename) {
                                 let song = self.player.load_music(filename.clone());
                                 match song {
                                     Ok(chip_song) => {
-                                        self.chiptune_music_tracks.insert(filename.clone(), chip_song);
+                                        cartridge.music_tracks.insert(filename.clone(), chip_song);
                                     }
 
-                                    Err(e) => error!("ERROR to load the song {:?}", e),
+                                    Err(e) => error!("ERROR to load the music {:?}", e),
                                 }
                         }
-                        match self.chiptune_music_tracks.get_mut(&filename) {
+                        match cartridge.music_tracks.get_mut(&filename) {
                             Some(mut song) => {
                                 self.player.play_music(&mut song, res.start_position);
                                 self.player.set_looping(res.loops);
@@ -75,19 +71,19 @@ pub mod sound {
                     packet::Packet::ChiptuneSFX(res) => {
                         let filename = res.filename.clone();
 
-                        if !self.chiptune_sound_tracks.contains_key(&filename) {
+                        if !cartridge.sound_tracks.contains_key(&filename) {
                             let sound = self.player.load_sound(filename.clone());
                             match sound {
                                 Ok(chip_sound) => {
-                                    self.chiptune_sound_tracks.insert(filename.clone(), chip_sound);
+                                    cartridge.sound_tracks.insert(filename.clone(), chip_sound);
                                 }
 
                                 Err(e) => error!("ERROR to load the song {:?}", e),
                             }
                         }
-                        match self.chiptune_sound_tracks.get_mut(&filename) {
+                        match cartridge.sound_tracks.get_mut(&filename) {
                             Some(mut sound) => {
-                                self.player.play_sound(&mut sound, res.channel, 13312, chiptune::CYD_PAN_CENTER, 50);
+                                self.player.play_sound(&mut sound, res.channel, res.note, res.panning, res.rate);
                             }
                             None => {},
                         }
@@ -132,9 +128,15 @@ pub mod sound {
             self.csend.send(packet::write_packet(p).unwrap()).unwrap();
         }
 
-        pub fn sfx(&mut self, id: i32, filename: String, channel: i32, loops: i32) {
+        pub fn sfx(&mut self, id: i32, filename: String, channel: i32, note: u16, panning: i32, rate: i32, loops: i32) {
             debug!("[SOUND] Chiptune SFX Play {:?}", id);
-            let p = packet::ChiptuneSFX { id: id, filename: filename, channel: channel, loops: loops };
+            let p = packet::ChiptuneSFX { id: id, 
+                                          filename: filename,
+                                          channel: channel,
+                                          loops: loops,
+                                          note: note,
+                                          panning: panning,
+                                          rate: rate };
             self.csend.send(packet::write_packet(p).unwrap()).unwrap();
         }
 
