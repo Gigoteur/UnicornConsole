@@ -68,6 +68,19 @@ pub mod sound {
                             None => {},
                         }
                     }
+                    packet::Packet::ChiptuneLoadSFX(res) => {                        
+                        let filename = res.filename.clone();
+                        if !cartridge.sound_tracks.contains_key(&filename) {
+                            let sound = self.player.load_sound_from_memory(res.data.clone());
+                            match sound {
+                                Ok(chip_sound) => {
+                                    cartridge.sound_tracks.insert(filename.clone(), chip_sound);
+                                }
+
+                                Err(e) => error!("ERROR to load the song {:?}", e),
+                            }
+                        }
+                    }
                     packet::Packet::ChiptuneSFX(res) => {                        
                         let filename = res.filename.clone();
                     
@@ -137,6 +150,12 @@ pub mod sound {
                                           note: note,
                                           panning: panning,
                                           rate: rate };
+            self.csend.send(packet::write_packet(p).unwrap()).unwrap();
+        }
+
+        pub fn load_sfx(&mut self, filename: String, data: Vec<u8>) {
+            debug!("[SOUND] Chiptune SFX Load {:?}", filename);
+            let p = packet::ChiptuneLoadSFX { filename:filename, data: data };
             self.csend.send(packet::write_packet(p).unwrap()).unwrap();
         }
 

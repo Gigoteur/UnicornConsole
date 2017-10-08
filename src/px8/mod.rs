@@ -11,6 +11,7 @@ use std::collections::HashMap;
 use std::io::Cursor;
 use std::sync::{Arc, Mutex};
 use time;
+use std::fmt;
 
 use nalgebra::clamp;
 
@@ -189,6 +190,10 @@ pub fn draw_logo(screen: &mut gfx::Screen) {
     }
 }
 
+fn array_to_vec(arr: &[u8]) -> Vec<u8> {
+     arr.iter().cloned().collect()
+}
+
 pub struct Boot {
     t: i64,
     value: f64,
@@ -210,8 +215,10 @@ impl Boot {
         let value = info.lock().unwrap().time_sec();
         if self.value == -1.0 {
             self.value = value;
-            //sound.lock().unwrap().sfx(-1, include_bytes!("../../sys/assets/px8.ki"), -1, -1);
-            sound.lock().unwrap().sfx(-1, "./sys/assets/px8.ki".to_string(), -1, 13312, chiptune::CYD_PAN_CENTER, 50, -1);
+            let data = array_to_vec(include_bytes!("../../sys/assets/px8.ki"));
+            sound.lock().unwrap().load_sfx("px8.ki".to_string(),
+                                           data.clone());
+            sound.lock().unwrap().sfx(-1, "px8.ki".to_string(), -1, 13312, chiptune::CYD_PAN_CENTER, 50, -1);
         }
 
         (value - self.value) > self.length
@@ -633,6 +640,16 @@ pub struct PX8Cartridge {
     pub sound_tracks: HashMap<String, chiptune::ChiptuneSound>,
 }
 
+
+impl fmt::Debug for PX8Cartridge {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f,
+               "PX8 Cartridge {{ cart: {:?} }}",
+               self.cartridge)
+    }
+}
+
+
 impl PX8Cartridge {
     pub fn new(cartridge: Cartridge) -> PX8Cartridge {
         PX8Cartridge {
@@ -834,6 +851,9 @@ impl PX8 {
                         self.state = PX8State::INTERACTIVE;
                     } else {
                         self.state = PX8State::RUN;
+                        self.next_cartridge();
+                        self.reset();
+                        self.init();
                     }
                 }
             }
@@ -1141,7 +1161,7 @@ impl PX8 {
                            cartridge: &mut PX8Cartridge,
                            editor: bool)
                            -> bool {
-        info!("[PX8] Loading cartridge");
+        info!("[PX8] Loading cartridge {:?}", cartridge);
 
         let data = cartridge.get_code();
 
@@ -1179,6 +1199,8 @@ impl PX8 {
             _ => (),
         }
 
+        info!("[PX8] LOAD CARTRIDGE {:?}", ret);
+
         if ret {
             self.editing = editor;
 
@@ -1204,8 +1226,6 @@ impl PX8 {
                           cartridge.cartridge.filename.clone(),
                           data.clone());
                 self.state = PX8State::EDITOR;
-            } else {
-                self.state = PX8State::RUN;
             }
         }
 
@@ -1262,6 +1282,14 @@ impl PX8 {
         self.current_code_type = cartridge.get_code_type();
         self.cartridges.push(cartridge);
     }
+
+    pub fn next_cartridge(&mut self) {
+        info!("[PX8] NEXT cartridge {:?}", self.cartridges.len());
+        self.current_cartridge = self.cartridges.len()-1;
+        let mut cartridge = self.cartridges.get_mut(self.current_cartridge).unwrap();
+        self.current_code_type = cartridge.get_code_type();
+    }
+
 
     #[allow(dead_code)]
     pub fn load_cartridge_raw(&mut self,

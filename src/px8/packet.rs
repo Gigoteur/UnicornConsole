@@ -222,6 +222,10 @@ create_packets!(
         field panning: i32 =,
         field rate: i32 =,
     }
+    packet ChiptuneLoadSFX {
+        field filename: String =,
+        field data: Vec<u8> =,
+    }
     packet ChiptuneMusicState {
         field stop: bool =,
         field pause: bool =,
