@@ -57,7 +57,7 @@ function _update()
       for i=1,200 do
         add(particules, p_create(x,y,c,rnd(4)+1,rnd(1)))
       end
-      chiptune_play(1, "./examples/assets/clap.ki")
+      sfx(-1, "./examples/assets/clap.ki")
 
     end
   end

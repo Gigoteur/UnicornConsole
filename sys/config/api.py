@@ -7,8 +7,8 @@ from sys import float_info
 def music(id=-1, filename="", loops=0, start_position=0, channel=-1):
     px8_audio.chiptune_music(id, filename, channel, loops, start_position)
 
-def sfx(id=-1, filename="", loops=0, channel=-1):
-    px8_audio.chiptune_sfx(id, filename, channel, loops)
+def sfx(id=-1, filename="", note=13312, panning=64, rate=50, loops=0, channel=-1):
+    px8_audio.chiptune_sfx(id, filename, channel, note, panning, rate, loops)
 
 def music_stop():
     px8_audio.chiptune_stop()

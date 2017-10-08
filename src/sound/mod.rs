@@ -49,7 +49,7 @@ pub mod sound {
                 match packet::read_packet(sound_packet).unwrap() {
                     packet::Packet::ChiptuneMusic(res) => {
                         let filename = res.filename.clone();
-                        // New song -> Load it before
+                        // New music -> Load it before
                         if !cartridge.music_tracks.contains_key(&filename) {
                                 let song = self.player.load_music(filename.clone());
                                 match song {
@@ -68,9 +68,9 @@ pub mod sound {
                             None => {},
                         }
                     }
-                    packet::Packet::ChiptuneSFX(res) => {
+                    packet::Packet::ChiptuneSFX(res) => {                        
                         let filename = res.filename.clone();
-
+                    
                         if !cartridge.sound_tracks.contains_key(&filename) {
                             let sound = self.player.load_sound(filename.clone());
                             match sound {

@@ -628,10 +628,59 @@ pub mod plugin {
               "#);
             info!("[PLUGIN][LUA][PX8][SFX] = {:?}", value);
 
-            let value = lua_state.do_string(r#"music = function(n, fade_len, channel_mask)
+            let value = lua_state.do_string(r#"music = function(id, filename, channel, loops, start_position)
+              if filename == nil then
+                filename = ""
+              end
+
+              if channel == nil then
+                channel = -1
+              end
+
+              if loops == nil then
+                loops = -1
+              end
+
+              if start_position == nil then
+                start_position = 0
+              end
+
+              PX8Object:music(id, filename, channel, loops, start_position)
+
               end
               "#);
             info!("[PLUGIN][LUA][PX8][MUSIC] = {:?}", value);
+
+            let value = lua_state.do_string(r#"sfx = function(id, filename, channel, note, panning, rate, loops)
+              if filename == nil then
+                filename = ""
+              end
+
+              if channel == nil then
+                channel = -1
+              end
+
+              if note == nil then
+                note = 13312
+              end
+
+              if panning == nil then
+                panning = 64
+              end
+
+              if rate == nil then
+                rate = 50
+              end
+
+              if loops == nil then
+                loops = -1
+              end
+              
+              PX8Object:sfx(id, filename, channel, note, panning, rate, loops)
+              end
+              "#);
+            info!("[PLUGIN][LUA][PX8][SFX] = {:?}", value);
+
 
             let value = lua_state.do_string(r#"flip = function()
               end
@@ -937,6 +986,37 @@ pub mod plugin {
                 .lock()
                 .unwrap()
                 .music(id as i32, filename.to_string(), channel as i32, loops as i32, start_position as i32);
+
+            1
+        }
+
+        unsafe extern "C" fn lua_chiptune_sfx(lua_context: *mut lua_State) -> c_int {
+            debug!("LUA CHIPTUNE SFX");
+
+            let mut state = State::from_ptr(lua_context);
+            let mut state2 = State::from_ptr(lua_context);
+
+            let id = state2.check_integer(2);
+            let filename = state.check_string(3);
+            let channel = state2.check_integer(4);
+            let note = state2.check_integer(5);
+            let panning = state2.check_integer(6);
+            let rate = state2.check_integer(7);
+            let loops = state2.check_integer(8);
+
+            let sound = state2.with_extra(|extra| {
+                                              let data = extra
+                                                  .as_ref()
+                                                  .unwrap()
+                                                  .downcast_ref::<ExtraData>()
+                                                  .unwrap();
+                                              data.sound.clone()
+                                          });
+
+            sound
+                .lock()
+                .unwrap()
+                .sfx(id as i32, filename.to_string(), channel as i32, note as u16, panning as i32, rate as i32, loops as i32);
 
             1
         }
@@ -1989,10 +2069,11 @@ pub mod plugin {
         }
     }
 
-    pub const PX8LUA_LIB: [(&'static str, Function); 41] =
+    pub const PX8LUA_LIB: [(&'static str, Function); 42] =
         [("new", Some(PX8Lua::lua_new)),
 
          ("music", Some(PX8Lua::lua_chiptune_music)),
+         ("sfx", Some(PX8Lua::lua_chiptune_sfx)),
 
          ("camera", Some(PX8Lua::lua_camera)),
          ("color", Some(PX8Lua::lua_color)),

@@ -35,7 +35,7 @@ function _draw()
 end
 
 function boom(_x,_y)
- chiptune_play(1, "./examples/assets/clap.ki")
+ sfx(-1, "./examples/assets/clap.ki")
 
  -- crate 100 particles at a location
  for i=0,100 do
