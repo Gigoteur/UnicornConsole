@@ -72,7 +72,6 @@ public class SDLActivity extends Activity {
     protected String[] getLibraries() {
         return new String[] {
             "SDL2",
-            "px8"
         };
     }
 

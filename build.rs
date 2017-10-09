@@ -56,6 +56,8 @@ fn main() {
     }
 
     if target_os.contains("android") {
+        println!("rustc-link-lib=static=libchiptune");
+        
         println!("cargo:rustc-flags=-L android/sdl/build/intermediates/cmake/debug/obj/armeabi",);
         println!("cargo:rustc-flags=-L android/sdl/build/intermediates/cmake/debug/obj/armeabi-v7a",);
         println!("cargo:rustc-flags=-L android/sdl/build/intermediates/cmake/debug/obj/x86",);

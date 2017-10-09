@@ -198,6 +198,10 @@ pub struct Boot {
     t: i64,
     value: f64,
     length: f64,
+    n: f64,
+    c: f64,
+    color: i32,
+    ang: f64,
 }
 
 impl Boot {
@@ -205,7 +209,11 @@ impl Boot {
         Boot {
             t: 0,
             value: -1.0,
-            length: 1.0,
+            length: 0.5,
+            n: 0.0,
+            c: 2.0,
+            color: 8,
+            ang: 1.211,
         }
     }
 
@@ -224,12 +232,17 @@ impl Boot {
         (value - self.value) > self.length
     }
 
-    pub fn draw(&mut self, screen: &mut gfx::Screen) {
-        let mut color = 7;
-        if (self.t % 2) == 0 {
-            color = 8;
-        }
-        screen.print("Booting ....".to_string(), 20, 64, color);
+    pub fn draw(&mut self, screen: &mut gfx::Screen) {        
+        let a = self.n * self.ang;
+        let r=self.c+self.n.sqrt();
+        
+        let x=r*math::cos(a)+64.0;
+        let y=r*math::sin(a)+64.0;
+        
+        screen.pset(x as i32, y as i32, self.color);
+        
+        self.n += 8.0;
+
         draw_logo(screen);
     }
 }
@@ -1268,6 +1281,11 @@ impl PX8 {
         let mut px8_cartridge = PX8Cartridge::new(cartridge);
         let ret = self._load_cartridge(&mut px8_cartridge, editor);
         if ret {
+            if self.cartridges.len() < 1 {
+                self.state = PX8State::BOOT;
+            } else {
+                self.state = PX8State::RUN;
+            }
             self.add_cartridge(px8_cartridge);
             self.init();
         }
@@ -1276,7 +1294,7 @@ impl PX8 {
     }
 
     pub fn add_cartridge(&mut self, mut cartridge: PX8Cartridge) {
-        info!("[PX8] Add cartridge");
+        info!("[PX8] ADD cartridge");
 
         self.current_cartridge = self.cartridges.len();
         self.current_code_type = cartridge.get_code_type();

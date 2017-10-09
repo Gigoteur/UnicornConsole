@@ -16,7 +16,7 @@ exclude = [ ".idea/*", ".travis.yml" ]
 [lib]
 name       = "px8"
 path       = "src/lib.rs"
-crate-type = ["staticlib", "cdylib", "rlib"]
+crate-type = ["cdylib", "rlib"]
 
 [target.'cfg(target_os="android")'.dependencies]
 jni = { version = "0.4", default-features = false }
