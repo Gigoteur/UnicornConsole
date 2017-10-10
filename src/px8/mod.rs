@@ -12,6 +12,9 @@ use std::io::Cursor;
 use std::sync::{Arc, Mutex};
 use time;
 use std::fmt;
+use std::cmp::max;
+use rand;
+use rand::Rng;
 
 use nalgebra::clamp;
 
@@ -233,15 +236,19 @@ impl Boot {
     }
 
     pub fn draw(&mut self, screen: &mut gfx::Screen) {        
-        let a = self.n * self.ang;
-        let r=self.c+self.n.sqrt();
-        
-        let x=r*math::cos(a)+64.0;
-        let y=r*math::sin(a)+64.0;
-        
-        screen.pset(x as i32, y as i32, self.color);
-        
-        self.n += 8.0;
+        for _ in 0..4 {
+            let a = self.n * self.ang;
+            let r=self.c+self.n.sqrt();
+            
+            let x=r*math::cos(a)+64.0;
+            let y=r*math::sin(a)+64.0;
+            
+            screen.pset(x as i32, y as i32, self.color);
+            
+            self.color = rand::thread_rng().gen_range(1.0, 15.0) as i32;
+            
+            self.n += 4.0;
+        }
 
         draw_logo(screen);
     }
@@ -283,9 +290,9 @@ impl Menu {
     }
 
     pub fn update(&mut self, players: Arc<Mutex<Players>>) -> bool {
-        if players.lock().unwrap().btnp(0, 0) {
+        if players.lock().unwrap().btnp(0, 2) {
             self.idx = clamp(self.idx - 1, 0, (self.cartridges.len() as u32) - 1);
-        } else if players.lock().unwrap().btnp(0, 1) {
+        } else if players.lock().unwrap().btnp(0, 3) {
             self.idx = clamp(self.idx + 1, 0, (self.cartridges.len() as u32) - 1);
         }
 
@@ -317,31 +324,51 @@ impl Menu {
 
         screen.mode(128, 128, 1.);
 
+        let offset_x = 2;
+        let offset_y = 10;
+
         if self.cartridges.len() > 0 {
-            let mut filename = self.cartridges[self.idx as usize]
-                .file_name()
-                .unwrap()
-                .to_str()
-                .unwrap()
-                .to_string();
-            filename.truncate(10);
+            let mut idx = 0;
+            let min_x = max(self.idx as i32-5, 0) as u32;
+            let max_x = max(self.idx as i32+5, 10) as u32;
+            
+            let mut current_idx = 0;
+            for cartridge in self.cartridges.iter_mut() {
+                if idx >= min_x && idx <= max_x {
+                    let mut filename = cartridge
+                        .file_name()
+                        .unwrap()
+                        .to_str()
+                        .unwrap()
+                        .to_string();
+                    filename.truncate(10);
+
+                    let data_to_print = format!("{:<width$}", filename, width = 10);
+                    let mut color = 6;
+                    if self.idx == idx {
+                        color = 7;
+                    }
+                    screen.print(data_to_print, offset_x, offset_y + current_idx * 8, color);
+
+                    let extension = cartridge
+                        .extension()
+                        .unwrap()
+                        .to_str()
+                        .unwrap()
+                        .to_string();
+                    let extension_to_print = format!("{:}", extension);
+                    screen.print(extension_to_print, offset_x + 12*4, offset_y + current_idx * 8, color);
+                
+                    let metadata = cartridge.metadata().unwrap();
+                    let metadata_to_print = format!("{:?} bytes", metadata.len());
+                    screen.print(metadata_to_print, offset_x + 16*4, offset_y + current_idx * 8, color);
+
+                    current_idx += 1;
+                }
+                idx += 1;
+            }
 
 
-            let data_to_print = format!("< {:<width$} >", filename, width = 10);
-            screen.print(data_to_print, 30, 20, 7);
-
-            let extension = self.cartridges[self.idx as usize]
-                .extension()
-                .unwrap()
-                .to_str()
-                .unwrap()
-                .to_string();
-            let extension_to_print = format!("CARTRIDGE {:}", extension);
-            screen.print(extension_to_print, 30, 28, 7);
-
-            let metadata = self.cartridges[self.idx as usize].metadata().unwrap();
-            let metadata_to_print = format!("{:?} bytes", metadata.len());
-            screen.print(metadata_to_print, 30, 36, 7);
             draw_logo(screen);
         }
     }
@@ -774,7 +801,7 @@ impl PX8 {
     pub fn setup(&mut self) {
         info!("[PX8] Setup");
         
-        let mut px8_cartridge = PX8Cartridge::empty();
+        let px8_cartridge = PX8Cartridge::empty();
         self.add_cartridge(px8_cartridge);
 
         self.sound_internal.lock().unwrap().init();
