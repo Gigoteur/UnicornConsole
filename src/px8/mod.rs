@@ -7,6 +7,7 @@ pub mod math;
 pub mod packet;
 pub mod wfc;
 
+use std::fs;
 use std::collections::HashMap;
 use std::io::Cursor;
 use std::sync::{Arc, Mutex};
@@ -256,92 +257,49 @@ impl Boot {
 
 pub struct Menu {
     idx: u32,
-    cartridges: Vec<PathBuf>,
 }
 
 impl Menu {
     pub fn new() -> Menu {
         Menu {
             idx: 0,
-            cartridges: Vec::new(),
         }
     }
 
-    pub fn reset(&mut self) {
-        info!("[PX8][Menu] Reset");
-
-        self.cartridges.clear();
-
-        // PX8 Files
-        for entry in glob("**/*.px8").expect("Failed to read glob pattern") {
-            match entry {
-                Ok(path) => self.cartridges.push(path),
-                Err(e) => println!("{:?}", e),
-            }
-        }
-
-        // P8 Files
-        for entry in glob("**/*.p8").expect("Failed to read glob pattern") {
-            match entry {
-                Ok(path) => self.cartridges.push(path),
-                Err(e) => println!("{:?}", e),
-            }
-        }
-    }
-
-    pub fn update(&mut self, players: Arc<Mutex<Players>>) -> bool {
+    pub fn update(&mut self, cartridges: &mut Vec<PX8Cartridge>, players: Arc<Mutex<Players>>) -> bool {
         if players.lock().unwrap().btnp(0, 2) {
-            self.idx = clamp(self.idx - 1, 0, (self.cartridges.len() as u32) - 1);
+            self.idx = clamp(self.idx - 1, 0, (cartridges.len() as u32) - 1);
         } else if players.lock().unwrap().btnp(0, 3) {
-            self.idx = clamp(self.idx + 1, 0, (self.cartridges.len() as u32) - 1);
+            self.idx = clamp(self.idx + 1, 0, (cartridges.len() as u32) - 1);
         }
 
         true
     }
 
-    pub fn selected_cartridge(&mut self) -> String {
-        self.cartridges[self.idx as usize]
-            .as_path()
-            .to_str()
-            .unwrap()
-            .to_string()
+    pub fn get_current_idx(&mut self) -> u32 {
+        self.idx
     }
 
-    pub fn get_current_filename(&mut self) -> String {
-        if self.cartridges.len() > 0 {
-            return self.cartridges[self.idx as usize]
-                       .as_path()
-                       .to_str()
-                       .unwrap()
-                       .to_string();
-        }
-
-        "".to_string()
-    }
-
-    pub fn draw(&mut self, screen: &mut gfx::Screen) {
+    pub fn draw(&mut self, cartridges: &mut Vec<PX8Cartridge>, screen: &mut gfx::Screen) {
         screen.cls();
 
         screen.mode(128, 128, 1.);
 
+        let cartridges_info = format!("{:?}", cartridges.len());
+        screen.print(cartridges_info, 0, 0, 7);
+
         let offset_x = 2;
         let offset_y = 10;
 
-        if self.cartridges.len() > 0 {
+        if cartridges.len() > 0 {
             let mut idx = 0;
             let min_x = max(self.idx as i32-5, 0) as u32;
             let max_x = max(self.idx as i32+5, 10) as u32;
             
             let mut current_idx = 0;
-            for cartridge in self.cartridges.iter_mut() {
+            for cartridge in cartridges.iter_mut() {
                 if idx >= min_x && idx <= max_x {
-                    let mut filename = cartridge
-                        .file_name()
-                        .unwrap()
-                        .to_str()
-                        .unwrap()
-                        .to_string();
-                    filename.truncate(10);
+                    let filename = cartridge.filename.clone();
 
                     let data_to_print = format!("{:<width$}", filename, width = 10);
                     let mut color = 6;
@@ -349,7 +307,7 @@ impl Menu {
                         color = 7;
                     }
                     screen.print(data_to_print, offset_x, offset_y + current_idx * 8, color);
-
+/*
                     let extension = cartridge
                         .extension()
                         .unwrap()
@@ -362,7 +320,7 @@ impl Menu {
                     let metadata = cartridge.metadata().unwrap();
                     let metadata_to_print = format!("{:?} bytes", metadata.len());
                     screen.print(metadata_to_print, offset_x + 16*4, offset_y + current_idx * 8, color);
-
+*/
                     current_idx += 1;
                 }
                 idx += 1;
@@ -672,6 +630,9 @@ impl PX8Config {
 }
 
 pub struct PX8Cartridge {
+    pub filename: String,
+    pub full_filename: String,
+    pub loaded: bool,
     pub cartridge: Cartridge,
     pub lua_plugin: LuaPlugin,
     pub python_plugin: PythonPlugin,
@@ -691,8 +652,11 @@ impl fmt::Debug for PX8Cartridge {
 
 
 impl PX8Cartridge {
-    pub fn new(cartridge: Cartridge) -> PX8Cartridge {
+    pub fn new(cartridge: Cartridge, filename: String) -> PX8Cartridge {
         PX8Cartridge {
+            filename: filename.clone(),
+            full_filename: cartridge.filename.clone(),
+            loaded: true,
             cartridge: cartridge,
             lua_plugin: LuaPlugin::new(),
             python_plugin: PythonPlugin::new(),
@@ -702,8 +666,11 @@ impl PX8Cartridge {
         }
     }
 
-    pub fn empty() -> PX8Cartridge {
+    pub fn empty(filename: String, full_filename: String) -> PX8Cartridge {
         PX8Cartridge {
+            filename: filename.clone(),
+            full_filename: full_filename.clone(),
+            loaded: false,
             cartridge: Cartridge::empty(),
             lua_plugin: LuaPlugin::new(),
             python_plugin: PythonPlugin::new(),
@@ -801,11 +768,48 @@ impl PX8 {
     pub fn setup(&mut self) {
         info!("[PX8] Setup");
         
-        let px8_cartridge = PX8Cartridge::empty();
+        let mut px8_cartridge = PX8Cartridge::empty("DemoPX8".to_string(), "DemoPX8".to_string());
+        px8_cartridge.loaded = true;
         self.add_cartridge(px8_cartridge);
 
         self.sound_internal.lock().unwrap().init();
         self.reset();
+
+        // PX8 Files
+        for entry in glob("**/*.px8").expect("Failed to read glob pattern") {
+            match entry {
+                Ok(path) => {
+                    let filename = path
+                        .file_name()
+                        .unwrap()
+                        .to_str()
+                        .unwrap()
+                        .to_string();
+                    let full_file_name = fs::canonicalize(path).unwrap().to_str().unwrap().to_string();
+                    let px8_cartridge = PX8Cartridge::empty(filename, full_file_name);
+                    self.cartridges.push(px8_cartridge);
+                },  
+                Err(e) => error!("{:?}", e),
+            }
+        }
+
+        // P8 Files
+        for entry in glob("**/*.p8").expect("Failed to read glob pattern") {
+            match entry {
+                Ok(path) => {
+                    let filename = path
+                        .file_name()
+                        .unwrap()
+                        .to_str()
+                        .unwrap()
+                        .to_string();
+                    let full_file_name = fs::canonicalize(path).unwrap().to_str().unwrap().to_string();
+                    let px8_cartridge = PX8Cartridge::empty(filename, full_file_name);
+                    self.cartridges.push(px8_cartridge);  
+                },
+                Err(e) => error!("{:?}", e),
+            }
+        }
     }
 
     pub fn update_sound(&mut self) {
@@ -840,12 +844,12 @@ impl PX8 {
         self.palettes.lock().unwrap().switch_to("pico-8");
 
         self.screen.lock().unwrap().init();
+
         self.update_return = true;
         self.draw_return = true;
     }
 
     pub fn init_interactive(&mut self) {
-        self.menu.reset();
         self.interactive = true;
     }
 
@@ -903,7 +907,6 @@ impl PX8 {
                 }
 
                 if self.pause_menu.quit() {
-                    self.menu.reset();
                     self.state = PX8State::INTERACTIVE;
                     self.sound_internal.lock().unwrap().stop();
                 }
@@ -918,10 +921,11 @@ impl PX8 {
                 self.update_time = self.call_update() * 1000.0;
             }
             PX8State::INTERACTIVE => {
-                let return_value = self.menu.update(self.players.clone());
+                let return_value = self.menu.update(&mut self.cartridges, self.players.clone());
                 if self.players.lock().unwrap().btnp(0, 4) {
-                    let filename = self.menu.selected_cartridge().clone();
-                    self.load_cartridge(filename.as_str(), false, PX8Mode::PX8);
+                    let filename = self.cartridges[self.menu.get_current_idx() as usize].filename.clone();
+                    let full_filename = self.cartridges[self.menu.get_current_idx() as usize].full_filename.clone();
+                    self.load_cartridge(filename.as_str(), full_filename.as_str(), false, PX8Mode::PX8);
                 }
 
                 return return_value;
@@ -945,7 +949,7 @@ impl PX8 {
                 self.draw_time = self.call_draw() * 1000.0;
             }
             PX8State::INTERACTIVE => {
-                self.menu.draw(&mut self.screen.lock().unwrap());
+                self.menu.draw(&mut self.cartridges, &mut self.screen.lock().unwrap());
             }
             PX8State::EDITOR => {
                 self.draw_time = self.editor
@@ -1192,9 +1196,30 @@ impl PX8 {
     pub fn register<F: RustPlugin + 'static>(&mut self, callback: F) {
         info!("[PX8] Register new cartridge");
 
-        let mut px8_cartridge = PX8Cartridge::empty();
+        let mut px8_cartridge = PX8Cartridge::empty("RustPlugin".to_string(), "RustPlugin".to_string());
         px8_cartridge.rust_plugin.push(Box::new(callback));
         self.add_cartridge(px8_cartridge);
+    }
+
+    pub fn _setup_screen(&mut self) {
+        let mut cartridge = &self.cartridges[self.current_cartridge];
+
+        info!("[PX8] Setup screen {:?}", cartridge);
+
+        self.screen
+            .lock()
+            .unwrap()
+            .set_sprites(cartridge.cartridge.gfx.sprites.clone());
+
+        self.screen
+            .lock()
+            .unwrap()
+            .set_sprites_flags(cartridge.cartridge.gff.flags.clone());
+
+        self.screen
+            .lock()
+            .unwrap()
+            .set_map(cartridge.cartridge.map.map);
     }
 
     pub fn _load_cartridge(&mut self,
@@ -1244,21 +1269,6 @@ impl PX8 {
         if ret {
             self.editing = editor;
 
-            self.screen
-                .lock()
-                .unwrap()
-                .set_sprites(cartridge.cartridge.gfx.sprites.clone());
-
-            self.screen
-                .lock()
-                .unwrap()
-                .set_sprites_flags(cartridge.cartridge.gff.flags.clone());
-
-            self.screen
-                .lock()
-                .unwrap()
-                .set_map(cartridge.cartridge.map.map);
-
             if editor {
                 self.editor
                     .init(self.configuration.clone(),
@@ -1272,31 +1282,38 @@ impl PX8 {
         ret
     }
 
-    pub fn load_cartridge(&mut self, filename: &str, editor: bool, mode: PX8Mode) -> bool {
-        let mut cartridge;
+    pub fn load_cartridge(&mut self, filename: &str, full_filename: &str, editor: bool, mode: PX8Mode) -> bool {
+        info!("[PX8] Load cartridge from {:?}", filename);
 
+        if filename == "DemoPX8" {
+            self.current_cartridge = 0;
+            self._setup_screen();
+            return true;
+        }
+
+        let mut cartridge;
         if filename.contains(".png") {
-            match Cartridge::from_png_file(filename) {
+            match Cartridge::from_png_file(full_filename) {
                 Ok(c) => cartridge = c,
                 Err(e) => panic!("[PX8] Impossible to load the png cartridge {:?}", e),
             }
         } else if filename.contains(".p8") {
-            match Cartridge::from_p8_file(filename) {
+            match Cartridge::from_p8_file(full_filename) {
                 Ok(c) => cartridge = c,
                 Err(e) => panic!("[PX8] Impossible to load the p8 cartridge {:?}", e),
             }
         } else if filename.contains(".py") {
-            match Cartridge::from_p8_file(filename) {
+            match Cartridge::from_p8_file(full_filename) {
                 Ok(c) => cartridge = c,
                 Err(e) => panic!("[PX8] Impossible to load the p8 cartridge {:?}", e),
             }
         } else if filename.contains(".px8") {
-            match Cartridge::from_px8_file(filename) {
+            match Cartridge::from_px8_file(full_filename) {
                 Ok(c) => cartridge = c,
                 Err(e) => panic!("[PX8] Impossible to load the px8 cartridge {:?}", e),
             }
         } else if filename.contains(".dpx8") {
-            match Cartridge::from_dpx8_file(filename) {
+            match Cartridge::from_dpx8_file(full_filename) {
                 Ok(c) => cartridge = c,
                 Err(e) => panic!("[PX8] Impossible to load the dpx8 cartridge {:?}", e),
             }
@@ -1305,7 +1322,7 @@ impl PX8 {
         }
 
         cartridge.set_mode(mode == PX8Mode::PICO8);
-        let mut px8_cartridge = PX8Cartridge::new(cartridge);
+        let mut px8_cartridge = PX8Cartridge::new(cartridge, filename.to_string());
         let ret = self._load_cartridge(&mut px8_cartridge, editor);
         if ret {
             if self.cartridges.len() < 1 {
@@ -1314,18 +1331,37 @@ impl PX8 {
                 self.state = PX8State::RUN;
             }
             self.add_cartridge(px8_cartridge);
+            self._setup_screen();
+            px8_cartridge.loaded = true;
+
             self.init();
         }
 
         ret
     }
 
-    pub fn add_cartridge(&mut self, mut cartridge: PX8Cartridge) {
-        info!("[PX8] ADD cartridge");
+    pub fn add_cartridge(&mut self, mut new_cartridge: PX8Cartridge) {
+        info!("[PX8] ADD cartridge {:?}", new_cartridge.filename);
 
-        self.current_cartridge = self.cartridges.len();
-        self.current_code_type = cartridge.get_code_type();
-        self.cartridges.push(cartridge);
+        let mut exists = false;
+        let mut idx = 0;
+        for cartridge in self.cartridges.iter() {
+            if cartridge.filename == new_cartridge.filename {
+                exists = true;
+                break;
+            }
+            idx += 1;
+        }
+
+        if !exists {
+            self.current_cartridge = self.cartridges.len();
+            self.current_code_type = new_cartridge.get_code_type();
+            self.cartridges.push(new_cartridge);
+        } else {
+            self.current_cartridge = idx;
+            self.current_code_type = new_cartridge.get_code_type();
+            self.cartridges[idx as usize] = new_cartridge;
+        }
     }
 
     pub fn next_cartridge(&mut self) {
@@ -1365,10 +1401,11 @@ impl PX8 {
         }
 
         cartridge.set_mode(mode == PX8Mode::PICO8);
-        let mut px8_cartridge = PX8Cartridge::new(cartridge);
+        let mut px8_cartridge = PX8Cartridge::new(cartridge, filename.to_string());
         let ret = self._load_cartridge(&mut px8_cartridge, editor);
         if ret {
             self.add_cartridge(px8_cartridge);
+            self._setup_screen();
             self.init();
         }
 
@@ -1385,6 +1422,8 @@ impl PX8 {
         let idx = self.current_cartridge;
 
         if self.editing {
+            info!("[PX8] Switch editor to run");
+
             // Reload the code for the px8 format
             match self.cartridges[idx].cartridge.format {
                 CartridgeFormat::Px8Format => {
@@ -1411,14 +1450,14 @@ impl PX8 {
             self.state = PX8State::RUN;
             self.reset();
         } else {
-            info!("[PX8] Back to {:?}", self.cartridges.len());
-            if self.cartridges.len() == 0 {
-                let filename = self.menu.get_current_filename().clone();
-                self.load_cartridge(filename.as_str(), false, PX8Mode::PX8);
+            info!("[PX8] Switch run to editor");
+            info!("[PX8] Back to {:?}/{:?}", self.current_cartridge, self.cartridges.len());
+            let filename = self.cartridges[self.current_cartridge].filename.clone();
+            let full_filename = self.cartridges[self.current_cartridge].full_filename.clone();
+
+            if self.cartridges[self.current_cartridge].loaded == false {
+                self.load_cartridge(filename.as_str(), full_filename.as_str(), false, PX8Mode::PX8);
             }
-
-            let filename = self.menu.get_current_filename().clone();
-
             let code = self.cartridges[self.current_cartridge].get_code();
 
             self.editor
@@ -1448,7 +1487,7 @@ impl PX8 {
                     callback.init(&mut self.screen.lock().unwrap());
                 }
             }
-            _ => panic!("[PX8] Impossible to match a plugin"),
+            _ => error!("[PX8] Impossible to match a plugin"),
         }
 
         let diff_time = time::now() - current_time;

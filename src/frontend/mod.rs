@@ -197,7 +197,7 @@ impl Frontend {
     }
 
     pub fn run_cartridge(&mut self, filename: &str, editor: bool, mode: px8::PX8Mode) {
-        let success = self.px8.load_cartridge(filename, editor, mode);
+        let success = self.px8.load_cartridge(filename, filename, editor, mode);
 
         if success {
             info!("[Frontend] Successfully loaded the cartridge");

@@ -1141,7 +1141,7 @@ impl Screen {
                 dh: u32,
                 flip_x: bool,
                 flip_y: bool) {
-        /*debug!("SSPR sx {:?} sy {:?} sw {:?} sh {:?} dx {:?} dy {:?} dw {:?} dh {:?} flip_x {:?} flip_y {:?}",
+        debug!("SSPR sx {:?} sy {:?} sw {:?} sh {:?} dx {:?} dy {:?} dw {:?} dh {:?} flip_x {:?} flip_y {:?}",
                sx,
                sy,
                sw,
@@ -1151,7 +1151,7 @@ impl Screen {
                dw,
                dh,
                flip_x,
-               flip_y);*/
+               flip_y);
 
         let mut v = Vec::new();
 
@@ -1161,7 +1161,7 @@ impl Screen {
             }
         }
 
-        //debug!("SSPR V {:?} {:?}", v.len(), v);
+        debug!("SSPR V {:?} {:?}", v.len(), v);
 
         let mut x2;
         let mut y2;

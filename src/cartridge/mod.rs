@@ -315,17 +315,25 @@ impl CartridgeCode {
     }
 
     pub fn reload(&mut self) {
-        let f1 = File::open(self.filename.as_str()).unwrap();
-        let buf_reader = BufReader::new(f1);
+        let f1 = File::open(self.filename.as_str());
+        match f1 {
+            Ok(f1) => {
+                let buf_reader = BufReader::new(f1);
 
-        let mut code_section = Vec::new();
+                let mut code_section = Vec::new();
 
-        for line in buf_reader.lines() {
-            let l = line.unwrap();
-            code_section.push(l);
+                for line in buf_reader.lines() {
+                    let l = line.unwrap();
+                    code_section.push(l);
+                }
+
+                self.lines = code_section;
+            }
+            Err(e) => {
+                error!("Error to reload the file {:?} -> {:?}", self.filename, e);
+            }
         }
 
-        self.lines = code_section;
     }
 
     pub fn get_data(&mut self) -> String {
