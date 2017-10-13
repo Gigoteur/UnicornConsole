@@ -639,6 +639,7 @@ pub struct PX8Cartridge {
     pub rust_plugin: Vec<Box<RustPlugin>>,
     pub music_tracks: HashMap<String, chiptune::ChiptuneSong>,
     pub sound_tracks: HashMap<String, chiptune::ChiptuneSound>,
+    pub sound_tracks_name: Vec<String>,
 }
 
 
@@ -663,6 +664,7 @@ impl PX8Cartridge {
             rust_plugin: Vec::new(),
             music_tracks: HashMap::new(),
             sound_tracks: HashMap::new(),
+            sound_tracks_name: Vec::new(),
         }
     }
 
@@ -677,6 +679,7 @@ impl PX8Cartridge {
             rust_plugin: Vec::new(),
             music_tracks: HashMap::new(),
             sound_tracks: HashMap::new(),
+            sound_tracks_name: Vec::new(),
         }
     }
 
@@ -769,7 +772,6 @@ impl PX8 {
         info!("[PX8] Setup");
         
         let mut px8_cartridge = PX8Cartridge::empty("DemoPX8".to_string(), "DemoPX8".to_string());
-        px8_cartridge.loaded = true;
         self.add_cartridge(px8_cartridge);
 
         self.sound_internal.lock().unwrap().init();
@@ -931,7 +933,8 @@ impl PX8 {
                 return return_value;
             }
             PX8State::EDITOR => {
-                return self.editor.update(self.players.clone());
+                let mut cartridge = self.cartridges.get_mut(self.current_cartridge).unwrap();
+                return self.editor.update(cartridge, self.players.clone(), self.sound_internal.clone(), self.sound.clone());
             }
         }
         true
@@ -953,7 +956,7 @@ impl PX8 {
             }
             PX8State::EDITOR => {
                 self.draw_time = self.editor
-                    .draw(self.players.clone(), &mut self.screen.lock().unwrap(), self.sound_internal.clone()) *
+                    .draw(self.players.clone(), &mut self.screen.lock().unwrap()) *
                                  1000.0;
             }
         }
@@ -1288,6 +1291,7 @@ impl PX8 {
         if filename == "DemoPX8" {
             self.current_cartridge = 0;
             self._setup_screen();
+            self.cartridges[0].loaded = true;
             return true;
         }
 

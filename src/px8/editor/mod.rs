@@ -8,9 +8,9 @@ use std::sync::{Arc, Mutex};
 use std::collections::HashMap;
 use time;
 
-use sound::sound::SoundInternal;
+use sound::sound::{SoundInternal, Sound};
 
-use px8::PX8Config;
+use px8::{PX8Cartridge, PX8Config};
 
 pub fn point_in_rect(x: i32,
                      y: i32,
@@ -237,13 +237,15 @@ impl Editor {
                                                      128,
                                                      1,
                                                      8,
-                                                     6,
-                                                     vec![11, 11, 11, 6, 6, 11, 11, 11,
+                                                     8,
+                                                     vec![11, 11, 11, 11, 11, 11, 11, 11,
+                                                          11, 11, 11, 6, 6, 11, 11, 11,
                                                           11, 11, 11, 6, 6, 11, 11, 11,
                                                           11, 6, 6, 6, 6, 6, 6, 11,
                                                           11, 6, 6, 6, 6, 6, 6, 11,
                                                           11, 11, 11, 6, 6, 11, 11, 11,
-                                                          11, 11, 11, 6, 6, 11, 11, 11],
+                                                          11, 11, 11, 6, 6, 11, 11, 11,
+                                                          11, 11, 11, 11, 11, 11, 11, 11],
                                                      highlight.clone(),
                                                      true, true))));
         widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(),
@@ -251,12 +253,14 @@ impl Editor {
                                                      140,
                                                      1,
                                                      8,
-                                                     6,
-                                                     vec![6, 11, 11, 11, 11, 11, 11, 6, 11, 6,
+                                                     8,
+                                                     vec![11, 11, 11, 11, 11, 11, 11, 11,
+                                                          6, 11, 11, 11, 11, 11, 11, 6, 11, 6,
                                                           6, 6, 6, 6, 6, 11, 11, 6, 11, 11,
                                                           11, 11, 6, 11, 11, 6, 11, 11, 11,
                                                           11, 6, 11, 11, 6, 6, 6, 6, 6, 6, 11,
-                                                          6, 11, 11, 11, 11, 11, 11, 6],
+                                                          6, 11, 11, 11, 11, 11, 11, 6,
+                                                          11, 11, 11, 11, 11, 11, 11, 11],
                                                      highlight.clone(),
                                                      false, true))));
 
@@ -265,13 +269,15 @@ impl Editor {
                                                      152,
                                                      1,
                                                      8,
-                                                     6,
-                                                     vec![11, 11, 11, 6, 6, 11, 11, 11,
+                                                     8,
+                                                     vec![11, 11, 11, 11, 11, 11, 11, 11,
+                                                          11, 11, 11, 6, 6, 11, 11, 11,
                                                           11, 11, 6, 6, 6, 6, 11, 11,
                                                           11, 6, 11, 11, 11, 11, 6, 11,
                                                           11, 6, 11, 11, 11, 11, 6, 11,
                                                           11, 11, 6, 6, 6, 6, 11, 11,
-                                                          11, 11, 11, 6, 6, 11, 11, 11],
+                                                          11, 11, 11, 6, 6, 11, 11, 11,
+                                                          11, 11, 11, 11, 11, 11, 11, 11],
                                                      highlight.clone(),
                                                      false, true))));
 
@@ -299,7 +305,7 @@ impl Editor {
         self.music_editor.init(config.clone(), screen);
     }
 
-    pub fn update(&mut self, players: Arc<Mutex<Players>>) -> bool {
+    pub fn update(&mut self, cartridge: &mut PX8Cartridge, players: Arc<Mutex<Players>>, sound_internal: Arc<Mutex<SoundInternal>>, sound: Arc<Mutex<Sound>>) -> bool {
         self.state.lock().unwrap().update(players.clone());
 
         let mut is_clickable = false;
@@ -337,14 +343,14 @@ impl Editor {
             //    self.txt_editor.draw(players, screen);
             }
             STATE::MUSIC_EDITOR => {
-                self.music_editor.update(players.clone());
+                self.music_editor.update(cartridge, players.clone(), sound_internal.clone(), sound.clone());
             }
         }
 
         true
     }
 
-    pub fn draw(&mut self, players: Arc<Mutex<Players>>, screen: &mut Screen, sound: Arc<Mutex<SoundInternal>>) -> f64 {
+    pub fn draw(&mut self, players: Arc<Mutex<Players>>, screen: &mut Screen) -> f64 {
         let current_time = time::now();
 
         screen.cls();
@@ -370,7 +376,7 @@ impl Editor {
             //    self.txt_editor.draw(players, screen);
             }
             STATE::MUSIC_EDITOR => {
-                self.music_editor.draw(players, screen, sound.clone());
+                self.music_editor.draw(players, screen);
             }
         }
 

@@ -228,18 +228,18 @@ KLYSAPI void Chiptune_PlayMusic(ChiptunePlayer *player, ChiptuneSong *song, int 
 
 KLYSAPI void Chiptune_PlaySound(ChiptunePlayer *player, ChiptuneSound *sound, int chan, unsigned short note, int panning, int rate)
 {
-	if (chan == -1 || chan < SFX_CHANNELS_START)
+	if (chan == -1)
 	{
 		for (int i = SFX_CHANNELS_START ; i < player->cyd_music.n_channels ; ++i)
 		{
 			if (!(player->cyd_music.channel[i].flags & CYD_CHN_ENABLE_GATE))
 				chan = i;
 		}
+	}
 
-		if (chan != -1) {
-			cyd_set_callback(&player->cyd_music, mus_advance_tick, &player->mus_music, rate);
-			mus_trigger_instrument(&player->mus_music, chan, &sound->sound, note, panning);
-		}
+	if (chan >= SFX_CHANNELS_START) {
+		cyd_set_callback(&player->cyd_music, mus_advance_tick, &player->mus_music, rate);
+		mus_trigger_instrument(&player->mus_music, chan, &sound->sound, note, panning);
 	}
 }
 

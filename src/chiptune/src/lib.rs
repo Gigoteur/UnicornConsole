@@ -215,6 +215,10 @@ lazy_static! {
     };
 }
 
+pub fn base_note_name(note: u8) -> Result<String, ChiptuneError> {
+  Ok(format!("{}{}", NOTENAME[(note%12) as usize], note/12))
+}
+
 pub fn notename(opcode: c_int, base_note: u8) -> Result<String, ChiptuneError> {
   match get_instruction(opcode as i32) {
       Ok(v) => {
@@ -355,9 +359,9 @@ impl Chiptune {
     }
   }
 
-  pub fn get_sound_position(&mut self) -> c_int {
+  pub fn get_sound_position(&mut self, chan: c_int) -> c_int {
     unsafe {
-      return ffi::Chiptune_GetSoundPlayPosition(self.P);
+      return ffi::Chiptune_GetSoundPlayPosition(self.P, chan);
     }
   }
 

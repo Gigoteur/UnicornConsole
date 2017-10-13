@@ -2,6 +2,8 @@
 
 use libc::{c_void, c_int, c_char, c_short, c_ushort, c_uint, c_uchar};
 
+pub const MIDDLE_C : c_int = 12*4;
+
 pub const MUS_INSTRUMENT_NAME_LEN : c_int = 32;
 pub const MUS_PROG_LEN: c_int = 32;
 
@@ -142,7 +144,7 @@ extern "C" {
   pub fn Chiptune_SetVolume(player: chiptune_player, volume: c_int);
   pub fn Chiptune_SetLooping(player: chiptune_player, looping: c_int);
   pub fn Chiptune_GetMusicPlayPosition(player: chiptune_player) -> c_int;
-  pub fn Chiptune_GetSoundPlayPosition(player: chiptune_player) -> c_int;
+  pub fn Chiptune_GetSoundPlayPosition(player: chiptune_player, chan: c_int) -> c_int;
   pub fn Chiptune_GetSongInfo(player: chiptune_player) -> c_int;
 }
 

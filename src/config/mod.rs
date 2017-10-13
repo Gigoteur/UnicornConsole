@@ -305,7 +305,6 @@ impl Players {
         self.get_value(player, index) == 1
     }
 
-
     pub fn btn2(&mut self, c: i32) -> bool {
         match Keycode::from_i32(c as i32) {
             Some(keycode) => {

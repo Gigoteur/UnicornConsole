@@ -75,6 +75,7 @@ pub mod sound {
                             match sound {
                                 Ok(chip_sound) => {
                                     cartridge.sound_tracks.insert(filename.clone(), chip_sound);
+                                    cartridge.sound_tracks_name.push(filename.clone());
                                 }
 
                                 Err(e) => error!("ERROR to load the song {:?}", e),
@@ -82,23 +83,36 @@ pub mod sound {
                         }
                     }
                     packet::Packet::ChiptuneSFX(res) => {                        
-                        let filename = res.filename.clone();
-                    
-                        if !cartridge.sound_tracks.contains_key(&filename) {
-                            let sound = self.player.load_sound(filename.clone());
-                            match sound {
-                                Ok(chip_sound) => {
-                                    cartridge.sound_tracks.insert(filename.clone(), chip_sound);
-                                }
+                        if res.filename != "" {
+                            let filename = res.filename.clone();
 
-                                Err(e) => error!("ERROR to load the song {:?}", e),
+                            if !cartridge.sound_tracks.contains_key(&filename) {
+                                let sound = self.player.load_sound(filename.clone());
+                                match sound {
+                                    Ok(chip_sound) => {
+                                        cartridge.sound_tracks.insert(filename.clone(), chip_sound);
+                                        cartridge.sound_tracks_name.push(filename.clone());
+                                    }
+
+                                    Err(e) => error!("ERROR to load the song {:?}", e),
+                                }
+                            }
+                    
+                            match cartridge.sound_tracks.get_mut(&filename) {
+                                Some(mut sound) => {
+                                    self.player.play_sound(&mut sound, res.channel, res.note, res.panning, res.rate);
+                                }
+                                None => {},
                             }
                         }
-                        match cartridge.sound_tracks.get_mut(&filename) {
-                            Some(mut sound) => {
-                                self.player.play_sound(&mut sound, res.channel, res.note, res.panning, res.rate);
+
+                        if res.id >= 0 {
+                            match cartridge.sound_tracks.get_mut(&cartridge.sound_tracks_name[res.id as usize]) {
+                                Some(mut sound) => {
+                                    self.player.play_sound(&mut sound, res.channel, res.note, res.panning, res.rate);
+                                }
+                                None => {},
                             }
-                            None => {},
                         }
                     }
                     packet::Packet::ChiptuneMusicState(res) => {
