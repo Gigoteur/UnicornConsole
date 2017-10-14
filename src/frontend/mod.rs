@@ -193,7 +193,7 @@ impl Frontend {
         self.px8.current_code_type = px8::Code::RUST;
         self.px8.init();
 
-        self.handle_event(false);
+        self.handle_event();
     }
 
     pub fn run_cartridge(&mut self, filename: &str, editor: bool, mode: px8::PX8Mode) {
@@ -202,7 +202,7 @@ impl Frontend {
         if success {
             info!("[Frontend] Successfully loaded the cartridge");
             // Call the init of the cartridge
-            self.handle_event(editor);
+            self.handle_event();
         } else {
             error!("[Frontend] Failed to load the cartridge");
         }
@@ -219,7 +219,7 @@ impl Frontend {
         if success {
             info!("[Frontend] Successfully loaded the cartridge");
             // Call the init of the cartridge
-            self.handle_event(editor);
+            self.handle_event();
         } else {
             error!("[Frontend] Failed to load the cartridge");
         }
@@ -227,12 +227,12 @@ impl Frontend {
 
     pub fn run_interactive(&mut self) {
         self.px8.init_interactive();
-        self.handle_event(false);
+        self.handle_event();
     }
 
 
     #[cfg(not(target_os = "emscripten"))]
-    fn handle_event(&mut self, editor: bool) {
+    fn handle_event(&mut self) {
         'main: loop {
             self.times.update();
 
@@ -318,9 +318,7 @@ impl Frontend {
                                 self.px8.stop_record();
                             }
                         } else if keycode == Keycode::F5 {
-                            if editor {
-                                self.px8.save_current_cartridge();
-                            }
+                            self.px8.save_current_cartridge();
                         } else if keycode == Keycode::F6 || keycode == Keycode::AcBack {
                             self.px8.switch_code();
                             self.px8.init();

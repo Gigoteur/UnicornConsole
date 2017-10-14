@@ -82,7 +82,9 @@ pub mod sound {
                             }
                         }
                     }
-                    packet::Packet::ChiptuneSFX(res) => {                        
+                    packet::Packet::ChiptuneSFX(res) => {     
+                        info!("PLAY SFX {:?}", res);
+                                           
                         if res.filename != "" {
                             let filename = res.filename.clone();
 

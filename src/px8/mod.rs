@@ -227,10 +227,10 @@ impl Boot {
         let value = info.lock().unwrap().time_sec();
         if self.value == -1.0 {
             self.value = value;
-            let data = array_to_vec(include_bytes!("../../sys/assets/px8.ki"));
-            sound.lock().unwrap().load_sfx("px8.ki".to_string(),
+            let data = array_to_vec(include_bytes!("../../sys/assets/null.ki"));
+            sound.lock().unwrap().load_sfx("null.ki".to_string(),
                                            data.clone());
-            sound.lock().unwrap().sfx(-1, "px8.ki".to_string(), -1, 13312, chiptune::CYD_PAN_CENTER, 50, -1);
+            sound.lock().unwrap().sfx(-1, "null.ki".to_string(), -1, 13312, chiptune::CYD_PAN_CENTER, 50, -1);
         }
 
         (value - self.value) > self.length
@@ -1329,11 +1329,14 @@ impl PX8 {
         let mut px8_cartridge = PX8Cartridge::new(cartridge, filename.to_string());
         let ret = self._load_cartridge(&mut px8_cartridge, editor);
         if ret {
-            if self.cartridges.len() < 1 {
-                self.state = PX8State::BOOT;
-            } else {
-                self.state = PX8State::RUN;
+            if self.state != PX8State::EDITOR {
+                if self.cartridges.len() < 1 {
+                    self.state = PX8State::BOOT;
+                } else {
+                    self.state = PX8State::RUN;
+                }
             }
+
             self.add_cartridge(px8_cartridge);
             self._setup_screen();
             px8_cartridge.loaded = true;

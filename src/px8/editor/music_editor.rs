@@ -4,6 +4,7 @@ use std::sync::{Arc, Mutex};
 use std::cmp::{max, min};
 use std::collections::HashMap;
 use px8::editor::State;
+use sdl2::keyboard::Keycode;
 
 use px8::{PX8Cartridge, PX8Config};
 use time;
@@ -53,7 +54,8 @@ impl SFX {
 pub struct MusicEditor {
     idx_sfx: u32,
     playing: bool,
-    base_note: String,
+    base_note: u8,
+    base_note_name: String,
     sfx: SFX,
     current_sfx_position: usize,
     selected_sounds: String,
@@ -66,7 +68,8 @@ impl MusicEditor {
             playing: false,
             sfx: SFX::new(),
             current_sfx_position: 0,
-            base_note: "".to_string(),
+            base_note: 0,
+            base_note_name: "".to_string(),
             selected_sounds: "".to_string(),
         }
     }
@@ -79,8 +82,11 @@ impl MusicEditor {
         let mut sound_internal = sound_internal.lock().unwrap();
         let mut sound = sound.lock().unwrap();
 
+        if cartridge.sound_tracks.len() == 0 {
+            return true;
+        }
+
         let current_sfx = *cartridge.sound_tracks.get_mut(&cartridge.sound_tracks_name[self.idx_sfx as usize]).unwrap();
-        let base_note = sound_internal.player.get_base_note(current_sfx);
 
         self.sfx.reset();
 
@@ -93,7 +99,11 @@ impl MusicEditor {
                         match chiptune::notename(program[i] as i32, sound_internal.player.get_base_note(current_sfx)) {
                             Ok(name) => {
                                 self.sfx.programs.push(program[i] as i32);
-                                self.sfx.values.push(name);
+                                if name == "Nop" {
+                                    self.sfx.values.push("....".to_string());
+                                } else {
+                                    self.sfx.values.push(name);
+                                }
                             },
                             Err(_) => (),
                         }
@@ -103,14 +113,24 @@ impl MusicEditor {
 
             }
 
-        self.base_note = chiptune::base_note_name(base_note).unwrap();
+        self.base_note = sound_internal.player.get_base_note(current_sfx);
+        self.base_note_name = chiptune::base_note_name(self.base_note).unwrap();
 
 //        info!("BASE NOTE {:?} -> {:?}", base_note, chiptune::base_note_name(base_note));
 
-        if players.lock().unwrap().btn2(122) {
-            info!("Z");
+        if players.lock().unwrap().btn3(Keycode::Z) {
             if !self.playing {
-                sound.sfx(0, "".to_string(), 30, ChiptuneNote('z', base_note as i32) as u16, 64, 50, -1);
+                sound.sfx(0, "".to_string(), 30, (ChiptuneNote('z', 4) << 8) as u16, 64, 50, -1);
+                self.playing = true;
+            }
+        } else if players.lock().unwrap().btn3(Keycode::X) {
+            if !self.playing {
+                sound.sfx(0, "".to_string(), 30, (ChiptuneNote('x', 4) << 8)  as u16, 64, 50, -1);
+                self.playing = true;
+            }
+        } else if players.lock().unwrap().btn3(Keycode::Q) {
+            if !self.playing {
+                sound.sfx(0, "".to_string(), 30, (ChiptuneNote('q', 4) << 8) as u16, 64, 50, -1);
                 self.playing = true;
             }
         } else {
@@ -135,7 +155,7 @@ impl MusicEditor {
 
         // Draw current SFX
         screen.print("Inst".to_string(), 0, 16, 9);
-        screen.print(format!("BASE {:?}", self.base_note), 0, 24, 7);
+        screen.print(format!("BASE {:?} {:?}", self.base_note_name, self.base_note), 0, 24, 7);
 
         for idx in 0..self.sfx.programs.len() {
             if idx == self.current_sfx_position {

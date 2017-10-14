@@ -320,6 +320,16 @@ impl Players {
         false
     }
 
+    pub fn btn3(&mut self, keycode: Keycode) -> bool {
+        match self.akeys.get(&keycode) {
+            Some(v) => {
+                return *v;
+            }
+            None => (),
+        }
+        false
+    }
+
     pub fn btnp(&mut self, player: u8, index: u8) -> bool {
         self.get_value_quick(player, index) == 1
     }
