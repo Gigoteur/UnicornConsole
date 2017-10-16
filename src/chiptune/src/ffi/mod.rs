@@ -137,8 +137,9 @@ extern "C" {
   pub fn Chiptune_PlayMusic(player: chiptune_player, son: chiptune_song,  start_position: c_int);
   pub fn Chiptune_LoadSound(player: chiptune_player, path: *const c_char) -> chiptune_sound;
   pub fn Chiptune_LoadSoundFromMemory(player: chiptune_player, data: *const c_void, data_size: c_int) -> chiptune_song;
-  pub fn Chiptune_PlaySound(player: chiptune_player, sound: chiptune_sound, chan: c_int, note: c_ushort, panning: c_int, rate: c_int);
+  pub fn Chiptune_PlaySound(player: chiptune_player, sound: chiptune_sound, chan: c_int, note: c_ushort, panning: c_int, rate: c_int) -> c_int;
   pub fn Chiptune_Stop(player: chiptune_player);
+  pub fn Chiptune_StopChan(player: chiptune_player, chan: c_int);
   pub fn Chiptune_Pause(player: chiptune_player, state: c_int);
   pub fn Chiptune_SetPlayerQuality(player: chiptune_player, oversample: c_int);
   pub fn Chiptune_SetVolume(player: chiptune_player, volume: c_int);

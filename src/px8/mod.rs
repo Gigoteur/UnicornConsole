@@ -771,7 +771,7 @@ impl PX8 {
     pub fn setup(&mut self) {
         info!("[PX8] Setup");
         
-        let mut px8_cartridge = PX8Cartridge::empty("DemoPX8".to_string(), "DemoPX8".to_string());
+        let px8_cartridge = PX8Cartridge::empty("DemoPX8".to_string(), "DemoPX8".to_string());
         self.add_cartridge(px8_cartridge);
 
         self.sound_internal.lock().unwrap().init();
@@ -1205,7 +1205,7 @@ impl PX8 {
     }
 
     pub fn _setup_screen(&mut self) {
-        let mut cartridge = &self.cartridges[self.current_cartridge];
+        let cartridge = &self.cartridges[self.current_cartridge];
 
         info!("[PX8] Setup screen {:?}", cartridge);
 

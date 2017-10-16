@@ -317,15 +317,21 @@ impl Chiptune {
     }
   }
 
-  pub fn play_sound(&mut self, sound: &mut ChiptuneSound, chan: c_int, note: c_ushort, panning: c_int, rate: c_int) {
+  pub fn play_sound(&mut self, sound: &mut ChiptuneSound, chan: c_int, note: c_ushort, panning: c_int, rate: c_int) -> c_int {
     unsafe {
-      ffi::Chiptune_PlaySound(self.P, sound.S, chan, note, panning, rate);
+      return ffi::Chiptune_PlaySound(self.P, sound.S, chan, note, panning, rate);
     }
   }
 
   pub fn stop(&mut self) {
    unsafe {
       ffi::Chiptune_Stop(self.P);
+    }
+  }
+
+  pub fn stop_chan(&mut self, chan: c_int) {
+   unsafe {
+      ffi::Chiptune_StopChan(self.P, chan);
     }
   }
 

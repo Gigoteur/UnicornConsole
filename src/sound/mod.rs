@@ -42,6 +42,48 @@ pub mod sound {
             self.player.stop();
         }
 
+        pub fn stop_chan(&mut self, chan: i32) {
+            self.player.stop_chan(chan);
+        }
+
+        pub fn sfx(&mut self, cartridge: &mut PX8Cartridge, _: Arc<Mutex<Sound>>,
+                  id: i32, filename: String, channel: i32, note: u16, panning: i32, rate: i32, loops: i32) -> i32 {
+            
+            info!("PLAY SFX {:?} {:?} {:?} {:?} {:?} {:?} {:?} {:?}", cartridge, id, filename, channel, note, panning, rate, loops);
+
+            let mut res = -1;
+
+            if filename != "" {
+                if !cartridge.sound_tracks.contains_key(&filename) {
+                    let sound = self.player.load_sound(filename.clone());
+                    match sound {
+                        Ok(chip_sound) => {
+                            cartridge.sound_tracks.insert(filename.clone(), chip_sound);
+                            cartridge.sound_tracks_name.push(filename.clone());
+                        }
+                        Err(e) => error!("ERROR to load the song {:?}", e),
+                    }
+                }
+        
+                match cartridge.sound_tracks.get_mut(&filename) {
+                    Some(mut sound) => {
+                        res = self.player.play_sound(&mut sound, channel, note, panning, rate);
+                    }
+                    None => {},
+                }
+            }
+
+            if id >= 0 {
+                match cartridge.sound_tracks.get_mut(&cartridge.sound_tracks_name[id as usize]) {
+                    Some(mut sound) => {
+                        res = self.player.play_sound(&mut sound, channel, note, panning, rate);
+                    }
+                    None => {},
+                }
+            }
+
+            res
+        }
 
         pub fn update(&mut self, cartridge: &mut PX8Cartridge, sound: Arc<Mutex<Sound>>) {
             for sound_packet in self.crecv.try_iter() {
@@ -84,7 +126,7 @@ pub mod sound {
                     }
                     packet::Packet::ChiptuneSFX(res) => {     
                         info!("PLAY SFX {:?}", res);
-                                           
+
                         if res.filename != "" {
                             let filename = res.filename.clone();
 
@@ -119,7 +161,11 @@ pub mod sound {
                     }
                     packet::Packet::ChiptuneMusicState(res) => {
                         if res.stop {
-                            self.player.stop();
+                            if res.chan >= 0{
+                                self.player.stop_chan(res.chan);
+                            } else {
+                                self.player.stop();
+                            }
                         } else if res.pause {
                             self.player.pause(1);
                         } else if res.resume {
@@ -177,19 +223,25 @@ pub mod sound {
 
         pub fn music_stop(&mut self) {
             debug!("[SOUND] Chiptune STOP");
-            let p = packet::ChiptuneMusicState { stop: true, pause: false, resume: false };
+            let p = packet::ChiptuneMusicState { stop: true, chan: -1, pause: false, resume: false };
+            self.csend.send(packet::write_packet(p).unwrap()).unwrap();
+        }
+
+        pub fn stop_chan(&mut self, chan: i32) {
+            debug!("[SOUND] Chiptune STOP CHAN");
+            let p = packet::ChiptuneMusicState { stop: true, chan: chan, pause: false, resume: false };
             self.csend.send(packet::write_packet(p).unwrap()).unwrap();
         }
 
         pub fn music_pause(&mut self) {
             debug!("[SOUND] Chiptune Pause");
-            let p = packet::ChiptuneMusicState { stop: false, pause: true, resume: false };
+            let p = packet::ChiptuneMusicState { stop: false, chan: -1, pause: true, resume: false };
             self.csend.send(packet::write_packet(p).unwrap()).unwrap();
         }
 
         pub fn music_resume(&mut self) {
             debug!("[SOUND] Chiptune Resume");
-            let p = packet::ChiptuneMusicState { stop: false, pause: false, resume: true };
+            let p = packet::ChiptuneMusicState { stop: false, chan: -1, pause: false, resume: true };
             self.csend.send(packet::write_packet(p).unwrap()).unwrap();
         }
 

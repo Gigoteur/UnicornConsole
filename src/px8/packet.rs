@@ -228,6 +228,7 @@ create_packets!(
     }
     packet ChiptuneMusicState {
         field stop: bool =,
+        field chan: i32 =,
         field pause: bool =,
         field resume: bool =,
     }
