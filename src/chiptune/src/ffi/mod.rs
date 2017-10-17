@@ -138,6 +138,7 @@ extern "C" {
   pub fn Chiptune_LoadSound(player: chiptune_player, path: *const c_char) -> chiptune_sound;
   pub fn Chiptune_LoadSoundFromMemory(player: chiptune_player, data: *const c_void, data_size: c_int) -> chiptune_song;
   pub fn Chiptune_PlaySound(player: chiptune_player, sound: chiptune_sound, chan: c_int, note: c_ushort, panning: c_int, rate: c_int) -> c_int;
+  pub fn Chiptune_SFXSetDrum(player: chiptune_player, sound: chiptune_sound);
   pub fn Chiptune_Stop(player: chiptune_player);
   pub fn Chiptune_StopChan(player: chiptune_player, chan: c_int);
   pub fn Chiptune_Pause(player: chiptune_player, state: c_int);
@@ -152,3 +153,6 @@ extern "C" {
 pub const CYD_PAN_CENTER : c_int = 64;
 pub const CYD_PAN_LEFT : c_int = 0;
 pub const CYD_PAN_RIGHT : c_int = 128;
+
+
+pub const MUS_INST_DRUM : c_int = 2;

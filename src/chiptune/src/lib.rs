@@ -323,6 +323,19 @@ impl Chiptune {
     }
   }
 
+  pub fn set_drum(&mut self, sound: ChiptuneSound) {
+    unsafe {
+      return ffi::Chiptune_SFXSetDrum(self.P, sound.S);
+    }
+  }
+
+  pub fn get_drum(&mut self, sound: ChiptuneSound) -> bool {
+    unsafe {
+      return ((*sound.S).flags & ffi::MUS_INST_DRUM as u32) == 0;
+    }
+  }
+
+
   pub fn stop(&mut self) {
    unsafe {
       ffi::Chiptune_Stop(self.P);

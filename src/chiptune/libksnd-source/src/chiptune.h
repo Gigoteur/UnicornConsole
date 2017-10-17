@@ -51,6 +51,8 @@ typedef struct
 #define KLYSAPI 
 #endif
 
+#define flipbit(val, bit) { val ^= bit; };
+
 /**
  * Loads a klystrack song file
  *
@@ -146,6 +148,7 @@ KLYSAPI extern void Chiptune_FreePlayer(ChiptunePlayer *player);
 KLYSAPI extern void Chiptune_PlayMusic(ChiptunePlayer *player, ChiptuneSong *song, int start_position);
 KLYSAPI extern int Chiptune_PlaySound(ChiptunePlayer *player, ChiptuneSound *sound, int chan, unsigned short note, int panning, int rate);
 
+KLYSAPI extern void Chiptune_SFXSetDrum(ChiptunePlayer *player, ChiptuneSound *sound);	
 KLYSAPI extern void Chiptune_GetSoundInfo(ChiptuneSound *sound);
 
 /**

@@ -14,7 +14,7 @@ use sound::sound::{SoundInternal, Sound};
 use chiptune;
 
 
-static KEYS_NOTE: [Keycode; 30] = [
+static KEYS_NOTE: [Keycode; 29] = [
     Keycode::Z,
     Keycode::S,
     Keycode::X,
@@ -31,7 +31,6 @@ static KEYS_NOTE: [Keycode; 30] = [
     Keycode::Num2,
     Keycode::W,
     Keycode::Num3,
-    Keycode::E,
     Keycode::E,
     Keycode::R,
     Keycode::Num5,
@@ -73,10 +72,7 @@ impl SFX {
 }
 
 pub struct Touch {
-    x1: i32,
-    y1: i32,
-    x2: i32,
-    y2: i32,
+    rects: Vec<i32>,
     color: i32,
     color_activated: i32,
     active: bool,
@@ -84,33 +80,58 @@ pub struct Touch {
 }
 
 impl Touch {
-    pub fn new(x1: i32, y1: i32, x2: i32, y2: i32, color: i32, color_activated: i32) -> Touch {
+    pub fn new(rects: Vec<i32>, offset: i32, color: i32, color_activated: i32) -> Touch {
+        let mut rects_new = Vec::new();
+        let mut i = 0;
+        for r in &rects {
+            if i % 2 == 0 {
+                rects_new.push(r+offset);
+            } else {
+                rects_new.push(*r);
+            }
+
+            i += 1;
+        }
+
         Touch {
-            x1: x1,
-            y1: y1,
-            x2: x2,
-            y2: y2,
+            rects: rects_new.clone(),
             color: color,
             color_activated: color_activated,
             active: false,
             active2: false,
         }
     }
+
+    pub fn is_click(&mut self, mouse_x: i32, mouse_y: i32) -> bool {
+        let mut i = 0;
+        while i < self.rects.len() {
+            let x = self.rects[i];
+            let y = self.rects[i+1];
+            let x1 = self.rects[i+2];
+            let y1 = self.rects[i+3];
+
+            if point_in_rect(mouse_x, mouse_y, x, y, x1, y1) {
+                return true;
+            }
+            i += 4;
+        }
+        false
+    }
 }
+
 pub struct PianoKeyboard {
     touches: HashMap<Keycode, Touch>,
 }
 
 impl PianoKeyboard {
-
     pub fn new() -> PianoKeyboard {
         PianoKeyboard {
             touches: HashMap::new(),
         }
     }
 
-    pub fn add(&mut self, x1: i32, y1: i32, x2: i32, y2: i32, color: i32, color_activated: i32, key: Keycode) {
-        self.touches.insert(key, Touch::new(x1, y1, x2, y2, color, color_activated));
+    pub fn add(&mut self, rects: Vec<i32>, color: i32, color_activated: i32, offset: i32, key: Keycode) {
+        self.touches.insert(key, Touch::new(rects, offset, color, color_activated));
     }
 
     pub fn lock(&mut self, key: Keycode) {
@@ -140,15 +161,10 @@ impl PianoKeyboard {
         false
     }
 
-    pub fn update(&mut self, players: Arc<Mutex<Players>>) {
-        let mouse_state = players.lock().unwrap().mouse_state_quick();
-
-        let mouse_x = players.lock().unwrap().mouse_coordinate(0);
-        let mouse_y = players.lock().unwrap().mouse_coordinate(1);
-
+    pub fn update(&mut self, mouse_state: u32, mouse_x: i32, mouse_y: i32, players: Arc<Mutex<Players>>) {
         if mouse_state == 1 {
             for (key, touch) in self.touches.iter_mut() {
-                if point_in_rect(mouse_x, mouse_y, touch.x1, touch.y1, touch.x2, touch.y2) {
+                if touch.is_click(mouse_x, mouse_y) {
                     touch.active2 = true;
                 } else {
                     touch.active2 = false;
@@ -165,14 +181,121 @@ impl PianoKeyboard {
 
     pub fn draw(&mut self, players: Arc<Mutex<Players>>, screen: &mut Screen) {
         for (keycode, touch) in &self.touches {
+            let mut color = touch.color;
             if touch.active || touch.active2 {
-                screen.rectfill(touch.x1, touch.y1, touch.x2, touch.y2, touch.color_activated);
-            } else {
-                screen.rectfill(touch.x1, touch.y1, touch.x2, touch.y2, touch.color);
+                color = touch.color_activated;
+
+            } 
+            let mut i = 0;
+            while i < touch.rects.len() {
+                let x = touch.rects[i];
+                let y = touch.rects[i+1];
+                let x1 = touch.rects[i+2];
+                let y1 = touch.rects[i+3];
+                
+                screen.rectfill(x, y, x1, y1, color);
+
+                i += 4;
             }
         }
     }
 }
+
+pub struct SFXFlag {
+    x: i32,
+    y: i32,
+    rects: Vec<i32>,
+    text_color: i32,
+    background_color: i32,
+    background_click_color: i32,
+    active: bool,
+}
+
+impl SFXFlag {
+    pub fn new(x: i32, y: i32, rects: Vec<i32>, text_color: i32, background_color: i32, background_click_color: i32) -> SFXFlag {
+        SFXFlag {
+            x: x,
+            y: y,
+            rects: rects,
+            text_color: text_color,
+            background_color: background_color,
+            background_click_color: background_click_color,
+            active: false,
+        }
+    }
+
+    pub fn is_click(&mut self, mouse_x: i32, mouse_y: i32) -> bool {
+        let mut i = 0;
+        while i < self.rects.len() {
+            let x = self.rects[i];
+            let y = self.rects[i+1];
+            let x1 = self.rects[i+2];
+            let y1 = self.rects[i+3];
+
+            if point_in_rect(mouse_x, mouse_y, x, y, x1, y1) {
+                return true;
+            }
+            i += 4;
+        }
+        false
+    }
+
+}
+
+pub struct SFXFlags {
+    flags: HashMap<String, SFXFlag>,
+}
+
+impl SFXFlags {
+    pub fn new() -> SFXFlags {
+        SFXFlags {
+            flags: HashMap::new(),
+        }
+    }
+
+    pub fn add(&mut self, text: String, x: i32, y: i32, rects: Vec<i32>, text_color: i32, background_color: i32, background_click_color: i32) {
+        self.flags.insert(text, SFXFlag::new(x, y, rects, text_color, background_color, background_click_color));
+    }
+
+    pub fn update_flag(&mut self, text: String, value: bool) {
+        if let Some(flag) = self.flags.get_mut(&text) {
+            flag.active = value;
+        }
+    }
+
+    pub fn is_active(&mut self, text: String, mouse_x: i32, mouse_y: i32) -> bool {
+        if let Some(flag) = self.flags.get_mut(&text) {
+            if flag.is_click(mouse_x, mouse_y) {
+                flag.active = !flag.active;
+                return true;
+            }
+        }
+        false
+    }
+
+    pub fn draw(&mut self, screen: &mut Screen) {
+        for (key, flag) in &self.flags {
+            let mut i = 0;
+            while i < flag.rects.len() {
+                let x = flag.rects[i];
+                let y = flag.rects[i+1];
+                let x1 = flag.rects[i+2];
+                let y1 = flag.rects[i+3];
+                
+                if flag.active {
+                    screen.rectfill(x, y, x1, y1, flag.background_click_color);
+                } else {
+                    screen.rectfill(x, y, x1, y1, flag.background_color);
+                }
+
+                i += 4;
+            }
+
+            screen.print(key.clone(), flag.x, flag.y, flag.text_color);
+        }
+    }
+}
+
 pub struct MusicEditor {
     idx_sfx: u32,
     base_note: u8,
@@ -182,6 +305,7 @@ pub struct MusicEditor {
     sfx_channels_keys: HashMap<Keycode, i32>,
     current_sfx_positions: HashMap<u32, usize>,
     selected_sounds: String,
+    flags: SFXFlags,
 }
 
 impl MusicEditor {
@@ -195,34 +319,81 @@ impl MusicEditor {
             base_note: 0,
             base_note_name: "".to_string(),
             selected_sounds: "".to_string(),
+            flags: SFXFlags::new(),
         }
     }
 
     pub fn init(&mut self, config: Arc<Mutex<PX8Config>>, screen: &mut Screen) {
         info!("[MUSIC_EDITOR] Init");
 
-        self.pi_key.add(0, 180, 10, 220, 7, 8, Keycode::Z);
-        self.pi_key.add(12, 180, 22, 220, 7, 8, Keycode::X);
-        self.pi_key.add(24, 180, 34, 220, 7, 8, Keycode::C);
-        self.pi_key.add(36, 180, 46, 220, 7, 8, Keycode::V);
-        self.pi_key.add(48, 180, 58, 220, 7, 8, Keycode::B);
-        self.pi_key.add(60, 180, 70, 220, 7, 8, Keycode::N);
-        self.pi_key.add(72, 180, 82, 220, 7, 8, Keycode::M);
+        self.flags.add("DRUM".to_string(), 0, 8, vec![0, 8, 20, 16], 7, 6, 5);
+
+        // White -> 12
+        // Black -> 6
+        self.pi_key.add(vec![0, 180, 8, 208, 0, 208, 12, 220], 7, 8, 0, Keycode::Z);
+        self.pi_key.add(vec![18, 180, 22, 208, 14, 208, 26, 220], 7, 8, 0, Keycode::X);
+        self.pi_key.add(vec![10, 180, 16, 207], 0, 1, 0, Keycode::S);
+        self.pi_key.add(vec![24, 180, 30, 207], 0, 1, 0, Keycode::D);
+
+        self.pi_key.add(vec![32, 180, 40, 208, 28, 208, 40, 220], 7, 8, 0, Keycode::C);
+        self.pi_key.add(vec![42, 180, 50, 208, 42, 208, 54, 220], 7, 8, 0, Keycode::V);
+        self.pi_key.add(vec![52, 180, 58, 207], 0, 1, 0, Keycode::G);
+        self.pi_key.add(vec![66, 180, 72, 207], 0, 1, 0, Keycode::H);
+        self.pi_key.add(vec![80, 180, 86, 207], 0, 1, 0, Keycode::J);
+
+        self.pi_key.add(vec![60, 180, 64, 208, 56, 208, 68, 220], 7, 8, 0, Keycode::B);
+        self.pi_key.add(vec![74, 180, 78, 208, 70, 208, 82, 220], 7, 8, 0, Keycode::N);
+        self.pi_key.add(vec![88, 180, 96, 208, 84, 208, 96, 220], 7, 8, 0, Keycode::M);
+
+        let offset = 98;
+        self.pi_key.add(vec![0, 180, 8, 208, 0, 208, 12, 220], 7, 8, offset, Keycode::Q);
+        self.pi_key.add(vec![18, 180, 22, 208, 14, 208, 26, 220], 7, 8, offset, Keycode::W);
+        self.pi_key.add(vec![10, 180, 16, 207], 0, 1, offset, Keycode::Num2);
+        self.pi_key.add(vec![24, 180, 30, 207], 0, 1, offset, Keycode::Num3);
+
+        self.pi_key.add(vec![32, 180, 40, 208, 28, 208, 40, 220], 7, 8, offset, Keycode::E);
+        self.pi_key.add(vec![42, 180, 50, 208, 42, 208, 54, 220], 7, 8, offset, Keycode::R);
+        self.pi_key.add(vec![52, 180, 58, 207], 0, 1, offset, Keycode::Num5);
+        self.pi_key.add(vec![66, 180, 72, 207], 0, 1, offset, Keycode::Num6);
+        self.pi_key.add(vec![80, 180, 86, 207], 0, 1, offset, Keycode::Num7);
+
+        self.pi_key.add(vec![60, 180, 64, 208, 56, 208, 68, 220], 7, 8, offset, Keycode::T);
+        self.pi_key.add(vec![74, 180, 78, 208, 70, 208, 82, 220], 7, 8, offset, Keycode::Y);
+        self.pi_key.add(vec![88, 180, 96, 208, 84, 208, 96, 220], 7, 8, offset, Keycode::U);
+
+        let offset = 196;
+        self.pi_key.add(vec![0, 180, 8, 208, 0, 208, 12, 220], 7, 8, offset, Keycode::I);
+        self.pi_key.add(vec![18, 180, 22, 208, 14, 208, 26, 220], 7, 8, offset, Keycode::O);
+        self.pi_key.add(vec![10, 180, 16, 207], 0, 1, offset, Keycode::Num9);
+        self.pi_key.add(vec![24, 180, 30, 207], 0, 1, offset, Keycode::Num0);
+
+        self.pi_key.add(vec![32, 180, 40, 208, 28, 208, 40, 220], 7, 8, offset, Keycode::P);
     }
 
     pub fn update(&mut self, cartridge: &mut PX8Cartridge, players: Arc<Mutex<Players>>, sound_internal: Arc<Mutex<SoundInternal>>, sound: Arc<Mutex<Sound>>) -> bool {
+        let mouse_state = players.lock().unwrap().mouse_state();
+
+        let mouse_x = players.lock().unwrap().mouse_coordinate(0);
+        let mouse_y = players.lock().unwrap().mouse_coordinate(1);
+
         let mut sound_internal = sound_internal.lock().unwrap();
-        //let mut sound = sound.lock().unwrap();
 
         if cartridge.sound_tracks.len() == 0 {
             return true;
         }
 
-        self.pi_key.update(players.clone());
+        self.pi_key.update(mouse_state, mouse_x, mouse_y, players.clone());
 
         let current_sfx = *cartridge.sound_tracks.get_mut(&cartridge.sound_tracks_name[self.idx_sfx as usize]).unwrap();
 
         self.sfx.reset();
+
+        self.flags.update_flag("DRUM".to_string(), sound_internal.player.get_drum(current_sfx));
+        if mouse_state == 1 {
+            if self.flags.is_active("DRUM".to_string(), mouse_x, mouse_y) {
+                sound_internal.player.set_drum(current_sfx);
+            }
+        }
 
         let program = sound_internal.player.get_sound_program(current_sfx);
             for i in 0..32 {
@@ -299,10 +470,11 @@ impl MusicEditor {
         screen.print("Inst".to_string(), 0, 16, 9);
         screen.print(format!("BASE {:?} {:?}", self.base_note_name, self.base_note), 0, 24, 7);
 
+        self.flags.draw(screen);
+
         let mut channel_rect_idx = 64;
         for i in 0..16 {
-            screen.rectfill(channel_rect_idx, 16, channel_rect_idx+4, 20, 8);
-
+            screen.rectfill(channel_rect_idx, 230, channel_rect_idx+4, 236, 8);
             channel_rect_idx += 6;
         }
 
@@ -310,7 +482,7 @@ impl MusicEditor {
         for (_, channel) in &self.sfx_channels_keys {
             if *channel != -1 {
                 let idx_x = channel_rect_idx+6*(*channel - 16);
-                screen.rectfill(idx_x, 16, idx_x+4, 20, 11);
+                screen.rectfill(idx_x, 230, idx_x+4, 236, 12);
             }
         }
 

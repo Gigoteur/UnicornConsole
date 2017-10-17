@@ -269,6 +269,9 @@ impl Frontend {
                         self.renderer
                             .update_viewport(&self.px8.screen.lock().unwrap());
                     }
+                    Event::Window { win_event: WindowEvent::Close, .. } => {
+                        break 'main;
+                    }
                     Event::MouseButtonDown { mouse_btn, .. } => {
                         self.px8
                             .players
@@ -289,7 +292,7 @@ impl Frontend {
                         repeat,
                         ..
                     } => {
-                        if keycode == Keycode::Escape {
+                        if keycode == Keycode::AcHome {
                             break 'main
                         }
 
