@@ -328,6 +328,9 @@ impl MusicEditor {
 
         self.flags.add("DRUM".to_string(), 0, 16, vec![0, 16, 20, 24], 7, 6, 5);
         self.flags.add("PUL".to_string(), 22, 16, vec![22, 16, 38, 24], 7, 6, 5);
+        self.flags.add("NOISE".to_string(), 40, 16, vec![40, 16, 60, 24], 7, 6, 5);
+        self.flags.add("TRI".to_string(), 62, 16, vec![62, 16, 74, 24], 7, 6, 5);
+        self.flags.add("VIB".to_string(), 76, 16, vec![76, 16, 88, 24], 7, 6, 5);
 
         // White -> 12
         // Black -> 6
@@ -392,6 +395,9 @@ impl MusicEditor {
 
         self.flags.update_flag("DRUM".to_string(), sound_internal.player.get_drum(current_sfx));
         self.flags.update_flag("PUL".to_string(), sound_internal.player.get_pulse(current_sfx));
+        self.flags.update_flag("NOISE".to_string(), sound_internal.player.get_noise(current_sfx));
+        self.flags.update_flag("TRI".to_string(), sound_internal.player.get_tri(current_sfx));
+        self.flags.update_flag("VIB".to_string(), sound_internal.player.get_vib(current_sfx));
 
         if mouse_state == 1 {
             if self.flags.is_active("DRUM".to_string(), mouse_x, mouse_y) {
@@ -399,6 +405,15 @@ impl MusicEditor {
             }
             if self.flags.is_active("PUL".to_string(), mouse_x, mouse_y) {
                 sound_internal.player.set_pulse(current_sfx);
+            }
+            if self.flags.is_active("NOISE".to_string(), mouse_x, mouse_y) {
+                sound_internal.player.set_noise(current_sfx);
+            }
+            if self.flags.is_active("TRI".to_string(), mouse_x, mouse_y) {
+                sound_internal.player.set_tri(current_sfx);
+            }
+            if self.flags.is_active("VIB".to_string(), mouse_x, mouse_y) {
+                sound_internal.player.set_vib(current_sfx);
             }
         }
 

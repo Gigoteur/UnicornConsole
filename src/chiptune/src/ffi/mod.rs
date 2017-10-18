@@ -153,7 +153,34 @@ extern "C" {
 pub const CYD_PAN_CENTER : c_int = 64;
 pub const CYD_PAN_LEFT : c_int = 0;
 pub const CYD_PAN_RIGHT : c_int = 128;
-pub const CYD_CHN_ENABLE_PULSE : c_int = 2;
 
+pub const	CYD_CHN_ENABLE_NOISE : c_int = 1;
+pub const	CYD_CHN_ENABLE_PULSE : c_int = 2;
+pub const	CYD_CHN_ENABLE_TRIANGLE : c_int = 4;
+pub const	CYD_CHN_ENABLE_SAW : c_int = 8;
+pub const	CYD_CHN_ENABLE_SYNC : c_int = 16;
+pub const	CYD_CHN_ENABLE_GATE : c_int = 32;
+pub const	CYD_CHN_ENABLE_KEY_SYNC : c_int = 64;
+pub const	CYD_CHN_ENABLE_METAL : c_int= 128;
+pub const	CYD_CHN_ENABLE_RING_MODULATION : c_int = 256;
+pub const	CYD_CHN_ENABLE_FILTER : c_int = 512;
+pub const	CYD_CHN_ENABLE_FX : c_int= 1024;
+pub const	CYD_CHN_ENABLE_YM_ENV : c_int = 2048;
+pub const	CYD_CHN_ENABLE_WAVE : c_int = 4096;
+pub const	CYD_CHN_WAVE_OVERRIDE_ENV : c_int = 8192;
+pub const	CYD_CHN_ENABLE_LFSR : c_int = 16384;
+pub const	CYD_CHN_ENABLE_FM : c_int= 32768;
 
-pub const MUS_INST_DRUM : c_int = 2;
+pub const	MUS_INST_PROG_SPEED_RELATIVE : c_int = 0; // chn.current_tick / mus.tick_period * ins.prog_period
+pub const	MUS_INST_PROG_SPEED_ABSOLUTE : c_int = 1; // absolute number of ticks
+pub const	MUS_INST_DRUM : c_int = 2;
+pub const	MUS_INST_INVERT_VIBRATO_BIT : c_int = 4;
+pub const	MUS_INST_LOCK_NOTE : c_int = 8;
+pub const	MUS_INST_SET_PW : c_int = 16;
+pub const	MUS_INST_SET_CUTOFF : c_int = 32;
+pub const	MUS_INST_YM_BUZZ : c_int = 64;
+pub const	MUS_INST_RELATIVE_VOLUME : c_int = 128;
+pub const	MUS_INST_QUARTER_FREQ : c_int = 256;
+pub const	MUS_INST_WAVE_LOCK_NOTE : c_int = 512;
+pub const	MUS_INST_NO_PROG_RESTART : c_int = 1024;
+pub const	MUS_INST_MULTIOSC : c_int = 2048;

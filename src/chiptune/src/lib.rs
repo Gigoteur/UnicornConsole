@@ -347,6 +347,42 @@ impl Chiptune {
     }
   }
 
+  pub fn set_noise(&mut self, sound: ChiptuneSound) {
+    unsafe {
+      (*sound.S).cydflags ^= ffi::CYD_CHN_ENABLE_NOISE as u32;
+    }
+  }
+
+  pub fn get_noise(&mut self, sound: ChiptuneSound) -> bool {
+    unsafe {
+      return ((*sound.S).cydflags & ffi::CYD_CHN_ENABLE_NOISE as u32) != 0;
+    }
+  }
+
+  pub fn set_tri(&mut self, sound: ChiptuneSound) {
+    unsafe {
+      (*sound.S).cydflags ^= ffi::CYD_CHN_ENABLE_TRIANGLE as u32;
+    }
+  }
+
+  pub fn get_tri(&mut self, sound: ChiptuneSound) -> bool {
+    unsafe {
+      return ((*sound.S).cydflags & ffi::CYD_CHN_ENABLE_TRIANGLE as u32) != 0;
+    }
+  }
+
+  pub fn set_vib(&mut self, sound: ChiptuneSound) {
+    unsafe {
+      (*sound.S).flags ^= ffi::MUS_INST_INVERT_VIBRATO_BIT as u32;
+    }
+  }
+
+  pub fn get_vib(&mut self, sound: ChiptuneSound) -> bool {
+    unsafe {
+      return ((*sound.S).flags & ffi::MUS_INST_INVERT_VIBRATO_BIT as u32) != 0;
+    }
+  }
+  
   pub fn stop(&mut self) {
    unsafe {
       ffi::Chiptune_Stop(self.P);
