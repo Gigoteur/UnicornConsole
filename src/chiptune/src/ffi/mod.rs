@@ -153,6 +153,7 @@ extern "C" {
 pub const CYD_PAN_CENTER : c_int = 64;
 pub const CYD_PAN_LEFT : c_int = 0;
 pub const CYD_PAN_RIGHT : c_int = 128;
+pub const CYD_CHN_ENABLE_PULSE : c_int = 2;
 
 
 pub const MUS_INST_DRUM : c_int = 2;

@@ -245,10 +245,6 @@ KLYSAPI int Chiptune_PlaySound(ChiptunePlayer *player, ChiptuneSound *sound, int
 	return chan;
 }
 
-KLYSAPI void Chiptune_SFXSetDrum(ChiptunePlayer *player, ChiptuneSound *sound) {
-	flipbit(sound->sound.flags, MUS_INST_DRUM);	
-}
-
 KLYSAPI int Chiptune_FillBuffer(ChiptunePlayer *player, short int *buffer, int buffer_length)
 {
 #ifdef NOSDL_MIXER

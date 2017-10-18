@@ -325,16 +325,27 @@ impl Chiptune {
 
   pub fn set_drum(&mut self, sound: ChiptuneSound) {
     unsafe {
-      return ffi::Chiptune_SFXSetDrum(self.P, sound.S);
+      (*sound.S).flags ^= ffi::MUS_INST_DRUM as u32;
     }
   }
 
   pub fn get_drum(&mut self, sound: ChiptuneSound) -> bool {
     unsafe {
-      return ((*sound.S).flags & ffi::MUS_INST_DRUM as u32) == 0;
+      return ((*sound.S).flags & ffi::MUS_INST_DRUM as u32) != 0;
     }
   }
 
+  pub fn set_pulse(&mut self, sound: ChiptuneSound) {
+    unsafe {
+      (*sound.S).cydflags ^= ffi::CYD_CHN_ENABLE_PULSE as u32;
+    }
+  }
+
+  pub fn get_pulse(&mut self, sound: ChiptuneSound) -> bool {
+    unsafe {
+      return ((*sound.S).cydflags & ffi::CYD_CHN_ENABLE_PULSE as u32) != 0;
+    }
+  }
 
   pub fn stop(&mut self) {
    unsafe {

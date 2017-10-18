@@ -327,8 +327,6 @@ impl Frontend {
                             self.px8.init();
                         } else if keycode == Keycode::F7 {
                             self.px8.next_palette();
-                        } else if keycode == Keycode::F8 {
-//                            self.px8.next_resolution();
                         }
  
                         if self.px8.players.lock().unwrap().get_value_quick(0, 7) == 1 {

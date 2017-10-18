@@ -326,7 +326,8 @@ impl MusicEditor {
     pub fn init(&mut self, config: Arc<Mutex<PX8Config>>, screen: &mut Screen) {
         info!("[MUSIC_EDITOR] Init");
 
-        self.flags.add("DRUM".to_string(), 0, 8, vec![0, 8, 20, 16], 7, 6, 5);
+        self.flags.add("DRUM".to_string(), 0, 16, vec![0, 16, 20, 24], 7, 6, 5);
+        self.flags.add("PUL".to_string(), 22, 16, vec![22, 16, 38, 24], 7, 6, 5);
 
         // White -> 12
         // Black -> 6
@@ -371,6 +372,7 @@ impl MusicEditor {
     }
 
     pub fn update(&mut self, cartridge: &mut PX8Cartridge, players: Arc<Mutex<Players>>, sound_internal: Arc<Mutex<SoundInternal>>, sound: Arc<Mutex<Sound>>) -> bool {
+        let mouse_state_quick = players.lock().unwrap().mouse_state_quick();
         let mouse_state = players.lock().unwrap().mouse_state();
 
         let mouse_x = players.lock().unwrap().mouse_coordinate(0);
@@ -382,16 +384,21 @@ impl MusicEditor {
             return true;
         }
 
-        self.pi_key.update(mouse_state, mouse_x, mouse_y, players.clone());
+        self.pi_key.update(mouse_state_quick, mouse_x, mouse_y, players.clone());
 
         let current_sfx = *cartridge.sound_tracks.get_mut(&cartridge.sound_tracks_name[self.idx_sfx as usize]).unwrap();
 
         self.sfx.reset();
 
         self.flags.update_flag("DRUM".to_string(), sound_internal.player.get_drum(current_sfx));
+        self.flags.update_flag("PUL".to_string(), sound_internal.player.get_pulse(current_sfx));
+
         if mouse_state == 1 {
             if self.flags.is_active("DRUM".to_string(), mouse_x, mouse_y) {
                 sound_internal.player.set_drum(current_sfx);
+            }
+            if self.flags.is_active("PUL".to_string(), mouse_x, mouse_y) {
+                sound_internal.player.set_pulse(current_sfx);
             }
         }
 
@@ -467,7 +474,7 @@ impl MusicEditor {
         screen.rectfill(0, 16, 240, 24, 7);
 
         // Draw current SFX
-        screen.print("Inst".to_string(), 0, 16, 9);
+        screen.print("Inst".to_string(), 0, 8, 9);
         screen.print(format!("BASE {:?} {:?}", self.base_note_name, self.base_note), 0, 24, 7);
 
         self.flags.draw(screen);
@@ -486,13 +493,13 @@ impl MusicEditor {
             }
         }
 
-        let mut idx_x = 8;
-        let mut idx_y = 32;
+        let mut idx_x = 4;
+        let mut idx_y = 64;
 
         for idx in 0..self.sfx.programs.len() {
-            if idx > 0 && idx % 16 == 0 {
-                idx_x = 128;
-                idx_y = 32;
+            if idx > 0 && idx % 8 == 0 {
+                idx_x += 58;
+                idx_y = 64;
             }
                 
             for (_, channel) in &self.sfx_channels_keys {
