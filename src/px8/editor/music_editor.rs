@@ -80,14 +80,14 @@ pub struct Touch {
 }
 
 impl Touch {
-    pub fn new(rects: Vec<i32>, offset: i32, color: i32, color_activated: i32) -> Touch {
+    pub fn new(rects: Vec<i32>, offset_x: i32, offset_y: i32, color: i32, color_activated: i32) -> Touch {
         let mut rects_new = Vec::new();
         let mut i = 0;
         for r in &rects {
             if i % 2 == 0 {
-                rects_new.push(r+offset);
+                rects_new.push(r+offset_x);
             } else {
-                rects_new.push(*r);
+                rects_new.push(r+offset_y);
             }
 
             i += 1;
@@ -130,8 +130,8 @@ impl PianoKeyboard {
         }
     }
 
-    pub fn add(&mut self, rects: Vec<i32>, color: i32, color_activated: i32, offset: i32, key: Keycode) {
-        self.touches.insert(key, Touch::new(rects, offset, color, color_activated));
+    pub fn add(&mut self, rects: Vec<i32>, color: i32, color_activated: i32, offset_x: i32, offset_y: i32, key: Keycode) {
+        self.touches.insert(key, Touch::new(rects.clone(), offset_x, offset_y, color, color_activated));
     }
 
     pub fn lock(&mut self, key: Keycode) {
@@ -326,52 +326,63 @@ impl MusicEditor {
     pub fn init(&mut self, config: Arc<Mutex<PX8Config>>, screen: &mut Screen) {
         info!("[MUSIC_EDITOR] Init");
 
-        self.flags.add("DRUM".to_string(), 0, 16, vec![0, 16, 20, 24], 7, 6, 5);
-        self.flags.add("PUL".to_string(), 22, 16, vec![22, 16, 38, 24], 7, 6, 5);
-        self.flags.add("NOISE".to_string(), 40, 16, vec![40, 16, 60, 24], 7, 6, 5);
-        self.flags.add("TRI".to_string(), 62, 16, vec![62, 16, 74, 24], 7, 6, 5);
-        self.flags.add("VIB".to_string(), 76, 16, vec![76, 16, 88, 24], 7, 6, 5);
+        self.flags.add("DRUM".to_string(), 0, 16, vec![0, 16, 20, 24], 7, 8, 11);
+        self.flags.add("PUL".to_string(), 22, 16, vec![22, 16, 38, 24], 7, 8, 11);
+        self.flags.add("NOISE".to_string(), 40, 16, vec![40, 16, 60, 24], 7, 8, 11);
+        self.flags.add("TRI".to_string(), 62, 16, vec![62, 16, 74, 24], 7, 8, 11);
+        self.flags.add("VIB".to_string(), 76, 16, vec![76, 16, 88, 24], 7, 8, 11);
+        self.flags.add("SAW".to_string(), 90, 16, vec![90, 16, 102, 24], 7, 8, 11);
+        self.flags.add("METAL".to_string(), 104, 16, vec![104, 16, 124, 24], 7, 8, 11);
 
-        // White -> 12
-        // Black -> 6
-        self.pi_key.add(vec![0, 180, 8, 208, 0, 208, 12, 220], 7, 8, 0, Keycode::Z);
-        self.pi_key.add(vec![18, 180, 22, 208, 14, 208, 26, 220], 7, 8, 0, Keycode::X);
-        self.pi_key.add(vec![10, 180, 16, 207], 0, 1, 0, Keycode::S);
-        self.pi_key.add(vec![24, 180, 30, 207], 0, 1, 0, Keycode::D);
+        // White -> 18
+        // Black -> 10
+        let offset_y = 0;
+        let offset_x = 44;
 
-        self.pi_key.add(vec![32, 180, 40, 208, 28, 208, 40, 220], 7, 8, 0, Keycode::C);
-        self.pi_key.add(vec![42, 180, 50, 208, 42, 208, 54, 220], 7, 8, 0, Keycode::V);
-        self.pi_key.add(vec![52, 180, 58, 207], 0, 1, 0, Keycode::G);
-        self.pi_key.add(vec![66, 180, 72, 207], 0, 1, 0, Keycode::H);
-        self.pi_key.add(vec![80, 180, 86, 207], 0, 1, 0, Keycode::J);
+        self.pi_key.add(vec![0, 180, 12, 208, 0, 208, 18, 226], 7, 8, offset_x, offset_y, Keycode::Z);
+        self.pi_key.add(vec![25, 180, 33, 208, 20, 208, 38, 226], 7, 8, offset_x, offset_y, Keycode::X);
+        self.pi_key.add(vec![45, 180, 58, 208, 40, 208, 58, 226], 7, 8, offset_x, offset_y, Keycode::C);
 
-        self.pi_key.add(vec![60, 180, 64, 208, 56, 208, 68, 220], 7, 8, 0, Keycode::B);
-        self.pi_key.add(vec![74, 180, 78, 208, 70, 208, 82, 220], 7, 8, 0, Keycode::N);
-        self.pi_key.add(vec![88, 180, 96, 208, 84, 208, 96, 220], 7, 8, 0, Keycode::M);
+        self.pi_key.add(vec![13, 180, 23, 207], 0, 1, offset_x, offset_y, Keycode::S);
+        self.pi_key.add(vec![34, 180, 44, 207], 0, 1, offset_x, offset_y, Keycode::D);
 
-        let offset = 98;
-        self.pi_key.add(vec![0, 180, 8, 208, 0, 208, 12, 220], 7, 8, offset, Keycode::Q);
-        self.pi_key.add(vec![18, 180, 22, 208, 14, 208, 26, 220], 7, 8, offset, Keycode::W);
-        self.pi_key.add(vec![10, 180, 16, 207], 0, 1, offset, Keycode::Num2);
-        self.pi_key.add(vec![24, 180, 30, 207], 0, 1, offset, Keycode::Num3);
+        self.pi_key.add(vec![60, 180, 72, 208, 60, 208, 78, 226], 7, 8, offset_x, offset_y, Keycode::V);
+        self.pi_key.add(vec![85, 180, 93, 208, 80, 208, 98, 226], 7, 8, offset_x, offset_y, Keycode::B);
+        self.pi_key.add(vec![105, 180, 113, 208, 100, 208, 118, 226], 7, 8, offset_x, offset_y, Keycode::N);
+        self.pi_key.add(vec![125, 180, 138, 208, 120, 208, 138, 226], 7, 8, offset_x, offset_y, Keycode::M);
 
-        self.pi_key.add(vec![32, 180, 40, 208, 28, 208, 40, 220], 7, 8, offset, Keycode::E);
-        self.pi_key.add(vec![42, 180, 50, 208, 42, 208, 54, 220], 7, 8, offset, Keycode::R);
-        self.pi_key.add(vec![52, 180, 58, 207], 0, 1, offset, Keycode::Num5);
-        self.pi_key.add(vec![66, 180, 72, 207], 0, 1, offset, Keycode::Num6);
-        self.pi_key.add(vec![80, 180, 86, 207], 0, 1, offset, Keycode::Num7);
+        self.pi_key.add(vec![73, 180, 83, 207], 0, 1, offset_x, offset_y, Keycode::G);
+        self.pi_key.add(vec![94, 180, 104, 207], 0, 1, offset_x, offset_y, Keycode::H);
+        self.pi_key.add(vec![114, 180, 124, 207], 0, 1, offset_x, offset_y, Keycode::J);
 
-        self.pi_key.add(vec![60, 180, 64, 208, 56, 208, 68, 220], 7, 8, offset, Keycode::T);
-        self.pi_key.add(vec![74, 180, 78, 208, 70, 208, 82, 220], 7, 8, offset, Keycode::Y);
-        self.pi_key.add(vec![88, 180, 96, 208, 84, 208, 96, 220], 7, 8, offset, Keycode::U);
 
-        let offset = 196;
-        self.pi_key.add(vec![0, 180, 8, 208, 0, 208, 12, 220], 7, 8, offset, Keycode::I);
-        self.pi_key.add(vec![18, 180, 22, 208, 14, 208, 26, 220], 7, 8, offset, Keycode::O);
-        self.pi_key.add(vec![10, 180, 16, 207], 0, 1, offset, Keycode::Num9);
-        self.pi_key.add(vec![24, 180, 30, 207], 0, 1, offset, Keycode::Num0);
+        let offset_x = 19;
+        let offset_y = -50;
+        self.pi_key.add(vec![0, 180, 12, 208, 0, 208, 18, 226], 7, 8, offset_x, offset_y, Keycode::Q);
+        self.pi_key.add(vec![25, 180, 33, 208, 20, 208, 38, 226], 7, 8, offset_x, offset_y, Keycode::W);
+        self.pi_key.add(vec![45, 180, 58, 208, 40, 208, 58, 226], 7, 8, offset_x, offset_y, Keycode::E);
 
-        self.pi_key.add(vec![32, 180, 40, 208, 28, 208, 40, 220], 7, 8, offset, Keycode::P);
+        self.pi_key.add(vec![13, 180, 23, 207], 0, 1, offset_x, offset_y, Keycode::Num2);
+        self.pi_key.add(vec![34, 180, 44, 207], 0, 1, offset_x, offset_y, Keycode::Num3);
+
+        self.pi_key.add(vec![60, 180, 72, 208, 60, 208, 78, 226], 7, 8, offset_x, offset_y, Keycode::R);
+        self.pi_key.add(vec![85, 180, 93, 208, 80, 208, 98, 226], 7, 8, offset_x, offset_y, Keycode::T);
+        self.pi_key.add(vec![105, 180, 113, 208, 100, 208, 118, 226], 7, 8, offset_x, offset_y, Keycode::Y);
+        self.pi_key.add(vec![125, 180, 138, 208, 120, 208, 138, 226], 7, 8, offset_x, offset_y, Keycode::U);
+
+        self.pi_key.add(vec![73, 180, 83, 207], 0, 1, offset_x, offset_y, Keycode::Num5);
+        self.pi_key.add(vec![94, 180, 104, 207], 0, 1, offset_x, offset_y, Keycode::Num6);
+        self.pi_key.add(vec![114, 180, 124, 207], 0, 1, offset_x, offset_y, Keycode::Num7);
+
+
+        let offset_x = 159;
+        let offset_y = -50;
+        self.pi_key.add(vec![0, 180, 12, 208, 0, 208, 18, 226], 7, 8, offset_x, offset_y, Keycode::I);
+        self.pi_key.add(vec![25, 180, 33, 208, 20, 208, 38, 226], 7, 8, offset_x, offset_y, Keycode::O);
+        self.pi_key.add(vec![45, 180, 58, 208, 40, 208, 58, 226], 7, 8, offset_x, offset_y, Keycode::P);
+
+        self.pi_key.add(vec![13, 180, 23, 207], 0, 1, offset_x, offset_y, Keycode::Num9);
+        self.pi_key.add(vec![34, 180, 44, 207], 0, 1, offset_x, offset_y, Keycode::Num0);
     }
 
     pub fn update(&mut self, cartridge: &mut PX8Cartridge, players: Arc<Mutex<Players>>, sound_internal: Arc<Mutex<SoundInternal>>, sound: Arc<Mutex<Sound>>) -> bool {
@@ -398,6 +409,8 @@ impl MusicEditor {
         self.flags.update_flag("NOISE".to_string(), sound_internal.player.get_noise(current_sfx));
         self.flags.update_flag("TRI".to_string(), sound_internal.player.get_tri(current_sfx));
         self.flags.update_flag("VIB".to_string(), sound_internal.player.get_vib(current_sfx));
+        self.flags.update_flag("SAW".to_string(), sound_internal.player.get_saw(current_sfx));
+        self.flags.update_flag("METAL".to_string(), sound_internal.player.get_metal(current_sfx));
 
         if mouse_state == 1 {
             if self.flags.is_active("DRUM".to_string(), mouse_x, mouse_y) {
@@ -405,6 +418,9 @@ impl MusicEditor {
             }
             if self.flags.is_active("PUL".to_string(), mouse_x, mouse_y) {
                 sound_internal.player.set_pulse(current_sfx);
+            }
+            if self.flags.is_active("SAW".to_string(), mouse_x, mouse_y) {
+                sound_internal.player.set_saw(current_sfx);
             }
             if self.flags.is_active("NOISE".to_string(), mouse_x, mouse_y) {
                 sound_internal.player.set_noise(current_sfx);
@@ -414,6 +430,9 @@ impl MusicEditor {
             }
             if self.flags.is_active("VIB".to_string(), mouse_x, mouse_y) {
                 sound_internal.player.set_vib(current_sfx);
+            }
+            if self.flags.is_active("METAL".to_string(), mouse_x, mouse_y) {
+                sound_internal.player.set_metal(current_sfx);
             }
         }
 
@@ -509,12 +528,12 @@ impl MusicEditor {
         }
 
         let mut idx_x = 4;
-        let mut idx_y = 64;
+        let mut idx_y = 48;
 
         for idx in 0..self.sfx.programs.len() {
             if idx > 0 && idx % 8 == 0 {
                 idx_x += 58;
-                idx_y = 64;
+                idx_y = 48;
             }
                 
             for (_, channel) in &self.sfx_channels_keys {

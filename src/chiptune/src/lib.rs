@@ -347,6 +347,30 @@ impl Chiptune {
     }
   }
 
+  pub fn set_saw(&mut self, sound: ChiptuneSound) {
+    unsafe {
+      (*sound.S).cydflags ^= ffi::CYD_CHN_ENABLE_SAW as u32;
+    }
+  }
+
+  pub fn get_saw(&mut self, sound: ChiptuneSound) -> bool {
+    unsafe {
+      return ((*sound.S).cydflags & ffi::CYD_CHN_ENABLE_SAW as u32) != 0;
+    }
+  }
+
+  pub fn set_metal(&mut self, sound: ChiptuneSound) {
+    unsafe {
+      (*sound.S).cydflags ^= ffi::CYD_CHN_ENABLE_METAL as u32;
+    }
+  }
+
+  pub fn get_metal(&mut self, sound: ChiptuneSound) -> bool {
+    unsafe {
+      return ((*sound.S).cydflags & ffi::CYD_CHN_ENABLE_METAL as u32) != 0;
+    }
+  }
+
   pub fn set_noise(&mut self, sound: ChiptuneSound) {
     unsafe {
       (*sound.S).cydflags ^= ffi::CYD_CHN_ENABLE_NOISE as u32;
