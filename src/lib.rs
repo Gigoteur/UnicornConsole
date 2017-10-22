@@ -1,4 +1,4 @@
-#[cfg(feature = "px8_plugin_lua")]
+/*#[cfg(feature = "px8_plugin_lua")]
 extern crate px8_plugin_lua;
 
 #[cfg(feature = "cpython")]
@@ -108,4 +108,4 @@ pub unsafe extern "C" fn Java_org_libsdl_app_SDLActivity_nativeInit(env: JNIEnv,
     status = SDL_main(/*argc, argv*/);
 
     return status;
-}
+}*/

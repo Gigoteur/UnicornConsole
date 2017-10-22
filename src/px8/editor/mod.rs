@@ -12,6 +12,96 @@ use sound::sound::{SoundInternal, Sound};
 
 use px8::{PX8Cartridge, PX8Config};
 
+pub struct ButtonSlider {
+    text: String,
+    value: String,
+    global_text: String,
+    x: i32,
+    y: i32,
+    color_text: i32,
+    color_background: i32,
+    color_clicked: i32,
+    minus: Vec<i32>,
+    plus: Vec<i32>,
+    minus_click: bool,
+    plus_click: bool,
+}
+
+impl ButtonSlider {
+    pub fn new(text: String, value: String, x: i32, y: i32, color_text: i32, color_background: i32, color_clicked: i32) -> ButtonSlider {
+        ButtonSlider {
+            text: text.clone(),
+            value: value.clone(),
+            global_text: "".to_string(),
+            x: x,
+            y: y,
+            color_text: color_text,
+            color_background: color_background,
+            color_clicked: color_clicked,
+            minus: vec![0, 0, 0, 0],
+            plus: vec![0, 0, 0, 0],
+            minus_click: false,
+            plus_click: false,
+        }
+    }
+
+    pub fn update_value(&mut self, value: String) {
+        self.value = value.clone();
+    }
+
+    pub fn update(&mut self, mouse_state: u32, mouse_x: i32, mouse_y: i32, players: Arc<Mutex<Players>>) {
+        self.global_text = format!("{} {}", self.text, self.value);
+
+        let len_text_size = (4*self.global_text.len()) as i32 + 2;
+        self.minus[0] = self.x + len_text_size;
+        self.minus[1] = self.y;
+        self.minus[2] = self.x + len_text_size + 4;
+        self.minus[3] = self.y + 8;
+
+        self.plus[0] = self.minus[0] + 6;
+        self.plus[1] = self.y;
+        self.plus[2] = self.minus[0] + 6 + 4;
+        self.plus[3] = self.y + 8;
+
+        if mouse_state == 1 {
+            self.minus_click = point_in_rect(mouse_x, mouse_y, self.minus[0], self.minus[1], self.minus[2], self.minus[3]);
+            self.plus_click = point_in_rect(mouse_x, mouse_y, self.plus[0], self.plus[1], self.plus[2], self.plus[3]);
+        } else {
+            self.minus_click = false;
+            self.plus_click = false;
+        }
+    }
+
+    pub fn draw(&mut self, screen: &mut Screen) {
+        let len_text_size = (4*self.global_text.len()) as i32;
+
+        screen.rectfill(self.x, self.y, self.x + len_text_size, self.y+8, self.color_background);
+        if self.minus_click {
+            screen.rectfill(self.minus[0], self.minus[1], self.minus[2], self.minus[3], self.color_clicked);
+        } else {
+            screen.rectfill(self.minus[0], self.minus[1], self.minus[2], self.minus[3], self.color_background);
+        }
+
+        if self.plus_click {
+            screen.rectfill(self.plus[0], self.plus[1], self.plus[2], self.plus[3], self.color_clicked);
+        } else {
+            screen.rectfill(self.plus[0], self.plus[1], self.plus[2], self.plus[3], self.color_background);
+        }
+
+        screen.print(self.global_text.clone(), self.x, self.y+2, self.color_text);
+        screen.print("-".to_string(), self.minus[0], self.minus[1] + 2, self.color_text);
+        screen.print("+".to_string(), self.plus[0], self.plus[1] + 2, self.color_text);
+    }
+
+    pub fn is_plus_click(&mut self) -> bool {
+        self.plus_click
+    }
+
+    pub fn is_minus_click(&mut self) -> bool {
+        self.minus_click
+    }
+}
+
 pub fn point_in_rect(x: i32,
                      y: i32,
                      coord_x1: i32,

@@ -216,6 +216,7 @@ lazy_static! {
 }
 
 pub fn base_note_name(note: u8) -> Result<String, ChiptuneError> {
+  let note = cmp::min(cmp::max(0, note), FREQ_TAB_SIZE as u8 - 1);
   Ok(format!("{}{}", NOTENAME[(note%12) as usize], note/12))
 }
 
@@ -228,8 +229,7 @@ pub fn notename(opcode: c_int, base_note: u8) -> Result<String, ChiptuneError> {
             if (opcode & 0x7f00) == MUS_FX_ARPEGGIO {
               note = base_note as i32 + (opcode & 0xff);
             }
-            note = cmp::min(cmp::max(0, note), FREQ_TAB_SIZE - 1);
-            return Ok(format!("{}{}", NOTENAME[(note%12) as usize], note/12));
+            return Ok(format!("{}", base_note_name(note as u8).unwrap()));
           } else {
             return Ok(format!("EXT{:x}", opcode & 0x0f));
           }
@@ -480,6 +480,12 @@ impl Chiptune {
         }
     }
     program
+  }
+
+  pub fn set_base_note(&mut self, sound: ChiptuneSound, note: u8) {
+    unsafe {
+      (*sound.S).base_note = note;
+    }
   }
 
   pub fn get_base_note(&mut self, sound: ChiptuneSound) -> u8 {

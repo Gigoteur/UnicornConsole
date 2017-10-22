@@ -11,6 +11,7 @@ use time;
 use px8::editor::point_in_rect;
 
 use sound::sound::{SoundInternal, Sound};
+use px8::editor::ButtonSlider;
 use chiptune;
 
 
@@ -50,7 +51,6 @@ static KEYS_NOTE: [Keycode; 29] = [
   //  'q', '2', 'w', '3', 'e', 'r', '5', 't', '6', 'y', '7', 'u',
   //  'i', '9', 'o', '0', 'p',
 ];
-
 
 pub struct SFX {
     pub programs: Vec<i32>,
@@ -298,8 +298,7 @@ impl SFXFlags {
 
 pub struct MusicEditor {
     idx_sfx: u32,
-    base_note: u8,
-    base_note_name: String,
+    base_note: ButtonSlider,
     pi_key: PianoKeyboard,
     sfx: SFX,
     sfx_channels_keys: HashMap<Keycode, i32>,
@@ -316,8 +315,7 @@ impl MusicEditor {
             current_sfx_positions: HashMap::new(),
             sfx_channels_keys: HashMap::new(),
             pi_key: PianoKeyboard::new(),
-            base_note: 0,
-            base_note_name: "".to_string(),
+            base_note: ButtonSlider::new("BASE".to_string(), "C-4".to_string(), 0, 24, 7, 6, 5),
             selected_sounds: "".to_string(),
             flags: SFXFlags::new(),
         }
@@ -398,9 +396,30 @@ impl MusicEditor {
             return true;
         }
 
-        self.pi_key.update(mouse_state_quick, mouse_x, mouse_y, players.clone());
-
         let current_sfx = *cartridge.sound_tracks.get_mut(&cartridge.sound_tracks_name[self.idx_sfx as usize]).unwrap();
+
+
+        /* BASE NOTE */
+        self.base_note.update(mouse_state, mouse_x, mouse_y, players.clone());
+
+        if self.base_note.is_minus_click() {
+            let base_note = sound_internal.player.get_base_note(current_sfx);
+            if base_note != 0 {
+                sound_internal.player.set_base_note(current_sfx, base_note-1);
+            }
+        }
+
+        if self.base_note.is_plus_click() {
+            let base_note = sound_internal.player.get_base_note(current_sfx);
+            if base_note != 95 {
+                sound_internal.player.set_base_note(current_sfx, base_note+1);
+            }
+        }
+
+        self.base_note.update_value(chiptune::base_note_name(sound_internal.player.get_base_note(current_sfx)).unwrap());
+
+
+        self.pi_key.update(mouse_state_quick, mouse_x, mouse_y, players.clone());
 
         self.sfx.reset();
 
@@ -459,8 +478,8 @@ impl MusicEditor {
 
             }
 
-        self.base_note = sound_internal.player.get_base_note(current_sfx);
-        self.base_note_name = chiptune::base_note_name(self.base_note).unwrap();
+        //self.base_note = sound_internal.player.get_base_note(current_sfx);
+        //self.base_note_name = chiptune::base_note_name(self.base_note).unwrap();
 
 //        info!("BASE NOTE {:?} -> {:?}", base_note, chiptune::base_note_name(base_note));
 
@@ -509,7 +528,8 @@ impl MusicEditor {
 
         // Draw current SFX
         screen.print("Inst".to_string(), 0, 8, 9);
-        screen.print(format!("BASE {:?} {:?}", self.base_note_name, self.base_note), 0, 24, 7);
+        self.base_note.draw(screen);
+        //screen.print(format!("BASE {:?} {:?}", self.base_note_name, self.base_note), 0, 24, 7);
 
         self.flags.draw(screen);
 
