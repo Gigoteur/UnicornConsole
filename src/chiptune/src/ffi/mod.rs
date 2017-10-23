@@ -150,6 +150,7 @@ extern "C" {
   pub fn Chiptune_GetSongInfo(player: chiptune_player) -> c_int;
 }
 
+pub const ENVELOPE_SCALE : c_int = 2;
 pub const CYD_PAN_CENTER : c_int = 64;
 pub const CYD_PAN_LEFT : c_int = 0;
 pub const CYD_PAN_RIGHT : c_int = 128;

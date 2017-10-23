@@ -299,6 +299,7 @@ impl SFXFlags {
 pub struct MusicEditor {
     idx_sfx: u32,
     base_note: ButtonSlider,
+    attack: ButtonSlider,
     pi_key: PianoKeyboard,
     sfx: SFX,
     sfx_channels_keys: HashMap<Keycode, i32>,
@@ -316,6 +317,7 @@ impl MusicEditor {
             sfx_channels_keys: HashMap::new(),
             pi_key: PianoKeyboard::new(),
             base_note: ButtonSlider::new("BASE".to_string(), "C-4".to_string(), 0, 24, 7, 6, 5),
+            attack: ButtonSlider::new("ATK".to_string(), "00".to_string(), 48, 24, 7, 6, 5),
             selected_sounds: "".to_string(),
             flags: SFXFlags::new(),
         }
@@ -401,7 +403,6 @@ impl MusicEditor {
 
         /* BASE NOTE */
         self.base_note.update(mouse_state, mouse_x, mouse_y, players.clone());
-
         if self.base_note.is_minus_click() {
             let base_note = sound_internal.player.get_base_note(current_sfx);
             if base_note != 0 {
@@ -415,8 +416,24 @@ impl MusicEditor {
                 sound_internal.player.set_base_note(current_sfx, base_note+1);
             }
         }
-
         self.base_note.update_value(chiptune::base_note_name(sound_internal.player.get_base_note(current_sfx)).unwrap());
+
+        /* ATTACK */
+        self.attack.update(mouse_state, mouse_x, mouse_y, players.clone());
+        let attack = sound_internal.player.get_attack(current_sfx);
+
+        if self.attack.is_minus_click() {
+            if attack != 0 {
+                sound_internal.player.set_attack(current_sfx, attack-1);
+            }
+        }
+
+        if self.attack.is_plus_click() {
+            if attack != 0x3f {
+                sound_internal.player.set_attack(current_sfx, attack+1);
+            }
+        }
+        self.attack.update_value(format!("{:02X}", sound_internal.player.get_attack(current_sfx)));
 
 
         self.pi_key.update(mouse_state_quick, mouse_x, mouse_y, players.clone());
@@ -529,7 +546,7 @@ impl MusicEditor {
         // Draw current SFX
         screen.print("Inst".to_string(), 0, 8, 9);
         self.base_note.draw(screen);
-        //screen.print(format!("BASE {:?} {:?}", self.base_note_name, self.base_note), 0, 24, 7);
+        self.attack.draw(screen);
 
         self.flags.draw(screen);
 

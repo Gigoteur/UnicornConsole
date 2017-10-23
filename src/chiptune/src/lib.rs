@@ -494,4 +494,16 @@ impl Chiptune {
     }
   }
   
+  pub fn get_attack(&mut self, sound: ChiptuneSound) -> u8 {
+    unsafe {
+      (*sound.S).musadsr_a
+    }
+  }
+
+  pub fn set_attack(&mut self, sound: ChiptuneSound, value: u8) {
+    unsafe {
+      (*sound.S).musadsr_a = value;
+    }
+  }
+
 }
