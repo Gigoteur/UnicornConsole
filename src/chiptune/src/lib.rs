@@ -506,4 +506,16 @@ impl Chiptune {
     }
   }
 
+  pub fn get_decay(&mut self, sound: ChiptuneSound) -> u8 {
+    unsafe {
+      (*sound.S).musadsr_d
+    }
+  }
+
+  pub fn set_decay(&mut self, sound: ChiptuneSound, value: u8) {
+    unsafe {
+      (*sound.S).musadsr_d = value;
+    }
+  }
+
 }

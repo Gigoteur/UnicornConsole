@@ -55,6 +55,12 @@ optional = true
 version="0.0.11"
 path="src/plugins/lua"
 
+[dependencies.px8_plugin_javascript]
+optional = true
+version="0.0.1"
+path="src/plugins/javascript"
+
+
 [dependencies.sdl2]
 version = "0.27.2"
 default-features = false

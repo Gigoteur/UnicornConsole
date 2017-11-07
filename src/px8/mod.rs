@@ -344,7 +344,8 @@ impl PauseMenu {
 
         items.push("Continue".to_string());
         items.push("Config".to_string());
-        items.push("Quit".to_string());
+        items.push("Menu".to_string());
+        items.push("Exit".to_string());
 
         PauseMenu {
             idx: 0,
@@ -366,13 +367,13 @@ impl PauseMenu {
     }
 
     pub fn quit(&mut self) -> bool {
-        self.selected_idx == self.items.len() as i32 - 1
+        self.selected_idx == self.items.len() as i32 - 2
     }
 
     pub fn update(&mut self, players: Arc<Mutex<Players>>) -> bool {
         if players.lock().unwrap().btnp(0, 4) {
             self.selected_idx = self.idx as i32;
-            if self.selected_idx == self.items.len() as i32 {
+            if self.selected_idx == (self.items.len() as i32) - 1 {
                 return false;
             }
         } else {
@@ -1183,6 +1184,7 @@ impl PX8 {
                 self.pause_menu.reset();
                 self.state = PX8State::PAUSE;
                 screen.save();
+                self.sound_internal.lock().unwrap().pause();
             }
             PX8State::EDITOR => {
                 self.pause_menu.reset();

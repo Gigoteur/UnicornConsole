@@ -46,6 +46,29 @@ pub mod sound {
             self.player.stop_chan(chan);
         }
 
+        pub fn new_sfx(&mut self, cartridge: &mut PX8Cartridge, _: Arc<Mutex<Sound>>,
+                       filename: String) -> i32 {
+        
+            if filename != "" {
+                if !cartridge.sound_tracks.contains_key(&filename) {
+                    let sound = self.player.new_sound(filename.clone());
+                    match sound {
+                        Ok(chip_sound) => {
+                            cartridge.sound_tracks.insert(filename.clone(), chip_sound);
+                            cartridge.sound_tracks_name.push(filename.clone());
+                        }
+                        Err(e) => {
+                            error!("ERROR to load the song {:?}", e);
+                            return -1;
+                        }
+                    }
+                }
+            }
+         
+
+            self.cartridge.sound_tracks.len() - 1
+        }
+
         pub fn sfx(&mut self, cartridge: &mut PX8Cartridge, _: Arc<Mutex<Sound>>,
                   id: i32, filename: String, channel: i32, note: u16, panning: i32, rate: i32, loops: i32) -> i32 {
             

@@ -296,16 +296,48 @@ impl SFXFlags {
     }
 }
 
+pub struct ProgramValue {
+    x: i32,
+    y : i32,
+    value: u32,
+    translated_value: String,
+    selected_idx_in_program: u32,
+}
+
+impl ProgramValue {
+    pub fn new(x: i32, y: i32, value: u32, translated_value: String) -> ProgramValue {
+        ProgramValue {
+            x: x,
+            y: y,
+            value: value,
+            translated_value: translated_value,
+            selected_idx_in_program: 0,
+        }
+    }
+    
+    pub fn update(&mut self, mouse_state: u32, mouse_x: i32, mouse_y: i32, players: Arc<Mutex<Players>>) {
+
+
+    }
+
+    pub fn draw(&mut self, players: Arc<Mutex<Players>>, screen: &mut Screen) {
+
+    }
+}
+
 pub struct MusicEditor {
     idx_sfx: u32,
     base_note: ButtonSlider,
     attack: ButtonSlider,
+    decay: ButtonSlider,
     pi_key: PianoKeyboard,
     sfx: SFX,
     sfx_channels_keys: HashMap<Keycode, i32>,
     current_sfx_positions: HashMap<u32, usize>,
     selected_sounds: String,
     flags: SFXFlags,
+    selected_program: i32,
+    p_values: Vec<ProgramValue>,
 }
 
 impl MusicEditor {
@@ -318,8 +350,11 @@ impl MusicEditor {
             pi_key: PianoKeyboard::new(),
             base_note: ButtonSlider::new("BASE".to_string(), "C-4".to_string(), 0, 24, 7, 6, 5),
             attack: ButtonSlider::new("ATK".to_string(), "00".to_string(), 48, 24, 7, 6, 5),
+            decay: ButtonSlider::new("DEC".to_string(), "00".to_string(), 86, 24, 7, 6, 5),
             selected_sounds: "".to_string(),
             flags: SFXFlags::new(),
+            selected_program: -1,
+            p_values: Vec::new(),
         }
     }
 
@@ -400,7 +435,6 @@ impl MusicEditor {
 
         let current_sfx = *cartridge.sound_tracks.get_mut(&cartridge.sound_tracks_name[self.idx_sfx as usize]).unwrap();
 
-
         /* BASE NOTE */
         self.base_note.update(mouse_state, mouse_x, mouse_y, players.clone());
         if self.base_note.is_minus_click() {
@@ -435,6 +469,22 @@ impl MusicEditor {
         }
         self.attack.update_value(format!("{:02X}", sound_internal.player.get_attack(current_sfx)));
 
+        /* DECAY */
+        self.decay.update(mouse_state, mouse_x, mouse_y, players.clone());
+        let decay = sound_internal.player.get_decay(current_sfx);
+
+        if self.decay.is_minus_click() {
+            if decay != 0 {
+                sound_internal.player.set_decay(current_sfx, decay-1);
+            }
+        }
+
+        if self.decay.is_plus_click() {
+            if decay != 0x3f {
+                sound_internal.player.set_decay(current_sfx, decay+1);
+            }
+        }
+        self.decay.update_value(format!("{:02X}", sound_internal.player.get_decay(current_sfx)));
 
         self.pi_key.update(mouse_state_quick, mouse_x, mouse_y, players.clone());
 
@@ -540,13 +590,16 @@ impl MusicEditor {
 
     pub fn draw(&mut self, players: Arc<Mutex<Players>>, screen: &mut Screen) {
 
-        // Draw contour
+        /* Draw contour */
         screen.rectfill(0, 16, 240, 24, 7);
 
-        // Draw current SFX
+        /* Draw current SFX */
         screen.print("Inst".to_string(), 0, 8, 9);
+
+        /* Draw flags */
         self.base_note.draw(screen);
         self.attack.draw(screen);
+        self.decay.draw(screen);
 
         self.flags.draw(screen);
 
