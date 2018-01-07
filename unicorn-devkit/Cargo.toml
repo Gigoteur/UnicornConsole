@@ -2,7 +2,7 @@
 name = "uc-devkit"
 version = "0.0.1"
 authors = ["hallucino <d@t0t0.fr>"]
-description = "Unicorn console UI SDL"
+description = "Unicorn console dev kit (sdl)"
 documentation = ""
 homepage = ""
 repository = ""

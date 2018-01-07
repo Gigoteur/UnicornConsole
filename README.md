@@ -18,4 +18,4 @@
   * [Requirements](#requirements)
   
   
-Unicorn Console is an Open Source Console (400240 pixels).
+Unicorn Console is an Open Source Console (400x240 pixels).
