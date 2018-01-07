@@ -1,0 +1,42 @@
+[
+    {
+        "merged": "/Volumes/Personnel/Gigoteur/UnicornConsole/android/sdl/build/intermediates/res/merged/debug/anim/abc_slide_out_bottom.xml",
+        "source": "/Users/adesnos/.android/build-cache/6049bb840cc27ce5fb7a6acc00a687a79c4b4e76/output/res/anim/abc_slide_out_bottom.xml"
+    },
+    {
+        "merged": "/Volumes/Personnel/Gigoteur/UnicornConsole/android/sdl/build/intermediates/res/merged/debug/anim/abc_slide_in_bottom.xml",
+        "source": "/Users/adesnos/.android/build-cache/6049bb840cc27ce5fb7a6acc00a687a79c4b4e76/output/res/anim/abc_slide_in_bottom.xml"
+    },
+    {
+        "merged": "/Volumes/Personnel/Gigoteur/UnicornConsole/android/sdl/build/intermediates/res/merged/debug/anim/abc_fade_in.xml",
+        "source": "/Users/adesnos/.android/build-cache/6049bb840cc27ce5fb7a6acc00a687a79c4b4e76/output/res/anim/abc_fade_in.xml"
+    },
+    {
+        "merged": "/Volumes/Personnel/Gigoteur/UnicornConsole/android/sdl/build/intermediates/res/merged/debug/anim/abc_slide_out_top.xml",
+        "source": "/Users/adesnos/.android/build-cache/6049bb840cc27ce5fb7a6acc00a687a79c4b4e76/output/res/anim/abc_slide_out_top.xml"
+    },
+    {
+        "merged": "/Volumes/Personnel/Gigoteur/UnicornConsole/android/sdl/build/intermediates/res/merged/debug/anim/abc_fade_out.xml",
+        "source": "/Users/adesnos/.android/build-cache/6049bb840cc27ce5fb7a6acc00a687a79c4b4e76/output/res/anim/abc_fade_out.xml"
+    },
+    {
+        "merged": "/Volumes/Personnel/Gigoteur/UnicornConsole/android/sdl/build/intermediates/res/merged/debug/anim/abc_grow_fade_in_from_bottom.xml",
+        "source": "/Users/adesnos/.android/build-cache/6049bb840cc27ce5fb7a6acc00a687a79c4b4e76/output/res/anim/abc_grow_fade_in_from_bottom.xml"
+    },
+    {
+        "merged": "/Volumes/Personnel/Gigoteur/UnicornConsole/android/sdl/build/intermediates/res/merged/debug/anim/abc_shrink_fade_out_from_bottom.xml",
+        "source": "/Users/adesnos/.android/build-cache/6049bb840cc27ce5fb7a6acc00a687a79c4b4e76/output/res/anim/abc_shrink_fade_out_from_bottom.xml"
+    },
+    {
+        "merged": "/Volumes/Personnel/Gigoteur/UnicornConsole/android/sdl/build/intermediates/res/merged/debug/anim/abc_slide_in_top.xml",
+        "source": "/Users/adesnos/.android/build-cache/6049bb840cc27ce5fb7a6acc00a687a79c4b4e76/output/res/anim/abc_slide_in_top.xml"
+    },
+    {
+        "merged": "/Volumes/Personnel/Gigoteur/UnicornConsole/android/sdl/build/intermediates/res/merged/debug/anim/abc_popup_enter.xml",
+        "source": "/Users/adesnos/.android/build-cache/6049bb840cc27ce5fb7a6acc00a687a79c4b4e76/output/res/anim/abc_popup_enter.xml"
+    },
+    {
+        "merged": "/Volumes/Personnel/Gigoteur/UnicornConsole/android/sdl/build/intermediates/res/merged/debug/anim/abc_popup_exit.xml",
+        "source": "/Users/adesnos/.android/build-cache/6049bb840cc27ce5fb7a6acc00a687a79c4b4e76/output/res/anim/abc_popup_exit.xml"
+    }
+]

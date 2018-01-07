@@ -1,0 +1,42 @@
+[
+    {
+        "merged": "/Volumes/Personnel/Gigoteur/UnicornConsole/android/sdl/build/intermediates/res/merged/debug/color-v23/abc_tint_switch_track.xml",
+        "source": "/Users/adesnos/.android/build-cache/6049bb840cc27ce5fb7a6acc00a687a79c4b4e76/output/res/color-v23/abc_tint_switch_track.xml"
+    },
+    {
+        "merged": "/Volumes/Personnel/Gigoteur/UnicornConsole/android/sdl/build/intermediates/res/merged/debug/color-v23/abc_btn_colored_text_material.xml",
+        "source": "/Users/adesnos/.android/build-cache/6049bb840cc27ce5fb7a6acc00a687a79c4b4e76/output/res/color-v23/abc_btn_colored_text_material.xml"
+    },
+    {
+        "merged": "/Volumes/Personnel/Gigoteur/UnicornConsole/android/sdl/build/intermediates/res/merged/debug/color-v23/abc_tint_edittext.xml",
+        "source": "/Users/adesnos/.android/build-cache/6049bb840cc27ce5fb7a6acc00a687a79c4b4e76/output/res/color-v23/abc_tint_edittext.xml"
+    },
+    {
+        "merged": "/Volumes/Personnel/Gigoteur/UnicornConsole/android/sdl/build/intermediates/res/merged/debug/color-v23/abc_color_highlight_material.xml",
+        "source": "/Users/adesnos/.android/build-cache/6049bb840cc27ce5fb7a6acc00a687a79c4b4e76/output/res/color-v23/abc_color_highlight_material.xml"
+    },
+    {
+        "merged": "/Volumes/Personnel/Gigoteur/UnicornConsole/android/sdl/build/intermediates/res/merged/debug/color-v23/abc_tint_seek_thumb.xml",
+        "source": "/Users/adesnos/.android/build-cache/6049bb840cc27ce5fb7a6acc00a687a79c4b4e76/output/res/color-v23/abc_tint_seek_thumb.xml"
+    },
+    {
+        "merged": "/Volumes/Personnel/Gigoteur/UnicornConsole/android/sdl/build/intermediates/res/merged/debug/color-v23/abc_btn_colored_borderless_text_material.xml",
+        "source": "/Users/adesnos/.android/build-cache/6049bb840cc27ce5fb7a6acc00a687a79c4b4e76/output/res/color-v23/abc_btn_colored_borderless_text_material.xml"
+    },
+    {
+        "merged": "/Volumes/Personnel/Gigoteur/UnicornConsole/android/sdl/build/intermediates/res/merged/debug/color-v23/abc_tint_spinner.xml",
+        "source": "/Users/adesnos/.android/build-cache/6049bb840cc27ce5fb7a6acc00a687a79c4b4e76/output/res/color-v23/abc_tint_spinner.xml"
+    },
+    {
+        "merged": "/Volumes/Personnel/Gigoteur/UnicornConsole/android/sdl/build/intermediates/res/merged/debug/color-v23/abc_tint_switch_thumb.xml",
+        "source": "/Users/adesnos/.android/build-cache/6049bb840cc27ce5fb7a6acc00a687a79c4b4e76/output/res/color-v23/abc_tint_switch_thumb.xml"
+    },
+    {
+        "merged": "/Volumes/Personnel/Gigoteur/UnicornConsole/android/sdl/build/intermediates/res/merged/debug/color-v23/abc_tint_default.xml",
+        "source": "/Users/adesnos/.android/build-cache/6049bb840cc27ce5fb7a6acc00a687a79c4b4e76/output/res/color-v23/abc_tint_default.xml"
+    },
+    {
+        "merged": "/Volumes/Personnel/Gigoteur/UnicornConsole/android/sdl/build/intermediates/res/merged/debug/color-v23/abc_tint_btn_checkable.xml",
+        "source": "/Users/adesnos/.android/build-cache/6049bb840cc27ce5fb7a6acc00a687a79c4b4e76/output/res/color-v23/abc_tint_btn_checkable.xml"
+    }
+]

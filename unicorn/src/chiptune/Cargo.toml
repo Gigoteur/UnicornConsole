@@ -1,0 +1,27 @@
+[package]
+
+name = "chiptune"
+version = "0.0.1"
+authors = ["Hallucino"]
+description = "chiptune in Rust"
+repository = "https://github.com/Gigoteur/chiptune-rs"
+readme = "README.md"
+keywords = [
+  "chiptune", "libksnd", "bindings"
+]
+license = "MIT"
+build = "build.rs"
+links = "chiptune"
+
+[lib]
+name = "chiptune"
+path = "src/lib.rs"
+crate-type = ["staticlib", "rlib"]
+
+[build-dependencies]
+gcc = "0.3"
+
+[dependencies]
+bitflags = "0.1"
+libc = "0.2.13"
+lazy_static = "0.2"

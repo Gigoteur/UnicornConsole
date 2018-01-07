@@ -1,0 +1,63 @@
+[package]
+name = "unicorn"
+version = "0.0.1"
+authors = ["hallucino <d@t0t0.fr>"]
+description = "Unicorn console"
+documentation = ""
+homepage = ""
+repository = ""
+readme = "README.md"
+keywords = ["console", "python", "lua", "8bits"]
+license = "MIT"
+build = "build.rs"
+
+exclude = [ ".idea/*", ".travis.yml" ]
+
+[lib]
+name       = "unicorn"
+path       = "src/lib.rs"
+crate-type = ["cdylib", "rlib"]
+
+[target.'cfg(target_os="android")'.dependencies]
+jni = { version = "0.4", default-features = false }
+
+[dependencies]
+time = "0.1.35"
+regex = "0.2.1"
+png = "0.9.0"
+byteorder = "1.0.0"
+rand = "0.3.15"
+libc = "0.2.18"
+log = "0.3.6"
+fern = "0.3.5"
+rusttype = "0.2.1"
+nalgebra = "0.11.1"
+image = "0.14.0"
+gif = "0.9.0"
+chrono = "0.2.25"
+lazy_static = "0.1.*"
+serde = "1.0"
+serde_derive = "1.0"
+serde_json = "1.0"
+noise = "0.4.0"
+num-traits = "0.1"
+glob = "0.2.11"
+clippy = {version = "*", optional = true}
+syntect = "1.8"
+gapbuffer = "0.1.1"
+tempdir = "0.3.0"
+unicode-width = "0.1.1"
+
+cpython = {version = "0.1.0", optional = true}
+[dependencies.unicorn_plugin_lua]
+optional = true
+version="0.0.11"
+path="src/plugins/lua"
+
+[dependencies.duktape]
+version="0.0.1"
+path="./src/plugins/duktape"
+
+[dependencies.chiptune]
+version="0.0.1"
+path="./src/chiptune"

@@ -1,0 +1,65 @@
+#unicorn / python cartridge
+#version 1
+#__python__
+
+RED = 8
+BLUE = 12
+WHITE = 7
+GREEN = 11
+GREY = 6
+BROWN = 4
+
+LEFT_ARROW = 0
+RIGHT_ARROW = 1
+
+LINE_HEIGHT = 8
+
+FONTS = [
+    "pico8",
+    "bbc",
+    "cbmII",
+    "appleII",
+    "trollmini",
+]
+
+frame = 0
+font_index = 0
+
+msgs = [
+    ("Unicorn Console", GREEN),
+    ("ABCDEFGHIJKLMNOP", RED),
+    ("QRSTUVWXYZ", RED),
+    ("abcdefghijklmnop", RED),
+    ("qrstuvwxyz", RED),
+    ("1234567890", RED),
+    ("!@#$%^&*()-_=+{}", RED),
+    ("[]:;|\?/<>,.'~`", RED),
+    ("You are standing", BROWN),
+    ("at the end of a", BROWN),
+    ("a road before a", BROWN),
+    ("small brick", BROWN), 
+    ("building.", BROWN),
+    ("<- -> to switch", WHITE)
+]
+
+def _init():
+    pass
+
+def _update():
+    global font_index
+    if btnp(LEFT_ARROW):
+        font_index = font_index - 1
+        if font_index < 0:
+            font_index += len(FONTS)
+    if btnp(RIGHT_ARROW):
+        font_index = (font_index + 1) % len(FONTS)
+
+def _draw():
+    cls()
+    font(FONTS[font_index])
+    y = 0
+    unicorn_print("Font: %s" % FONTS[font_index], 0, y, WHITE)
+    y += LINE_HEIGHT
+    for msg,color in msgs:
+        unicorn_print(msg, 0, y, color)
+        y += LINE_HEIGHT
