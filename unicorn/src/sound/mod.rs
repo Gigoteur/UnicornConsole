@@ -162,8 +162,8 @@ pub mod sound {
 
                         match cartridge.music_track.get_mut(0) {
                             Some(mut song) => {
-                                for i in 0..self.player.get_num_instruments(&mut song) {
-                                    let instru = self.player.get_instrument(&mut song, i).unwrap();
+                                for i in 0..self.player.get_num_songs(&mut song) {
+                                    let instru = self.player.get_song(&mut song, i).unwrap();
                                     let instru_name = self.player.get_name(instru);
                                     let name = format!("{:?}:{}", i, instru_name.clone());
 
@@ -199,7 +199,7 @@ pub mod sound {
                         }
                     }
                     packet::Packet::ChiptuneSFX(res) => {
-                        info!("PLAY SFX {:?}", res);
+                        debug!("PLAY SFX {:?}", res);
 
                         if res.filename != "" {
                             let filename = res.filename.clone();

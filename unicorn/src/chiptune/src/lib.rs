@@ -349,13 +349,13 @@ pub mod chiptune {
       }
     }
 
-    pub fn get_num_instruments(&mut self, song: &mut ChiptuneSong) -> c_int {
+    pub fn get_num_songs(&mut self, song: &mut ChiptuneSong) -> c_int {
       unsafe {
         (*song.S).num_instruments as i32
       }
     }
 
-    pub fn get_instrument(&mut self, song: &mut ChiptuneSong, idx: c_int) -> Result<ChiptuneSound, ChiptuneError> {
+    pub fn get_song(&mut self, song: &mut ChiptuneSong, idx: c_int) -> Result<ChiptuneSound, ChiptuneError> {
       unsafe {
         let s = ffi::Chiptune_GetInstrument(song.S, idx);
         if s.is_null() {
@@ -573,5 +573,82 @@ pub mod chiptune {
 
 #[cfg(not(feature = "libksnd"))]
 pub mod chiptune {
+  #[derive(Debug, Clone, Copy)]
+  pub enum ChiptuneError {
+  }
 
+  pub struct Chiptune {
+
+  }
+
+  impl Chiptune {
+    pub fn new() -> Chiptune {
+      Chiptune {
+
+      }
+    }
+
+    pub fn pause(&mut self, state: i32) {
+    }
+
+    pub fn stop(&mut self) {
+    }
+
+    pub fn stop_chan(&mut self, chan: i32) {
+    }
+
+    pub fn new_sound(&mut self, name: String) -> Result<ChiptuneSound, ChiptuneError> {
+      Ok(ChiptuneSound{})
+    }
+  
+    pub fn load_sound(&mut self, path: String) -> Result<ChiptuneSound, ChiptuneError> {
+      Ok(ChiptuneSound{})
+    }
+
+    pub fn load_sound_from_memory(&mut self, data: Vec<u8>) -> Result<ChiptuneSound, ChiptuneError> {
+      Ok(ChiptuneSound{})
+    }
+
+    pub fn load_music(&mut self, path: String) -> Result<ChiptuneSong, ChiptuneError> {
+      Ok(ChiptuneSong{})
+    }
+
+    pub fn get_num_songs(&mut self, song: &mut ChiptuneSong) -> i32 {
+      0
+    }
+
+    pub fn get_song(&mut self, song: &mut ChiptuneSong, idx: i32) -> Result<ChiptuneSound, ChiptuneError> {
+      Ok(ChiptuneSound{})
+    }
+
+    pub fn play_sound(&mut self, sound: &mut ChiptuneSound, chan: i32, note: u16, panning: i32, rate: i32) -> i32 {
+      0
+    }
+
+    pub fn play_music(&mut self, song: &mut ChiptuneSong, start_position: i32) {
+    }
+
+    pub fn get_name(&mut self, sound: ChiptuneSound) -> String {
+      "".to_string()
+    }
+
+    pub fn set_volume(&mut self, volume: i32) {
+    }
+
+    pub fn set_looping(&mut self, looping: i32) {
+    }
+
+    pub fn get_music_position(&mut self) -> i32 {
+      0
+    }
+  
+  }
+
+  #[derive(Clone, Copy)]
+  pub struct ChiptuneSong {
+  }
+
+  #[derive(Clone, Copy)]
+  pub struct ChiptuneSound {
+  }
 }

@@ -615,6 +615,12 @@ impl SFXEditor {
         }
     }
 
+    #[cfg(not(feature = "libksnd"))]
+    pub fn update(&mut self, cartridge: &mut UnicornCartridge, players: Arc<Mutex<Players>>, sound_internal: Arc<Mutex<SoundInternal>>, sound: Arc<Mutex<Sound>>) -> bool {
+        true
+    }
+
+    #[cfg(feature = "libksnd")]
     pub fn update(&mut self, cartridge: &mut UnicornCartridge, players: Arc<Mutex<Players>>, sound_internal: Arc<Mutex<SoundInternal>>, sound: Arc<Mutex<Sound>>) -> bool {
         let mouse_state_quick = players.lock().unwrap().mouse_state_quick();
         let mouse_state = players.lock().unwrap().mouse_state();
