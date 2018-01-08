@@ -12,7 +12,7 @@ use config::scancode::Scancode;
 
 use sound::sound::{SoundInternal, Sound};
 use unicorn::editor::{Button, ButtonSlider};
-use chiptune;
+use chiptune::chiptune;
 
 static KEYS_NOTE: [Scancode; 29] = [
     Scancode::Z,

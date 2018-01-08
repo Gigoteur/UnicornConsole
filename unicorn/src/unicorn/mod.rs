@@ -38,7 +38,7 @@ use self::noise::Noise;
 use gfx;
 use cartridge::{Cartridge, CartridgeFormat};
 use sound::sound::{Sound, SoundInternal};
-use chiptune;
+use chiptune::chiptune;
 
 include!(concat!(env!("OUT_DIR"), "/parameters.rs"));
 

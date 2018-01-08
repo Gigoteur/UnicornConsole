@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=1' name='viewport' />
+    <link rel="stylesheet" type="text/css" href="css/normalize.css" media="screen" />
+    <style media="screen" type="text/css">
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: black;
+            color: #999;
+            padding: 1.5em;
+        }
+
+        #viewport {
+            text-align: center;
+            display: box;
+            margin: auto;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+
+            height: 90%;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: -webkit-crisp-edges;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+
+        #menu {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+        }
+
+        #change-rom-menu {
+            text-align: center;
+            background-color: #111;
+            max-width: 25em;
+            min-width: 20em;
+            margin: auto;
+            padding-bottom: 1.5em;
+
+            display: flex;
+            flex-flow:column;
+            justify-content: flex-start;
+
+            max-height: 100%;
+        }
+        #change-rom-menu-header {
+            width: 100%;
+            font-weight: 400;
+            font-size: 19pt;
+            font-style: italic;
+            color: #bbb;
+            background-color: black;
+            margin-top: 0;
+            padding-top: 0.5em;
+            padding-bottom: 0.5em;
+            margin-bottom: 0.75em;
+        }
+
+        #browse-for-roms-button {
+            margin-bottom: 1.5em;
+        }
+
+        #browse-for-roms-button, #rom-list {
+            margin-left: 1.5em;
+            margin-right: 1.5em;
+        }
+
+        #change-rom-menu * {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        #rom-list {
+            flex-grow: 0;
+            flex-basis: 1;
+
+            overflow-y: auto;
+            display: flex;
+            flex-flow:column;
+            justify-content: center;
+        }
+
+        #browse-for-roms {
+            position: fixed;
+            top: -1000px;
+        }
+
+        button, #browse-for-roms-button {
+            font-size: 11pt;
+            color: #bbb;
+            padding: 8px 16px;
+            background: #000;
+            transition: background-color 0.1s ease-in-out;
+        }
+
+        button:hover, #browse-for-roms-button:hover {
+            background-color: #222;
+        }
+
+        button, #browse-for-roms-button, #rom-list, #change-rom-menu {
+            border-radius: 4px;
+            border-bottom: 1px solid #222;
+            border-top: 1px solid #222;
+            border-left: 1px solid #101010;
+            border-right: 1px solid #101010;
+            box-shadow: 0px 1px 3px #060606;
+        }
+
+        #rom-list button {
+            border: 0;
+            border-radius: 0;
+            box-shadow: none;
+        }
+
+        #rom-menu-close {
+            float: right;
+            margin-left: -1.8em;
+            padding-left: 0.8em;
+            padding-right: 0.8em;
+        }
+
+        #rom-menu-close:hover {
+            color: #fff;
+            transition: color 0.5s ease-in-out;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        p {
+            color: #555;
+        }
+
+        h1 {
+            font-size: 16pt;
+            font-weight: 400;
+            color: #999;
+        }
+
+        a, a:visited {
+            text-decoration: none;
+            color: #999;
+            font-weight: 700;
+        }
+
+        .highlight {
+            color: #bbb;
+        }
+
+        #horizontal-container {
+            display: flex;
+            flex-flow: row;
+            justify-content: flex-start;
+            width: 100%;
+        }
+
+        #horizontal-container #side-text {
+            margin-right: 3em;
+        }
+
+        #horizontal-container #change-rom-menu {
+            flex-basis: 1;
+            flex-grow: 1;
+        }
+
+        #side-text {
+            max-width: 30em;
+            min-width: 20em;
+            flex-shrink: 1;
+        }
+
+        #loading {
+            margin: auto;
+        }
+
+        #error-description {
+            font-style: italic;
+            margin-left: 1em;
+        }
+    </style>
+    <title>Pinky - an NES emulator</title>
+</head>
+<body>
+    <canvas id="viewport" width="256" height="240" class="hidden"></canvas>
+    <div id="menu">
+        <button id="change-rom-button" class="hidden">Change ROM</button>
+    </div>
+    <div id="horizontal-container">
+        <div id="side-text">
+            <h1>Pinky - an NES emulator written in Rust</h1>
+            <p>
+                Hi there!
+            </p>
+            <p>
+                This is an NES emulator written in <a href="https://www.rust-lang.org/">Rust</a> completely
+                from scratch purely based on publicly available documentation.
+            </p>
+            <p>
+                What you see here is its port compiled to <a href="https://en.wikipedia.org/wiki/WebAssembly">WebAssembly</a>
+                using the magic of <a href="https://github.com/koute/stdweb">the stdweb crate</a> and Rust's native WebAssembly
+                backend, without the use of Emscripten.
+            </p>
+            <!--
+            <p>
+                What you see here is its port compiled to <a href="https://en.wikipedia.org/wiki/WebAssembly">WebAssembly</a>
+                using the magic of <a href="https://github.com/koute/stdweb">the stdweb crate</a> and <a href="http://kripken.github.io/emscripten-site">Emscripten</a>.
+            </p>
+            <p>
+                What you see here is its port compiled to <a href="https://en.wikipedia.org/wiki/Asm.js">asm.js</a>
+                using the magic of <a href="https://github.com/koute/stdweb">the stdweb crate</a> and <a href="http://kripken.github.io/emscripten-site">Emscripten</a>.
+            </p>
+            -->
+            <p>
+                You can take a peek at the <a href="https://github.com/koute/pinky/tree/master/pinky-web">code</a> if you're
+                interested, but first I invite you to take it for a spin and play a few games!
+            </p>
+            <p>
+                You can chose between a few fun freeware NES games, but if you have the ROMs then games like
+                Super Mario Brothers, Contra, Legend of Zelda, or Final Fantasy will work too!
+            </p>
+            <p>
+                Controls are <span class="highlight">Z</span> and <span class="highlight">X</span> for A and B,
+                <span class="highlight">Enter</span> and <span class="highlight">Right Shift</span> for Start and Select,
+                and <span class="highlight">the arrow keys</span>!
+            </p>
+            <!--
+            <p>
+                You might also want to check out the version compiled *with* Emscripten <a href="https://koute.github.io/pinky-web-webasm-emscripten">to WebAssembly</a> or <a href="https://koute.github.io/pinky-web-asmjs-emscripten">to asm.js</a>.
+            </p>
+            <p>
+                You might also want to check out the version compiled to WebAssembly *without* Emscripten <a href="https://koute.github.io/pinky-web">here</a>.
+            </p>
+            -->
+        </div>
+        <div id="loading">Loading...</div>
+        <div id="unsupported" class="hidden">
+            <h1>Sorry, your browser is unsupported!</h1>
+            <p>Maybe try something newer which supports WebAssembly?</p>
+        </div>
+        <div id="error" class="hidden">
+            <h1>Encountered an error!</h1>
+            <p>The error message is as follows:</p>
+            <p id="error-description"></p>
+            <p>Sorry about that! Maybe try another ROM?</p>
+        </div>
+        <div id="change-rom-menu" class="hidden">
+            <div id="change-rom-menu-header"><div id="rom-menu-close" class="hidden">×</div>Select a ROM to load</div>
+            <label id="browse-for-roms-button">
+                <input id="browse-for-roms" type="file" required />
+                <span>Load your own ROM...</span>
+            </label>
+            <div style="margin-bottom: 0.5em;">Builtin ROMs</div>
+            <div id="rom-list"></div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        if( typeof Module !== "object" ) { // If not running under Emscripten.
+            var webassembly_supported = typeof WebAssembly === "object" && typeof WebAssembly.instantiate === "function";
+            if( !webassembly_supported ) {
+                document.getElementById( "unsupported" ).className = "";
+                document.getElementById( "loading" ).className = "hidden";
+            }
+        }
+    </script>
+</body>
+</html>

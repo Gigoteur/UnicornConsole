@@ -2,7 +2,7 @@
 name = "uc-devkit"
 version = "0.0.1"
 authors = ["hallucino <d@t0t0.fr>"]
-description = "Unicorn console dev kit (sdl)"
+description = "Unicorn console dev kit (via sdl2)"
 documentation = ""
 homepage = ""
 repository = ""
@@ -26,7 +26,8 @@ chrono = "0.2.25"
 
 [dependencies.unicorn]
 path="../unicorn"
-features = ["cpython", "unicorn_plugin_lua"]
+features = ["cpython", "unicorn_plugin_lua", "duktape", "libksnd"]
+
 
 [dependencies.sdl2]
 version = "0.27.2"

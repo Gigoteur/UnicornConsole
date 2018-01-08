@@ -9,16 +9,16 @@ pub fn map_button(button: Button) -> Option<PX8Key> {
         Button::DPadLeft => Some(PX8Key::Left),
         Button::DPadUp => Some(PX8Key::Up),
         Button::DPadDown => Some(PX8Key::Down),
-        Button::A => Some(PX8Key::O),
-        Button::B => Some(PX8Key::X),
+        Button::A => Some(PX8Key::A),
+        Button::B => Some(PX8Key::B),
         _ => None,
     }
 }
 
 pub fn map_button_joystick(button: u8) -> Option<PX8Key> {
     match button {
-        0 => Some(PX8Key::O),
-        1 => Some(PX8Key::X),
+        0 => Some(PX8Key::A),
+        1 => Some(PX8Key::B),
         _ => None,
     }
 }

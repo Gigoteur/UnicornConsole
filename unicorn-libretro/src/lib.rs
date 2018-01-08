@@ -159,7 +159,7 @@ impl libretro_backend::Core for UnicornCore {
         self.mouse_x += handle.mouse_x();
         self.mouse_y += handle.mouse_y();
 
-        info!("MOUSE {:?} {:?}", self.mouse_x, self.mouse_y);
+        debug!("MOUSE {:?} {:?}", self.mouse_x, self.mouse_y);
 
         self.uc
             .players

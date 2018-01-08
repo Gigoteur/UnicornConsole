@@ -1,23 +1,24 @@
 [package]
-name = "unicorn-libretro"
+name = "uc-web"
 version = "0.0.1"
 authors = ["hallucino <d@t0t0.fr>"]
-
-[lib]
-crate-type = ["cdylib"]
+description = "Unicorn console web"
+documentation = ""
+homepage = ""
+repository = ""
+readme = "README.md"
+keywords = ["console", "python", "lua", "8bits"]
+license = "MIT"
 
 [dependencies]
-time = "0.1.35"
-log = "0.3.6"
-fern = "0.3.5"
+serde = "1"
+serde_derive = "1"
 
-[dependencies.libretro-backend]
-git="https://github.com/Gigoteur/libretro-backend.git"
-version = "0.2"
+[dependencies.stdweb]
+version = "0.3"
 
 [dependencies.unicorn]
-path="../unicorn"
-features = ["cpython", "unicorn_plugin_lua", "duktape"]
+path = "../unicorn"
 
 [profile.dev]
 opt-level = 2
@@ -34,4 +35,3 @@ rpath = false
 lto = true
 debug-assertions = false
 codegen-units = 1
-

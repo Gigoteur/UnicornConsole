@@ -13,6 +13,9 @@ function Unicorn() {
     this.vx = Math.random();
     this.vy = Math.random();
     this.zoom = getRandomArbitrary(1.0, 4.0);
+    this.angle = 0.0;
+    this.flip_x = false;
+    this.flip_y = false;
 
     this.update = function() {
     }
@@ -34,8 +37,8 @@ function Unicorn() {
         }
 
         pal(7, this.color);
-        //sspr(8, 0, 16, 16, this.x, this.y);
-        sspr2(8, 0, 16, 16, this.x, this.y, 0, this.zoom, false, false);
+        sspr2(8, 0, 16, 16, this.x, this.y, this.angle, this.zoom, this.flip_x, this.flip_y);
+        this.angle = this.angle + 1.0;
 
         pal();
 

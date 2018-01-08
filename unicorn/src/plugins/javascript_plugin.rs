@@ -1,3 +1,4 @@
+#[cfg(feature = "duktape")]
 pub mod plugin {
     use std::sync::{Arc, Mutex};
 
@@ -47,10 +48,11 @@ pub mod plugin {
             self.sound.push(sound);
         }
 
-        pub fn cls(&self, _ctx: &mut Context, args: &[Value<'static>]) -> 
-            DuktapeResult<Value<'static>>
-        {
-           // println!("RUST CLS {:?}", args);
+        pub fn cls(&self,
+                   _ctx: &mut Context,
+                   args: &[Value<'static>])
+                   -> DuktapeResult<Value<'static>> {
+            // println!("RUST CLS {:?}", args);
             let mut value: i8 = -1;
 
             if let Value::Number(arg) = args[0] {
@@ -61,11 +63,12 @@ pub mod plugin {
             Ok(Value::Number(0.))
         }
 
-        pub fn music(&self, _ctx: &mut Context, args: &[Value<'static>]) -> 
-            DuktapeResult<Value<'static>>
-        {
+        pub fn music(&self,
+                     _ctx: &mut Context,
+                     args: &[Value<'static>])
+                     -> DuktapeResult<Value<'static>> {
             let mut id: i32 = -1;
-            let mut filename: String= "".to_string();
+            let mut filename: String = "".to_string();
             let mut channel: i32 = -1;
             let mut start_position: i32 = 0;
             let mut loops: i32 = 0;
@@ -91,15 +94,16 @@ pub mod plugin {
             }
 
             self.sound[0].lock().unwrap().music(id, filename, channel, loops, start_position);
-            
+
             Ok(Value::Number(0.))
         }
 
-        pub fn sfx(&self, _ctx: &mut Context, args: &[Value<'static>]) -> 
-            DuktapeResult<Value<'static>>
-        {
+        pub fn sfx(&self,
+                   _ctx: &mut Context,
+                   args: &[Value<'static>])
+                   -> DuktapeResult<Value<'static>> {
             let mut id: i32 = -1;
-            let mut filename: String= "".to_string();
+            let mut filename: String = "".to_string();
             let mut channel: i32 = -1;
             let mut note: u16 = 13312;
             let mut panning: i32 = 64;
@@ -135,14 +139,15 @@ pub mod plugin {
             }
 
             self.sound[0].lock().unwrap().sfx(id, filename, channel, note, panning, rate, loops);
-            
+
             Ok(Value::Number(0.))
         }
 
-        pub fn btnp(&self, _ctx: &mut Context, args: &[Value<'static>]) -> 
-            DuktapeResult<Value<'static>>
-        {
-           // info!("RUST BTNP {:?}", args);
+        pub fn btnp(&self,
+                    _ctx: &mut Context,
+                    args: &[Value<'static>])
+                    -> DuktapeResult<Value<'static>> {
+            // info!("RUST BTNP {:?}", args);
             let mut p: u8 = 0;
             let mut x: u8 = 0;
 
@@ -159,17 +164,19 @@ pub mod plugin {
             Ok(Value::Bool(value))
         }
 
-        pub fn unicorn_time(&self, _ctx: &mut Context, args: &[Value<'static>]) -> 
-            DuktapeResult<Value<'static>>
-        {
-           // info!("RUST TIME {:?}", args);
+        pub fn unicorn_time(&self,
+                            _ctx: &mut Context,
+                            args: &[Value<'static>])
+                            -> DuktapeResult<Value<'static>> {
+            // info!("RUST TIME {:?}", args);
 
             Ok(Value::Number(self.info[0].lock().unwrap().time() as f64))
         }
 
-        pub fn print(&self, _ctx: &mut Context, args: &[Value<'static>]) -> 
-            DuktapeResult<Value<'static>>
-        {
+        pub fn print(&self,
+                     _ctx: &mut Context,
+                     args: &[Value<'static>])
+                     -> DuktapeResult<Value<'static>> {
             let mut text: String = "".to_string();
             let mut x: i32 = 0;
             let mut y: i32 = 0;
@@ -179,7 +186,7 @@ pub mod plugin {
                 return Ok(Value::Number(-1.));
             }
 
-            //info!("RUST PRINT {:?}", args);
+            // info!("RUST PRINT {:?}", args);
 
             if let Value::String(ref n) = args[0] {
                 text = n.to_string();
@@ -188,7 +195,7 @@ pub mod plugin {
             if let Value::Number(n) = args[1] {
                 x = n as i32;
             }
-            
+
             if let Value::Number(n) = args[2] {
                 y = n as i32;
             }
@@ -197,24 +204,25 @@ pub mod plugin {
                 Value::Number(n) => color = n as i32,
                 _ => (),
             }
-        
+
             self.screen[0].lock().unwrap().print(text, x, y, color);
 
             Ok(Value::Number(0.))
         }
 
-        pub fn pset(&self, _ctx: &mut Context, args: &[Value<'static>]) -> 
-            DuktapeResult<Value<'static>>
-        {
+        pub fn pset(&self,
+                    _ctx: &mut Context,
+                    args: &[Value<'static>])
+                    -> DuktapeResult<Value<'static>> {
             let mut x: i32 = 0;
             let mut y: i32 = 0;
             let mut color: i32 = -1;
 
             if args.len() < 2 {
-                return Ok(Value::Number(-1.))
+                return Ok(Value::Number(-1.));
             }
 
-            //println!("RUST PSET {:?}", args);
+            // println!("RUST PSET {:?}", args);
 
             if let Value::Number(n) = args[0] {
                 x = n as i32;
@@ -234,9 +242,10 @@ pub mod plugin {
             Ok(Value::Number(0.))
         }
 
-        pub fn spr(&self, _ctx: &mut Context, args: &[Value<'static>]) -> 
-            DuktapeResult<Value<'static>>
-        {            
+        pub fn spr(&self,
+                   _ctx: &mut Context,
+                   args: &[Value<'static>])
+                   -> DuktapeResult<Value<'static>> {
             let mut n: u32 = 0;
             let mut x: i32 = 0;
             let mut y: i32 = 0;
@@ -249,12 +258,12 @@ pub mod plugin {
                 return Ok(Value::Number(-1.));
             }
 
-            //info!("RUST SPR {:?}", args);
+            // info!("RUST SPR {:?}", args);
 
             if let Value::Number(arg) = args[0] {
                 n = arg as u32;
             }
-            
+
             if let Value::Number(arg) = args[1] {
                 x = arg as i32;
             }
@@ -279,15 +288,16 @@ pub mod plugin {
                 flip_y = arg as bool;
             }
 
-        
+
             self.screen[0].lock().unwrap().spr(n, x, y, w, h, flip_x, flip_y);
 
             Ok(Value::Number(0.))
         }
 
-    pub fn sspr(&self, _ctx: &mut Context, args: &[Value<'static>]) -> 
-            DuktapeResult<Value<'static>>
-        {
+        pub fn sspr(&self,
+                    _ctx: &mut Context,
+                    args: &[Value<'static>])
+                    -> DuktapeResult<Value<'static>> {
             let mut sx: u32 = 0;
             let mut sy: u32 = 0;
             let mut sw: u32 = 0;
@@ -300,24 +310,24 @@ pub mod plugin {
             let mut flip_x: bool = false;
             let mut flip_y: bool = false;
 
-            //info!("RUST SSPR {:?}", args);
+            // info!("RUST SSPR {:?}", args);
 
             if let Value::Number(arg) = args[0] {
                 sx = arg as u32;
             }
-            
+
             if let Value::Number(arg) = args[1] {
                 sy = arg as u32;
             }
-            
+
             if let Value::Number(arg) = args[2] {
                 sw = arg as u32;
             }
-            
+
             if let Value::Number(arg) = args[3] {
                 sh = arg as u32;
             }
-            
+
             if let Value::Number(arg) = args[4] {
                 dx = arg as i32;
             }
@@ -346,15 +356,16 @@ pub mod plugin {
                 flip_y = arg as bool;
             }
 
-        
+
             self.screen[0].lock().unwrap().sspr(sx, sy, sw, sh, dx, dy, dw, dh, flip_x, flip_y);
 
             Ok(Value::Number(0.))
         }
-        
-         pub fn sspr2(&self, _ctx: &mut Context, args: &[Value<'static>]) -> 
-            DuktapeResult<Value<'static>>
-        {
+
+        pub fn sspr2(&self,
+                     _ctx: &mut Context,
+                     args: &[Value<'static>])
+                     -> DuktapeResult<Value<'static>> {
             let mut sx: u32 = 0;
             let mut sy: u32 = 0;
             let mut sw: u32 = 0;
@@ -370,19 +381,19 @@ pub mod plugin {
             if let Value::Number(arg) = args[0] {
                 sx = arg as u32;
             }
-            
+
             if let Value::Number(arg) = args[1] {
                 sy = arg as u32;
             }
-            
+
             if let Value::Number(arg) = args[2] {
                 sw = arg as u32;
             }
-            
+
             if let Value::Number(arg) = args[3] {
                 sh = arg as u32;
             }
-            
+
             if let Value::Number(arg) = args[4] {
                 dx = arg as i32;
             }
@@ -407,34 +418,39 @@ pub mod plugin {
                 flip_y = arg as bool;
             }
 
-            self.screen[0].lock().unwrap().sspr2(sx, sy, sw, sh, dx, dy, angle, zoom, flip_x, flip_y);
+            self.screen[0]
+                .lock()
+                .unwrap()
+                .sspr2(sx, sy, sw, sh, dx, dy, angle, zoom, flip_x, flip_y);
 
             Ok(Value::Number(0.))
         }
 
-        pub fn pal(&self, _ctx: &mut Context, args: &[Value<'static>]) -> 
-            DuktapeResult<Value<'static>>
-        {
-           // println!("RUST CLS {:?}", args);
+        pub fn pal(&self,
+                   _ctx: &mut Context,
+                   args: &[Value<'static>])
+                   -> DuktapeResult<Value<'static>> {
+            // println!("RUST CLS {:?}", args);
             let mut c0: i32 = -1;
             let mut c1: i32 = -1;
 
             if let Value::Number(arg) = args[0] {
                 c0 = arg as i32;
-            } 
+            }
 
             if let Value::Number(arg) = args[1] {
                 c1 = arg as i32;
-            } 
+            }
 
             self.screen[0].lock().unwrap().pal(c0, c1);
 
             Ok(Value::Number(0.))
         }
 
-        pub fn circ(&self, _ctx: &mut Context, args: &[Value<'static>]) -> 
-            DuktapeResult<Value<'static>>
-        {
+        pub fn circ(&self,
+                    _ctx: &mut Context,
+                    args: &[Value<'static>])
+                    -> DuktapeResult<Value<'static>> {
             let mut x: i32 = -1;
             let mut y: i32 = -1;
             let mut r: i32 = -1;
@@ -442,28 +458,29 @@ pub mod plugin {
 
             if let Value::Number(arg) = args[0] {
                 x = arg as i32;
-            } 
+            }
 
             if let Value::Number(arg) = args[1] {
                 y = arg as i32;
-            } 
+            }
 
             if let Value::Number(arg) = args[2] {
                 r = arg as i32;
-            } 
+            }
 
             if let Value::Number(arg) = args[3] {
                 color = color as i32;
-            } 
+            }
 
             self.screen[0].lock().unwrap().circ(x, y, r, color);
 
             Ok(Value::Number(0.))
         }
 
-        pub fn circfill(&self, _ctx: &mut Context, args: &[Value<'static>]) -> 
-            DuktapeResult<Value<'static>>
-        {
+        pub fn circfill(&self,
+                        _ctx: &mut Context,
+                        args: &[Value<'static>])
+                        -> DuktapeResult<Value<'static>> {
             let mut x: i32 = -1;
             let mut y: i32 = -1;
             let mut r: i32 = -1;
@@ -471,28 +488,29 @@ pub mod plugin {
 
             if let Value::Number(arg) = args[0] {
                 x = arg as i32;
-            } 
+            }
 
             if let Value::Number(arg) = args[1] {
                 y = arg as i32;
-            } 
+            }
 
             if let Value::Number(arg) = args[2] {
                 r = arg as i32;
-            } 
+            }
 
             if let Value::Number(arg) = args[3] {
                 color = arg as i32;
-            } 
+            }
 
             self.screen[0].lock().unwrap().circfill(x, y, r, color);
 
             Ok(Value::Number(0.))
         }
 
-        pub fn line(&self, _ctx: &mut Context, args: &[Value<'static>]) -> 
-            DuktapeResult<Value<'static>>
-        {
+        pub fn line(&self,
+                    _ctx: &mut Context,
+                    args: &[Value<'static>])
+                    -> DuktapeResult<Value<'static>> {
             let mut x1: i32 = -1;
             let mut y1: i32 = -1;
             let mut x2: i32 = -1;
@@ -501,23 +519,23 @@ pub mod plugin {
 
             if let Value::Number(arg) = args[0] {
                 x1 = arg as i32;
-            } 
+            }
 
             if let Value::Number(arg) = args[1] {
                 y1 = arg as i32;
-            } 
+            }
 
             if let Value::Number(arg) = args[2] {
                 x2 = arg as i32;
-            } 
+            }
 
             if let Value::Number(arg) = args[3] {
                 y2 = arg as i32;
-            } 
+            }
 
             if let Value::Number(arg) = args[4] {
                 color = arg as i32;
-            } 
+            }
 
             self.screen[0].lock().unwrap().line(x1, y1, x2, y2, color);
 
@@ -526,10 +544,13 @@ pub mod plugin {
     }
 
     impl Foo for JavascriptPluginRust {
-        fn dispatch(&mut self, _ctx: &mut Context, args: &[Value<'static>]) -> DuktapeResult<Value<'static>> {
-          //  println!("I'm here {:?}", args);
-          //  println!("CONTEXT {:?}", _ctx.dump_context());
-            
+        fn dispatch(&mut self,
+                    _ctx: &mut Context,
+                    args: &[Value<'static>])
+                    -> DuktapeResult<Value<'static>> {
+            //  println!("I'm here {:?}", args);
+            //  println!("CONTEXT {:?}", _ctx.dump_context());
+
             if let Value::Number(function_idx) = args[0] {
                 let args = &args[1..args.len()];
 
@@ -607,7 +628,7 @@ pub mod plugin {
             if !self.loaded_code {
                 return;
             }
-            
+
             match self.ctx.eval("_init();") {
                 Result::Ok(_) => (),
                 Result::Err(err) => warn!("Error during the init function {:?}", err),
@@ -651,6 +672,48 @@ pub mod plugin {
             }
 
             self.loaded_code
+        }
+    }
+}
+
+#[cfg(not(feature = "duktape"))]
+pub mod plugin {
+    use std::sync::{Arc, Mutex};
+
+    use config::Players;
+
+    use unicorn::noise::Noise;
+    use unicorn::info::Info;
+    use sound::sound::Sound;
+
+    use gfx::Screen;
+
+
+    pub struct JavascriptPlugin {}
+
+    impl JavascriptPlugin {
+        pub fn new() -> JavascriptPlugin {
+            JavascriptPlugin {}
+        }
+
+        // Keep the compatibility
+        pub fn load(&mut self,
+                    _players: Arc<Mutex<Players>>,
+                    _info: Arc<Mutex<Info>>,
+                    _screen: Arc<Mutex<Screen>>,
+                    _noise: Arc<Mutex<Noise>>,
+                    _sound: Arc<Mutex<Sound>>) {
+            panic!("Javascript plugin disabled");
+        }
+        pub fn load_code(&mut self, _data: String) -> bool {
+            false
+        }
+        pub fn init(&mut self) {}
+        pub fn draw(&mut self) -> bool {
+            false
+        }
+        pub fn update(&mut self) -> bool {
+            false
         }
     }
 }

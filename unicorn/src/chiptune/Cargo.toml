@@ -13,6 +13,11 @@ license = "MIT"
 build = "build.rs"
 links = "chiptune"
 
+[features]
+default = []
+libksnd = []
+
+
 [lib]
 name = "chiptune"
 path = "src/lib.rs"

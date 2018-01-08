@@ -5,6 +5,7 @@ extern crate unicorn_plugin_lua;
 #[macro_use]
 extern crate cpython;
 
+#[cfg(feature = "duktape")]
 extern crate duktape;
 
 extern crate chiptune;
