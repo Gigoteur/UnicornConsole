@@ -167,6 +167,11 @@ impl CartridgePalette {
         data
     }
 
+    pub fn set_colors(&mut self, colors: HashMap<u32, RGB>) {
+        self.colors.clear();
+        self.colors.extend(colors);
+    }
+
 }
 
 pub struct CartridgeCode {

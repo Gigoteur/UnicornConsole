@@ -78,7 +78,7 @@ impl Palette {
         self.colors.clear();
     }
 
-    pub fn set_color(&mut self, color: u32, r: u8, g: u8, b: u8) {
+    pub fn _set_color(&mut self, color: u32, r: u8, g: u8, b: u8) {
         let u32_color = (r as u32) << 16 | (g as u32) << 8 | (b as u32);
 
         self.colors.insert(color, RGB::new(r, g, b));
@@ -88,9 +88,15 @@ impl Palette {
         }
     }
 
+    pub fn set_color(&mut self, color: u32, r: u8, g: u8, b: u8) {
+        if color >= 16 {
+            self._set_color(color, r, g, b);
+        }
+    }
+
     pub fn set_colors(&mut self, colors: HashMap<u32, RGB>) {
         for (color, values) in colors {
-            self.set_color(color, values.r, values.g, values.b);
+            self._set_color(color, values.r, values.g, values.b);
         }
     }
 
@@ -484,7 +490,7 @@ impl Palettes {
             PALETTE
                 .lock()
                 .unwrap()
-                .set_color(idx as u32, rgb_value.r, rgb_value.g, rgb_value.b);
+                ._set_color(idx as u32, rgb_value.r, rgb_value.g, rgb_value.b);
         }
 
         self.name = name.to_string();
@@ -498,9 +504,20 @@ impl Palettes {
         PALETTE.lock().unwrap().set_colors(colors);
     }
 
-
     pub fn get_color(&mut self, color: u32) -> u32 {
         PALETTE.lock().unwrap().get_color(color)
+    }
+
+    pub fn get_colors(&mut self) -> HashMap<u32, RGB> {
+        let mut colors = HashMap::new();
+
+        for (key, value) in PALETTE.lock().unwrap().colors.clone() {
+            if key >= 16 {
+                colors.insert(key, value);
+            }
+        }
+
+        colors
     }
 
     pub fn reset(&mut self) {
@@ -999,6 +1016,8 @@ impl Unicorn {
         cartridge.map.set_map(screen.map.clone());
         info!("[Unicorn][SAVE] Set the new flags");
         cartridge.gff.set_flags(screen.sprites.clone());
+        info!("[Unicorn][SAVE] Set the new palette");
+        cartridge.palette.set_colors(self.palettes.lock().unwrap().get_colors());
 
         match cartridge.format {
             CartridgeFormat::UnicornFormat => {
