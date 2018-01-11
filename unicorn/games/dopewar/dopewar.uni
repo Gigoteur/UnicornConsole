@@ -6,12 +6,36 @@ import math
 
 flr=math.floor
 
+B = []
+
+
+class Bullet(object):
+    def __init__(self, x, y, angle):
+        self.speed = 10
+        self.angle = angle
+        self.x = x
+        self.y = y
+
+    def update(self):
+        self.x += float(math.cos(self.angle) * self.speed)
+        self.y += float(math.sin(self.angle) * self.speed)
+
+    def draw(self):
+        pset(self.x, self.y, 7)
+
+
 class Entity(object):
     def __init__(self):
         self.rot = 0
         self.rot_rad = 0
         self.x = 200
         self.y = 100
+        self.gun_x = 0
+        self.gun_y = 0
+
+    def update(self):
+        pass
+
 
     def draw(self):
         sw = 32
@@ -32,11 +56,8 @@ class Entity(object):
         y_track = int((self.y+dh/2) - (radius * math.sin(self.rot_rad)))
         pset(x_track, y_track, 8)
 
-        #self.rot += 0.01
-
-        #rect(self.x, self.y, self.x + 32, self.y+17, 7)
-        #pset(self.x + sw/2, self.y + sh/2, 8)
-        #sspr(0, 0, 32, 17, self.x, self.y)
+        if mouse_state() == 1:
+            B.append(Bullet(x_track, y_track, self.rot_rad*-1))
 
     def old_draw(self):
         r=flr(self.rot*20)/20
@@ -108,12 +129,21 @@ def _init2():
     P.draw()
 
 def _update():
-    pass
+    global P, B
 
-def _draw():  
+    P.update()
+    for b in B:
+        b.update()
+
+def _draw():
+    global P, B
+
     cls(2)
     P.draw()
-    
+
+    for b in B:
+        b.draw()
+
 __palette__
 31 46 46 46
 32 64 64 64

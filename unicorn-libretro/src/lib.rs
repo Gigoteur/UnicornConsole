@@ -173,6 +173,19 @@ impl libretro_backend::Core for UnicornCore {
             .unwrap()
             .set_mouse_y(self.mouse_y as i32);
 
+        let left = handle.mouse_click_left() == 1;
+        let right = handle.mouse_click_right() == 1;
+        let middle = handle.mouse_click_middle() == 1;
+        
+        self.uc
+            .players
+            .lock()
+            .unwrap()
+            .mouse_button_down(left,
+                               right,
+                               middle,
+                               self.uc.info.lock().unwrap().elapsed_time);
+
         self.uc.update();
         self.uc.draw();
         self.uc.update_sound();
