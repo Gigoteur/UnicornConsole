@@ -13,11 +13,6 @@ license = "MIT"
 build = "build.rs"
 links = "duktape"
 
-[lib]
-name = "duktape"
-path = "src/lib.rs"
-crate-type = ["staticlib", "rlib"]
-
 [build-dependencies]
 gcc = "0.3"
 

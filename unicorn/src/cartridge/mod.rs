@@ -41,22 +41,8 @@ __sfx__
 
 __music__
 
-
-
-
-
 */
 
-fn read_string(v: &mut Vec<u8>, size: usize) -> String {
-    let u: Vec<_> = v.drain(0..size * 2).collect();
-
-    let z = vec![(u[1] << 4) | u[0],
-                 (u[3] << 4) | u[2],
-                 (u[5] << 4) | u[4],
-                 (u[7] << 4) | u[6]];
-
-    str::from_utf8(&z).unwrap().to_string()
-}
 
 fn read_u8(v: &mut Vec<u8>) -> usize {
     let u: Vec<_> = v.drain(0..2).collect();
