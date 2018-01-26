@@ -27,11 +27,7 @@ macro_rules! assert_stack_height_unchanged {
     ($ctx:ident, $body:block) => {
         {
             let initial_stack_height = ffi::duk_get_top($ctx.C);
-         //   println!("INIT {:?}", initial_stack_height);
-
             let result = $body;
-          //  println!("END {:?}", ffi::duk_get_top($ctx.C));
-
             assert_eq!(initial_stack_height, ffi::duk_get_top($ctx.C));
             result
         }
@@ -125,31 +121,7 @@ impl Context {
         self.eval_from("<eval>", code)
     }
   
-   /* pub fn call(&mut self, fn_name: &str, args: &[&DuktapeEncodable]) ->
-        DuktapeResult<Value<'static>>
-    {
-        unsafe {
-            assert_stack_height_unchanged!(self, {
-                ffi::duk_push_global_object(self.C);
-                ffi::duk_get_prop_string(self.C, -1, fn_name.as_ptr() as *const i8);
-                {
-                    let mut encoder = Encoder::new(self.C);
-                    for arg in args.iter() {
-                        //println!("ARG {:?}", arg);
-                        (*arg).duktape_encode(&mut encoder).unwrap();
-                    }
-                }
-                let status = ffi::duk_pcall(self.C, args.len() as i32);
-                let result = self.pop_result(status);
-                ffi::duk_pop(self.C); // Remove global object.
-                result
-            })
-        }
-    }*/
-
     unsafe fn get(&mut self, idx: ffi::duk_idx_t) -> DuktapeResult<Value<'static>> {
-     //   println!("GET {:?}", idx);
-
         match ffi::duk_get_type(self.C, idx) {
             ffi::DUK_TYPE_UNDEFINED => Ok(Value::Undefined),
             ffi::DUK_TYPE_NULL => Ok(Value::Null),
@@ -170,8 +142,6 @@ impl Context {
     }
 
     pub unsafe fn push_old(&mut self, val: &Value) {
-     //   println!("PUSH OLD {:?}", val);
-
         match val {
             &Value::Undefined => ffi::duk_push_undefined(self.C),
             &Value::Null => ffi::duk_push_null(self.C),
@@ -179,7 +149,6 @@ impl Context {
             &Value::Number(v) => ffi::duk_push_number(self.C, v),
             &Value::String(ref v) => {
                 let encoded = to_cesu8(v);
-                //let buf = encoded.deref();
                 ffi::duk_push_lstring(self.C, encoded.as_ptr() as *const c_char,
                                       encoded.len() as ffi::duk_size_t);
             }
@@ -188,9 +157,7 @@ impl Context {
 
     unsafe fn get_result(&mut self, status: ffi::duk_int_t) ->
         DuktapeResult<Value<'static>>
-    {
-     //   println!("GET RESULT");
-        
+    {        
         if status == ffi::DUK_EXEC_SUCCESS {
             self.get(-1)
         } else {
@@ -204,11 +171,8 @@ impl Context {
     pub unsafe fn pop_result(&mut self, status: ffi::duk_int_t) ->
         DuktapeResult<Value<'static>>
     {
-       // println!("POP RESULT");
-        
         let result = self.get_result(status);
         ffi::duk_pop(self.C);
-      //  println!("RESULT {:?}", result);
 
         result
     }
@@ -219,44 +183,21 @@ impl Context {
         unsafe {
             assert_stack_height_unchanged!(self, {
                 ffi::duk_push_global_object(self.C);
-                //println!("CONTEXT {:?}", self.dump_context());
 
                 ffi::duk_push_c_function(self.C, Some(rust_duk_callback), c_arg_count);
-               // println!("CONTEXT {:?}", self.dump_context());
 
                 let cb_obj: Box<Box<Arc<Mutex<Foo>>>> = Box::new(Box::new(obj));
 
                 ffi::duk_push_pointer(self.C,  Box::into_raw(cb_obj) as *mut c_void);
                 
-                //println!("PUSH POINTER");
-                //println!("CONTEXT {:?}", self.dump_context());
                 ffi::duk_set_magic(self.C, -2, magic_value);
 
                 ffi::duk_put_prop_string(self.C, -2, RUST_FN_PROP.as_ptr() as *const c_char);
-                //println!("PUT PROP STRING");
-                //println!("CONTEXT {:?}", self.dump_context());
 
                 let c_str = CString::new(fn_name.as_bytes()).unwrap();
                 ffi::duk_put_prop_string(self.C, -2, c_str.as_ptr() as *const c_char);
-                //println!("PUT PROP STRING");
-                //println!("CONTEXT {:?}", self.dump_context());
 
                 ffi::duk_pop(self.C);
-               // println!("POP");
-
-               // println!("CONTEXT {:?}", self.dump_context());
-                /*
-                ffi::duk_put_prop_string(self.C, -2, RUST_FN_PROP.as_ptr());
-
-                // Store `f` as a hidden property in our function.
-               // let cb: Box<Box<FnMut(&mut Context, &[Value<'static>]) -> errors::DuktapeResult<Value<'static>>>> = Box::new(Box::new(f));
-              //  ffi::duk_push_pointer(self.C, Box::into_raw(cb) as *mut c_void);
-                //ffi::duk_put_prop_string(self.C, -2, RUST_FN_PROP.as_ptr());
-
-                // Store our function in a global property.
-                let c_str = CString::new(fn_name.as_bytes()).unwrap();
-                ffi::duk_put_prop_string(self.C, -2, c_str.as_ptr());
-                ffi::duk_pop(self.C);*/
             })
         }
     }
@@ -272,24 +213,13 @@ impl Drop for Context {
 }
 
 unsafe extern "C" fn rust_duk_callback(ctx: ffi::duk_context) -> ffi::duk_ret_t {
-//    println!("RUST DUK CALLBACK");
-
     assert!(ctx != null_mut());
     let mut ctx = Context::from_borrowed_mut_ptr(ctx);
-    //println!("In callback: {}", ctx.dump_context());
-    
-//    println!("CONTEXT CALLBACK {:?}", ctx.dump_context());
-
-//    println!("MAGIC {:?}", ffi::duk_get_current_magic(ctx.C));
-
 
     ffi::duk_push_current_function(ctx.C);
- //   println!("CONTEXT CALLBACK {:?}", ctx.dump_context());
 
     ffi::duk_get_prop_string(ctx.C, -1, RUST_FN_PROP.as_ptr() as *const c_char);
-    
-    //println!("CONTEXT CALLBACK {:?}", ctx.dump_context());
-    
+        
     let p = ffi::duk_get_pointer(ctx.C, -1);
 
     ffi::duk_pop_n(ctx.C, 2);
@@ -297,8 +227,7 @@ unsafe extern "C" fn rust_duk_callback(ctx: ffi::duk_context) -> ffi::duk_ret_t 
     let f: &mut Box<Arc<Mutex<Foo>>> = transmute(p);
 
     let arg_count = ffi::duk_get_top(ctx.C) as usize;
-   // println!("ARG COUNT {:?}", arg_count);
-
+  
     let mut args = Vec::with_capacity(arg_count+1);
     args.push(Value::Number(ffi::duk_get_current_magic(ctx.C) as f64));
 
@@ -309,15 +238,11 @@ unsafe extern "C" fn rust_duk_callback(ctx: ffi::duk_context) -> ffi::duk_ret_t 
         }
     }
 
-    //println!("args: {:?}", args);
-
     let result =
         abort_on_panic!("unexpected panic in code called from JavaScript", {
             f.lock().unwrap().dispatch(&mut ctx, &args)
         });
-    //println!("RESULT {:?}", result);
 
-        // Return our result.
     match result {
         // No return value.
         Ok(Value::Undefined) => { 0 }

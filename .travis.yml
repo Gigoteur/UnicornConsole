@@ -21,7 +21,7 @@ before_install:
 
 install:
 - sudo apt-get update -q
-- sudo apt-get install libsdl2-dev libsdl2-mixer-dev
+- sudo apt-get install libsdl2-dev
 - export PYTHON_LIB=$(python -c "import sysconfig; print(sysconfig.get_config_var('LIBDIR'))")
 - export LIBRARY_PATH="$LIBRARY_PATH:$PYTHON_LIB"
 - export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$PYTHON_LIB"
@@ -32,27 +32,7 @@ addons:
       - python3
 
 script:
-  - bash ci/script.sh
-
-before_deploy:
-- mkdir PX8
-- cp target/release/px8 PX8/
-- cp -r sys PX8/
-- cp -r examples PX8/
-- cp -r games PX8/
-- tar -zcvf px8-$TRAVIS_TAG-$TARGET.tar.gz PX8
-
-deploy:
-  provider: releases
-  skip_cleanup: true
-  overwrite: true
-  api_key:
-    secure: R42tjaO08EoICVp3+9qD5UgJz3fRydo+B3UJkfp/VGxWilON8tkMmHLxUri+Whgz41WSy7s88BgR2wG/WnY98Lw35fKtQ3WxnVySwoiQixYBUw+LsjMU+9wsqOPICTWTMBG1L6Ad+G0y2EC87qY1pcZxM6/QoHJfoZF+NTI2topZgQMg/0bTlxW674ZR8OiTIwWKkR4LIp0rq8aUiX28LEzkfdYnUCvs3U9mMIeMVLNQsgnoIT8vDTHvYcTN5Yn//O/+k3glOjuCJ4X8gUWrbRfqPajLwT7E6ywXcM9PGb/8RjEIQQlZSafOcxdmPD8HSRKoM6geCVGK2V45IoHRuh1svSmB3UhGDyfBaF6JafC/ViKLBQpFkDqH66fFDMGxYzRfvnW4aWcHeSU5pBJ+39q1eKKaMAWeV4QCLPCfMeq9Fzk6tVdGN9ObRW4oIGkoQTOwHQ+qEI4lw1StyVV5jGedZM6O6Sog61miHu1MZ39bHeGoSVlAZ+u7w5MSN+wBIJwvgCVTeysS7Eu5OeUbmlsHceQceBAOFfoXZWRNykB4ikdoSr5AMva0K+jqx6sVbtMwS3xXoxbzxi0sngjf65ZHoR/qN5FTImCe4l9FqhaxerDXHMuQZ5qxrUErq3+v4Gc9KNJ3GRaBBrQTZwMBV+ijVRJmiYW/ZmFmRyatDF4=
-  file: px8-$TRAVIS_TAG-$TARGET.tar.gz
-  on:
-    condition: $TRAVIS_RUST_VERSION = stable
-    repo: Gigoteur/PX8
-    tags: true
+  - bash unicorn-travis/script.sh
 
 cache: cargo
 before_cache:
