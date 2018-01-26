@@ -266,7 +266,6 @@ impl Drop for Context {
   fn drop(&mut self) {
     if self.owned {
         self.owned = false;
-        println!("Deleted the javascript context");
         unsafe { ffi::duk_destroy_heap(self.C) }
     }
   }

@@ -23,7 +23,7 @@ class Button(object):
     def draw(self):
         rectfill(self.x1, self.y1, self.x2, self.y2, self.color)
         i = 3 if self.clicked else 1
-        px8_print(self.text, self.x1 + 1, self.y1, i)
+        unicorn_print(self.text, self.x1 + 1, self.y1, i)
 
     def is_click(self):
         return self.clicked
@@ -39,7 +39,7 @@ class Text(object):
         pass
     
     def draw(self):
-        px8_print(str(music_position()), self.x, self.y, self.color)
+        unicorn_print(str(music_position()), self.x, self.y, self.color)
 
 class InteractiveNumber(object):
     def __init__(self, x, y, color, volume_fct):
@@ -75,7 +75,7 @@ class InteractiveNumber(object):
     def draw(self):
         rectfill(self.rect_minus[0], self.rect_minus[1], self.rect_minus[2], self.rect_minus[3], self.color)
         rectfill(self.rect_plus[0], self.rect_plus[1], self.rect_plus[2], self.rect_plus[3], self.color)
-        px8_print(str(self.value), self.rect_minus[0]-15, self.rect_minus[1]-4 , 7)
+        unicorn_print(str(self.value), self.rect_minus[0]-15, self.rect_minus[1]-4 , 7)
 
 CHIPTUNE_MENU = {
     'Volume': InteractiveNumber(18, 74, 7, music_volume),
@@ -113,6 +113,6 @@ def _update():
 def _draw():
     cls()
 
-    px8_print("CHIPTUNE", 10, 60, 7)
+    unicorn_print("CHIPTUNE", 10, 60, 7)
     for item in CHIPTUNE_MENU.values():
         item.draw()

@@ -1,4 +1,4 @@
 {
-    "code": "./examples/font/font.py",
-    "data": "./examples/font/font.duc"
+    "code": "../unicorn/examples/font/font.py",
+    "data": "../unicorn/examples/font/font.duc"
 }

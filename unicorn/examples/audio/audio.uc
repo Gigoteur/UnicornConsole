@@ -1,4 +1,4 @@
 {
-    "code": "./examples/audio/audio.py",
-    "data": "./examples/audio/audio.duc"
+    "code": "../unicorn/examples/audio/audio.py",
+    "data": "../unicorn/examples/audio/audio.duc"
 }

@@ -1,4 +1,4 @@
 {
-    "code": "./games/pixelbox/pixelbox.js",
-    "data": "./games/pixelbox/pixelbox.duc"
+    "code": "../unicorn/games/pixelbox/pixelbox.js",
+    "data": "../unicorn/games/pixelbox/pixelbox.duc"
 }
