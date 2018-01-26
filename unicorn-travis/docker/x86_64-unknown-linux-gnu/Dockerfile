@@ -1,5 +1,3 @@
-FROM ubuntu:16.04
-
 RUN apt-get update -q
 
 RUN apt-get update && \
