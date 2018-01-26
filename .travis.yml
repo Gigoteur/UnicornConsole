@@ -2,7 +2,7 @@ language: rust
 services: docker
 sudo: required
 
-rust: stable
+rust: nightly
 
 env:
   global:
@@ -20,18 +20,19 @@ before_install:
 
 install:
 - sudo apt-get update -q
-- sudo apt-get install libsdl2-dev
 - export PYTHON_LIB=$(python -c "import sysconfig; print(sysconfig.get_config_var('LIBDIR'))")
 - export LIBRARY_PATH="$LIBRARY_PATH:$PYTHON_LIB"
 - export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$PYTHON_LIB"
+
+script:
+  - cd unicorn
+  - cargo build --verbose --release
 
 addons:
   apt:
     packages:
       - python3
-
-script:
-  - bash unicorn-travis/script.sh
+      - libsdl2-dev
 
 cache: cargo
 before_cache:
