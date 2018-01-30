@@ -18,6 +18,78 @@ pub mod plugin {
 
     use gfx::Screen;
 
+    /*
+        # GFX                   #    Lua        #    New name   #
+        camera                  #               #               #
+        circ                    #               #               #
+        circfill                #               #               #
+        clip                    #               #               #
+        cls                     #               #               #
+        color                   #               #               #
+        ellipse                 #               #               #
+        ellipsefill             #               #               #
+        fget                    #               #               #
+        font                    #               #               #
+        line                    #               #               #
+        pal                     #               #               #
+        palt                    #               #               #
+        pget                    #               #               #
+        polygon                 #               #               #
+        print                   #               #               #
+        pset                    #               #               #
+        rect                    #               #               #
+        rectfill                #               #               #
+        sget                    #               #               #
+        spr                     #               #               #
+        sset                    #               #               #
+        sspr                    #               #               #
+        sspr_rotazoom           #               #               #
+        trigon                  #               #               #
+        # Audio                 #               #               #
+        music                   #               #               #
+        sfx                     #               #               #
+        music_stop              #               #               #
+        music_volume            #               #               #
+        music_pause             #               #               #
+        music_resume            #               #               #
+        music_stop              #               #               #
+        music_position          #               #               #
+        # Input                 #               #               #
+        btnp                    #               #               #
+        btnp                    #               #               #
+        mouse_x                 #               #               #
+        mouse_y                 #               #               #
+        mouse_state             #               #               #
+        mouse_statep            #               #               #
+        # Map                   #               #               #
+        spr_map                 #               #               #
+        mget                    #               #               #
+        mset                    #               #               #
+        # Noise                 #               #               #
+        noise                   #               #               #
+        noise_set_seed          #               #               #
+        # Palette               #               #               #
+        palette                 #               #               #
+        palette_hexa            #               #               #
+        palette_reset           #               #               #
+        palette_switch          #               #               #
+        # Math                  #               #               #
+        atan2                   #               #               #
+        cos                     #               #               #
+        sin                     #               #               #
+        flr                     #               #               #
+        rnd                     #               #               #
+        srand                   #               #               #
+        mid                     #               #               #
+        bxor                    #               #               #
+        # Memory                #               #               #
+        memcpy                  #               #               #
+        # System                #               #               #
+        time                    #               #               #
+        time_sec                #               #               #
+        show_mouse              #               #               #
+    */
+
     pub struct ExtraData {
         /* External objects */
         pub players: Arc<Mutex<Players>>,

@@ -315,7 +315,7 @@ pub fn write_packet<T: PacketType>(packet: T) -> Result<(Vec<u8>), Error> {
 
     // println!("{:?}", buf);
 
-    Result::Ok((buf))
+    Result::Ok(buf)
 }
 
 pub fn read_packet(buf: Vec<u8>) -> Result<Packet, Error> {

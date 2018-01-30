@@ -273,7 +273,7 @@ impl View {
                 let mut y1 = y as i32 - top_line.1 as i32;
 
                 x1 = x1 * 4;
-                y1 = (y1 * 7);
+                y1 = y1 * 7;
                 
                 rb.rectfill(x1, 16+y1, x1+4, 16+y1+7, 3);
             }

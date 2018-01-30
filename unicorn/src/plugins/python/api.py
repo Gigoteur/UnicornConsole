@@ -4,26 +4,37 @@ from math import frexp, copysign
 from sys import float_info
 
 # Audio
+
+
 def music(id=-1, filename="", loops=0, start_position=0, channel=-1):
     unicorn_audio.chiptune_music(id, filename, channel, loops, start_position)
 
-def sfx(id=-1, filename="", note=13312, panning=64, rate=50, loops=0, channel=-1):
-    unicorn_audio.chiptune_sfx(id, filename, channel, note, panning, rate, loops)
+
+def sfx(id=-1, filename="", note=13312, panning=64,
+        rate=50, loops=0, channel=-1):
+    unicorn_audio.chiptune_sfx(id, filename, channel, note, panning,
+                               rate, loops)
+
 
 def music_stop():
     unicorn_audio.chiptune_stop()
 
+
 def music_pause():
     unicorn_audio.chiptune_pause()
+
 
 def music_resume():
     unicorn_audio.chiptune_resume()
 
+
 def music_volume(volume):
     unicorn_audio.chiptune_volume(volume)
 
+
 def music_position():
     return unicorn_audio.chiptune_position()
+
 
 globals()["music"] = music
 globals()["sfx"] = sfx
@@ -64,8 +75,9 @@ def nearest(x, a, b):
         return a
     return b
 
+
 def rect_getNearestCorner(x,y,w,h, px, py):
-  return nearest(px, x, x+w), nearest(py, y, y+h)
+    return nearest(px, x, x+w), nearest(py, y, y+h)
 
 def rect_getDiff(x1,y1,w1,h1, x2,y2,w2,h2):
     return x2 - x1 - w1, y2 - y1 - h1, w1 + w2, h1 + h2
@@ -390,6 +402,7 @@ def world_draw_debug(camera_x=0, camera_y=0):
     global PX8Collision
     PX8Collision.draw(camera_x, camera_y)
 
+
 globals()["PX8Collision"] = PX8Collision
 globals()["world_add"] = world_add
 globals()["world_check"] = world_check
@@ -399,37 +412,55 @@ globals()["world_draw_debug"] = world_draw_debug
 
 # Graphics
 
+
 def camera(x=-1, y=-1):
     unicorn_graphic.camera(flr(x), flr(y))
 
+
 def circ(x, y, r, color=-1):
-    unicorn_graphic.circ(math.floor(x), math.floor(y), math.floor(r), math.floor(color))
+    unicorn_graphic.circ(math.floor(x), math.floor(y),
+                         math.floor(r), math.floor(color))
+
 
 def circfill(x, y, r, color=-1):
-    unicorn_graphic.circfill(math.floor(x), math.floor(y), math.floor(r), math.floor(color))
+    unicorn_graphic.circfill(math.floor(x), math.floor(y),
+                             math.floor(r), math.floor(color))
+
 
 def clip(x=-1, y=-1, w=-1, h=-1):
-    unicorn_graphic.clip(math.floor(x), math.floor(y), math.floor(w), math.floor(h))
+    unicorn_graphic.clip(math.floor(x), math.floor(y),
+                         math.floor(w), math.floor(h))
+
 
 def cls(value=-1):
     unicorn_graphic.cls(value)
 
+
 def color(col):
     unicorn_graphic.color(col)
 
+
 def ellipse(x, y, rx, ry, color=-1):
-    unicorn_graphic.ellipse(math.floor(x), math.floor(y), math.floor(rx), math.floor(ry), math.floor(color))
+    unicorn_graphic.ellipse(math.floor(x), math.floor(y),
+                            math.floor(rx), math.floor(ry),
+                            math.floor(color))
+
 
 def ellipsefill(x, y, rx, ry, color=-1):
-    unicorn_graphic.ellipsefill(math.floor(x), math.floor(y), math.floor(rx), math.floor(ry), math.floor(color))
+    unicorn_graphic.ellipsefill(math.floor(x), math.floor(y),
+                                math.floor(rx), math.floor(ry),
+                                math.floor(color))
+
 
 def fget(idx_sprite, flag=-1):
     if flag == -1:
         unicorn_graphic.fget_all(idx_sprite)
     return unicorn_graphic.fget(idx_sprite, flag)
 
-def font(name = "pico8"):
+
+def font(name="pico8"):
     unicorn_graphic.font(name)
+
 
 def fset(idx_sprite, flag, value=-1):
     if value == -1:
@@ -437,38 +468,57 @@ def fset(idx_sprite, flag, value=-1):
     else:
         unicorn_graphic.fset(idx_sprite, flag, value)
 
-def line(x1, y1, x2, y2, color=-1):
-    unicorn_graphic.line(math.floor(x1), math.floor(y1), math.floor(x2), math.floor(y2), math.floor(color))
 
-def pal(c0 = -1, c1 = -1, p=0):
+def line(x1, y1, x2, y2, color=-1):
+    unicorn_graphic.line(math.floor(x1), math.floor(y1),
+                         math.floor(x2), math.floor(y2),
+                         math.floor(color))
+
+
+def pal(c0=-1, c1=-1, p=0):
     unicorn_graphic.pal(math.floor(c0), math.floor(c1))
 
-def palt(c = -1, t = False):
+
+def palt(c=-1, t=False):
     unicorn_graphic.palt(math.floor(c), t)
+
 
 def pget(x, y):
     return unicorn_graphic.pget(math.floor(x), math.floor(y))
 
+
 def pset(x, y, color):
     unicorn_graphic.pset(math.floor(x), math.floor(y), math.floor(color))
+
 
 def unicorn_print(str, x=-1, y=-1, col=-1):
     return unicorn_graphic.print(str, x, y, col)
 
+
 def rect(x1, y1, x2, y2, color=-1):
-    unicorn_graphic.rect(math.floor(x1), math.floor(y1), math.floor(x2), math.floor(y2), math.floor(color))
+    unicorn_graphic.rect(math.floor(x1), math.floor(y1),
+                         math.floor(x2), math.floor(y2),
+                         math.floor(color))
+
 
 def rectfill(x1, y1, x2, y2, color=-1):
-    unicorn_graphic.rectfill(math.floor(x1), math.floor(y1), math.floor(x2), math.floor(y2), math.floor(color))
+    unicorn_graphic.rectfill(math.floor(x1), math.floor(y1),
+                             math.floor(x2), math.floor(y2),
+                             math.floor(color))
+
 
 def sget(x, y):
     return unicorn_graphic.sget(x, y)
 
-def spr(n, x, y,  w=1, h=1, flip_x=False, flip_y=False):
-    unicorn_graphic.spr(math.floor(n), math.floor(x), math.floor(y), math.floor(w), math.floor(h), flip_x, flip_y)
+
+def spr(n, x, y, w=1, h=1, flip_x=False, flip_y=False):
+    unicorn_graphic.spr(math.floor(n), math.floor(x), math.floor(y),
+                        math.floor(w), math.floor(h), flip_x, flip_y)
+
 
 def sset(x, y, c=-1):
     unicorn_graphic.sset(x, y, c)
+
 
 def sspr(sx, sy, sw, sh, dx, dy, dw=-1, dh=-1, flip_x=False, flip_y=False):
     if dw == -1:
@@ -479,14 +529,28 @@ def sspr(sx, sy, sw, sh, dx, dy, dw=-1, dh=-1, flip_x=False, flip_y=False):
 
     unicorn_graphic.sspr(sx, sy, sw, sh, dx, dy, dw, dh, flip_x, flip_y)
 
-def sspr2(sx, sy, sw, sh, dx, dy, angle=0.0, zoom=1.0, flip_x=False, flip_y=False):
-    return unicorn_graphic.sspr2(sx, sy, sw, sh, dx, dy, angle, zoom, flip_x, flip_y)
+
+def sspr_rotazoom(idx_sprite, sx, sy, sw, sh, dx, dy,
+                  angle=0.0, zoom=1.0,
+                  flip_x=False, flip_y=False):
+    return unicorn_graphic.sspr_rotazoom(idx_sprite,
+                                         sx, sy,
+                                         sw, sh,
+                                         dx, dy,
+                                         angle, zoom,
+                                         flip_x, flip_y)
+
 
 def trigon(x1, y1, x2, y2, x3, y3, color):
-    unicorn_graphic.trigon(math.floor(x1), math.floor(y1), math.floor(x2), math.floor(y2), math.floor(x3), math.floor(y3), color)
+    unicorn_graphic.trigon(math.floor(x1), math.floor(y1),
+                           math.floor(x2), math.floor(y2),
+                           math.floor(x3), math.floor(y3),
+                           color)
+
 
 def polygon(x, y, color):
     unicorn_graphic.polygon(x, y, color)
+
 
 globals()["camera"] = camera
 globals()["circ"] = circ
@@ -510,33 +574,40 @@ globals()["sget"] = sget
 globals()["spr"] = spr
 globals()["sset"] = sset
 globals()["sspr"] = sspr
-globals()["sspr2"] = sspr2
+globals()["sspr_rotazoom"] = sspr_rotazoom
 globals()["trigon"] = trigon
 globals()["polygon"] = polygon
 
 # Input
+
 
 def btn(x, p=0):
     if type(x) == int:
         return unicorn_input.btn(x, p)
     return unicorn_input.btn2(ord(x))
 
+
 def btnp(x, p=0):
     if type(x) == int:
         return unicorn_input.btnp(x, p)
     return unicorn_input.btnp2(ord(x))
 
+
 def mouse_x():
     return unicorn_input.btn_mouse(0)
+
 
 def mouse_y():
     return unicorn_input.btn_mouse(1)
 
+
 def mouse_state():
     return unicorn_input.btn_mouse_state()
 
+
 def mouse_statep():
     return unicorn_input.btn_mouse_statep()
+
 
 globals()["btn"] = btn
 globals()["btnp"] = btnp
@@ -548,38 +619,50 @@ globals()["mouse_statep"] = mouse_statep
 
 # Map
 
+
 def spr_map(cel_x, cel_y, sx, sy, cel_w, cel_h, layer=0):
     unicorn_map.spr_map(cel_x, cel_y, sx, sy, cel_w, cel_h, layer)
+
 
 def mget(x, y):
     return unicorn_map.mget(math.floor(x), math.floor(y))
 
+
 def mset(x, y, v):
     unicorn_map.mset(math.floor(x), math.floor(y), math.floor(v))
+
 
 globals()["spr_map"] = spr_map
 globals()["mget"] = mget
 globals()["mset"] = mset
 
 # Math
+
+
 def atan2(x, y):
     v = math.atan2(x,y)
-    return (((v - math.pi) / (math.pi*2)) + 0.25) % 1.0
+    return (((v - math.pi) / (math.pi * 2)) + 0.25) % 1.0
+
 
 def cos(x):
-    return math.cos((x or 0)*(math.pi*2))
+    return math.cos((x or 0) * (math.pi * 2))
+
 
 def sin(x):
-    return math.sin(-(x or 0)*(math.pi*2))
+    return math.sin(-(x or 0) * (math.pi * 2))
+
 
 def flr(x):
     return math.floor(x)
 
+
 def rnd(x):
     return random.random() * x
 
+
 def srand(x):
     return random.seed(x)
+
 
 def mid(x,y,z):
     x = x or 0
@@ -587,8 +670,10 @@ def mid(x,y,z):
     z = z or 0
     return x > y and x or y > z and z or y
 
+
 def bxor(a,b):
     return int(a) ^ int(b)
+
 
 globals()["atan2"] = atan2
 globals()["ceil"] = math.ceil
@@ -601,54 +686,69 @@ globals()["mid"] = mid
 globals()["bxor"] = bxor
 
 # Memory
+
+
 def memcpy(dest_addr, source_addr, len_buff):
     unicorn_mem.memcpy(dest_addr, source_addr, len_buff)
 
+
 globals()["memcpy"] = memcpy
 
+
 # Palette
+
 def palette(col, r, g, b):
     unicorn_palette.set_color(col, r, g, b)
+
 
 def palette_hexa(col, value):
     r = (value & 0xFF0000) >> 16
     g = (value & 0x00FF00) >> 8
     b = (value & 0x0000FF)
-    
     unicorn_palette.set_color(col, r, g, b)
 
-def reset_palette():
+
+def palette_reset():
     unicorn_palette.reset()
 
-def switch_palette(name):
+
+def palette_switch(name):
     unicorn_palette.switch(name)
+
 
 globals()["palette"] = palette
 globals()["palette_hexa"] = palette_hexa
-globals()["reset_palette"] = reset_palette
-globals()["switch_palette"] = switch_palette
+globals()["palette_reset"] = palette_reset
+globals()["palette_switch"] = palette_switch
 
 
 # Noise
 def noise(x, y, z):
     return unicorn_noise.noise(x, y, z)
+
+
 def noise_set_seed(seed):
     return unicorn_noise.noise_set_seed(seed)
+
+
 globals()["noise"] = noise
 globals()["noise_set_seed"] = noise_set_seed
 
-# Others
+# System
+
+
 def unicorn_time():
     return unicorn_sys.time()
+
 
 def unicorn_time_sec():
     return unicorn_sys.time_sec()
 
+
 def show_mouse(value=True):
     unicorn_sys.show_mouse(value)
+
 
 globals()["unicorn_time"] = unicorn_time
 globals()["unicorn_time_sec"] = unicorn_time_sec
 globals()["show_mouse"] = show_mouse
-
-

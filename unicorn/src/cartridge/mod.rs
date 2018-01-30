@@ -50,15 +50,6 @@ fn read_u8(v: &mut Vec<u8>) -> usize {
     ((u[1] as usize) << 4) | u[0] as usize
 }
 
-fn read_u16(v: &mut Vec<u8>) -> usize {
-    let u: Vec<_> = v.drain(0..4).collect();
-
-    let x1 = ((u[1] as usize) << 4) | u[0] as usize;
-    let x2 = ((u[3] as usize) << 4) | u[2] as usize;
-
-    x1 << 8 | x2
-}
-
 pub struct CartridgeJavascript {
     pub data: String,
 }

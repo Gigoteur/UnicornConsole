@@ -17,15 +17,12 @@ use std::sync::mpsc::{Sender, Receiver};
 use std::sync::mpsc::channel;
 use std::env;
 use std::rc::Rc;
-use std::char;
-
 
 use syntect::highlighting::ThemeSet;
 use syntect::parsing::SyntaxSet;
 
 use unicorn::UnicornConfig;
 use unicorn::editor::State;
-use config::scancode::Scancode;
 
 use gfx::Screen;
 use config::Players;

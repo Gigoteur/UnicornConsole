@@ -177,9 +177,11 @@ impl PianoKeyboard {
         false
     }
 
-    pub fn update(&mut self, mouse_state: u32, mouse_x: i32, mouse_y: i32, players: Arc<Mutex<Players>>) {
+    pub fn update(&mut self, mouse_state: u32,
+                  mouse_x: i32, mouse_y: i32,
+                  _players: Arc<Mutex<Players>>) {
         if mouse_state == 1 {
-            for (key, touch) in self.touches.iter_mut() {
+            for (_, touch) in self.touches.iter_mut() {
                 if touch.is_click(mouse_x, mouse_y) {
                     touch.active2 = true;
                 } else {
@@ -187,7 +189,7 @@ impl PianoKeyboard {
                 }
             }
         } else {
-            for (key, touch) in self.touches.iter_mut() {
+            for (_, touch) in self.touches.iter_mut() {
                 touch.active2 = false;
             }
 
@@ -340,7 +342,7 @@ impl ProgamValueUnit {
         self.y = y;
     }
 
-    pub fn update(&mut self, mouse_state: u32, mouse_x: i32, mouse_y: i32, players: Arc<Mutex<Players>>) {
+    pub fn update(&mut self, _mouse_state: u32, mouse_x: i32, mouse_y: i32, players: Arc<Mutex<Players>>) {
         self.modified = false;
 
         if point_in_rect(mouse_x, mouse_y, self.x-1, self.y-1, self.x+5, self.y+7) {
@@ -463,18 +465,22 @@ pub struct TrackEditor {
 }
 
 impl TrackEditor {
-    pub fn new(state: Arc<Mutex<State>>) -> TrackEditor {
+    pub fn new(_state: Arc<Mutex<State>>) -> TrackEditor {
         TrackEditor {
             idx: -1,
         }
     }
 
-    pub fn init(&mut self, screen: &mut Screen) {
+    pub fn init(&mut self, _screen: &mut Screen) {
         info!("[EDITOR][MUSIC][TRACK] Init");
     }
     
-    pub fn update(&mut self, cartridge: &mut UnicornCartridge, players: Arc<Mutex<Players>>, sound_internal: Arc<Mutex<SoundInternal>>, sound: Arc<Mutex<Sound>>) -> bool {
-        let sound_internal = sound_internal.lock().unwrap();
+    pub fn update(&mut self,
+                  cartridge: &mut UnicornCartridge,
+                  _players: Arc<Mutex<Players>>,
+                  sound_internal: Arc<Mutex<SoundInternal>>,
+                  _sound: Arc<Mutex<Sound>>) -> bool {
+        let _sound_internal = sound_internal.lock().unwrap();
 
         if cartridge.music_track.len() == 0 {
             info!("[EDITOR][MUSIC][TRACK] Create new song");
@@ -488,7 +494,7 @@ impl TrackEditor {
         true
     }
     
-    pub fn draw(&mut self, screen: &mut Screen) {
+    pub fn draw(&mut self, _screen: &mut Screen) {
     }
 }
 

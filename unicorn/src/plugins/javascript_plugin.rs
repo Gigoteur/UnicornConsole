@@ -14,6 +14,79 @@ pub mod plugin {
 
     use gfx::Screen;
 
+
+    /*
+        # GFX                   #  Javascript   #    New name   #
+        camera                  #               #               #
+        circ                    #               #               #
+        circfill                #               #               #
+        clip                    #               #               #
+        cls                     #               #               #
+        color                   #               #               #
+        ellipse                 #               #               #
+        ellipsefill             #               #               #
+        fget                    #               #               #
+        font                    #               #               #
+        line                    #               #               #
+        pal                     #               #               #
+        palt                    #               #               #
+        pget                    #               #               #
+        polygon                 #               #               #
+        print                   #               #               #
+        pset                    #               #               #
+        rect                    #               #               #
+        rectfill                #               #               #
+        sget                    #               #               #
+        spr                     #               #               #
+        sset                    #               #               #
+        sspr                    #               #               #
+        sspr_rotazoom           #               #               #
+        trigon                  #               #               #
+        # Audio                 #               #               #
+        music                   #               #               #
+        sfx                     #               #               #
+        music_stop              #               #               #
+        music_volume            #               #               #
+        music_pause             #               #               #
+        music_resume            #               #               #
+        music_stop              #               #               #
+        music_position          #               #               #
+        # Input                 #               #               #
+        btnp                    #               #               #
+        btnp                    #               #               #
+        mouse_x                 #               #               #
+        mouse_y                 #               #               #
+        mouse_state             #               #               #
+        mouse_statep            #               #               #
+        # Map                   #               #               #
+        spr_map                 #               #               #
+        mget                    #               #               #
+        mset                    #               #               #
+        # Noise                 #               #               #
+        noise                   #               #               #
+        noise_set_seed          #               #               #
+        # Palette               #               #               #
+        palette                 #               #               #
+        palette_hexa            #               #               #
+        palette_reset           #               #               #
+        palette_switch          #               #               #
+        # Math                  #               #               #
+        atan2                   #               #               #
+        cos                     #               #               #
+        sin                     #               #               #
+        flr                     #               #               #
+        rnd                     #               #               #
+        srand                   #               #               #
+        mid                     #               #               #
+        bxor                    #               #               #
+        # Memory                #               #               #
+        memcpy                  #               #               #
+        # System                #               #               #
+        time                    #               #               #
+        time_sec                #               #               #
+        show_mouse              #               #               #
+    */
+
     pub struct JavascriptPluginRust {
         info: Vec<Arc<Mutex<Info>>>,
         screen: Vec<Arc<Mutex<Screen>>>,
@@ -131,11 +204,11 @@ pub mod plugin {
             }
 
             if let Value::Number(arg) = args[5] {
-                loops = loops as i32;
+                loops = arg as i32;
             }
 
             if let Value::Number(arg) = args[6] {
-                channel = channel as i32;
+                channel = arg as i32;
             }
 
             self.sound[0].lock().unwrap().sfx(id, filename, channel, note, panning, rate, loops);
@@ -166,7 +239,7 @@ pub mod plugin {
 
         pub fn unicorn_time(&self,
                             _ctx: &mut Context,
-                            args: &[Value<'static>])
+                            _args: &[Value<'static>])
                             -> DuktapeResult<Value<'static>> {
             // info!("RUST TIME {:?}", args);
 
@@ -304,8 +377,8 @@ pub mod plugin {
             let mut sh: u32 = 0;
             let mut dx: i32 = 0;
             let mut dy: i32 = 0;
-            let mut dw: u32 = 0;
-            let mut dh: u32 = 0;
+            let dw: u32;
+            let dh: u32;
 
             let mut flip_x: bool = false;
             let mut flip_y: bool = false;
@@ -362,10 +435,11 @@ pub mod plugin {
             Ok(Value::Number(0.))
         }
 
-        pub fn sspr2(&self,
-                     _ctx: &mut Context,
-                     args: &[Value<'static>])
-                     -> DuktapeResult<Value<'static>> {
+        pub fn sspr_rotazoom(&self,
+                             _ctx: &mut Context,
+                             args: &[Value<'static>])
+                             -> DuktapeResult<Value<'static>> {
+            let mut idx_sprite: i32 = -1;
             let mut sx: u32 = 0;
             let mut sy: u32 = 0;
             let mut sw: u32 = 0;
@@ -379,49 +453,53 @@ pub mod plugin {
             let mut flip_y: bool = false;
 
             if let Value::Number(arg) = args[0] {
-                sx = arg as u32;
+                idx_sprite = arg as i32;
             }
 
             if let Value::Number(arg) = args[1] {
-                sy = arg as u32;
+                sx = arg as u32;
             }
 
             if let Value::Number(arg) = args[2] {
-                sw = arg as u32;
+                sy = arg as u32;
             }
 
             if let Value::Number(arg) = args[3] {
-                sh = arg as u32;
+                sw = arg as u32;
             }
 
             if let Value::Number(arg) = args[4] {
-                dx = arg as i32;
+                sh = arg as u32;
             }
 
             if let Value::Number(arg) = args[5] {
-                dy = arg as i32;
+                dx = arg as i32;
             }
 
             if let Value::Number(arg) = args[6] {
-                angle = arg as f64;
+                dy = arg as i32;
             }
 
             if let Value::Number(arg) = args[7] {
+                angle = arg as f64;
+            }
+
+            if let Value::Number(arg) = args[8] {
                 zoom = arg as f64;
             }
 
-            if let Value::Bool(arg) = args[8] {
+            if let Value::Bool(arg) = args[9] {
                 flip_x = arg as bool;
             }
 
-            if let Value::Bool(arg) = args[9] {
+            if let Value::Bool(arg) = args[10] {
                 flip_y = arg as bool;
             }
 
             self.screen[0]
                 .lock()
                 .unwrap()
-                .sspr2(sx, sy, sw, sh, dx, dy, angle, zoom, flip_x, flip_y);
+                .sspr_rotazoom(idx_sprite, sx, sy, sw, sh, dx, dy, angle, zoom, flip_x, flip_y);
 
             Ok(Value::Number(0.))
         }
@@ -469,7 +547,7 @@ pub mod plugin {
             }
 
             if let Value::Number(arg) = args[3] {
-                color = color as i32;
+                color = arg as i32;
             }
 
             self.screen[0].lock().unwrap().circ(x, y, r, color);
@@ -570,7 +648,7 @@ pub mod plugin {
                     0x11 => return self.circ(_ctx, args),
                     0x12 => return self.circfill(_ctx, args),
                     0x13 => return self.line(_ctx, args),
-                    0x14 => return self.sspr2(_ctx, args),
+                    0x14 => return self.sspr_rotazoom(_ctx, args),
 
                     _ => (),
                 }
@@ -620,7 +698,7 @@ pub mod plugin {
             self.ctx.register(0x11, "circ", self.javascript.clone(), Some(4));
             self.ctx.register(0x12, "circfill", self.javascript.clone(), Some(4));
             self.ctx.register(0x13, "line", self.javascript.clone(), Some(5));
-            self.ctx.register(0x14, "sspr2", self.javascript.clone(), Some(10));
+            self.ctx.register(0x14, "sspr_rotazoom", self.javascript.clone(), Some(11));
 
         }
 

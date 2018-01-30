@@ -9,7 +9,6 @@ use unicorn::UnicornConfig;
 use unicorn::editor::Widget;
 use unicorn::editor::State;
 use unicorn::editor::point_in_rect;
-use unicorn::editor::Button;
 use unicorn;
 
 pub struct PalettePicker {
@@ -935,7 +934,7 @@ impl SpritesMap {
                         0);
         
         for _ in 0..2 {
-            for j in 0..4 {
+            for _ in 0..4 {
                 let mut x = idx_sprites_batch_x;
                 for _ in 0..50 {
                     screen.spr(idx, x, y, 1, 1, false, false);
@@ -1059,7 +1058,7 @@ impl GFXEditor {
         info!("[EDITOR][GFX] Init");
     }
 
-    pub fn update(&mut self, screen: &mut Screen, players: Arc<Mutex<Players>>) -> bool {
+    pub fn update(&mut self, screen: &mut Screen, _players: Arc<Mutex<Players>>) -> bool {
         let mut is_clickable = false;
         for widget in &self.widgets {
             is_clickable = widget.lock().unwrap().is_clickable();
@@ -1102,9 +1101,6 @@ impl GFXEditor {
 
         let width = screen.mode_width() as i32;
         let height = screen.mode_height() as i32;
-
-        let idx_sprites_batch_y = self.state.lock().unwrap().idx_sprites_batch_y;
-        let idx_sprite_info = self.state.lock().unwrap().idx_sprite_info;
 
         // Fill the screen
         screen.rectfill(0, 0, width, height, 5);

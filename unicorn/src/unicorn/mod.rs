@@ -6,16 +6,14 @@ pub mod noise;
 pub mod math;
 pub mod packet;
 pub mod wfc;
+pub mod bump;
 
-use std::fs;
 use std::collections::HashMap;
 use std::io::Cursor;
 use std::sync::{Arc, Mutex};
 use time;
 use std::fmt;
 use std::cmp::max;
-use rand;
-use rand::Rng;
 
 use nalgebra::clamp;
 

@@ -77,7 +77,7 @@ impl Sprite {
     pub fn get_data(&mut self) -> String {
         let mut data = String::new();
 
-        for (i, elem) in self.data.iter_mut().enumerate() {
+        for (_, elem) in self.data.iter_mut().enumerate() {
             data.push_str(&format!("{:?}", elem));
         }
 
@@ -898,8 +898,8 @@ impl Screen {
                     xmj = x - j;
                     xpj = x + j;
                     if i > 0 {
-                        self.hline(xmj, xpj, (y + i), col);
-                        self.hline(xmj, xpj, (y - i), col);
+                        self.hline(xmj, xpj, y + i, col);
+                        self.hline(xmj, xpj, y - i, col);
                     } else {
                         self.hline(xmj, xpj, y, col);
                     }
@@ -909,8 +909,8 @@ impl Screen {
                     xmk = x - k;
                     xpk = x + k;
                     if h > 0 {
-                        self.hline(xmk, xpk, (y + h), col);
-                        self.hline(xmk, xpk, (y - h), col);
+                        self.hline(xmk, xpk, y + h, col);
+                        self.hline(xmk, xpk, y - h, col);
                     } else {
                         self.hline(xmk, xpk, y, col);
                     }
@@ -1229,17 +1229,18 @@ impl Screen {
         }
     }
 
-    pub fn sspr2(&mut self,
-                sx: u32,
-                sy: u32,
-                sw: u32,
-                sh: u32,
-                destx: i32,
-                desty: i32,
-                angle: f64,
-                zoom: f64,
-                flip_x: bool,
-                flip_y: bool) -> (i32, i32) {
+    pub fn sspr_rotazoom(&mut self,
+                         _idx_sprite: i32,
+                         sx: u32,
+                         sy: u32,
+                         sw: u32,
+                         sh: u32,
+                         destx: i32,
+                         desty: i32,
+                         angle: f64,
+                         zoom: f64,
+                         flip_x: bool,
+                         flip_y: bool) -> (i32, i32) {
         
         let mut v = Vec::new();
 
@@ -1291,8 +1292,8 @@ impl Screen {
 
             //debug!("DST {:?} {:?} {:?} {:?} {:?} {:?} {:?} {:?}", sw, sh, dw, dh, sanglezoominv, canglezoominv, isin, icos);
 
-            let xd = ((sw as i32 - dw) << 15);
-            let yd = ((sh as i32 - dh) << 15);
+            let xd = (sw as i32 - dw) << 15;
+            let yd = (sh as i32 - dh) << 15;
             let ax = ((dstwidthhalf as i32) << 16) - (icos * dstwidthhalf as i32);
             let ay = ((dstheighthalf as i32) << 16) - (isin * dstwidthhalf as i32);
 
@@ -1301,8 +1302,8 @@ impl Screen {
             let centerx = destx;// + (sw as i32 / 2);
             let centery = desty;// + (sh as i32 / 2);
 
-            let mut destx = centerx;
-            let mut desty = centery;
+            let destx = centerx;
+            let desty = centery;
             
         //   let mut destx = destx - dw / 2;
         //   let mut desty = desty - dh / 2;
@@ -1317,8 +1318,8 @@ impl Screen {
             //  debug!("DY {:?} SDX {:?} SDY {:?}", dy, sdx, sdy);
 
                 for x in 0..dw {
-                    let mut dx = (sdx >> 16);
-                    dy = (sdy >> 16);
+                    let mut dx = sdx >> 16;
+                    dy = sdy >> 16;
 
                     if flip_x {
                         dx = (sw as i32 - 1) - dx;
@@ -1328,7 +1329,7 @@ impl Screen {
                     }
 
     //                debug!("DX {:?} DY {:?}", dx, dy);
-                    if ((dx >= 0) && (dy >= 0) && (dx < sw as i32) && (dy < sh as i32)) {
+                    if (dx >= 0) && (dy >= 0) && (dx < sw as i32) && (dy < sh as i32) {
                         let d = v[(dy * sw as i32 + dx) as usize];
                         if d != 0 {
                             if !self.is_transparent(d as u32) {

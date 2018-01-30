@@ -4,8 +4,6 @@ pub mod plugin {
     use cpython::*;
 
     use std::sync::{Arc, Mutex};
-    use std::fs::File;
-    use std::io::Read;
 
     use config::Players;
     use unicorn::info::Info;
@@ -15,12 +13,83 @@ pub mod plugin {
     use gfx::Screen;
     use sound::sound::Sound;
 
+    /*
+        # GFX                   #    Python     #    New name       #
+        camera                  #       X       #                   #
+        circ                    #       X       #                   #
+        circfill                #       X       #                   #
+        clip                    #       X       #                   #
+        cls                     #       X       #                   #
+        color                   #       X       #                   #
+        ellipse                 #       X       #                   #
+        ellipsefill             #       X       #                   #
+        fget                    #       X       #                   #
+        font                    #       X       #                   #
+        line                    #       X       #                   #
+        pal                     #       X       #                   #
+        palt                    #       X       #                   #
+        pget                    #       X       #                   #
+        polygon                 #       X       #                   #
+        print                   #       X       # unicorn_print     #
+        pset                    #       X       #                   #
+        rect                    #       X       #                   #
+        rectfill                #       X       #                   #
+        sget                    #       X       #                   #
+        spr                     #       X       #                   #
+        sset                    #       X       #                   #
+        sspr                    #       X       #                   #
+        sspr_rotazoom           #       X       #                   #
+        trigon                  #       X       #                   #
+        # Audio                 #               #                   #
+        music                   #       X       #                   #
+        sfx                     #       X       #                   #
+        music_stop              #       X       #                   #
+        music_volume            #       X       #                   #
+        music_pause             #       X       #                   #
+        music_resume            #       X       #                   #
+        music_stop              #       X       #                   #
+        music_position          #       X       #                   #
+        # Input                 #               #                   #
+        btnp                    #       X       #                   #
+        btnp                    #       X       #                   #
+        mouse_x                 #       X       #                   #
+        mouse_y                 #       X       #                   #
+        mouse_state             #       X       #                   #
+        mouse_statep            #       X       #                   #
+        # Map                   #               #                   #
+        spr_map                 #       X       #                   #
+        mget                    #       X       #                   #
+        mset                    #       X       #                   #
+        # Noise                 #               #                   #
+        noise                   #       X       #                   #
+        noise_set_seed          #       X       #                   #
+        # Palette               #               #                   #
+        palette                 #       X       #                   #
+        palette_hexa            #       X       #                   #
+        palette_reset           #       X       #                   #
+        palette_switch          #       X       #                   #
+        # Math                  #               #                   #
+        atan2                   #       X       #                   #
+        cos                     #       X       #                   #
+        sin                     #       X       #                   #
+        flr                     #       X       #                   #
+        rnd                     #       X       #                   #
+        srand                   #       X       #                   #
+        mid                     #       X       #                   #
+        bxor                    #       X       #                   #
+        # Memory                #               #                   #
+        memcpy                  #       X       #                   #
+        # System                #               #                   #
+        time                    #       X       # unicorn_time      #
+        time_sec                #       X       # unicorn_time_sec  #
+        show_mouse              #       X       #                   #
+    */
+
     // Audio
     py_class!(class UnicornAudio |py| {
     data sound: Arc<Mutex<Sound>>;
 
-    // Audio
-    
+    // Audio    
     def chiptune_music(&self, id: i32, filename: String, channel: i32, loops: i32, start_position: i32) -> PyResult<i32> {
         self.sound(py).lock().unwrap().music(id, filename, channel, loops, start_position);
         Ok(0)
@@ -234,17 +303,18 @@ pub mod plugin {
         Ok(0)
     }
 
-    def sspr2(&self, sx: i32, sy: i32, sw: i32, sh: i32, dx: i32, dy: i32, angle: f64, zoom: f64, flip_x: bool, flip_y: bool) -> PyResult<PyList> {
-        let (dw, dh) = self.screen(py).lock().unwrap().sspr2(sx as u32,
-                                              sy as u32,
-                                              sw as u32,
-                                              sh as u32,
-                                              dx as i32,
-                                              dy as i32,
-                                              angle,
-                                              zoom,
-                                              flip_x,
-                                              flip_y);
+    def sspr_rotazoom(&self, idx_sprite: i32, sx: i32, sy: i32, sw: i32, sh: i32, dx: i32, dy: i32, angle: f64, zoom: f64, flip_x: bool, flip_y: bool) -> PyResult<PyList> {
+        let (dw, dh) = self.screen(py).lock().unwrap().sspr_rotazoom(idx_sprite,
+                                                                     sx as u32,
+                                                                     sy as u32,
+                                                                     sw as u32,
+                                                                     sh as u32,
+                                                                     dx as i32,
+                                                                     dy as i32,
+                                                                     angle,
+                                                                     zoom,
+                                                                     flip_x,
+                                                                     flip_y);
         
         let v = vec![dw, dh];
         let ret = v.to_py_object(py);
@@ -495,7 +565,7 @@ pub mod plugin {
                      Some(&self.mydict))
                 .unwrap();
 
-            let data = include_str!("../../sys/config/api.py").to_string();
+            let data = include_str!("python/api.py").to_string();
 
             let result = py.run(&data, None, None);
             match result {
