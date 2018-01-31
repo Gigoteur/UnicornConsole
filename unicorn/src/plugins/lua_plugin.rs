@@ -20,34 +20,34 @@ pub mod plugin {
 
     /*
         # GFX                   #    Lua        #    New name   #
-        camera                  #               #               #
-        circ                    #               #               #
-        circfill                #               #               #
-        clip                    #               #               #
-        cls                     #               #               #
-        color                   #               #               #
-        ellipse                 #               #               #
-        ellipsefill             #               #               #
-        fget                    #               #               #
-        font                    #               #               #
-        line                    #               #               #
-        pal                     #               #               #
-        palt                    #               #               #
-        pget                    #               #               #
+        camera                  #     X         #               #
+        circ                    #     X         #               #
+        circfill                #     X         #               #
+        clip                    #     X         #               #
+        cls                     #     X         #               #
+        color                   #     X         #               #
+        ellipse                 #     X         #               #
+        ellipsefill             #     X         #               #
+        fget                    #     X         #               #
+        font                    #     X         #               #
+        line                    #     X         #               #
+        pal                     #     X         #               #
+        palt                    #     X         #               #
+        pget                    #     X         #               #
         polygon                 #               #               #
-        print                   #               #               #
-        pset                    #               #               #
-        rect                    #               #               #
-        rectfill                #               #               #
-        sget                    #               #               #
-        spr                     #               #               #
-        sset                    #               #               #
-        sspr                    #               #               #
+        print                   #     X         #               #
+        pset                    #     X         #               #
+        rect                    #     X         #               #
+        rectfill                #     X         #               #
+        sget                    #     X         #               #
+        spr                     #     X         #               #
+        sset                    #     X         #               #
+        sspr                    #     X         #               #
         sspr_rotazoom           #               #               #
-        trigon                  #               #               #
+        trigon                  #     X         #               #
         # Audio                 #               #               #
-        music                   #               #               #
-        sfx                     #               #               #
+        music                   #     X         #               #
+        sfx                     #     X         #               #
         music_stop              #               #               #
         music_volume            #               #               #
         music_pause             #               #               #
@@ -55,19 +55,19 @@ pub mod plugin {
         music_stop              #               #               #
         music_position          #               #               #
         # Input                 #               #               #
-        btnp                    #               #               #
+        btn                     #     X         #               #
         btnp                    #               #               #
         mouse_x                 #               #               #
         mouse_y                 #               #               #
         mouse_state             #               #               #
         mouse_statep            #               #               #
         # Map                   #               #               #
-        spr_map                 #               #               #
-        mget                    #               #               #
-        mset                    #               #               #
+        mapdraw                 #     X         #               #
+        mget                    #     X         #               #
+        mset                    #     X         #               #
         # Noise                 #               #               #
-        noise                   #               #               #
-        noise_set_seed          #               #               #
+        noise                   #     X         #               #
+        noise_set_seed          #     X         #               #
         # Palette               #               #               #
         palette                 #               #               #
         palette_hexa            #               #               #
@@ -78,7 +78,7 @@ pub mod plugin {
         cos                     #               #               #
         sin                     #               #               #
         flr                     #               #               #
-        rnd                     #               #               #
+        rnd                     #     X         #               #
         srand                   #               #               #
         mid                     #               #               #
         bxor                    #               #               #
@@ -152,25 +152,6 @@ pub mod plugin {
 
             let value = lua_state.do_string(r#"debug_print = print"#);
             info!("[PLUGIN][LUA][Unicorn][EXPORT DEBUG PRINT FUNCTION] = {:?}", value);
-
-            /* Audio */
-            let value = lua_state.do_string(r#"chiptune_play = function(filetype, filename, loops, start_position, channel)
-              if start_position == nil then
-                start_position = 0
-              end
-
-              if loops == nil then
-                loops = 0
-              end
-
-              if channel == nil then
-                channel = -1
-              end
-
-              UnicornObject:chiptune_play(filetype, filename, loops, start_position, channel)
-              end
-              "#);
-            info!("[PLUGIN][LUA][Unicorn][SOUND_PLAY] = {:?}", value);
 
             let value = lua_state.do_string(r#"camera = function(x, y)
 
@@ -537,7 +518,7 @@ pub mod plugin {
               "#);
             info!("[PLUGIN][LUA][Unicorn][NOISE_SET_SEED] = {:?}", value);
 
-            let value = lua_state.do_string(r#"map = function(cel_x, cel_y, sx, sy, cel_w, cel_h, layer)
+            let value = lua_state.do_string(r#"mapdraw = function(cel_x, cel_y, sx, sy, cel_w, cel_h, layer)
 
               cel_x = math.floor(cel_x)
               cel_y = math.floor(cel_y)
@@ -550,16 +531,10 @@ pub mod plugin {
                 layer = 0
               end
 
-              UnicornObject:map(cel_x, cel_y, sx, sy, cel_w, cel_h, layer)
+              UnicornObject:mapdraw(cel_x, cel_y, sx, sy, cel_w, cel_h, layer)
               end
               "#);
             info!("[PLUGIN][LUA][Unicorn][MAP] = {:?}", value);
-
-            let value = lua_state.do_string(r#"mapdraw = function(cel_x, cel_y, sx, sy, cel_w, cel_h, layer)
-                map(cel_x, cel_y, sx, sy, cel_w, cel_h, layer)
-                end
-                "#);
-            info!("[PLUGIN][LUA][Unicorn][MAPDRAW] = {:?}", value);
 
             let value = lua_state.do_string(r#"mget = function(x, y)
               x = math.floor(x)
@@ -682,7 +657,37 @@ pub mod plugin {
               "#);
             info!("[PLUGIN][LUA][Unicorn][TIME] = {:?}", value);
 
-            let value = lua_state.do_string(r#"sfx = function(n, channel, offset)
+            let value = lua_state.do_string(r#"sfx = function(id, filename, note, panning, rate, loops, channel)
+              if filename == nil then
+                filename = ""
+              end
+
+              if note == nil then
+                note = 13312
+              end
+
+              if panning == nil then
+                panning = 64
+              end
+
+              if rate == nil then
+                rate = 50
+              end
+
+              if channel == nil then
+                channel = -1
+              end
+
+              if loops == nil then
+                loops = 0
+              end
+
+              if start_position == nil then
+                start_position = 0
+              end
+
+              UnicornObject:sfx(id, filename, note, panning, rate, loops, channel)
+
               end
               "#);
             info!("[PLUGIN][LUA][Unicorn][SFX] = {:?}", value);
@@ -1020,8 +1025,8 @@ pub mod plugin {
             1
         }
 
-        unsafe extern "C" fn lua_chiptune_music(lua_context: *mut lua_State) -> c_int {
-            debug!("LUA CHIPTUNE MUSIC");
+        unsafe extern "C" fn lua_music(lua_context: *mut lua_State) -> c_int {
+            debug!("LUA MUSIC");
 
             let mut state = State::from_ptr(lua_context);
             let mut state2 = State::from_ptr(lua_context);
@@ -1049,8 +1054,8 @@ pub mod plugin {
             1
         }
 
-        unsafe extern "C" fn lua_chiptune_sfx(lua_context: *mut lua_State) -> c_int {
-            debug!("LUA CHIPTUNE SFX");
+        unsafe extern "C" fn lua_sfx(lua_context: *mut lua_State) -> c_int {
+            debug!("LUA SFX");
 
             let mut state = State::from_ptr(lua_context);
             let mut state2 = State::from_ptr(lua_context);
@@ -1903,7 +1908,7 @@ pub mod plugin {
         }
 
         // map cel_x cel_y sx sy cel_w cel_h [layer]
-        unsafe extern "C" fn lua_map(lua_context: *mut lua_State) -> c_int {
+        unsafe extern "C" fn lua_mapdraw(lua_context: *mut lua_State) -> c_int {
             debug!("LUA MAP");
 
             let mut state = State::from_ptr(lua_context);
@@ -2106,8 +2111,8 @@ pub mod plugin {
     pub const UNICORN_LUA_LIB: [(&'static str, Function); 41] =
         [("new", Some(UnicornLua::lua_new)),
 
-         ("music", Some(UnicornLua::lua_chiptune_music)),
-         ("sfx", Some(UnicornLua::lua_chiptune_sfx)),
+         ("music", Some(UnicornLua::lua_music)),
+         ("sfx", Some(UnicornLua::lua_sfx)),
 
          ("camera", Some(UnicornLua::lua_camera)),
          ("color", Some(UnicornLua::lua_color)),
@@ -2137,7 +2142,7 @@ pub mod plugin {
          ("spr", Some(UnicornLua::lua_spr)),
          ("sspr", Some(UnicornLua::lua_sspr)),
 
-         ("map", Some(UnicornLua::lua_map)),
+         ("mapdraw", Some(UnicornLua::lua_mapdraw)),
          ("mget", Some(UnicornLua::lua_mget)),
          ("mset", Some(UnicornLua::lua_mset)),
 

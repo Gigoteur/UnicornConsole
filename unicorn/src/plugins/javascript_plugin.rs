@@ -14,37 +14,36 @@ pub mod plugin {
 
     use gfx::Screen;
 
-
     /*
         # GFX                   #  Javascript   #    New name   #
         camera                  #               #               #
-        circ                    #               #               #
-        circfill                #               #               #
+        circ                    #      X        #               #
+        circfill                #      X        #               #
         clip                    #               #               #
-        cls                     #               #               #
+        cls                     #      X        #               #
         color                   #               #               #
         ellipse                 #               #               #
         ellipsefill             #               #               #
         fget                    #               #               #
         font                    #               #               #
-        line                    #               #               #
-        pal                     #               #               #
+        line                    #      X        #               #
+        pal                     #      X        #               #
         palt                    #               #               #
         pget                    #               #               #
         polygon                 #               #               #
-        print                   #               #               #
-        pset                    #               #               #
+        print                   #      X        #               #
+        pset                    #      X        #               #
         rect                    #               #               #
         rectfill                #               #               #
         sget                    #               #               #
-        spr                     #               #               #
+        spr                     #      X        #               #
         sset                    #               #               #
-        sspr                    #               #               #
-        sspr_rotazoom           #               #               #
+        sspr                    #      X        #               #
+        sspr_rotazoom           #      X        #               #
         trigon                  #               #               #
         # Audio                 #               #               #
-        music                   #               #               #
-        sfx                     #               #               #
+        music                   #      X        #               #
+        sfx                     #      X        #               #
         music_stop              #               #               #
         music_volume            #               #               #
         music_pause             #               #               #
@@ -52,14 +51,14 @@ pub mod plugin {
         music_stop              #               #               #
         music_position          #               #               #
         # Input                 #               #               #
-        btnp                    #               #               #
-        btnp                    #               #               #
+        btn                     #               #               #
+        btnp                    #      X        #               #
         mouse_x                 #               #               #
         mouse_y                 #               #               #
         mouse_state             #               #               #
         mouse_statep            #               #               #
         # Map                   #               #               #
-        spr_map                 #               #               #
+        mapdraw                 #               #               #
         mget                    #               #               #
         mset                    #               #               #
         # Noise                 #               #               #
@@ -82,7 +81,7 @@ pub mod plugin {
         # Memory                #               #               #
         memcpy                  #               #               #
         # System                #               #               #
-        time                    #               #               #
+        time                    #      X        # unicorn_time  #
         time_sec                #               #               #
         show_mouse              #               #               #
     */

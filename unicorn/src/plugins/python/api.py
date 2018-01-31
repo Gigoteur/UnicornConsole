@@ -620,8 +620,8 @@ globals()["mouse_statep"] = mouse_statep
 # Map
 
 
-def spr_map(cel_x, cel_y, sx, sy, cel_w, cel_h, layer=0):
-    unicorn_map.spr_map(cel_x, cel_y, sx, sy, cel_w, cel_h, layer)
+def mapdraw(cel_x, cel_y, sx, sy, cel_w, cel_h, layer=0):
+    unicorn_map.mapdraw(cel_x, cel_y, sx, sy, cel_w, cel_h, layer)
 
 
 def mget(x, y):
@@ -632,7 +632,7 @@ def mset(x, y, v):
     unicorn_map.mset(math.floor(x), math.floor(y), math.floor(v))
 
 
-globals()["spr_map"] = spr_map
+globals()["mapdraw"] = mapdraw
 globals()["mget"] = mget
 globals()["mset"] = mset
 

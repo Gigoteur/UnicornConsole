@@ -50,14 +50,14 @@ pub mod plugin {
         music_stop              #       X       #                   #
         music_position          #       X       #                   #
         # Input                 #               #                   #
-        btnp                    #       X       #                   #
+        btn                     #       X       #                   #
         btnp                    #       X       #                   #
         mouse_x                 #       X       #                   #
         mouse_y                 #       X       #                   #
         mouse_state             #       X       #                   #
         mouse_statep            #       X       #                   #
         # Map                   #               #                   #
-        spr_map                 #       X       #                   #
+        mapdraw                 #       X       #                   #
         mget                    #       X       #                   #
         mset                    #       X       #                   #
         # Noise                 #               #                   #
@@ -398,11 +398,11 @@ pub mod plugin {
     py_class!(class UnicornMap |py| {
     data screen: Arc < Mutex < Screen > >;
 
-    def spr_map(&self, cel_x: i32, cel_y: i32, sx: i32, sy: i32, cel_w: i32, cel_h: i32, layer: u8) -> PyResult<i32> {
-        self.screen(py).lock().unwrap().map(cel_x as u32, cel_y as u32,
-                                            sx, sy,
-                                            cel_w as u32, cel_h as u32,
-                                            layer);
+    def mapdraw(&self, cel_x: i32, cel_y: i32, sx: i32, sy: i32, cel_w: i32, cel_h: i32, layer: u8) -> PyResult<i32> {
+        self.screen(py).lock().unwrap().mapdraw(cel_x as u32, cel_y as u32,
+                                                sx, sy,
+                                                cel_w as u32, cel_h as u32,
+                                                layer);
 
         Ok(0)
     }
