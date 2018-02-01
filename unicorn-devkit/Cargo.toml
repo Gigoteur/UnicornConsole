@@ -7,7 +7,7 @@ documentation = ""
 homepage = ""
 repository = ""
 readme = "README.md"
-keywords = ["console", "python", "lua", "8bits"]
+keywords = []
 license = "MIT"
 
 exclude = [ ".idea/*", ".travis.yml" ]

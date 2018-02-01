@@ -1,8 +1,9 @@
+// From https://github.com/koute/pinky/blob/master/pinky-web Thx !!
 #![recursion_limit="2048"]
 
 #[macro_use]
 extern crate stdweb;
-extern crate nes;
+extern crate unicorn;
 
 #[macro_use]
 extern crate serde_derive;
@@ -62,92 +63,16 @@ fn palette_to_abgr( palette: &nes::Palette ) -> [u32; 64] {
     output
 }
 
-struct PinkyWeb {
-    state: nes::State,
+struct UnicornWeb {
+    state: unicorn::Unicorn,
     palette: [u32; 64],
-    framebuffer: [u32; 256 * 240],
+    framebuffer: [u32; 400 * 240],
     audio_buffer: Vec< f32 >,
     audio_chunk_counter: u32,
     audio_underrun: Option< usize >,
     paused: bool,
     busy: bool,
     js_ctx: Value
-}
-
-impl nes::Context for PinkyWeb {
-    #[inline]
-    fn state_mut( &mut self ) -> &mut nes::State {
-        &mut self.state
-    }
-
-    #[inline]
-    fn state( &self ) -> &nes::State {
-        &self.state
-    }
-
-    // Ugh, trying to get gapless low-latency PCM playback
-    // out of the Web Audio APIs is like driving a rusty
-    // nail through my hand.
-    //
-    // This blog post probably sums it up pretty well:
-    //   http://blog.mecheye.net/2017/09/i-dont-know-who-the-web-audio-api-is-designed-for/
-    //
-    // So, this is not perfect, but it's as good as I can make it.
-    #[inline]
-    fn on_audio_sample( &mut self, sample: f32 ) {
-        self.audio_buffer.push( sample );
-        if self.audio_buffer.len() == 2048 {
-            self.audio_chunk_counter += 1;
-            let audio_buffered: f64 = js! {
-                var h = @{&self.js_ctx};
-                var samples = @{unsafe { UnsafeTypedArray::new( &self.audio_buffer ) }};
-                var sample_rate = 44100;
-                var sample_count = samples.length;
-                var latency = 0.032;
-
-                var audio_buffer;
-                if( h.empty_audio_buffers.length === 0 ) {
-                    audio_buffer = h.audio.createBuffer( 1, sample_count, sample_rate );
-                } else {
-                    audio_buffer = h.empty_audio_buffers.pop();
-                }
-
-                audio_buffer.getChannelData( 0 ).set( samples );
-
-                var node = h.audio.createBufferSource();
-                node.connect( h.audio.destination );
-                node.buffer = audio_buffer;
-                node.onended = function() {
-                    h.empty_audio_buffers.push( audio_buffer );
-                };
-
-                var buffered = h.play_timestamp - (h.audio.currentTime + latency);
-                var play_timestamp = Math.max( h.audio.currentTime + latency, h.play_timestamp );
-                node.start( play_timestamp );
-                h.play_timestamp = play_timestamp + sample_count / sample_rate;
-
-                return buffered;
-            }.try_into().unwrap();
-
-            // Since we're using `request_animation_frame` for synchronization
-            // we **will** go out of sync with the audio sooner or later,
-            // which will result in sudden, and very unpleasant, audio pops.
-            //
-            // So here we check how much audio exactly we have queued up,
-            // and if we don't have enough then we'll try to compensate
-            // by running the emulator for a few more cycles at the end
-            // of the current frame.
-            if audio_buffered < 0.000 {
-                self.audio_underrun = Some( max( self.audio_underrun.unwrap_or( 0 ), 3 ) );
-            } else if audio_buffered < 0.010 {
-                self.audio_underrun = Some( max( self.audio_underrun.unwrap_or( 0 ), 2 ) );
-            } else if audio_buffered < 0.020 {
-                self.audio_underrun = Some( max( self.audio_underrun.unwrap_or( 0 ), 1 ) );
-            }
-
-            self.audio_buffer.clear();
-        }
-    }
 }
 
 // This creates a really basic WebGL context for blitting a single texture.
@@ -287,7 +212,7 @@ fn setup_webgl( canvas: &Element ) -> Value {
     )
 }
 
-impl PinkyWeb {
+impl UnicornWeb {
     fn new( canvas: &Element ) -> Self {
         let gl = setup_webgl( &canvas );
 
@@ -312,17 +237,17 @@ impl PinkyWeb {
                 canvas = new_canvas;
 
                 h.ctx = canvas.getContext( "2d" );
-                h.img = h.ctx.createImageData( 256, 240 );
+                h.img = h.ctx.createImageData( 400, 240 );
                 h.buffer = new Uint32Array( h.img.data.buffer );
             }
 
             return h;
         );
 
-        PinkyWeb {
-            state: nes::State::new(),
+        UnicornWeb {
+            state: unicorn::unicorn::Unicorn::new(),
             palette: palette_to_abgr( &nes::Palette::default() ),
-            framebuffer: [0; 256 * 240],
+            framebuffer: [0; 400 * 240],
             audio_buffer: Vec::with_capacity( 44100 ),
             audio_chunk_counter: 0,
             audio_underrun: None,
@@ -373,6 +298,15 @@ impl PinkyWeb {
     }
 
     fn draw( &mut self ) {
+        let mut palette = unicorn::unicorn::PALETTE.lock().unwrap();
+        let framebuffer = &self.state.screen.lock().unwrap().frame_buffer;
+
+        for (pixel_in, pixel_out) in framebuffer.iter().zip(self.framebuffer.iter_mut()) {
+            let rgb = palette.get_rgb(*pixel_in as u32);
+            *pixel_out = ((rgb.r as u32) << 16) | ((rgb.g as u32) << 8) | ((rgb.b as u32));
+        }
+
+
         let framebuffer = self.state.framebuffer();
         if !self.paused {
             for (pixel_in, pixel_out) in framebuffer.iter().zip( self.framebuffer.iter_mut() ) {

@@ -7,7 +7,7 @@ documentation = ""
 homepage = ""
 repository = ""
 readme = "README.md"
-keywords = ["console", "python", "lua", "8bits"]
+keywords = ["unicorn", "python", "lua", "javascript"]
 license = "MIT"
 build = "build.rs"
 
@@ -26,7 +26,7 @@ libksnd = ["chiptune/libksnd"]
 jni = { version = "0.4", default-features = false }
 
 [dependencies]
-time = "0.1.35"
+time = "0.1"
 regex = "0.2.1"
 png = "0.9.0"
 byteorder = "1.0.0"
@@ -35,14 +35,13 @@ libc = "0.2.18"
 log = "0.3.6"
 fern = "0.3.5"
 rusttype = "0.2.1"
-nalgebra = "0.11.1"
 image = "0.14.0"
 gif = "0.9.0"
 chrono = "0.2.25"
 lazy_static = "0.1.*"
-serde = "1.0"
-serde_derive = "1.0"
-serde_json = "1.0"
+serde = "1"
+serde_derive = "1"
+serde_json = "1"
 noise = "0.4.0"
 num-traits = "0.1"
 glob = "0.2.11"

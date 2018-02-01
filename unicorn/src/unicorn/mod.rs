@@ -13,9 +13,7 @@ use std::io::Cursor;
 use std::sync::{Arc, Mutex};
 use time;
 use std::fmt;
-use std::cmp::max;
-
-use nalgebra::clamp;
+use std::cmp::{self, max, PartialOrd, Ordering};
 
 use image;
 
@@ -39,6 +37,21 @@ use sound::sound::{Sound, SoundInternal};
 use chiptune::chiptune;
 
 include!(concat!(env!("OUT_DIR"), "/parameters.rs"));
+
+#[inline]
+pub fn clamp<T: PartialOrd>(val: T, min: T, max: T) -> T {
+    if val > min {
+        if val < max {
+            val
+        }
+        else {
+            max
+        }
+    }
+    else {
+        min
+    }
+}
 
 pub struct Palette {
     colors: HashMap<u32, RGB>,

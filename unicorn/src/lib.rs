@@ -10,8 +10,6 @@ extern crate duktape;
 
 extern crate chiptune;
 
-extern crate nalgebra;
-
 extern crate image;
 extern crate gif;
 
