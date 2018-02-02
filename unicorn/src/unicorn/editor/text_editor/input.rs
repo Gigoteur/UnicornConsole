@@ -5,9 +5,6 @@ use std::io;
 /// This is used at startup, where the user can either open a file, or
 /// start Iota with data from stdin.
 pub enum Input {
-    /// A Filename
-    Filename(String),
-
     Code(String),
 
     /// The stdin reader

@@ -1,0 +1,34 @@
+[package]
+name = "uc-emscripten"
+version = "0.0.1"
+authors = ["hallucino <d@t0t0.fr>"]
+description = "Unicorn console emscripten version (via sdl2)"
+documentation = ""
+homepage = ""
+repository = ""
+readme = "README.md"
+keywords = []
+license = "MIT"
+
+exclude = [ ".idea/*", ".travis.yml" ]
+
+[features]
+default = []
+blit_perf = []
+
+[dependencies]
+time = "0.1.35"
+getopts = "0.2.14"
+regex = "0.2.1"
+log = "0.3.6"
+fern = "0.3.5"
+chrono = "0.2.25"
+
+[dependencies.unicorn]
+path="../unicorn"
+features = ["unicorn_plugin_lua", "duktape"]
+
+
+[dependencies.sdl2]
+version = "0.27.2"
+default-features = false

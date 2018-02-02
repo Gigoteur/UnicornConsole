@@ -9,7 +9,10 @@ use std::convert::From;
 
 // external dependencies
 use gapbuffer::GapBuffer;
+
+#[cfg(feature = "syntect")]
 use syntect::parsing::syntax_definition::SyntaxDefinition;
+#[cfg(feature = "syntect")]
 use syntect::parsing::SyntaxSet;
 
 // local dependencies
@@ -703,9 +706,6 @@ impl<R: Read + BufferFrom> From<R> for Buffer {
 impl From<Input> for Buffer {
     fn from(input: Input) -> Buffer {
         match input {
-            Input::Filename(path) => {
-                Buffer::from(PathBuf::from(path))
-            },
             Input::Code(data) => {
                 Buffer::from(data)
             },

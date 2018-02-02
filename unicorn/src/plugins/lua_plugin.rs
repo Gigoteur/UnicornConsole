@@ -85,7 +85,7 @@ pub mod plugin {
         # Memory                #               #               #
         memcpy                  #               #               #
         # System                #               #               #
-        time                    #               #               #
+        time                    #     X         #               #
         time_sec                #               #               #
         show_mouse              #               #               #
     */

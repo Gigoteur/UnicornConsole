@@ -8,6 +8,9 @@ extern crate cpython;
 #[cfg(feature = "duktape")]
 extern crate duktape;
 
+#[cfg(feature = "syntect")]
+extern crate syntect;
+
 extern crate chiptune;
 
 extern crate image;
@@ -24,7 +27,6 @@ extern crate glob;
 
 extern crate rusttype;
 
-extern crate syntect;
 extern crate gapbuffer;
 extern crate tempdir;
 extern crate unicode_width;

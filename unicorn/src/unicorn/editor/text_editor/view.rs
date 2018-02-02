@@ -8,12 +8,14 @@ use std::sync::{Mutex, Arc};
 use std::time::SystemTime;
 use std::rc::Rc;
 
-
 use tempdir::TempDir;
 use unicode_width::UnicodeWidthChar;
-use syntect::highlighting::{ThemeSet, Style};
-use syntect::easy::HighlightLines;
 use std::collections::HashMap;
+
+#[cfg(feature = "syntect")]
+use syntect::highlighting::{ThemeSet, Style};
+#[cfg(feature = "syntect")]
+use syntect::easy::HighlightLines;
 
 use gfx::Screen;
 use unicorn::editor::text_editor::buffer::{Buffer, Mark};

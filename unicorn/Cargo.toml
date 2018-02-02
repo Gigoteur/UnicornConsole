@@ -46,7 +46,6 @@ noise = "0.4.0"
 num-traits = "0.1"
 glob = "0.2.11"
 clippy = {version = "*", optional = true}
-syntect = "1.8"
 gapbuffer = "0.1.1"
 tempdir = "0.3.0"
 unicode-width = "0.1.1"
@@ -68,3 +67,7 @@ path="./src/plugins/duktape"
 [dependencies.chiptune]
 version="0.0.1"
 path="./src/chiptune"
+
+[dependencies.syntect]
+optional = true
+version = "1.8"

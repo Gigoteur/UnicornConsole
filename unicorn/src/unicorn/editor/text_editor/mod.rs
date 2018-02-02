@@ -18,7 +18,9 @@ use std::sync::mpsc::channel;
 use std::env;
 use std::rc::Rc;
 
+#[cfg(feature = "syntect")]
 use syntect::highlighting::ThemeSet;
+#[cfg(feature = "syntect")]
 use syntect::parsing::SyntaxSet;
 
 use unicorn::UnicornConfig;
@@ -113,13 +115,12 @@ impl Editor {
 
         let mut buffers = Vec::new();
 
-        // TODO: load custom syntax files rather than using defaults
-        //       see below
-        let mut ps = SyntaxSet::load_defaults_nonewlines();
-        ps.link_syntaxes();
+        if cfg!(feature = "syntect") {
+            let mut ps = SyntaxSet::load_defaults_nonewlines();
+            ps.link_syntaxes();
+        }
 
         let buffer = match source {
-            Input::Filename(path) => Buffer::new_with_syntax(PathBuf::from(path), &ps),
             Input::Code(data) => Buffer::new_with_syntax_raw(data, &ps),
             Input::Stdin(reader) => Buffer::from(reader),
         };
