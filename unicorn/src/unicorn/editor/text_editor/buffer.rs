@@ -66,27 +66,52 @@ pub enum WordEdgeMatch {
     Whitespace,
 }
 
+#[cfg(not(feature = "syntect"))]
 pub struct Buffer {
     /// Current buffers text
     text: GapBuffer<u8>,
-
     /// Table of marked indices in the text
     marks: HashMap<Mark, MarkPosition>,
-
     /// Transaction history (used for undo/redo)
     pub log: Log,
-
     /// Location on disk where the current buffer should be written
     pub file_path: Option<PathBuf>,
+    /// Whether or not the Buffer has unsaved changes
+    pub dirty: bool,
+}
 
+#[cfg(feature = "syntect")]
+pub struct Buffer {
+    /// Current buffers text
+    text: GapBuffer<u8>,
+    /// Table of marked indices in the text
+    marks: HashMap<Mark, MarkPosition>,
+    /// Transaction history (used for undo/redo)
+    pub log: Log,
+    /// Location on disk where the current buffer should be written
+    pub file_path: Option<PathBuf>,
     pub syntax: Option<SyntaxDefinition>,
-
     /// Whether or not the Buffer has unsaved changes
     pub dirty: bool,
 }
 
 #[cfg_attr(feature="clippy", allow(len_without_is_empty))]
 impl Buffer {
+    #[cfg(not(feature = "syntect"))]
+    /// Constructor for empty buffer.
+    pub fn new() -> Buffer {
+        let buffer = Buffer {
+            file_path: None,
+            text: GapBuffer::new(),
+            marks: HashMap::new(),
+            log: Log::new(),
+            dirty: false,
+        };
+
+        buffer
+    }
+
+    #[cfg(feature = "syntect")]
     /// Constructor for empty buffer.
     pub fn new() -> Buffer {
         let buffer = Buffer {
@@ -101,40 +126,18 @@ impl Buffer {
         buffer
     }
 
-    pub fn new_with_syntax(path: PathBuf, ps: &SyntaxSet) -> Buffer {
-        let syntax_instance = match path.extension() {
-            Some(e) => {
-                if let Some(inst) = ps.find_syntax_by_extension(e.to_str().unwrap()) {
-                    Some(inst.clone())
-                } else {
-                    None
-                }
-            }
-            None => None,
-        };
-
-
-        match File::open(&path) {
-            Ok(file) => {
-                let mut buf = Buffer::from(file);
-                buf.file_path = Some(path);
-                buf.syntax = syntax_instance;
-                buf
-            }
-            Err(_) => {
-                let mut buf = Buffer::new();
-                buf.syntax = syntax_instance;
-                buf
-            }
-        }
-    }
-
+    #[cfg(feature = "syntect")]
     pub fn new_with_syntax_raw(code: String, ps: &SyntaxSet) -> Buffer {
         let mut buf = Buffer::from(code);
         let syntax = ps.find_syntax_by_extension("js").unwrap();
 
         buf.syntax = Some(syntax.clone());
 
+        buf
+    }
+
+    pub fn new_raw(code: String) -> Buffer {
+        let mut buf = Buffer::from(code);
         buf
     }
 

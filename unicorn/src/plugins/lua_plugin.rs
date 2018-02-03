@@ -1933,14 +1933,13 @@ pub mod plugin {
             screen
                 .lock()
                 .unwrap()
-                .map(cel_x as u32,
-                     cel_y as u32,
-                     sx as i32,
-                     sy as i32,
-                     cel_w as u32,
-                     cel_h as u32,
-                     layer as u8);
-
+                .mapdraw(cel_x as u32,
+                         cel_y as u32,
+                         sx as i32,
+                         sy as i32,
+                         cel_w as u32,
+                         cel_h as u32,
+                         layer as u8);
 
             1
         }

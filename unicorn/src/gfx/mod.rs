@@ -1020,14 +1020,14 @@ impl Screen {
         }
     }
 
-    pub fn map(&mut self,
-               cel_x: u32,
-               cel_y: u32,
-               sx: i32,
-               sy: i32,
-               cel_w: u32,
-               cel_h: u32,
-               layer: u8) {
+    pub fn mapdraw(&mut self,
+                   cel_x: u32,
+                   cel_y: u32,
+                   sx: i32,
+                   sy: i32,
+                   cel_w: u32,
+                   cel_h: u32,
+                   layer: u8) {
         let mut idx_x;
         let mut idx_y: i32 = 0;
 

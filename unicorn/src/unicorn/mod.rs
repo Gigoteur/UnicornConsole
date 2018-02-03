@@ -13,7 +13,7 @@ use std::io::Cursor;
 use std::sync::{Arc, Mutex};
 use time;
 use std::fmt;
-use std::cmp::{self, max, PartialOrd, Ordering};
+use std::cmp::{max, PartialOrd};
 
 use image;
 

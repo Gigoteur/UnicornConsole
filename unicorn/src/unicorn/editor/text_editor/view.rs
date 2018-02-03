@@ -31,40 +31,81 @@ use unicorn::Palettes;
 /// screen. It maintains the status bar for the current view, the "dirty status"
 /// which is whether the buffer has been modified or not and a number of other
 /// pieces of information.
+#[cfg(not(feature = "syntect"))]
 pub struct View {
     pub buffer: Arc<Mutex<Buffer>>,
     pub last_buffer: Option<Arc<Mutex<Buffer>>>,
     pub overlay: Overlay,
-
     height: usize,
     width: usize,
-
     /// First character of the top line to be displayed
     top_line: Mark,
-
     /// Index into the top_line - used for horizontal scrolling
     left_col: usize,
-
     /// The current View's cursor - a reference into the Buffer
     cursor: Mark,
-
     /// Number of lines from the top/bottom of the View after which vertical
     /// scrolling begins.
     threshold: usize,
-
     /// Message to be displayed in the status bar along with the time it
     /// was displayed.
     message: Option<(&'static str, SystemTime)>,
-
+    colors: HashMap<String, i32>,
+}
+#[cfg(feature = "syntect")]
+pub struct View {
+    pub buffer: Arc<Mutex<Buffer>>,
+    pub last_buffer: Option<Arc<Mutex<Buffer>>>,
+    pub overlay: Overlay,
+    height: usize,
+    width: usize,
+    /// First character of the top line to be displayed
+    top_line: Mark,
+    /// Index into the top_line - used for horizontal scrolling
+    left_col: usize,
+    /// The current View's cursor - a reference into the Buffer
+    cursor: Mark,
+    /// Number of lines from the top/bottom of the View after which vertical
+    /// scrolling begins.
+    threshold: usize,
+    /// Message to be displayed in the status bar along with the time it
+    /// was displayed.
+    message: Option<(&'static str, SystemTime)>,
     themes: Rc<ThemeSet>,
-
     theme_name: String,
-
     colors: HashMap<String, i32>,
 }
 
 impl View {
+    #[cfg(not(feature = "syntect"))]
+    pub fn new(buffer: Arc<Mutex<Buffer>>, width: usize, height: usize) -> View {
+        let cursor = Mark::Cursor(0);
+        let top_line = Mark::DisplayMark(0);
 
+        {
+            let mut b = buffer.lock().unwrap();
+
+            b.set_mark(cursor, 0);
+            b.set_mark(top_line, 0);
+        }
+
+        View {
+            buffer: buffer,
+            last_buffer: None,
+            top_line: top_line,
+            left_col: 0,
+            cursor: cursor,
+            overlay: Overlay::None,
+            threshold: 5,
+            message: None,
+            height: height,
+            width: width,
+            colors: HashMap::new(),
+        }
+    }
+
+
+    #[cfg(feature = "syntect")]
     pub fn new(buffer: Arc<Mutex<Buffer>>, themes: Rc<ThemeSet>, theme_name: String, width: usize, height: usize) -> View {
         let cursor = Mark::Cursor(0);
         let top_line = Mark::DisplayMark(0);
@@ -152,6 +193,28 @@ impl View {
         }
     }
 
+    #[cfg(not(feature = "syntect"))]
+    pub fn draw(&mut self, rb: &mut Screen, palettes: Arc<Mutex<Palettes>>, syntax_enabled: bool) {
+       self.draw_cursor(rb);
+       // self.clear(rb);
+        {
+            let buffer = self.buffer.lock().unwrap();
+            let height = self.get_height() - 1;
+            let width = self.get_width() - 1;
+
+            let mut lines = buffer.lines_from(self.top_line).unwrap().take(height);
+            for y_position in 0..height {
+                let line = lines.next().unwrap_or_else(Vec::new);
+                draw_line(rb, &line, y_position as usize, self.left_col);
+            }
+
+        }
+
+
+        self.draw_status(rb);
+    }
+
+    #[cfg(feature = "syntect")]
     pub fn draw(&mut self, rb: &mut Screen, palettes: Arc<Mutex<Palettes>>, syntax_enabled: bool) {
         self.draw_cursor(rb);
 

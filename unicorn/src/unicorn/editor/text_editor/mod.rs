@@ -110,20 +110,49 @@ pub struct Editor {
 
 impl Editor {
     /// Create a new Editor instance from the given source
+    #[cfg(not(feature = "syntect"))]
     pub fn new(source: Input, mode: Box<Mode>, opts: Options) -> Editor {
         let (snd, recv) = channel();
 
         let mut buffers = Vec::new();
 
-        if cfg!(feature = "syntect") {
-            let mut ps = SyntaxSet::load_defaults_nonewlines();
-            ps.link_syntaxes();
+        let buffer = match source {
+            Input::Code(data) => Buffer::new_raw(data),
+            Input::Stdin(reader) => Buffer::from(reader),
+        };
+
+        buffers.push(Arc::new(Mutex::new(buffer)));
+
+        let view = View::new(buffers[0].clone(), 133, 34);
+
+        Editor {
+            buffers: buffers,
+            view: view,
+            running: true,
+
+            mode: mode,
+            options: opts,
+
+            command_queue: recv,
+            command_sender: snd,
         }
+    }
+
+    #[cfg(feature = "syntect")]
+    pub fn new(source: Input, mode: Box<Mode>, opts: Options) -> Editor {
+        let (snd, recv) = channel();
+
+        let mut buffers = Vec::new();
+
+
+        let mut ps = SyntaxSet::load_defaults_nonewlines();
+        ps.link_syntaxes();
 
         let buffer = match source {
             Input::Code(data) => Buffer::new_with_syntax_raw(data, &ps),
             Input::Stdin(reader) => Buffer::from(reader),
         };
+
         buffers.push(Arc::new(Mutex::new(buffer)));
 
         // NOTE: this will only work on linux
@@ -161,6 +190,14 @@ impl Editor {
         self.view.get_buffer()
     }
 
+
+    #[cfg(not(feature = "syntect"))]
+    pub fn set_buffer(&mut self, filename: String, code: String) {
+        let buffer = Buffer::new_raw(code);
+        self.view.set_buffer(Arc::new(Mutex::new(buffer)));
+    }
+
+    #[cfg(feature = "syntect")]
     pub fn set_buffer(&mut self, filename: String, code: String) {
         let mut ps = SyntaxSet::load_defaults_nonewlines();
         ps.link_syntaxes();
