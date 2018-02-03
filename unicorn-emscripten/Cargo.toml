@@ -26,7 +26,7 @@ chrono = "0.2.25"
 
 [dependencies.unicorn]
 path="../unicorn"
-features = ["unicorn_plugin_lua", "duktape"]
+features = ["duktape"]
 
 
 [dependencies.sdl2]

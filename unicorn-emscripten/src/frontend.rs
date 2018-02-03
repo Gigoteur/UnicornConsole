@@ -521,7 +521,7 @@ impl Frontend {
 
 
     fn handle_event(&mut self) {
-         emscripten::set_main_loop_callback(|| {
+        set_main_loop_callback(|| {
             self.times.update();
 
             self.fps_counter.update(self.times.get_last_time());
@@ -551,14 +551,14 @@ impl Frontend {
 
             for event in self.event_pump.poll_iter() {
                 match event {
-                    Event::Quit { .. } => break 'main,
+                    //Event::Quit { .. } => return,
                     Event::Window { win_event: WindowEvent::SizeChanged(_, _), .. } => {
                         // self.renderer
                         //    .update_viewport(&self.uc.screen.lock().unwrap());
                     }
-                    Event::Window { win_event: WindowEvent::Close, .. } => {
-                        break 'main;
-                    }
+                    //Event::Window { win_event: WindowEvent::Close, .. } => {
+                    //    return;
+                    //}
                     Event::MouseButtonDown { mouse_btn, .. } => {
                         let mut left = false;
                         let mut right = false;
@@ -595,10 +595,6 @@ impl Frontend {
                     }
                     Event::KeyDown { scancode: Some(scancode), keycode, keymod, repeat, .. } => {
                         // info!("KEY DOWN {:?} {:?} {:?}", scancode, keycode, keymod);
-
-                        if scancode == Scancode::AcHome {
-                            break 'main;
-                        }
 
                         self.uc
                             .players
