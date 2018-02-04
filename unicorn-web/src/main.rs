@@ -366,11 +366,11 @@ impl UnicornWeb {
     }
 }
 
-fn emulate_for_a_single_frame( pinky: Rc< RefCell< PinkyWeb > > ) {
-    pinky.borrow_mut().busy = true;
+fn emulate_for_a_single_frame( uc: Rc< RefCell< UnicornWeb > > ) {
+    uc.borrow_mut().busy = true;
 
-    web::set_timeout( enclose!( [pinky] move || {
-        let finished_frame = match pinky.borrow_mut().run_a_bit() {
+    web::set_timeout( enclose!( [uc] move || {
+        let finished_frame = match uc.borrow_mut().run_a_bit() {
             Ok( result ) => result,
             Err( error ) => {
                 handle_error( error );
@@ -379,33 +379,33 @@ fn emulate_for_a_single_frame( pinky: Rc< RefCell< PinkyWeb > > ) {
         };
 
         if !finished_frame {
-            web::set_timeout( move || { emulate_for_a_single_frame( pinky ); }, 0 );
+            web::set_timeout( move || { emulate_for_a_single_frame( uc ); }, 0 );
         } else {
-            let mut pinky = pinky.borrow_mut();
-            if let Some( count ) = pinky.audio_underrun.take() {
+            let mut uc = uc.borrow_mut();
+            if let Some( count ) = uc.audio_underrun.take() {
                 for _ in 0..count {
-                    if let Err( error ) = pinky.run_a_bit() {
+                    if let Err( error ) = uc.run_a_bit() {
                         handle_error( error );
                         return;
                     }
                 }
             }
 
-            pinky.busy = false;
+            uc.busy = false;
         }
     }), 0 );
 }
 
-fn main_loop( pinky: Rc< RefCell< PinkyWeb > > ) {
+fn main_loop( uc: Rc< RefCell< UnicornWeb > > ) {
     // If we're running too slowly there is no point
     // in queueing up even more work.
-    if !pinky.borrow_mut().busy {
-        emulate_for_a_single_frame( pinky.clone() );
+    if !uc.borrow_mut().busy {
+        emulate_for_a_single_frame( uc.clone() );
     }
 
-    pinky.borrow_mut().draw();
+    uc.borrow_mut().draw();
     web::window().request_animation_frame( move |_| {
-        main_loop( pinky );
+        main_loop( uc );
     });
 }
 
@@ -443,115 +443,21 @@ fn fetch_builtin_rom_list< F: FnOnce( Vec< RomEntry > ) + 'static >( callback: F
     }
 }
 
-fn support_builtin_roms( roms: Vec< RomEntry >, pinky: Rc< RefCell< PinkyWeb > > ) {
-    let entries = web::document().get_element_by_id( "rom-list" ).unwrap();
-    for rom in roms {
-        let entry = web::document().create_element( "button" );
-        let name = rom.name;
-        let file = rom.file;
 
-        entry.set_text_content( &name );
-        entries.append_child( &entry );
-        entry.add_event_listener( enclose!( [pinky] move |_: ClickEvent| {
-            hide( "change-rom-menu" );
-            hide( "side-text" );
-            show( "loading" );
-
-            let builtin_rom_loaded = Once( enclose!( [pinky] move |array_buffer: ArrayBuffer| {
-                let rom_data: Vec< u8 > = array_buffer.into();
-                load_rom( &pinky, &rom_data );
-            }));
-            js! {
-                var req = new XMLHttpRequest();
-                req.addEventListener( "load" , function() {
-                    @{builtin_rom_loaded}( req.response );
-                });
-                req.open( "GET", "roms/" + @{&file} );
-                req.responseType = "arraybuffer";
-                req.send();
-            }
-        }));
-    }
-}
-
-fn support_custom_roms( pinky: Rc< RefCell< PinkyWeb > > ) {
-    let browse_for_roms_button = web::document().get_element_by_id( "browse-for-roms" ).unwrap();
-    browse_for_roms_button.add_event_listener( move |event: ChangeEvent| {
-        let input: InputElement = event.target().unwrap().try_into().unwrap();
-        let files = input.files().unwrap();
-        let file = match files.iter().next() {
-            Some( file ) => file,
-            None => return
-        };
-
-        hide( "change-rom-menu" );
-        hide( "side-text" );
-        show( "loading" );
-
-        let reader = FileReader::new();
-        reader.add_event_listener( enclose!( [pinky, reader] move |_: ProgressLoadEvent| {
-            let rom_data: Vec< u8 > = match reader.result().unwrap() {
-                FileReaderResult::ArrayBuffer( buffer ) => buffer,
-                _ => unreachable!()
-            }.into();
-
-            load_rom( &pinky, &rom_data );
-        }));
-
-        reader.read_as_array_buffer( &file );
-    });
-}
-
-fn support_rom_changing( pinky: Rc< RefCell< PinkyWeb > > ) {
-    let change_rom_button = web::document().get_element_by_id( "change-rom-button" ).unwrap();
-    change_rom_button.add_event_listener( enclose!( [pinky] move |_: ClickEvent| {
-        pinky.borrow_mut().pause();
-        hide( "viewport" );
-        hide( "change-rom-button" );
-        show( "change-rom-menu" );
-        show( "rom-menu-close" );
-    }));
-
-    let rom_menu_close_button = web::document().get_element_by_id( "rom-menu-close" ).unwrap();
-    rom_menu_close_button.add_event_listener( move |_: ClickEvent| {
-        pinky.borrow_mut().unpause();
-        show( "viewport" );
-        show( "change-rom-button" );
-        hide( "change-rom-menu" );
-        hide( "rom-menu-close" );
-    });
-}
-
-fn support_input( pinky: Rc< RefCell< PinkyWeb > > ) {
-    web::window().add_event_listener( enclose!( [pinky] move |event: KeydownEvent| {
-        let handled = pinky.borrow_mut().on_key( &event.key(), event.location(), true );
+fn support_input( uc: Rc< RefCell< UnicornWeb > > ) {
+    web::window().add_event_listener( enclose!( [uc] move |event: KeydownEvent| {
+        let handled = uc.borrow_mut().on_key( &event.key(), event.location(), true );
         if handled {
             event.prevent_default();
         }
     }));
 
-    web::window().add_event_listener( enclose!( [pinky] move |event: KeyupEvent| {
-        let handled = pinky.borrow_mut().on_key( &event.key(), event.location(), false );
+    web::window().add_event_listener( enclose!( [uc] move |event: KeyupEvent| {
+        let handled = uc.borrow_mut().on_key( &event.key(), event.location(), false );
         if handled {
             event.prevent_default();
         }
     }));
-}
-
-fn load_rom( pinky: &Rc< RefCell< PinkyWeb > >, rom_data: &[u8] ) {
-    hide( "loading" );
-    hide( "error" );
-
-    let mut pinky = pinky.borrow_mut();
-    let pinky = pinky.deref_mut();
-    if let Err( err ) = nes::Interface::load_rom_from_memory( pinky, rom_data ) {
-        handle_error( err );
-        return;
-    }
-    pinky.unpause();
-
-    show( "viewport" );
-    show( "change-rom-button" );
 }
 
 fn handle_error< E: Into< Box< Error > > >( error: E ) {
@@ -569,22 +475,15 @@ fn main() {
     stdweb::initialize();
 
     let canvas = web::document().get_element_by_id( "viewport" ).unwrap();
-    let pinky = Rc::new( RefCell::new( PinkyWeb::new( &canvas ) ) );
+    let uc = Rc::new( RefCell::new( UnicornWeb::new( &canvas ) ) );
 
-    support_custom_roms( pinky.clone() );
-    support_rom_changing( pinky.clone() );
+//    support_custom_roms( pinky.clone() );
+//    support_rom_changing( pinky.clone() );
 
-    fetch_builtin_rom_list( enclose!( [pinky] |roms| {
-        support_builtin_roms( roms, pinky );
-
-        hide( "loading" );
-        show( "change-rom-menu" );
-    }));
-
-    support_input( pinky.clone() );
+    support_input( uc.clone() );
 
     web::window().request_animation_frame( move |_| {
-        main_loop( pinky );
+        main_loop( uc );
     });
 
     stdweb::event_loop();

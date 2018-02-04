@@ -11,7 +11,6 @@ pub mod bump;
 use std::collections::HashMap;
 use std::io::Cursor;
 use std::sync::{Arc, Mutex};
-use time;
 use std::fmt;
 use std::cmp::{max, PartialOrd};
 
@@ -19,6 +18,8 @@ use image;
 
 use gif;
 use gif::SetParameter;
+
+use time;
 
 use std::io::prelude::*;
 
