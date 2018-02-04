@@ -5,7 +5,7 @@
 # Unicorn Console 
 
 [![Build Status](https://travis-ci.org/sunjay/UnicornConsole.svg?branch=master)](https://travis-ci.org/Gigoteur/UnicornConsole)
-[![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)[]
+[![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/Gigoteur/UnicornConsole/blob/master/LICENSE.md)
 [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/UnicornConsole/discuss)
 
 
