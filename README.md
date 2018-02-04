@@ -2,16 +2,12 @@
   <img src="unicorn-docs/unicorn.png">
 </p>
 
-<p align="center">
-  <a href="https://travis-ci.org/Gigoteur/UnicornConsole">
-      <img src="https://travis-ci.org/Gigoteur/UnicornConsole.svg?branch=master" alt="Travis for UnicornConsole">
-  </a>
-  <a href="LICENSE">
-      <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="LICENSE">
-  </a>
-</p>
-
 # Unicorn Console 
+
+[![Build Status](https://travis-ci.org/sunjay/UnicornConsole.svg?branch=master)](https://travis-ci.org/Gigoteur/UnicornConsole)
+[![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)[]
+[![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/UnicornConsole/discuss)
+
 
 Unicorn Console is a quick and dirty engine that let you do what you want with a resolution of 400x240 pixels. The main engine is not dependant of a specific GFX library so you can use it where you want:
   * [unicorn](https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn): Main engine source code
