@@ -19,12 +19,12 @@ use image;
 use gif;
 use gif::SetParameter;
 
-use time;
-
 use std::io::prelude::*;
 
 use std::path::Path;
 use std::fs::File;
+
+use chrono::prelude::*;
 
 use plugins::lua_plugin::plugin::LuaPlugin;
 use plugins::python_plugin::plugin::PythonPlugin;
@@ -1374,7 +1374,7 @@ impl Unicorn {
 
         self.reset();
 
-        let current_time = time::now();
+        let current_time = Utc::now();
 
         match self.current_code_type {
             Code::LUA => self.cartridges[self.current_cartridge].lua_plugin.init(),
@@ -1389,7 +1389,7 @@ impl Unicorn {
             _ => error!("[Unicorn] Impossible to match a plugin"),
         }
 
-        let diff_time = time::now() - current_time;
+        let diff_time = current_time.signed_duration_since(Utc::now());
         let nanoseconds = (diff_time.num_nanoseconds().unwrap() as f64) -
                           (diff_time.num_seconds() * 1000000000) as f64;
 
@@ -1398,7 +1398,7 @@ impl Unicorn {
     }
 
     pub fn call_draw(&mut self) -> f64 {
-        let current_time = time::now();
+        let current_time = Utc::now();
 
         match self.current_code_type {
             Code::LUA => {
@@ -1421,7 +1421,7 @@ impl Unicorn {
             _ => (),
         }
 
-        let diff_time = time::now() - current_time;
+        let diff_time = current_time.signed_duration_since(Utc::now());
         let nanoseconds = (diff_time.num_nanoseconds().unwrap() as f64) -
                           (diff_time.num_seconds() * 1000000000) as f64;
 
@@ -1430,7 +1430,7 @@ impl Unicorn {
     }
 
     pub fn call_update(&mut self) -> f64 {
-        let current_time = time::now();
+        let current_time = Utc::now();
 
         match self.current_code_type {
             Code::LUA => {
@@ -1454,7 +1454,7 @@ impl Unicorn {
             _ => (),
         }
 
-        let diff_time = time::now() - current_time;
+        let diff_time = current_time.signed_duration_since(Utc::now());
         let nanoseconds = (diff_time.num_nanoseconds().unwrap() as f64) -
                           (diff_time.num_seconds() * 1000000000) as f64;
 

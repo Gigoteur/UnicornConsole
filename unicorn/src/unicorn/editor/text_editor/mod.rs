@@ -336,7 +336,7 @@ impl Editor {
 
     fn handle_instruction(&mut self, rb: &mut Screen, instruction: Instruction, command: Command) {
         match instruction {
-            Instruction::SaveBuffer => self.view.try_save_buffer(),
+//            Instruction::SaveBuffer => self.view.try_save_buffer(),
             Instruction::ExitEditor => {
                 if self.view.buffer_is_dirty() {
                     let _ = self.command_sender.send(Command::show_message("Unsaved changes"));

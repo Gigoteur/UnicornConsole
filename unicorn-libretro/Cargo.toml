@@ -17,7 +17,7 @@ version = "0.2"
 
 [dependencies.unicorn]
 path="../unicorn"
-features = ["cpython", "unicorn_plugin_lua", "duktape"]
+features = ["cpython", "unicorn_plugin_lua", "duktape", "noise"]
 
 [profile.dev]
 opt-level = 2

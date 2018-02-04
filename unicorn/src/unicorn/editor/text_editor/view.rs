@@ -8,7 +8,6 @@ use std::sync::{Mutex, Arc};
 use std::time::SystemTime;
 use std::rc::Rc;
 
-use tempdir::TempDir;
 use unicode_width::UnicodeWidthChar;
 use std::collections::HashMap;
 
@@ -492,74 +491,6 @@ impl View {
         }
 
         data
-    }
-
-    fn save_buffer(&mut self) {
-        let buffer = self.buffer.lock().unwrap();
-        let path = match buffer.file_path {
-            Some(ref p) => Cow::Borrowed(p),
-            None => {
-                // NOTE: this should never happen, as the file path
-                // should have been set inside the try_save_buffer method.
-                //
-                // If this runs, it probably means save_buffer has been called
-                // directly, rather than try_save_buffer.
-                //
-                // TODO: ask the user to submit a bug report on how they hit this.
-                Cow::Owned(PathBuf::from("untitled"))
-            },
-        };
-        let tmpdir = match TempDir::new_in(&Path::new("."), "iota") {
-            Ok(d) => d,
-            Err(e) => panic!("file error: {}", e)
-        };
-
-        let tmppath = tmpdir.path().join(Path::new("tmpfile"));
-        let mut file = match File::create(&tmppath) {
-            Ok(f) => f,
-            Err(e) => {
-                panic!("file error: {}", e)
-            }
-        };
-
-        //TODO (lee): Is iteration still necessary in this format?
-        for line in buffer.lines() {
-            let result = file.write_all(&*line);
-
-            if result.is_err() {
-                // TODO(greg): figure out what to do here.
-                panic!("Something went wrong while writing the file");
-            }
-        }
-
-        if let Err(e) = rename(&tmppath, &*path) {
-            panic!("file error: {}", e);
-        }
-    }
-
-    pub fn try_save_buffer(&mut self) {
-        let mut should_save = false;
-        {
-            let buffer = self.buffer.lock().unwrap();
-
-            match buffer.file_path {
-                Some(_) => { should_save = true }
-                None => {
-                    let prefix = "Enter file name: ";
-                    self.overlay = Overlay::SavePrompt {
-                        cursor_x: prefix.len(),
-                        prefix: prefix,
-                        data: String::new(),
-                    };
-                },
-            }
-        }
-
-        if should_save {
-            self.save_buffer();
-            let mut buffer = self.buffer.lock().unwrap();
-            buffer.dirty = false;
-        }
     }
 
     /// Whether or not the current buffer has unsaved changes

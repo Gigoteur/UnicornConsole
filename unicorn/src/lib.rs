@@ -11,24 +11,23 @@ extern crate duktape;
 #[cfg(feature = "syntect")]
 extern crate syntect;
 
+#[cfg(feature = "noise")]
+extern crate noise;
+
 extern crate chiptune;
 
 extern crate image;
 extern crate gif;
 
 extern crate regex;
-extern crate png;
 extern crate byteorder;
 extern crate rand;
-extern crate time;
-extern crate chrono;
 extern crate libc;
 extern crate glob;
 
 extern crate rusttype;
 
 extern crate gapbuffer;
-extern crate tempdir;
 extern crate unicode_width;
 
 #[macro_use]
@@ -44,7 +43,12 @@ extern crate serde_json;
 extern crate serde_derive;
 
 extern crate num_traits;
-extern crate noise;
+
+mod platform;
+ 
+use platform::{chrono, imagelib};
+#[cfg(all(target_arch = "wasm32", target_os = "unknown"))]
+pub use platform::*;
 
 #[macro_use]
 pub mod config;

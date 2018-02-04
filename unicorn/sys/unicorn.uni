@@ -37,7 +37,7 @@ function Unicorn() {
         }
 
         pal(7, this.color);
-        sspr2(8, 0, 16, 16, this.x, this.y, this.angle, this.zoom, this.flip_x, this.flip_y);
+        sspr_rotazoom(8, 0, 16, 16, this.x, this.y, this.angle, this.zoom, this.flip_x, this.flip_y);
         this.angle = this.angle + 1.0;
 
         pal();

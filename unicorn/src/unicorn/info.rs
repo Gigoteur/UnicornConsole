@@ -1,9 +1,7 @@
-use time::PreciseTime;
-use time;
+use chrono::prelude::*;
 
 pub struct Info {
-    pub start_time: time::Tm,
-    pub dt: PreciseTime,
+    pub start_time: DateTime<Utc>,
     pub seconds: f64,
     pub milliseconds: i64,
     pub elapsed_time: f64,
@@ -13,8 +11,7 @@ pub struct Info {
 impl Info {
     pub fn new() -> Info {
         Info {
-            start_time: time::now(),
-            dt: PreciseTime::now(),
+            start_time: Utc::now(),
             seconds: 0.0,
             milliseconds: 0,
             elapsed_time: 0.0,
@@ -22,8 +19,8 @@ impl Info {
     }
 
     pub fn update(&mut self) {
-        let new_time = time::now();
-        let diff_time = new_time - self.start_time;
+        let new_time = Utc::now();
+        let diff_time = new_time.signed_duration_since(self.start_time);
         let nanoseconds = (diff_time.num_nanoseconds().unwrap() as f64) -
                           (diff_time.num_seconds() * 1000000000) as f64;
 

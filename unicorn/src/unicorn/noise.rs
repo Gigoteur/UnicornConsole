@@ -1,16 +1,20 @@
 use num_traits;
 use num_traits::NumCast;
 
+#[cfg(feature = "noise")]
 use noise::{NoiseModule, Perlin, Seedable};
 
 fn cast<T: NumCast, R: NumCast>(val: T) -> R {
     num_traits::cast(val).unwrap()
 }
 
+
+#[cfg(feature = "noise")]
 pub struct Noise {
     perlin: Perlin,
 }
 
+#[cfg(feature = "noise")]
 impl Noise {
     pub fn new() -> Noise {
         info!("[Unicorn][Noise] new");
@@ -25,5 +29,25 @@ impl Noise {
     pub fn set_seed(&mut self, seed: u32) {
         debug!("Change seed to {:?}", seed);
         self.perlin.set_seed(seed as usize);
+    }
+}
+
+
+#[cfg(not(feature = "noise"))]
+pub struct Noise {
+}
+
+#[cfg(not(feature = "noise"))]
+impl Noise {
+    pub fn new() -> Noise {
+        info!("[Unicorn][Noise] new");
+        Noise { }
+    }
+
+    pub fn get(&mut self, x: f64, y: f64, z: f64) -> f64 {
+        0.
+    }
+
+    pub fn set_seed(&mut self, seed: u32) {
     }
 }
