@@ -14,10 +14,13 @@ extern crate syntect;
 #[cfg(feature = "noise")]
 extern crate noise;
 
+#[cfg(feature = "image")]
+extern crate image;
+
 extern crate chiptune;
 
-extern crate image;
 extern crate gif;
+extern crate ordered_float;
 
 extern crate regex;
 extern crate byteorder;
@@ -43,12 +46,6 @@ extern crate serde_json;
 extern crate serde_derive;
 
 extern crate num_traits;
-
-mod platform;
- 
-use platform::{chrono, imagelib};
-#[cfg(all(target_arch = "wasm32", target_os = "unknown"))]
-pub use platform::*;
 
 #[macro_use]
 pub mod config;

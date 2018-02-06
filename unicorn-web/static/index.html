@@ -195,60 +195,14 @@
             margin-left: 1em;
         }
     </style>
-    <title>Pinky - an NES emulator</title>
+    <title>Unicorn Console</title>
 </head>
 <body>
-    <canvas id="viewport" width="256" height="240" class="hidden"></canvas>
+    <canvas id="viewport" width="512" height="512" class="hidden"></canvas>
     <div id="menu">
         <button id="change-rom-button" class="hidden">Change ROM</button>
     </div>
     <div id="horizontal-container">
-        <div id="side-text">
-            <h1>Pinky - an NES emulator written in Rust</h1>
-            <p>
-                Hi there!
-            </p>
-            <p>
-                This is an NES emulator written in <a href="https://www.rust-lang.org/">Rust</a> completely
-                from scratch purely based on publicly available documentation.
-            </p>
-            <p>
-                What you see here is its port compiled to <a href="https://en.wikipedia.org/wiki/WebAssembly">WebAssembly</a>
-                using the magic of <a href="https://github.com/koute/stdweb">the stdweb crate</a> and Rust's native WebAssembly
-                backend, without the use of Emscripten.
-            </p>
-            <!--
-            <p>
-                What you see here is its port compiled to <a href="https://en.wikipedia.org/wiki/WebAssembly">WebAssembly</a>
-                using the magic of <a href="https://github.com/koute/stdweb">the stdweb crate</a> and <a href="http://kripken.github.io/emscripten-site">Emscripten</a>.
-            </p>
-            <p>
-                What you see here is its port compiled to <a href="https://en.wikipedia.org/wiki/Asm.js">asm.js</a>
-                using the magic of <a href="https://github.com/koute/stdweb">the stdweb crate</a> and <a href="http://kripken.github.io/emscripten-site">Emscripten</a>.
-            </p>
-            -->
-            <p>
-                You can take a peek at the <a href="https://github.com/koute/pinky/tree/master/pinky-web">code</a> if you're
-                interested, but first I invite you to take it for a spin and play a few games!
-            </p>
-            <p>
-                You can chose between a few fun freeware NES games, but if you have the ROMs then games like
-                Super Mario Brothers, Contra, Legend of Zelda, or Final Fantasy will work too!
-            </p>
-            <p>
-                Controls are <span class="highlight">Z</span> and <span class="highlight">X</span> for A and B,
-                <span class="highlight">Enter</span> and <span class="highlight">Right Shift</span> for Start and Select,
-                and <span class="highlight">the arrow keys</span>!
-            </p>
-            <!--
-            <p>
-                You might also want to check out the version compiled *with* Emscripten <a href="https://koute.github.io/pinky-web-webasm-emscripten">to WebAssembly</a> or <a href="https://koute.github.io/pinky-web-asmjs-emscripten">to asm.js</a>.
-            </p>
-            <p>
-                You might also want to check out the version compiled to WebAssembly *without* Emscripten <a href="https://koute.github.io/pinky-web">here</a>.
-            </p>
-            -->
-        </div>
         <div id="loading">Loading...</div>
         <div id="unsupported" class="hidden">
             <h1>Sorry, your browser is unsupported!</h1>

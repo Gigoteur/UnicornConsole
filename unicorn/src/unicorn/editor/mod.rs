@@ -2,8 +2,6 @@ pub mod gfx_editor;
 pub mod music_editor;
 pub mod text_editor;
 
-use chrono::prelude::*;
-
 use std::sync::{Arc, Mutex};
 use std::collections::HashMap;
 
@@ -526,9 +524,7 @@ impl Editor {
         true
     }
 
-    pub fn draw(&mut self, players: Arc<Mutex<Players>>, palettes: Arc<Mutex<Palettes>>, screen: &mut Screen) -> f64 {
-        let current_time = Utc::now();
-
+    pub fn draw(&mut self, players: Arc<Mutex<Players>>, palettes: Arc<Mutex<Palettes>>, screen: &mut Screen) {
         screen.cls(-1);
 
         let width = screen.mode_width() as i32;
@@ -555,11 +551,5 @@ impl Editor {
         for widget in &self.widgets {
             widget.lock().unwrap().draw(screen);
         }
-
-        let diff_time = current_time.signed_duration_since(Utc::now());
-        let nanoseconds = (diff_time.num_nanoseconds().unwrap() as f64) -
-                          (diff_time.num_seconds() * 1000000000) as f64;
-
-        diff_time.num_seconds() as f64 + nanoseconds / 1000000000.0
     }
 }

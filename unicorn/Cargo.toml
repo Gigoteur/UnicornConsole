@@ -16,7 +16,7 @@ exclude = [ ".idea/*", ".travis.yml" ]
 [lib]
 name       = "unicorn"
 path       = "src/lib.rs"
-crate-type = ["cdylib", "rlib"]
+#crate-type = ["cdylib", "rlib"]
 
 [features]
 default = []
@@ -43,13 +43,10 @@ glob = "0.2.11"
 clippy = {version = "*", optional = true}
 gapbuffer = "0.1.1"
 unicode-width = "0.1.1"
+ordered-float = "0.5.0"
 
 [target.'cfg(target_os="android")'.dependencies]
 jni = { version = "0.4", default-features = false }
-
-[target.'cfg(not(all(target_arch = "wasm32", target_os = "unknown")))'.dependencies]
-chrono = "0.4"
-image = {version="0.18.0", features=["png_codec"]}
 
 [dependencies.cpython]
 version = "0.1.0"
@@ -76,3 +73,8 @@ version = "1.8"
 [dependencies.noise]
 optional = true
 version = "0.4.1"
+
+[dependencies.image]
+optional = true
+version="0.18.0"
+features=["png_codec"]

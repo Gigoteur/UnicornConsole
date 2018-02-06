@@ -14,6 +14,7 @@ use std::sync::{Arc, Mutex};
 use std::fmt;
 use std::cmp::{max, PartialOrd};
 
+#[cfg(feature = "image")]
 use image;
 
 use gif;
@@ -23,8 +24,6 @@ use std::io::prelude::*;
 
 use std::path::Path;
 use std::fs::File;
-
-use chrono::prelude::*;
 
 use plugins::lua_plugin::plugin::LuaPlugin;
 use plugins::python_plugin::plugin::PythonPlugin;
@@ -664,9 +663,6 @@ pub struct Unicorn {
     pub state: UnicornState,
     pub pause_menu: PauseMenu,
     pub fps: f64,
-    pub draw_time: f64,
-    pub init_time: f64,
-    pub update_time: f64,
     pub record: Record,
     pub draw_return: bool,
     pub update_return: bool,
@@ -703,9 +699,6 @@ impl Unicorn {
             pause_menu: PauseMenu::new(),
             menu: Menu::new(),
             fps: 0.0,
-            draw_time: 0.0,
-            init_time: 0.0,
-            update_time: 0.0,
             record: Record::new(),
             draw_return: true,
             update_return: true,
@@ -775,10 +768,8 @@ impl Unicorn {
             
             screen.rectfill(0, 0, width, 8, 0);
 
-            screen.force_print(format!("{:.0}FPS {:.2} {:.2} {:.2?} {:.2?} {:?} {:?}",
+            screen.force_print(format!("{:.0}FPS {:.2?} {:.2?} {:?} {:?}",
                                        self.fps,
-                                       self.draw_time,
-                                       self.update_time,
                                        mouse_x,
                                        mouse_y,
                                        &self.palettes.lock().unwrap().name,
@@ -793,7 +784,7 @@ impl Unicorn {
     pub fn init(&mut self) {
         match self.state {
             UnicornState::RUN => {
-                self.init_time = self.call_init() * 1000.0;
+                self.call_init();
             }
             _ => {}
         }
@@ -818,7 +809,7 @@ impl Unicorn {
                     return false;
                 }
 
-                self.update_time = self.call_update() * 1000.0;
+                self.call_update();
             }
             UnicornState::INTERACTIVE => {
                 let return_value = self.menu.update(&mut self.cartridges, self.players.clone());
@@ -844,15 +835,14 @@ impl Unicorn {
                 self.pause_menu.draw(&mut self.screen.lock().unwrap());
             }
             UnicornState::RUN => {
-                self.draw_time = self.call_draw() * 1000.0;
+                self.call_draw();
             }
             UnicornState::INTERACTIVE => {
                 self.menu.draw(&mut self.cartridges, &mut self.screen.lock().unwrap());
             }
             UnicornState::EDITOR => {
-                self.draw_time = self.editor
-                    .draw(self.players.clone(), self.palettes.clone(), &mut self.screen.lock().unwrap()) *
-                                 1000.0;
+                self.editor
+                    .draw(self.players.clone(), self.palettes.clone(), &mut self.screen.lock().unwrap());
             }
         }
 
@@ -919,6 +909,11 @@ impl Unicorn {
         self.record.nb += 1;
     }
 
+    #[cfg(not(feature = "image"))]
+    pub fn stop_record(&mut self) {
+    }
+
+    #[cfg(feature = "image")]
     pub fn stop_record(&mut self) {
         info!("[Unicorn] Stop to record the frame {:?}",
               self.record.images.len());
@@ -978,6 +973,11 @@ impl Unicorn {
         info!("[Unicorn] GIF created in {:?}", self.record.filename);
     }
 
+    #[cfg(not(feature = "image"))]
+    pub fn screenshot(&mut self, filename: &str) {
+    }
+
+    #[cfg(feature = "image")]
     pub fn screenshot(&mut self, filename: &str) {
         let screen = &mut self.screen.lock().unwrap();
 
@@ -1369,12 +1369,10 @@ impl Unicorn {
         }
     }
 
-    pub fn call_init(&mut self) -> f64 {
+    pub fn call_init(&mut self) {
         info!("[Unicorn] CALL INIT");
 
         self.reset();
-
-        let current_time = Utc::now();
 
         match self.current_code_type {
             Code::LUA => self.cartridges[self.current_cartridge].lua_plugin.init(),
@@ -1388,18 +1386,9 @@ impl Unicorn {
             }
             _ => error!("[Unicorn] Impossible to match a plugin"),
         }
-
-        let diff_time = current_time.signed_duration_since(Utc::now());
-        let nanoseconds = (diff_time.num_nanoseconds().unwrap() as f64) -
-                          (diff_time.num_seconds() * 1000000000) as f64;
-
-        // Elapsed time
-        diff_time.num_seconds() as f64 + nanoseconds / 1000000000.0
     }
 
-    pub fn call_draw(&mut self) -> f64 {
-        let current_time = Utc::now();
-
+    pub fn call_draw(&mut self) {
         match self.current_code_type {
             Code::LUA => {
                 self.draw_return = self.cartridges[self.current_cartridge].lua_plugin.draw()
@@ -1420,18 +1409,9 @@ impl Unicorn {
             }
             _ => (),
         }
-
-        let diff_time = current_time.signed_duration_since(Utc::now());
-        let nanoseconds = (diff_time.num_nanoseconds().unwrap() as f64) -
-                          (diff_time.num_seconds() * 1000000000) as f64;
-
-        // Elapsed time
-        diff_time.num_seconds() as f64 + nanoseconds / 1000000000.0
     }
 
-    pub fn call_update(&mut self) -> f64 {
-        let current_time = Utc::now();
-
+    pub fn call_update(&mut self) {
         match self.current_code_type {
             Code::LUA => {
                 self.update_return = self.cartridges[self.current_cartridge].lua_plugin.update()
@@ -1453,12 +1433,5 @@ impl Unicorn {
             }
             _ => (),
         }
-
-        let diff_time = current_time.signed_duration_since(Utc::now());
-        let nanoseconds = (diff_time.num_nanoseconds().unwrap() as f64) -
-                          (diff_time.num_seconds() * 1000000000) as f64;
-
-        // Elapsed time
-        diff_time.num_seconds() as f64 + nanoseconds / 1000000000.0
     }
 }

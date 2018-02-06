@@ -2,6 +2,9 @@
 #![recursion_limit="2048"]
 
 #[macro_use]
+extern crate lazy_static;
+
+#[macro_use]
 extern crate stdweb;
 extern crate unicorn;
 
@@ -9,11 +12,20 @@ extern crate unicorn;
 extern crate serde_derive;
 extern crate serde;
 
+use std::sync::{Arc, Mutex};
 use std::cell::RefCell;
 use std::rc::Rc;
 use std::ops::DerefMut;
 use std::cmp::max;
 use std::error::Error;
+
+//lazy_static! {
+//    pub static ref FRAMEBUFFER: Mutex<[u32; 400 * 240]> = {
+//        Mutex::new([0; 400 * 240])
+//    };
+//}
+
+static mut FRAMEBUFFER: [u32; 400 * 240] = [0; 400 * 240];
 
 use stdweb::web::{
     self,
@@ -50,23 +62,10 @@ macro_rules! enclose {
     };
 }
 
-fn palette_to_abgr( palette: &nes::Palette ) -> [u32; 64] {
-    let mut output = [0; 64];
-    for (index, out) in output.iter_mut().enumerate() {
-        let (r, g, b) = palette.get_rgb( index as u8 );
-        *out = ((b as u32) << 16) |
-               ((g as u32) <<  8) |
-               ((r as u32)      ) |
-               0xFF000000;
-    }
-
-    output
-}
 
 struct UnicornWeb {
-    state: unicorn::Unicorn,
-    palette: [u32; 64],
-    framebuffer: [u32; 400 * 240],
+    state: unicorn::unicorn::Unicorn,
+    //framebuffer: [u32; 400 * 240],
     audio_buffer: Vec< f32 >,
     audio_chunk_counter: u32,
     audio_underrun: Option< usize >,
@@ -164,13 +163,13 @@ fn setup_webgl( canvas: &Element ) -> Value {
         var sampler_uniform = gl.getUniformLocation( program, "u_sampler" );
         gl.uniform1i( sampler_uniform, 0 );
 
-        var matrix = @{ortho( 0.0, 256.0, 240.0, 0.0 )};
+        var matrix = @{ortho( 0.0, 400.0, 240.0, 0.0 )};
         var matrix_uniform = gl.getUniformLocation( program, "u_matrix" );
         gl.uniformMatrix4fv( matrix_uniform, false, matrix );
 
         var texture = gl.createTexture();
         gl.bindTexture( gl.TEXTURE_2D, texture );
-        gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, 256, 256, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array( 256 * 256 * 4 ) );
+        gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, 512, 512, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array( 512 * 512 * 4 ) );
         gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST );
         gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST );
 
@@ -179,8 +178,8 @@ fn setup_webgl( canvas: &Element ) -> Value {
         var vertices = [
             0.0, 0.0,
             0.0, 240.0,
-            256.0, 0.0,
-            256.0, 240.0
+            400.0, 0.0,
+            400.0, 240.0
         ];
         gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( vertices ), gl.STATIC_DRAW );
         gl.vertexAttribPointer( vertex_attr, 2, gl.FLOAT, false, 0, 0 );
@@ -189,9 +188,9 @@ fn setup_webgl( canvas: &Element ) -> Value {
         gl.bindBuffer( gl.ARRAY_BUFFER, texcoord_buffer );
         var texcoords = [
             0.0, 0.0,
-            0.0, 240.0 / 256.0,
+            0.0, 240.0 / 400.0,
             1.0, 0.0,
-            1.0, 240.0 / 256.0
+            1.0, 240.0 / 400.0
         ];
         gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( texcoords ), gl.STATIC_DRAW );
         gl.vertexAttribPointer( texcoord_attr, 2, gl.FLOAT, false, 0, 0 );
@@ -206,7 +205,7 @@ fn setup_webgl( canvas: &Element ) -> Value {
 
         gl.clearColor( 0.0, 0.0, 0.0, 1.0 );
         gl.enable( gl.DEPTH_TEST );
-        gl.viewport( 0, 0, 256, 240 );
+        gl.viewport( 0, 0, 512, 512 );
 
         return gl;
     )
@@ -237,7 +236,7 @@ impl UnicornWeb {
                 canvas = new_canvas;
 
                 h.ctx = canvas.getContext( "2d" );
-                h.img = h.ctx.createImageData( 400, 240 );
+                h.img = h.ctx.createImageData( 512, 512 );
                 h.buffer = new Uint32Array( h.img.data.buffer );
             }
 
@@ -246,12 +245,11 @@ impl UnicornWeb {
 
         UnicornWeb {
             state: unicorn::unicorn::Unicorn::new(),
-            palette: palette_to_abgr( &nes::Palette::default() ),
-            framebuffer: [0; 400 * 240],
+           // framebuffer: [0; 400 * 240],
             audio_buffer: Vec::with_capacity( 44100 ),
             audio_chunk_counter: 0,
             audio_underrun: None,
-            paused: true,
+            paused: false,
             busy: false,
             js_ctx
         }
@@ -273,10 +271,16 @@ impl UnicornWeb {
     // it can handle other events and process audio.
     fn run_a_bit( &mut self ) -> Result< bool, Box< Error > > {
         if self.paused {
-            return Ok( true );
+            return Ok(true);
         }
 
-        let audio_chunk_counter = self.audio_chunk_counter;
+        self.state.update();
+        self.state.draw();
+        self.state.update_sound();
+
+       // self.state.info.lock().unwrap().update();
+
+        /*let audio_chunk_counter = self.audio_chunk_counter;
         loop {
             let result = nes::Interface::execute_cycle( self );
             match result {
@@ -294,32 +298,36 @@ impl UnicornWeb {
                     return Err( error );
                 }
             }
-        }
+        }*/
+
+        Ok(true)
     }
 
     fn draw( &mut self ) {
         let mut palette = unicorn::unicorn::PALETTE.lock().unwrap();
         let framebuffer = &self.state.screen.lock().unwrap().frame_buffer;
 
-        for (pixel_in, pixel_out) in framebuffer.iter().zip(self.framebuffer.iter_mut()) {
+        let mut i = 0;
+        for pixel_in in framebuffer.iter() {
             let rgb = palette.get_rgb(*pixel_in as u32);
-            *pixel_out = ((rgb.r as u32) << 16) | ((rgb.g as u32) << 8) | ((rgb.b as u32));
+            unsafe {
+                FRAMEBUFFER[i] = ((rgb.r as u32) << 16) | ((rgb.g as u32) << 8) | ((rgb.b as u32));
+            }
+            i += 1;
         }
 
-
-        let framebuffer = self.state.framebuffer();
         if !self.paused {
-            for (pixel_in, pixel_out) in framebuffer.iter().zip( self.framebuffer.iter_mut() ) {
-                *pixel_out = self.palette[ pixel_in.color_in_system_palette_index() as usize ];
-            }
+           // for (pixel_in, pixel_out) in framebuffer.iter().zip( self.framebuffer.iter_mut() ) {
+           //     *pixel_out = palette[ pixel_in.color_in_system_palette_index() as usize ];
+           // }
         }
 
         js! {
             var h = @{&self.js_ctx};
-            var framebuffer = @{unsafe { UnsafeTypedArray::new( &self.framebuffer ) }};
+            var framebuffer = @{unsafe { UnsafeTypedArray::new( &FRAMEBUFFER ) }};
             if( h.gl ) {
                 var data = new Uint8Array( framebuffer.buffer, framebuffer.byteOffset, framebuffer.byteLength );
-                h.gl.texSubImage2D( h.gl.TEXTURE_2D, 0, 0, 0, 256, 240, h.gl.RGBA, h.gl.UNSIGNED_BYTE, data );
+                h.gl.texSubImage2D( h.gl.TEXTURE_2D, 0, 0, 0, 400, 240, h.gl.RGBA, h.gl.UNSIGNED_BYTE, data );
                 h.gl.drawElements( h.gl.TRIANGLES, 6, h.gl.UNSIGNED_SHORT, 0 );
             } else {
                 h.buffer.set( framebuffer );
@@ -329,7 +337,7 @@ impl UnicornWeb {
     }
 
     fn on_key( &mut self, key: &str, location: KeyboardLocation, is_pressed: bool ) -> bool {
-        let button = match (key, location) {
+       /* let button = match (key, location) {
             ("Enter", _) => nes::Button::Start,
             ("Shift", KeyboardLocation::Right) => nes::Button::Select,
             ("ArrowUp", _) => nes::Button::Up,
@@ -361,7 +369,8 @@ impl UnicornWeb {
             _ => return false
         };
 
-        nes::Interface::set_button_state( self, nes::ControllerPort::First, button, is_pressed );
+        nes::Interface::set_button_state( self, nes::ControllerPort::First, button, is_pressed );*/
+
         return true;
     }
 }
@@ -399,11 +408,20 @@ fn emulate_for_a_single_frame( uc: Rc< RefCell< UnicornWeb > > ) {
 fn main_loop( uc: Rc< RefCell< UnicornWeb > > ) {
     // If we're running too slowly there is no point
     // in queueing up even more work.
-    if !uc.borrow_mut().busy {
-        emulate_for_a_single_frame( uc.clone() );
-    }
+    uc.borrow_mut().state.setup();
+    uc.borrow_mut().state.init();
+
+
+    //uc.borrow_mut().state.update();
+    //uc.borrow_mut().state.draw();
+    //uc.borrow_mut().state.update_sound();
+
+    //if !uc.borrow_mut().busy {
+    //    emulate_for_a_single_frame( uc.clone() );
+    //}
 
     uc.borrow_mut().draw();
+
     web::window().request_animation_frame( move |_| {
         main_loop( uc );
     });
@@ -423,24 +441,6 @@ fn show( id: &str ) {
 
 fn hide( id: &str ) {
     web::document().get_element_by_id( id ).unwrap().class_list().add( "hidden" );
-}
-
-fn fetch_builtin_rom_list< F: FnOnce( Vec< RomEntry > ) + 'static >( callback: F ) {
-    let on_rom_list_loaded = Once( move |mut roms: Vec< RomEntry >| {
-        roms.sort_by( |a, b| a.name.cmp( &b.name ) );
-        callback( roms );
-    });
-
-    js! {
-        var req = new XMLHttpRequest();
-        req.addEventListener( "load" , function() {
-            var cb = @{on_rom_list_loaded};
-            cb( JSON.parse( req.responseText ) );
-            cb.drop();
-        });
-        req.open( "GET", "roms/index.json" );
-        req.send();
-    }
 }
 
 
@@ -477,8 +477,10 @@ fn main() {
     let canvas = web::document().get_element_by_id( "viewport" ).unwrap();
     let uc = Rc::new( RefCell::new( UnicornWeb::new( &canvas ) ) );
 
-//    support_custom_roms( pinky.clone() );
-//    support_rom_changing( pinky.clone() );
+    hide( "loading" );
+    hide( "error" );
+
+    show( "viewport" );
 
     support_input( uc.clone() );
 
