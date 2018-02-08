@@ -781,6 +781,15 @@ impl Unicorn {
         }
     }
 
+    pub fn update_time(&mut self) {
+        self.info.lock().unwrap().update();
+
+        self.players
+            .lock()
+            .unwrap()
+            .update(self.info.lock().unwrap().elapsed_time);
+    }
+
     pub fn init(&mut self) {
         match self.state {
             UnicornState::RUN => {
@@ -868,6 +877,7 @@ impl Unicorn {
         }
 
         self.debug_draw();
+        self.update_time();
     }
 
     pub fn is_end(&self) -> bool {

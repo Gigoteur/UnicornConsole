@@ -190,13 +190,6 @@ impl libretro_backend::Core for UnicornCore {
         self.uc.draw();
         self.uc.update_sound();
 
-        self.uc.info.lock().unwrap().update();
-        self.uc
-            .players
-            .lock()
-            .unwrap()
-            .update(self.uc.info.lock().unwrap().elapsed_time);
-
         let mut palette = unicorn::unicorn::PALETTE.lock().unwrap();
         let framebuffer = &self.uc.screen.lock().unwrap().frame_buffer;
 

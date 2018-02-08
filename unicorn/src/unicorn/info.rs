@@ -1,7 +1,8 @@
+use std::time::{Duration, Instant};
+
 pub struct Info {
-    pub start_time: f64,
-    pub seconds: f64,
-    pub milliseconds: i64,
+    pub start_time: Instant,
+    pub milliseconds: u64,
     pub elapsed_time: f64,
 }
 
@@ -9,32 +10,28 @@ pub struct Info {
 impl Info {
     pub fn new() -> Info {
         Info {
-            start_time: 0.0,
-            seconds: 0.0,
+            start_time: Instant::now(),
             milliseconds: 0,
             elapsed_time: 0.0,
         }
     }
 
     pub fn update(&mut self) {
-        /*let new_time = Utc::now();
-        let diff_time = new_time.signed_duration_since(self.start_time);
-        let nanoseconds = (diff_time.num_nanoseconds().unwrap() as f64) -
-                          (diff_time.num_seconds() * 1000000000) as f64;
+        let now = Instant::now();
 
-        self.elapsed_time = diff_time.num_seconds() as f64 + nanoseconds / 1000000000.0;
-        self.milliseconds = diff_time.num_milliseconds();*/
+        let diff_time = now.duration_since(self.start_time);
+        let nanoseconds = diff_time.subsec_nanos();
+        self.elapsed_time = diff_time.as_secs() as f64 + nanoseconds as f64 / 1000000000.0;
+        self.milliseconds = nanoseconds as u64 * 1000000000;
     }
 
     pub fn time(&mut self) -> i64 {
         self.update();
-        //self.milliseconds
-        0
+        self.milliseconds as i64
     }
 
     pub fn time_sec(&mut self) -> f64 {
         self.update();
-       // self.elapsed_time
-        0.
+        self.elapsed_time
     }
 }

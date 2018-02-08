@@ -22,7 +22,7 @@ getopts = "0.2.14"
 regex = "0.2.1"
 log = "0.3.6"
 fern = "0.3.5"
-chrono = "0.2.25"
+chrono = "0.4"
 
 [dependencies.unicorn]
 path="../unicorn"

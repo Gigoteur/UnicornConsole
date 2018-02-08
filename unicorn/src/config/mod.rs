@@ -69,6 +69,7 @@ pub struct Players {
     pub akeys_quick: HashMap<Scancode, bool>,
     pub all_frames: HashMap<Scancode, f64>,
     pub text: String,
+    pub delta: f64,
 }
 
 impl Players {
@@ -84,6 +85,7 @@ impl Players {
             akeys_quick: HashMap::new(),
             all_frames: HashMap::new(),
             text: "".to_string(),
+            delta: 0.01,
         }
     }
 
@@ -128,7 +130,7 @@ impl Players {
     }
 
     pub fn update(&mut self, elapsed: f64) {
-        if elapsed - self.mouse.delay > 0.01 {
+        if elapsed - self.mouse.delay > self.delta {
             self.mouse.state = 0;
         }
 
@@ -136,7 +138,7 @@ impl Players {
             if *value {
                 match self.all_frames.get(&key_val) {
                     Some(&delay_value) => {
-                        if elapsed - delay_value >= 0.01 {
+                        if elapsed - delay_value >= self.delta {
                             self.akeys_quick.insert(*key_val, false);
                         } else {
                             self.akeys_quick.insert(*key_val, true);
@@ -158,7 +160,7 @@ impl Players {
                 if *value {
                     match keys.frames.get(&key_val) {
                         Some(&delay_value) => {
-                            if elapsed - delay_value >= 0.01 {
+                            if elapsed - delay_value >= self.delta {
                                 modif_quick.insert(*key_val, false);
                             } else {
                                 modif_quick.insert(*key_val, true);

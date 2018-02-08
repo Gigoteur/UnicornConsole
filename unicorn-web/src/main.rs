@@ -278,8 +278,6 @@ impl UnicornWeb {
         self.state.draw();
         self.state.update_sound();
 
-       // self.state.info.lock().unwrap().update();
-
         /*let audio_chunk_counter = self.audio_chunk_counter;
         loop {
             let result = nes::Interface::execute_cycle( self );

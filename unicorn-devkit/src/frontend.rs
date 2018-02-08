@@ -6,7 +6,7 @@ use sdl2::event::{Event, WindowEvent};
 
 use std::path::Path;
 
-use chrono::Local;
+use chrono::prelude::*;
 
 use sdl2::controller::Axis;
 use sdl2::keyboard::Scancode;
@@ -372,15 +372,6 @@ impl Frontend {
         self.uc.setup();
     }
 
-    pub fn update_time(&mut self) {
-        self.uc.info.lock().unwrap().update();
-        self.uc
-            .players
-            .lock()
-            .unwrap()
-            .update(self.uc.info.lock().unwrap().elapsed_time);
-    }
-
     pub fn init_controllers(&mut self, pathdb: String) {
         info!("[Frontend] Init Controllers");
 
@@ -480,13 +471,16 @@ impl Frontend {
 
 
     fn handle_event(&mut self) {
+        let start_time = Utc::now();
+        let elapsed_time: f64 = 0.0;
+        let milliseconds: f64 = 0.0;
+        
         'main: loop {
             self.times.update();
 
             self.fps_counter.update(self.times.get_last_time());
 
             self.uc.fps = self.fps_counter.get_fps();
-
 
             let mouse_state = self.event_pump.mouse_state();
             let (width, height) = self.renderer.get_dimensions();
@@ -571,14 +565,14 @@ impl Frontend {
                         if scancode == Scancode::F2 {
                             self.uc.configuration.lock().unwrap().toggle_info_overlay();
                         } else if scancode == Scancode::F3 {
-                            let dt = Local::now();
+                            let dt = Utc::now();
                             self.uc
                                 .screenshot(&("screenshot-".to_string() +
                                               &dt.format("%Y-%m-%d-%H-%M-%S.png").to_string()));
                         } else if scancode == Scancode::F4 {
                             let record_screen = self.uc.is_recording();
                             if !record_screen {
-                                let dt = Local::now();
+                                let dt = Utc::now();
                                 self.uc
                                     .start_record(&("record-".to_string() +
                                                     &dt.format("%Y-%m-%d-%H-%M-%S.gif")
@@ -725,8 +719,6 @@ impl Frontend {
 
             self.uc.draw();
             self.uc.update_sound();
-
-            self.update_time();
 
             self.blit();
         }
