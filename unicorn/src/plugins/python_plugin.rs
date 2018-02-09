@@ -570,7 +570,7 @@ pub mod plugin {
             let result = py.run(&data, None, None);
             match result {
                 Err(v) => {
-                    panic!("[PLUGIN][PYTHON] Failed to load the plugin = {:?}", v);
+                    error!("[PLUGIN][PYTHON] Failed to load the plugin = {:?}", v);
                 }
                 Ok(v) => {
                     info!("[PLUGIN][PYTHON] Successfully loaded = {:?}", v);
@@ -710,7 +710,7 @@ pub mod plugin {
                     _sound: Arc<Mutex<Sound>>,
                     _noise: Arc<Mutex<Noise>>,
                     _config: Arc<Mutex<UnicornConfig>>) {
-            panic!("[PLUGIN][PYTHON] plugin disabled");
+            error!("[PLUGIN][PYTHON] plugin disabled");
         }
         pub fn init(&mut self) {}
         pub fn draw(&mut self) -> bool {

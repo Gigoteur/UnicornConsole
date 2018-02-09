@@ -21,6 +21,7 @@ use gif;
 use gif::SetParameter;
 
 use std::io::prelude::*;
+use std::time::Duration;
 
 use std::path::Path;
 use std::fs::File;
@@ -781,8 +782,8 @@ impl Unicorn {
         }
     }
 
-    pub fn update_time(&mut self) {
-        self.info.lock().unwrap().update();
+    pub fn update_time(&mut self, dt: Duration) {
+        self.info.lock().unwrap().update(dt);
 
         self.players
             .lock()
@@ -877,7 +878,6 @@ impl Unicorn {
         }
 
         self.debug_draw();
-        self.update_time();
     }
 
     pub fn is_end(&self) -> bool {
@@ -1198,18 +1198,17 @@ impl Unicorn {
 
         info!("[Unicorn] LOAD CARTRIDGE {:?}", ret);
 
-        if ret {
-            self.editing = editor;
+        self.editing = editor;
 
-            if editor {
-                self.editor
-                    .init(self.configuration.clone(),
-                          self.palettes.clone(),
-                          &mut self.screen.lock().unwrap(),
-                          cartridge.cartridge.filename.clone(),
-                          data.clone());
-                self.state = UnicornState::EDITOR;
-            }
+        if editor {
+            self.editor
+                .init(self.configuration.clone(),
+                      self.palettes.clone(),
+                      &mut self.screen.lock().unwrap(),
+                      cartridge.cartridge.filename.clone(),
+                      data.clone());
+            self.state = UnicornState::EDITOR;
+            return true;
         }
 
         ret
@@ -1308,7 +1307,9 @@ impl Unicorn {
         if ret {
             self.add_cartridge(unicorn_cartridge);
             self._setup_screen();
-            self.init();
+            if !editor {
+                self.init();
+            }
         }
 
         ret

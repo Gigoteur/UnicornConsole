@@ -245,7 +245,6 @@ impl UnicornWeb {
 
         UnicornWeb {
             state: unicorn::unicorn::Unicorn::new(),
-           // framebuffer: [0; 400 * 240],
             audio_buffer: Vec::with_capacity( 44100 ),
             audio_chunk_counter: 0,
             audio_underrun: None,
@@ -276,7 +275,7 @@ impl UnicornWeb {
 
         self.state.update();
         self.state.draw();
-        self.state.update_sound();
+        //self.state.update_sound();
 
         /*let audio_chunk_counter = self.audio_chunk_counter;
         loop {
@@ -376,7 +375,11 @@ impl UnicornWeb {
 fn emulate_for_a_single_frame( uc: Rc< RefCell< UnicornWeb > > ) {
     uc.borrow_mut().busy = true;
 
-    web::set_timeout( enclose!( [uc] move || {
+    uc.borrow_mut().run_a_bit();
+
+    uc.borrow_mut().busy = false;
+
+    /*web::set_timeout( enclose!( [uc] move || {
         let finished_frame = match uc.borrow_mut().run_a_bit() {
             Ok( result ) => result,
             Err( error ) => {
@@ -400,23 +403,15 @@ fn emulate_for_a_single_frame( uc: Rc< RefCell< UnicornWeb > > ) {
 
             uc.busy = false;
         }
-    }), 0 );
+    }), 0 );*/
 }
 
 fn main_loop( uc: Rc< RefCell< UnicornWeb > > ) {
     // If we're running too slowly there is no point
     // in queueing up even more work.
-    uc.borrow_mut().state.setup();
-    uc.borrow_mut().state.init();
-
-
-    //uc.borrow_mut().state.update();
-    //uc.borrow_mut().state.draw();
-    //uc.borrow_mut().state.update_sound();
-
-    //if !uc.borrow_mut().busy {
-    //    emulate_for_a_single_frame( uc.clone() );
-    //}
+    if !uc.borrow_mut().busy {
+        emulate_for_a_single_frame( uc.clone() );
+    }
 
     uc.borrow_mut().draw();
 
@@ -474,6 +469,14 @@ fn main() {
 
     let canvas = web::document().get_element_by_id( "viewport" ).unwrap();
     let uc = Rc::new( RefCell::new( UnicornWeb::new( &canvas ) ) );
+
+    uc.borrow_mut().state.setup();
+    uc.borrow_mut().state.init();
+
+    let data = include_bytes!("../../unicorn/sys/unicorn.uni");
+    let data_final: Vec<u8> = unicorn::unicorn::array_to_vec(data);
+
+    uc.borrow_mut().state.load_cartridge_raw("unicorn.uni", data_final, true);
 
     hide( "loading" );
     hide( "error" );

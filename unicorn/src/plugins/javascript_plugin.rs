@@ -780,7 +780,7 @@ pub mod plugin {
                     _screen: Arc<Mutex<Screen>>,
                     _noise: Arc<Mutex<Noise>>,
                     _sound: Arc<Mutex<Sound>>) {
-            panic!("Javascript plugin disabled");
+            error!("Javascript plugin disabled");
         }
         pub fn load_code(&mut self, _data: String) -> bool {
             false

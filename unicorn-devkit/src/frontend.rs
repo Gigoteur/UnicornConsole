@@ -7,6 +7,7 @@ use sdl2::event::{Event, WindowEvent};
 use std::path::Path;
 
 use chrono::prelude::*;
+use std::time::Instant;
 
 use sdl2::controller::Axis;
 use sdl2::keyboard::Scancode;
@@ -471,11 +472,16 @@ impl Frontend {
 
 
     fn handle_event(&mut self) {
-        let start_time = Utc::now();
+        let mut previous_frame_time = Instant::now();
+
         let elapsed_time: f64 = 0.0;
         let milliseconds: f64 = 0.0;
         
         'main: loop {
+            let now = Instant::now();
+            let dt = now.duration_since(previous_frame_time);
+            previous_frame_time = now;
+
             self.times.update();
 
             self.fps_counter.update(self.times.get_last_time());
@@ -719,6 +725,7 @@ impl Frontend {
 
             self.uc.draw();
             self.uc.update_sound();
+            self.uc.update_time(dt);
 
             self.blit();
         }
