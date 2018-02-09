@@ -12,6 +12,8 @@ extern crate unicorn;
 extern crate serde_derive;
 extern crate serde;
 
+use std::time::Duration;
+
 use std::sync::{Arc, Mutex};
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -65,7 +67,6 @@ macro_rules! enclose {
 
 struct UnicornWeb {
     state: unicorn::unicorn::Unicorn,
-    //framebuffer: [u32; 400 * 240],
     audio_buffer: Vec< f32 >,
     audio_chunk_counter: u32,
     audio_underrun: Option< usize >,
@@ -415,7 +416,11 @@ fn main_loop( uc: Rc< RefCell< UnicornWeb > > ) {
 
     uc.borrow_mut().draw();
 
-    web::window().request_animation_frame( move |_| {
+    web::window().request_animation_frame( move |v: f64| {
+        let dt = Duration::from_millis(v as u64);
+   //     js!( console.log( "DT :", @{format!( "{:?}", dt )} ); );
+
+        uc.borrow_mut().state.update_time(dt);
         main_loop( uc );
     });
 }
@@ -473,6 +478,8 @@ fn main() {
     uc.borrow_mut().state.setup();
     uc.borrow_mut().state.init();
 
+    uc.borrow_mut().state.toggle_debug();
+
     let data = include_bytes!("../../unicorn/sys/unicorn.uni");
     let data_final: Vec<u8> = unicorn::unicorn::array_to_vec(data);
 
@@ -485,7 +492,7 @@ fn main() {
 
     support_input( uc.clone() );
 
-    web::window().request_animation_frame( move |_| {
+    web::window().request_animation_frame( move |v: f64| {
         main_loop( uc );
     });
 

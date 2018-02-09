@@ -728,6 +728,10 @@ impl Unicorn {
         self.sound_internal.lock().unwrap().stop();
     }
 
+    pub fn toggle_debug(&mut self) {
+        self.configuration.lock().unwrap().toggle_info_overlay();
+    }
+
     #[cfg_attr(rustfmt, rustfmt_skip)]
     pub fn mouse_sprite() -> Vec<u8> {
         vec![0, 1, 0, 0, 0, 0, 0, 0,
