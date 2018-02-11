@@ -272,14 +272,29 @@ pub mod plugin {
         Ok(self.screen(py).lock().unwrap().sget(x as u32, y as u32))
     }
 
-    def spr(&self, n: i32, x: i32, y: i32, w: i32, h: i32, flip_x: bool, flip_y: bool) -> PyResult<i32> {
+    def spr_reg(&self, n: i64, d: PyList, width: u8, height: u8) -> PyResult<i64> {
+        let mut data: Vec<u32> = Vec::new();
+
+        for lx in d.iter(py) {
+            data.push(lx.extract::<u32>(py).unwrap());
+        }
+
+
+        Ok(self.screen(py).lock().unwrap().spr_reg(n,
+                                                   data,
+                                                   width,
+                                                   height))
+    }
+
+    def spr(&self, n: i32, x: i32, y: i32, w: i32, h: i32, flip_x: bool, flip_y: bool, dynamic: bool) -> PyResult<i32> {
         self.screen(py).lock().unwrap().spr(n as u32,
                                             x as i32,
                                             y as i32,
                                             w as u32,
                                             h as u32,
                                             flip_x,
-                                            flip_y);
+                                            flip_y,
+                                            dynamic);
 
         Ok(0)
     }

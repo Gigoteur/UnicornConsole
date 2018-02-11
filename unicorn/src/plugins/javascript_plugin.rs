@@ -325,6 +325,7 @@ pub mod plugin {
             let mut h: u32 = 1;
             let mut flip_x: bool = false;
             let mut flip_y: bool = false;
+            let mut dynamic: bool = false;
 
             if args.len() < 3 {
                 return Ok(Value::Number(-1.));
@@ -360,8 +361,12 @@ pub mod plugin {
                 flip_y = arg as bool;
             }
 
+            if let Value::Bool(arg) = args[7] {
+                dynamic = arg as bool;
+            }
 
-            self.screen[0].lock().unwrap().spr(n, x, y, w, h, flip_x, flip_y);
+
+            self.screen[0].lock().unwrap().spr(n, x, y, w, h, flip_x, flip_y, dynamic);
 
             Ok(Value::Number(0.))
         }
@@ -688,7 +693,7 @@ pub mod plugin {
             self.ctx.register(0x2, "cls", self.javascript.clone(), Some(1));
             self.ctx.register(0x3, "unicorn_time", self.javascript.clone(), Some(0));
             self.ctx.register(0x4, "print", self.javascript.clone(), Some(4));
-            self.ctx.register(0x5, "spr", self.javascript.clone(), Some(7));
+            self.ctx.register(0x5, "spr", self.javascript.clone(), Some(8));
             self.ctx.register(0x6, "btnp", self.javascript.clone(), Some(2));
             self.ctx.register(0x7, "sspr", self.javascript.clone(), Some(10));
             self.ctx.register(0x8, "pal", self.javascript.clone(), Some(2));

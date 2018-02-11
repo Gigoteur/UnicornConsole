@@ -21,11 +21,7 @@ use std::ops::DerefMut;
 use std::cmp::max;
 use std::error::Error;
 
-//lazy_static! {
-//    pub static ref FRAMEBUFFER: Mutex<[u32; 400 * 240]> = {
-//        Mutex::new([0; 400 * 240])
-//    };
-//}
+static mut PREVIOUS_FRAME: f64 = 0.;
 
 static mut FRAMEBUFFER: [u32; 400 * 240] = [0; 400 * 240];
 
@@ -309,7 +305,7 @@ impl UnicornWeb {
         for pixel_in in framebuffer.iter() {
             let rgb = palette.get_rgb(*pixel_in as u32);
             unsafe {
-                FRAMEBUFFER[i] = ((rgb.r as u32) << 16) | ((rgb.g as u32) << 8) | ((rgb.b as u32));
+                FRAMEBUFFER[i] = ((rgb.b as u32) << 16) | ((rgb.g as u32) << 8) | ((rgb.r as u32)) | 0xFF000000;
             }
             i += 1;
         }
@@ -415,10 +411,26 @@ fn main_loop( uc: Rc< RefCell< UnicornWeb > > ) {
     }
 
     uc.borrow_mut().draw();
+    
+    web::window().request_animation_frame( move |timestamp: f64| {
+        let mut previous_frame_timestamp: f64 = 0.;
 
-    web::window().request_animation_frame( move |v: f64| {
-        let dt = Duration::from_millis(v as u64);
-   //     js!( console.log( "DT :", @{format!( "{:?}", dt )} ); );
+        unsafe {
+            previous_frame_timestamp = PREVIOUS_FRAME;
+        }
+        
+   //     js!( console.log( "timestamp :", @{format!( "{:?}", timestamp )} ); );
+   //     js!( console.log( "previous_frame_timestamp :", @{format!( "{:?}", previous_frame_timestamp )} ); );
+
+        let diff = timestamp - previous_frame_timestamp;
+       
+        unsafe{
+          PREVIOUS_FRAME = timestamp;  
+        }
+
+        let dt = Duration::from_millis(diff as u64);
+
+        js!( console.log( "DT :", @{format!( "{:?}", dt )} ); );
 
         uc.borrow_mut().state.update_time(dt);
         main_loop( uc );
@@ -492,7 +504,7 @@ fn main() {
 
     support_input( uc.clone() );
 
-    web::window().request_animation_frame( move |v: f64| {
+    web::window().request_animation_frame( move |_| {
         main_loop( uc );
     });
 

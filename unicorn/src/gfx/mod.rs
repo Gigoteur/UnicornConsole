@@ -29,9 +29,24 @@ pub struct Font {
     name: &'static str,
 }
 
+#[derive(Clone)]
+pub struct DynamicSprite {
+    pub data: Vec<u32>,
+    pub width: u8,
+    pub height: u8,
+    pub flags: u8,
+}
+
+impl DynamicSprite {
+    pub fn new(d: Vec<u32>, width: u8, height: u8) -> DynamicSprite {
+        DynamicSprite { data: d, width: width, height: height, flags: 0 }
+    }
+
+}
+
 #[derive(Copy)]
 pub struct Sprite {
-    pub data: [u8; 64],
+    pub data: [u32; 64],
     pub flags: u8,
 }
 
@@ -42,7 +57,7 @@ impl Clone for Sprite {
 }
 
 impl Sprite {
-    pub fn new(d: [u8; 64]) -> Sprite {
+    pub fn new(d: [u32; 64]) -> Sprite {
         Sprite { data: d, flags: 0 }
     }
 
@@ -70,7 +85,7 @@ impl Sprite {
         self.flags = flags;
     }
 
-    pub fn set_data(&mut self, idx: usize, col: u8) {
+    pub fn set_data(&mut self, idx: usize, col: u32) {
         self.data[idx] = col;
     }
 
@@ -103,8 +118,8 @@ impl Sprite {
         data
     }
 
-    pub fn horizontal_reflection(&self) -> [u8; 64] {
-        let mut ret: [u8; 64] = self.to_u8_64_array();
+    pub fn horizontal_reflection(&self) -> [u32; 64] {
+        let mut ret: [u32; 64] = self.to_u32_64_array();
 
         for i in 0..4 {
             for j in 0..8 {
@@ -115,8 +130,8 @@ impl Sprite {
         ret
     }
 
-    pub fn vertical_reflection(&self) -> [u8; 64] {
-        let mut ret: [u8; 64] = self.to_u8_64_array();
+    pub fn vertical_reflection(&self) -> [u32; 64] {
+        let mut ret: [u32; 64] = self.to_u32_64_array();
 
         for i in 0..4 {
             for j in 0..8 {
@@ -135,8 +150,8 @@ impl Sprite {
         Sprite::new(self.vertical_reflection())
     }
 
-    pub fn to_u8_64_array(&self) -> [u8; 64] {
-        let mut arr = [0u8; 64];
+    pub fn to_u32_64_array(&self) -> [u32; 64] {
+        let mut arr = [0u32; 64];
         for (place, element) in arr.iter_mut().zip(self.data.iter()) {
             *place = *element;
         }
@@ -268,6 +283,7 @@ pub struct Screen {
     pub frame_buffer: Vec<u8>,
     pub saved_frame_buffer: Vec<u8>,
     pub sprites: Vec<Sprite>,
+    pub dyn_sprites: Vec<DynamicSprite>,
 
     pub map: Vec<u32>,
 
@@ -295,6 +311,7 @@ impl Screen {
             saved_frame_buffer: vec![0; width * height],
             aspect_ratio: width as f32 / height as f32,
             sprites: Vec::new(),
+            dyn_sprites: Vec::new(),
             map: Vec::new(),
             transparency_map: [false; 256],
             color_map: [0; 256],
@@ -475,7 +492,7 @@ impl Screen {
 
         let idx_sprite = (x / 8) + 50 * (y / 8);
         let sprite = &mut self.sprites[idx_sprite as usize];
-        sprite.set_data(((x % 8) + (y % 8) * 8) as usize, col as u8);
+        sprite.set_data(((x % 8) + (y % 8) * 8) as usize, col as u32);
     }
 
     pub fn fget(&mut self, idx: u32, v: u8) -> bool {
@@ -958,7 +975,33 @@ impl Screen {
         self.line(vx[idx], vy[idx], vx[0], vy[0], col);
     }
 
-    pub fn spr(&mut self, n: u32, x: i32, y: i32, w: u32, h: u32, flip_x: bool, flip_y: bool) {
+    pub fn spr_reg(&mut self, n: i64, data: Vec<u32>, width: u8, height: u8) -> i64 {
+        let mut dynamic_sprite = false;
+
+        if width != 8 || height != 8 {
+            dynamic_sprite = true;
+        }
+
+        if dynamic_sprite {
+            info!("SPR REG {:?} {:?} {:?}", width, height, data);
+
+            let dyn_sprite = DynamicSprite::new(data, width, height);
+            if n == -1 {
+                self.dyn_sprites.push(dyn_sprite);
+                return (self.dyn_sprites.len() - 1) as i64;
+            } else {
+                if n >= self.dyn_sprites.len() as i64 {
+                    return -1;
+                }
+                self.dyn_sprites[n as usize] = dyn_sprite;
+                return n;
+            }
+        }
+
+        -1
+    }
+
+    pub fn spr(&mut self, n: u32, x: i32, y: i32, w: u32, h: u32, flip_x: bool, flip_y: bool, dynamic: bool) {
         /* debug!("PRINT SPRITE = x:{:?} y:{:?} n:{:?} w:{:?} h:{:?} flip_x:{:?} flip_y:{:?}",
                x,
                y,
@@ -968,55 +1011,78 @@ impl Screen {
                flip_x,
                flip_y);*/
 
-        let mut orig_x = x;
-        let mut orig_y = y;
+        if dynamic {
+            let orig_x = x;
+            let orig_y = y;
 
-        let sprites_len = self.sprites.len();
-        for i in 0..h {
-            for j in 0..w {
-                let sprite_offset = ((j + n) + i * 50) as usize;
-                if sprite_offset >= sprites_len {
-                    break;
-                }
+            let mut idx = 0;
 
-                let mut sprite = self.sprites[sprite_offset].clone();
+            let sprite = self.dyn_sprites[n as usize].clone();
+            for idx_y in 0..sprite.height {
+                for idx_x in 0..sprite.width {
+                    let new_x = orig_x + idx_x as i32;
+                    let new_y = orig_y + idx_y as i32;
 
-                if flip_x {
-                    sprite = sprite.flip_x();
-                }
-                if flip_y {
-                    sprite = sprite.flip_y();
-                }
+                    let c = sprite.data[idx as usize];
 
-                let mut new_x = orig_x;
-                let mut new_y = orig_y;
-
-                /*                debug!("SPRITE = {:?} x:{:?} y:{:?} {:?}",
-                       sprite_offset,
-                       new_x,
-                       new_y,
-                       sprite);*/
-
-                let mut index = 0;
-                for (_, c) in sprite.data.iter_mut().enumerate() {
-                    if !self.is_transparent(*c as u32) {
-                        self.putpixel_(new_x, new_y, *c as u32);
+                    if !self.is_transparent(c) {
+                        self.putpixel(new_x, new_y, c);
                     }
 
-                    index += 1;
-
-                    if index != 0 && index % 8 == 0 {
-                        new_y += 1;
-                        new_x = orig_x;
-                    } else {
-                        new_x += 1;
-                    }
+                    idx += 1;
                 }
-
-                orig_x += 8;
             }
-            orig_y += 8;
-            orig_x = x;
+        } else {
+            let mut orig_x = x;
+            let mut orig_y = y;
+
+            let sprites_len = self.sprites.len();
+            for i in 0..h {
+                for j in 0..w {
+                    let sprite_offset = ((j + n) + i * 50) as usize;
+                    if sprite_offset >= sprites_len {
+                        break;
+                    }
+
+                    let mut sprite = self.sprites[sprite_offset].clone();
+
+                    if flip_x {
+                        sprite = sprite.flip_x();
+                    }
+                    if flip_y {
+                        sprite = sprite.flip_y();
+                    }
+
+                    let mut new_x = orig_x;
+                    let mut new_y = orig_y;
+
+                    /*                debug!("SPRITE = {:?} x:{:?} y:{:?} {:?}",
+                           sprite_offset,
+                           new_x,
+                           new_y,
+                           sprite);*/
+
+                    let mut index = 0;
+                    for (_, c) in sprite.data.iter_mut().enumerate() {
+                        if !self.is_transparent(*c as u32) {
+                            self.putpixel_(new_x, new_y, *c as u32);
+                        }
+
+                        index += 1;
+
+                        if index != 0 && index % 8 == 0 {
+                            new_y += 1;
+                            new_x = orig_x;
+                        } else {
+                            new_x += 1;
+                        }
+                    }
+
+                    orig_x += 8;
+                }
+                orig_y += 8;
+                orig_x = x;
+            }
         }
     }
 

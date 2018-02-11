@@ -511,9 +511,13 @@ def sget(x, y):
     return unicorn_graphic.sget(x, y)
 
 
-def spr(n, x, y, w=1, h=1, flip_x=False, flip_y=False):
+def spr_reg(n, d, width, height):
+    return unicorn_graphic.spr_reg(n, d, width, height)
+
+
+def spr(n, x, y, w=1, h=1, flip_x=False, flip_y=False, dynamic=False):
     unicorn_graphic.spr(math.floor(n), math.floor(x), math.floor(y),
-                        math.floor(w), math.floor(h), flip_x, flip_y)
+                        math.floor(w), math.floor(h), flip_x, flip_y, dynamic)
 
 
 def sset(x, y, c=-1):
@@ -572,6 +576,7 @@ globals()["rect"] = rect
 globals()["rectfill"] = rectfill
 globals()["sget"] = sget
 globals()["spr"] = spr
+globals()["spr_reg"] = spr_reg
 globals()["sset"] = sset
 globals()["sspr"] = sspr
 globals()["sspr_rotazoom"] = sspr_rotazoom

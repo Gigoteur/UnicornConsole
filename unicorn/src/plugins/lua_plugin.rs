@@ -555,7 +555,7 @@ pub mod plugin {
               "#);
             info!("[PLUGIN][LUA][Unicorn][MSET] = {:?}", value);
 
-            let value = lua_state.do_string(r#"spr = function(n, x, y, w, h, flip_x, flip_y)
+            let value = lua_state.do_string(r#"spr = function(n, x, y, w, h, flip_x, flip_y, dynamic)
 
               n = math.floor(n)
               x = math.floor(x)
@@ -585,7 +585,11 @@ pub mod plugin {
                 flip_y = 0
               end
 
-              UnicornObject:spr(n, x, y, w, h, flip_x, flip_y)
+              if dynamic == nil then
+                dynamic = true
+              end
+
+              UnicornObject:spr(n, x, y, w, h, flip_x, flip_y, dynamic)
               end
               "#);
             info!("[PLUGIN][LUA][Unicorn][SPR] = {:?}", value);
@@ -1842,6 +1846,7 @@ pub mod plugin {
             let h = state.check_integer(6);
             let flip_x = state.check_integer(7);
             let flip_y = state.check_integer(8);
+            let dynamic = state.check_integer(9);
 
             let screen = state.with_extra(|extra| {
                                               let data = extra
@@ -1861,7 +1866,8 @@ pub mod plugin {
                      w as u32,
                      h as u32,
                      flip_x == 1,
-                     flip_y == 1);
+                     flip_y == 1,
+                     dynamic == 1);
 
             1
         }

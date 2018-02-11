@@ -937,7 +937,7 @@ impl SpritesMap {
             for _ in 0..4 {
                 let mut x = idx_sprites_batch_x;
                 for _ in 0..50 {
-                    screen.spr(idx, x, y, 1, 1, false, false);
+                    screen.spr(idx, x, y, 1, 1, false, false, false);
                     if idx == self.state.lock().unwrap().current_sprite {
                         current_sprite_x = x;
                         current_sprite_y = y;

@@ -33,6 +33,16 @@ __palette__
 
 __gfx__ 400x240 -> 1500
 
+XXXXXXXX
+XXXXXXXX
+XXXXXXXX
+XXXXXXXX    => X: 0..1024
+XXXXXXXX
+XXXXXXXX
+XXXXXXXX
+XXXXXXXX
+
+
 __gff__
 
 __map__ 400*60 -> 24.000
@@ -298,7 +308,7 @@ impl CartridgeGFX {
 
             // Fill all sprites
             for idx in 0..1500 {
-                let mut data: [u8; 8 * 8] = [0; 8 * 8];
+                let mut data: [u32; 8 * 8] = [0; 8 * 8];
 
                 let mut idx_vec = 0;
 
@@ -314,7 +324,7 @@ impl CartridgeGFX {
                     for x in 0..8 {
                         let offset = g_off + y * 400 + x;
 
-                        data[idx_vec] = v[offset] as u8;
+                        data[idx_vec] = v[offset];
                         idx_vec += 1;
                     }
                 }
