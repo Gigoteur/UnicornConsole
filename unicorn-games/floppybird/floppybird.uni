@@ -2,71 +2,91 @@ Saved by unicorn
 Version "1.0.0"
 __python__
 
+import os
 from PIL import Image
 import math
 
 flr=math.floor
 
+ASSETS = {}
+
+class Bird(object):
+    def __init__(self, x, y):
+        self.anim = 0
+        self.anim_frame = "bird0.png"
+        self.x = x
+        self.y = y
+
+    def update(self, dt):
+        if dt % 2 == 0:
+            self.anim = (self.anim + 1) % 3
+            self.anim_frame = "bird%d.png" % self.anim
+
+    def draw(self):
+        spr(ASSETS[self.anim_frame], 64, 64, dynamic=True)
+
+
 # Original sprites in assets from https://github.com/RobLoach/ChaiLove-FloppyBird
 def ImportPng(directory):
-
+    global ASSETS
     from os import listdir
     from os.path import isfile, join
     onlyfiles = [join(directory, f) for f in listdir(directory) if isfile(join(directory, f))]
-    print(onlyfiles)
-    print("start to import")
-    im = Image.open("../unicorn-games/floppybird/assets/bird0.png")
-    print(im)
-    im = im.convert('RGB')
 
-    pixels = im.load()
-    print(pixels)
-    width, height = im.size
-    print(width, height)
+    ncolor = 16
 
-    v = []
     pixels_hash = {}
     pixels_hash[(0, 0, 0, 0)] = 0
     pixels_hash[(97, 112, 0)] = 0
 
-    ncolor = 16
-    for y in range(height):
-        for x in range(width):
-            cpixel = pixels[x, y]
+    for file in onlyfiles:
+        head, tail = os.path.split(file)
 
-            if cpixel not in pixels_hash:
-                pixels_hash[cpixel] = ncolor
-                palette(ncolor, cpixel[0], cpixel[1], cpixel[2])
-                ncolor += 1
+        print("start to import", file)
+        im = Image.open(file)
+        im = im.convert('RGB')
 
-            print('{0:2d} '.format(pixels_hash[cpixel]), end='')
+        pixels = im.load()
+        width, height = im.size
+        print(width, height)
 
-            #sset(x, y, pixels_hash[cpixel])
-            v.append(pixels_hash[cpixel])
-        print()
+        data = []
+        for y in range(height):
+            for x in range(width):
+                cpixel = pixels[x, y]
 
-    #v = [1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4]
-    #spr_reg(-1, v, 4, 4)
+                if cpixel not in pixels_hash:
+                    pixels_hash[cpixel] = ncolor
+                    palette(ncolor, cpixel[0], cpixel[1], cpixel[2])
+                    ncolor += 1
 
-    print(len(v), width, height)
+#                print('{0:2d} '.format(pixels_hash[cpixel]), end='')
 
-    spr_reg(-1, v, width, height)
+                #sset(x, y, pixels_hash[cpixel])
+                data.append(pixels_hash[cpixel])
 
-    print(len(pixels_hash), pixels_hash)
-    print("end of import")
+        idx = spr_reg(-1, data, width, height)
+        ASSETS[tail] = idx
+
+    print("end of importation")
+
+DT = 0
+BIRD = Bird(64, 64)
 
 def _init():
     ImportPng("../unicorn-games/floppybird/assets/")
-    spr(0, 64, 64, dynamic=True)
+
 
 def _update():
-    pass
+    global DT
+    BIRD.update(DT)
+    DT += 1
 
 def _draw():
-    pass
-    #cls()
-    #sspr(0, 0, 34, 24, 64, 64)
-    
+    cls(1)
+    BIRD.draw()
+
+
 __palette__
 __gfx__
 010010010010010010010010010010010010011011011011011011010010010010010010010010010010010010010010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000

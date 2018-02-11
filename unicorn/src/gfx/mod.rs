@@ -32,13 +32,13 @@ pub struct Font {
 #[derive(Clone)]
 pub struct DynamicSprite {
     pub data: Vec<u32>,
-    pub width: u8,
-    pub height: u8,
+    pub width: u32,
+    pub height: u32,
     pub flags: u8,
 }
 
 impl DynamicSprite {
-    pub fn new(d: Vec<u32>, width: u8, height: u8) -> DynamicSprite {
+    pub fn new(d: Vec<u32>, width: u32, height: u32) -> DynamicSprite {
         DynamicSprite { data: d, width: width, height: height, flags: 0 }
     }
 
@@ -975,7 +975,7 @@ impl Screen {
         self.line(vx[idx], vy[idx], vx[0], vy[0], col);
     }
 
-    pub fn spr_reg(&mut self, n: i64, data: Vec<u32>, width: u8, height: u8) -> i64 {
+    pub fn spr_reg(&mut self, n: i64, data: Vec<u32>, width: u32, height: u32) -> i64 {
         let mut dynamic_sprite = false;
 
         if width != 8 || height != 8 {
@@ -983,8 +983,6 @@ impl Screen {
         }
 
         if dynamic_sprite {
-            info!("SPR REG {:?} {:?} {:?}", width, height, data);
-
             let dyn_sprite = DynamicSprite::new(data, width, height);
             if n == -1 {
                 self.dyn_sprites.push(dyn_sprite);

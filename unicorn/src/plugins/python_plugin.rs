@@ -272,7 +272,7 @@ pub mod plugin {
         Ok(self.screen(py).lock().unwrap().sget(x as u32, y as u32))
     }
 
-    def spr_reg(&self, n: i64, d: PyList, width: u8, height: u8) -> PyResult<i64> {
+    def spr_reg(&self, n: i64, d: PyList, width: u32, height: u32) -> PyResult<i64> {
         let mut data: Vec<u32> = Vec::new();
 
         for lx in d.iter(py) {
