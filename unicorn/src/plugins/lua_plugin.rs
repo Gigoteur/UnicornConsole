@@ -585,11 +585,19 @@ pub mod plugin {
                 flip_y = 0
               end
 
+              if angle == nil then
+                angle = 0
+              end
+
+              if zoom == nil then
+                zoom = 1
+              end
+
               if dynamic == nil then
                 dynamic = true
               end
 
-              UnicornObject:spr(n, x, y, w, h, flip_x, flip_y, dynamic)
+              UnicornObject:spr(n, x, y, w, h, flip_x, flip_y, angle, zoom, dynamic)
               end
               "#);
             info!("[PLUGIN][LUA][Unicorn][SPR] = {:?}", value);
@@ -1846,7 +1854,9 @@ pub mod plugin {
             let h = state.check_integer(6);
             let flip_x = state.check_integer(7);
             let flip_y = state.check_integer(8);
-            let dynamic = state.check_integer(9);
+            let angle = state.check_number(9);
+            let zoom = state.check_number(10);
+            let dynamic = state.check_integer(11);
 
             let screen = state.with_extra(|extra| {
                                               let data = extra
@@ -1863,10 +1873,12 @@ pub mod plugin {
                 .spr(n as u32,
                      x as i32,
                      y as i32,
-                     w as u32,
-                     h as u32,
+                     w as i32,
+                     h as i32,
                      flip_x == 1,
                      flip_y == 1,
+                     angle,
+                     zoom,
                      dynamic == 1);
 
             1

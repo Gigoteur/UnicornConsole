@@ -57,7 +57,7 @@ pub fn clamp<T: PartialOrd>(val: T, min: T, max: T) -> T {
 pub struct Palette {
     colors: HashMap<u32, RGB>,
     rcolors: HashMap<u32, u32>,
-    cached_colors: [u32; 0xFFF],
+    cached_colors: [u32; 16],
 }
 
 impl Palette {
@@ -65,12 +65,12 @@ impl Palette {
         Palette {
             colors: HashMap::new(),
             rcolors: HashMap::new(),
-            cached_colors: [0; 0xFFF],
+            cached_colors: [0; 16],
         }
     }
 
     pub fn get_rgb(&mut self, value: u32) -> RGB {
-        if value < 0xFFF {
+        if value < 16 {
             let v = self.cached_colors[value as usize];
 
             let r = ((v & 0xff0000) >> 16) as u8;
@@ -95,7 +95,7 @@ impl Palette {
 
         self.colors.insert(color, RGB::new(r, g, b));
         self.rcolors.insert(u32_color, color);
-        if color < 0xFFF {
+        if color < 16 {
             self.cached_colors[color as usize] = u32_color;
         }
     }

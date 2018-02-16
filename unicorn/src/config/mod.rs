@@ -85,7 +85,7 @@ impl Players {
             akeys_quick: HashMap::new(),
             all_frames: HashMap::new(),
             text: "".to_string(),
-            delta: 0.01,
+            delta: 0.1,
         }
     }
 

@@ -19,8 +19,9 @@ impl Info {
     pub fn update(&mut self, dt: Duration) {
         if self.current > dt {
             let nanoseconds = dt.subsec_nanos();
-            self.elapsed_time = dt.as_secs() as f64 + nanoseconds as f64 / 1000000000.0;
+            self.elapsed_time += dt.as_secs() as f64 + nanoseconds as f64 / 1000000000.0;
             self.milliseconds = nanoseconds as u64 * 1000000000;
+            info!("ELAPSED TIME {:?}", self.elapsed_time);
         }
         
         self.current = self.current + dt;

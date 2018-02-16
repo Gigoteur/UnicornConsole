@@ -1,7 +1,6 @@
 use unicorn::config::keys::PX8Key;
 
 use sdl2::controller::{Axis, Button};
-use sdl2::keyboard::Scancode;
 
 pub fn map_button(button: Button) -> Option<PX8Key> {
     match button {

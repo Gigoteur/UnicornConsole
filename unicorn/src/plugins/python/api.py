@@ -515,9 +515,10 @@ def spr_reg(n, d, width, height):
     return unicorn_graphic.spr_reg(n, d, width, height)
 
 
-def spr(n, x, y, w=1, h=1, flip_x=False, flip_y=False, dynamic=False):
+def spr(n, x, y, w=-1, h=-1, flip_x=False, flip_y=False, angle=0, zoom=1, dynamic=False):
     unicorn_graphic.spr(math.floor(n), math.floor(x), math.floor(y),
-                        math.floor(w), math.floor(h), flip_x, flip_y, dynamic)
+                        math.floor(w), math.floor(h), flip_x, flip_y,
+                        angle, zoom, dynamic)
 
 
 def sset(x, y, c=-1):

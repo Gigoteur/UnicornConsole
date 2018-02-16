@@ -321,10 +321,12 @@ pub mod plugin {
             let mut n: u32 = 0;
             let mut x: i32 = 0;
             let mut y: i32 = 0;
-            let mut w: u32 = 1;
-            let mut h: u32 = 1;
+            let mut w: i32 = 1;
+            let mut h: i32 = 1;
             let mut flip_x: bool = false;
             let mut flip_y: bool = false;
+            let mut angle: f64 = 0.;
+            let mut zoom: f64 = 1.;
             let mut dynamic: bool = false;
 
             if args.len() < 3 {
@@ -346,11 +348,11 @@ pub mod plugin {
             }
 
             if let Value::Number(arg) = args[3] {
-                w = arg as u32;
+                w = arg as i32;
             }
 
             if let Value::Number(arg) = args[4] {
-                h = arg as u32;
+                h = arg as i32;
             }
 
             if let Value::Bool(arg) = args[5] {
@@ -361,12 +363,19 @@ pub mod plugin {
                 flip_y = arg as bool;
             }
 
-            if let Value::Bool(arg) = args[7] {
+            if let Value::Number(arg) = args[7] {
+                angle = arg as f64;
+            }
+
+            if let Value::Number(arg) = args[8] {
+                zoom = arg as f64;
+            }
+
+            if let Value::Bool(arg) = args[9] {
                 dynamic = arg as bool;
             }
 
-
-            self.screen[0].lock().unwrap().spr(n, x, y, w, h, flip_x, flip_y, dynamic);
+            self.screen[0].lock().unwrap().spr(n, x, y, w, h, flip_x, flip_y, angle, zoom, dynamic);
 
             Ok(Value::Number(0.))
         }
@@ -693,7 +702,7 @@ pub mod plugin {
             self.ctx.register(0x2, "cls", self.javascript.clone(), Some(1));
             self.ctx.register(0x3, "unicorn_time", self.javascript.clone(), Some(0));
             self.ctx.register(0x4, "print", self.javascript.clone(), Some(4));
-            self.ctx.register(0x5, "spr", self.javascript.clone(), Some(8));
+            self.ctx.register(0x5, "spr", self.javascript.clone(), Some(10));
             self.ctx.register(0x6, "btnp", self.javascript.clone(), Some(2));
             self.ctx.register(0x7, "sspr", self.javascript.clone(), Some(10));
             self.ctx.register(0x8, "pal", self.javascript.clone(), Some(2));

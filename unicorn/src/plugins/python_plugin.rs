@@ -286,14 +286,16 @@ pub mod plugin {
                                                    height))
     }
 
-    def spr(&self, n: i32, x: i32, y: i32, w: i32, h: i32, flip_x: bool, flip_y: bool, dynamic: bool) -> PyResult<i32> {
+    def spr(&self, n: i32, x: i32, y: i32, w: i32, h: i32, flip_x: bool, flip_y: bool, angle: f64, zoom: f64, dynamic: bool) -> PyResult<i32> {
         self.screen(py).lock().unwrap().spr(n as u32,
-                                            x as i32,
-                                            y as i32,
-                                            w as u32,
-                                            h as u32,
+                                            x,
+                                            y,
+                                            w,
+                                            h,
                                             flip_x,
                                             flip_y,
+                                            angle,
+                                            zoom,
                                             dynamic);
 
         Ok(0)

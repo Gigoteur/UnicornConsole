@@ -6,7 +6,6 @@ pub mod renderer {
 
     use sdl2::VideoSubsystem;
     use sdl2::render;
-    use sdl2::rect::Point;
     use sdl2::pixels::PixelFormatEnum;
     use time::PreciseTime;
     use std::path::Path;
@@ -24,15 +23,6 @@ pub mod renderer {
         pub renderer: render::Renderer<'static>,
         pub texture: render::Texture,
         buffer_rgb: Vec<u8>,
-
-        window_width: u32,
-        window_height: u32,
-        aspect_ratio: f32,
-        texture_width: u32,
-        texture_height: u32,
-        viewport_width: u32,
-        viewport_height: u32,
-        viewport_offset: Point,
         frame: u32,
     }
 
@@ -86,32 +76,11 @@ pub mod renderer {
                 renderer: renderer,
                 texture: texture,
                 buffer_rgb: vec![0; 0],
-                window_width: 0,
-                window_height: 0,
-                aspect_ratio: 1.0,
-                texture_width: texture_width,
-                texture_height: texture_height,
-                viewport_width: 0,
-                viewport_height: 0,
-                viewport_offset: Point::new(0, 0),
                 frame: 0,
             })
         }
 
         pub fn blit(&mut self, screen: &mut Screen) {
-            if (self.texture_width != screen.width as u32) ||
-               (self.texture_height != screen.height as u32) {
-                self.texture_width = screen.width as u32;
-                self.texture_height = screen.height as u32;
-
-                self.texture = self.renderer
-                    .create_texture(PixelFormatEnum::BGR24,
-                                    render::TextureAccess::Streaming,
-                                    self.texture_width,
-                                    self.texture_height)
-                    .unwrap();
-            }
-
             // Translate the pixel values to RGB colors.
             let src_buffer = &screen.frame_buffer;
             let rgb_buffer_len = src_buffer.len() * 3;
@@ -122,7 +91,7 @@ pub mod renderer {
             let mut palette = unicorn::unicorn::PALETTE.lock().unwrap();
 
             let mut j = 0;
-            let mut cached_pixel: u8 = 0;
+            let mut cached_pixel: u32 = 0;
             let mut rgb = palette.get_rgb(cached_pixel as u32);
 
             let start = PreciseTime::now();

@@ -9,6 +9,24 @@ import math
 flr=math.floor
 
 ASSETS = {}
+DIMENSIONS = {}
+NCOLOR = 16
+PIXELS_HASH = {}
+PIXELS_HASH[(0, 0, 0)] = 0
+PIXELS_HASH[(97, 112, 0)] = 0
+
+class Pipe(object):
+    def __init__(self, x, y, w, h):
+        self.x = x
+        self.y = y
+        self.w = w
+        self.h = h
+
+    def update(self, delta, speed):
+        self.x -= speed * 0.01
+
+    def draw(self):
+        spr(ASSETS['pipe-bottom.png'], self.x, self.y, self.w, self.h, dynamic=True)
 
 class Bird(object):
     def __init__(self, x, y):
@@ -16,75 +34,108 @@ class Bird(object):
         self.anim_frame = "bird0.png"
         self.x = x
         self.y = y
+        self.speed = 150.0
+        self.yspeed = 0.0
+        self.yacc = 0
+        self.angle = 45
+        self.anglerot = 3
 
-    def update(self, dt):
-        if dt % 2 == 0:
+    def update(self, delta):
+        if self.angle > -90:
+            self.angle -= self.anglerot
+
+        if btnp(4):
+            self.angle = 45
+            self.yacc = -3
+        else:
+            if self.yacc < 15:
+                self.yacc += 0.2
+
+        self.y += self.yacc 
+
+        if delta % 2 == 0:
             self.anim = (self.anim + 1) % 3
             self.anim_frame = "bird%d.png" % self.anim
 
     def draw(self):
-        spr(ASSETS[self.anim_frame], 64, 64, dynamic=True)
+        spr(ASSETS[self.anim_frame], self.x, self.y, zoom=1, angle=self.angle, dynamic=True)
 
+
+def ImportPng(file):
+    global NCOLOR
+    global PIXELS_HASH
+
+    head, tail = os.path.split(file)
+
+    print("start to import", file)
+    im = Image.open(file)
+    im = im.convert('RGB')
+
+    pixels = im.load()
+    width, height = im.size
+    print(width, height)
+
+    data = []
+    for y in range(height):
+        for x in range(width):
+            cpixel = pixels[x, y]
+            #print(cpixel)
+
+            if cpixel not in PIXELS_HASH:
+                PIXELS_HASH[cpixel] = NCOLOR
+                palette(NCOLOR, cpixel[0], cpixel[1], cpixel[2])
+                NCOLOR += 1
+
+                #print(x, y, PIXELS_HASH[cpixel], cpixel)
+            data.append(PIXELS_HASH[cpixel])
+
+    #print(data)
+    #print(PIXELS_HASH)
+    idx = spr_reg(-1, data, width, height)
+    ASSETS[tail] = idx
+    DIMENSIONS[tail] = {'width': width, 'height': height}
+    print("end of importation")
 
 # Original sprites in assets from https://github.com/RobLoach/ChaiLove-FloppyBird
-def ImportPng(directory):
-    global ASSETS
+def ImportAllPng(directory):
     from os import listdir
     from os.path import isfile, join
     onlyfiles = [join(directory, f) for f in listdir(directory) if isfile(join(directory, f))]
 
-    ncolor = 16
-
-    pixels_hash = {}
-    pixels_hash[(0, 0, 0, 0)] = 0
-    pixels_hash[(97, 112, 0)] = 0
-
     for file in onlyfiles:
-        head, tail = os.path.split(file)
-
-        print("start to import", file)
-        im = Image.open(file)
-        im = im.convert('RGB')
-
-        pixels = im.load()
-        width, height = im.size
-        print(width, height)
-
-        data = []
-        for y in range(height):
-            for x in range(width):
-                cpixel = pixels[x, y]
-
-                if cpixel not in pixels_hash:
-                    pixels_hash[cpixel] = ncolor
-                    palette(ncolor, cpixel[0], cpixel[1], cpixel[2])
-                    ncolor += 1
-
-#                print('{0:2d} '.format(pixels_hash[cpixel]), end='')
-
-                #sset(x, y, pixels_hash[cpixel])
-                data.append(pixels_hash[cpixel])
-
-        idx = spr_reg(-1, data, width, height)
-        ASSETS[tail] = idx
-
-    print("end of importation")
+        ncolor = ImportPng(file)
 
 DT = 0
-BIRD = Bird(64, 64)
+BIRD = Bird(40, 64)
+PIPES = []
 
 def _init():
-    ImportPng("../unicorn-games/floppybird/assets/")
+    global PIPES
+    ImportAllPng("../unicorn-games/floppybird/assets/")
 
+    land_h = DIMENSIONS['land.png']['height']/3
+    PIPES.append(Pipe(300, 64, w=20, h=240-land_h-64))
+    PIPES.append(Pipe(360, 64, w=20, h=240-land_h-64))
+    PIPES.append(Pipe(400, 64, w=20, h=240-land_h-64))
 
 def _update():
     global DT
     BIRD.update(DT)
+    for pipe in PIPES:
+        pipe.update(DT, BIRD.speed)
     DT += 1
 
+
 def _draw():
-    cls(1)
+    cls(0)
+    land_h = DIMENSIONS['land.png']['height']/3
+
+    spr(ASSETS['sky.png'], 0, 0, w=400, h = 240 - land_h, dynamic=True)
+    spr(ASSETS['land.png'], 0, 240 - land_h, w=400, h=land_h, dynamic=True)
+
     BIRD.draw()
+    for pipe in PIPES:
+        pipe.draw()
 
 
 __palette__

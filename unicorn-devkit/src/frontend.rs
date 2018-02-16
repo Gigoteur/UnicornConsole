@@ -473,15 +473,8 @@ impl Frontend {
 
     fn handle_event(&mut self) {
         let mut previous_frame_time = Instant::now();
-
-        let elapsed_time: f64 = 0.0;
-        let milliseconds: f64 = 0.0;
         
         'main: loop {
-            let now = Instant::now();
-            let dt = now.duration_since(previous_frame_time);
-            previous_frame_time = now;
-
             self.times.update();
 
             self.fps_counter.update(self.times.get_last_time());
@@ -725,7 +718,12 @@ impl Frontend {
 
             self.uc.draw();
             self.uc.update_sound();
+
+            let now = Instant::now();
+            let dt = now.duration_since(previous_frame_time);
+            previous_frame_time = now;
             self.uc.update_time(dt);
+            info!("DT {:?}", dt);
 
             self.blit();
         }

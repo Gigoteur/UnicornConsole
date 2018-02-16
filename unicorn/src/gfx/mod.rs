@@ -280,8 +280,8 @@ pub struct Screen {
     pub height: usize,
     pub aspect_ratio: f32,
 
-    pub frame_buffer: Vec<u8>,
-    pub saved_frame_buffer: Vec<u8>,
+    pub frame_buffer: Vec<u32>,
+    pub saved_frame_buffer: Vec<u32>,
     pub sprites: Vec<Sprite>,
     pub dyn_sprites: Vec<DynamicSprite>,
 
@@ -290,7 +290,7 @@ pub struct Screen {
     pub transparency_map: [bool; 256],
 
     pub color: u32,
-    pub color_map: [u8; 256],
+    pub color_map: [u32; 0xFFF],
 
     pub camera: Camera,
     pub cliprect: ClipRect,
@@ -314,7 +314,7 @@ impl Screen {
             dyn_sprites: Vec::new(),
             map: Vec::new(),
             transparency_map: [false; 256],
-            color_map: [0; 256],
+            color_map: [0; 0xFFF],
             color: 0,
             camera: Camera::new(),
             cliprect: ClipRect::new(),
@@ -344,8 +344,8 @@ impl Screen {
     }
 
     pub fn _reset_colors(&mut self) {
-        for i in 0..256 {
-            self.color_map[i] = i as u8;
+        for i in 0..0xFFF {
+            self.color_map[i] = i as u32;
         }
     }
 
@@ -413,7 +413,7 @@ impl Screen {
         }
 
         let offset = self.pixel_offset(x, y);
-        self.frame_buffer[offset] = col as u8;
+        self.frame_buffer[offset] = col;
     }
 
     #[inline]
@@ -427,10 +427,10 @@ impl Screen {
             return;
         }
 
-        let draw_col = self.color_map[(col & 0xFF) as usize];
+        let draw_col = self.color_map[col as usize];
 
         let offset = self.pixel_offset(x, y);
-        self.frame_buffer[offset] = draw_col;
+        self.frame_buffer[offset] = draw_col as u32;
     }
 
     #[inline]
@@ -999,7 +999,12 @@ impl Screen {
         -1
     }
 
-    pub fn spr(&mut self, n: u32, x: i32, y: i32, w: u32, h: u32, flip_x: bool, flip_y: bool, dynamic: bool) {
+    pub fn spr(&mut self, n: u32,
+               x: i32, y: i32, 
+               w: i32, h: i32,
+               flip_x: bool, flip_y: bool,
+               angle: f64, zoom: f64,
+               dynamic: bool) {
         /* debug!("PRINT SPRITE = x:{:?} y:{:?} n:{:?} w:{:?} h:{:?} flip_x:{:?} flip_y:{:?}",
                x,
                y,
@@ -1010,7 +1015,59 @@ impl Screen {
                flip_y);*/
 
         if dynamic {
-            let orig_x = x;
+            let sprite = self.dyn_sprites[n as usize].clone();
+            if w != sprite.width as i32 || h != sprite.height as i32 {
+                let mut w2 = w as u32;
+                let mut h2 = h as u32;
+
+                if w == -1 {
+                    w2 = sprite.width as u32;
+                }
+
+                if h == -1 {
+                    h2 = sprite.height as u32;
+                }
+
+                let mut ret = Vec::with_capacity((w2 * h2) as usize);
+
+                let x_ratio: u32 = (sprite.width << 16) / w2;
+                let y_ratio: u32 = (sprite.height << 16) / h2;
+
+                let mut x2: u32;
+                let mut y2: u32;
+
+                for i in 0..h2 {
+                    for j in 0..w2 {
+                        x2 = (j * x_ratio) >> 16;
+                        y2 = (i * y_ratio) >> 16;
+                        let idx = (y2 * sprite.width + x2) as usize;
+                        ret.insert((i * w2 + j) as usize, sprite.data[idx]);
+                    }
+                }
+                self._sprite_rotazoom(
+                    ret.clone(),
+                    w2,
+                    h2,
+                    x,
+                    y,
+                    angle,
+                    zoom,
+                    flip_x, flip_y);
+
+            } else {
+                self._sprite_rotazoom(
+                    sprite.data.clone(),
+                    sprite.width,
+                    sprite.height,
+                    x,
+                    y,
+                    angle,
+                    zoom,
+                    flip_x, flip_y);
+        }
+
+
+    /*        let orig_x = x;
             let orig_y = y;
 
             let mut idx = 0;
@@ -1029,9 +1086,9 @@ impl Screen {
 
                     idx += 1;
                 }
-            }
+            }*/
         } else {
-            let mut orig_x = x;
+       /*     let mut orig_x = x;
             let mut orig_y = y;
 
             let sprites_len = self.sprites.len();
@@ -1080,7 +1137,7 @@ impl Screen {
                 }
                 orig_y += 8;
                 orig_x = x;
-            }
+            }*/
         }
     }
 
@@ -1293,6 +1350,119 @@ impl Screen {
         }
     }
 
+    pub fn _sprite_rotazoom(&mut self, v: Vec<u32>, 
+                            sw: u32,
+                            sh: u32,
+                            destx: i32,
+                            desty: i32,
+                            angle: f64,
+                            zoom: f64,
+                            flip_x: bool,
+                            flip_y: bool) -> (i32, i32) {
+    // algorithm from SDL_gfx
+    // no rotation ?
+   // if angle.abs() > 0.001 {
+        let radangle = angle * (PI / 180.0);
+        let mut sanglezoom = radangle.sin();
+        let mut canglezoom = radangle.cos();
+
+        sanglezoom *= zoom;
+        canglezoom *= zoom;
+
+    // debug!("SSPR2 {:?} {:?} {:?} {:?} {:?} {:?} {:?} {:?} {:?} {:?} {:?} -> {:?} {:?}", sx, sy, sw, sh, destx, desty, angle, radangle, zoom, flip_x, flip_y, sanglezoom, canglezoom);
+
+        let x = sw as f64 / 2.0;
+        let y = sh as f64 / 2.0;
+
+        // debug!("X Y {:?} {:?}", x, y);
+
+        let cx = canglezoom * x;
+        let cy = canglezoom * y;
+        let sx = sanglezoom * x;
+        let sy = sanglezoom * y;
+
+        let dstwidthhalf: f64 = (cx + sy).abs().max((cx - sy).abs()).max((-cx + sy).abs()).max((-cx - sy).abs()).max(1.0);
+        let dstheighthalf: f64 = (sx + cy).abs().max((sx - cy).abs()).max((-sx + cy).abs()).max((-sx - cy).abs()).max(1.0);
+
+        //debug!("DST HALF {:?} {:?}", dstwidthhalf, dstheighthalf);
+
+        let dw = (2.0 * dstwidthhalf) as i32;
+        let dh = (2.0 * dstheighthalf) as i32;
+
+        let zoominv = 65536.0 / (zoom * zoom);
+
+        let mut sanglezoominv = sanglezoom;
+        let mut canglezoominv = canglezoom;
+        sanglezoominv *= zoominv;
+        canglezoominv *= zoominv;
+
+        let isin = sanglezoominv as i32;
+        let icos = canglezoominv as i32;
+
+        //debug!("DST {:?} {:?} {:?} {:?} {:?} {:?} {:?} {:?}", sw, sh, dw, dh, sanglezoominv, canglezoominv, isin, icos);
+
+        let xd = (sw as i32 - dw) << 15;
+        let yd = (sh as i32 - dh) << 15;
+        let ax = ((dstwidthhalf as i32) << 16) - (icos * dstwidthhalf as i32);
+        let ay = ((dstheighthalf as i32) << 16) - (isin * dstwidthhalf as i32);
+
+        //debug!("NEXT {:?} {:?} {:?} {:?}", xd, yd, ax, ay);
+
+        let centerx = destx;// + (sw as i32 / 2);
+        let centery = desty;// + (sh as i32 / 2);
+
+        let destx = centerx;
+        let desty = centery;
+        
+    //   let mut destx = destx - dw / 2;
+    //   let mut desty = desty - dh / 2;
+
+    // debug!("DEST {:?} {:?}", destx, desty);
+
+        for y in 0..dh {
+            let mut dy = dstheighthalf as i32 - y;
+            let mut sdx = (ax + (isin * dy)) + xd;
+            let mut sdy = (ay - (icos * dy)) + yd;
+            
+        //  debug!("DY {:?} SDX {:?} SDY {:?}", dy, sdx, sdy);
+
+            for x in 0..dw {
+                let mut dx = sdx >> 16;
+                dy = sdy >> 16;
+
+                if flip_x {
+                    dx = (sw as i32 - 1) - dx;
+                }
+                if flip_y {
+                    dy = (sh as i32 - 1) - dy;
+                }
+
+//                debug!("DX {:?} DY {:?}", dx, dy);
+                if (dx >= 0) && (dy >= 0) && (dx < sw as i32) && (dy < sh as i32) {
+                    let d = v[(dy * sw as i32 + dx) as usize];
+                    if d != 0 {
+                        if !self.is_transparent(d as u32) {
+                            self.putpixel_(x as i32 + destx, y as i32 + desty, d as u32);
+                        }
+                    }
+                }
+
+                sdx += icos;
+                sdy += isin;
+            }
+        }
+
+        (dw, dh)
+ /*   } else {
+        let mut dw = sw as i32 * zoom;
+        let mut dh = sh as i32 * zoom;
+
+
+        
+
+    }*/        
+    }
+
     pub fn sspr_rotazoom(&mut self,
                          _idx_sprite: i32,
                          sx: u32,
@@ -1314,108 +1484,7 @@ impl Screen {
             }
         }
 
-        // algorithm from SDL_gfx
-        // no rotation ?
-       // if angle.abs() > 0.001 {
-            let radangle = angle * (PI / 180.0);
-            let mut sanglezoom = radangle.sin();
-            let mut canglezoom = radangle.cos();
-
-            sanglezoom *= zoom;
-            canglezoom *= zoom;
-
-        // debug!("SSPR2 {:?} {:?} {:?} {:?} {:?} {:?} {:?} {:?} {:?} {:?} {:?} -> {:?} {:?}", sx, sy, sw, sh, destx, desty, angle, radangle, zoom, flip_x, flip_y, sanglezoom, canglezoom);
-
-            let x = sw as f64 / 2.0;
-            let y = sh as f64 / 2.0;
-
-            // debug!("X Y {:?} {:?}", x, y);
-
-            let cx = canglezoom * x;
-            let cy = canglezoom * y;
-            let sx = sanglezoom * x;
-            let sy = sanglezoom * y;
-
-            let dstwidthhalf: f64 = (cx + sy).abs().max((cx - sy).abs()).max((-cx + sy).abs()).max((-cx - sy).abs()).max(1.0);
-            let dstheighthalf: f64 = (sx + cy).abs().max((sx - cy).abs()).max((-sx + cy).abs()).max((-sx - cy).abs()).max(1.0);
-
-            //debug!("DST HALF {:?} {:?}", dstwidthhalf, dstheighthalf);
-
-            let dw = (2.0 * dstwidthhalf) as i32;
-            let dh = (2.0 * dstheighthalf) as i32;
-
-            let zoominv = 65536.0 / (zoom * zoom);
-
-            let mut sanglezoominv = sanglezoom;
-            let mut canglezoominv = canglezoom;
-            sanglezoominv *= zoominv;
-            canglezoominv *= zoominv;
-
-            let isin = sanglezoominv as i32;
-            let icos = canglezoominv as i32;
-
-            //debug!("DST {:?} {:?} {:?} {:?} {:?} {:?} {:?} {:?}", sw, sh, dw, dh, sanglezoominv, canglezoominv, isin, icos);
-
-            let xd = (sw as i32 - dw) << 15;
-            let yd = (sh as i32 - dh) << 15;
-            let ax = ((dstwidthhalf as i32) << 16) - (icos * dstwidthhalf as i32);
-            let ay = ((dstheighthalf as i32) << 16) - (isin * dstwidthhalf as i32);
-
-            //debug!("NEXT {:?} {:?} {:?} {:?}", xd, yd, ax, ay);
-
-            let centerx = destx;// + (sw as i32 / 2);
-            let centery = desty;// + (sh as i32 / 2);
-
-            let destx = centerx;
-            let desty = centery;
-            
-        //   let mut destx = destx - dw / 2;
-        //   let mut desty = desty - dh / 2;
-
-        // debug!("DEST {:?} {:?}", destx, desty);
-
-            for y in 0..dh {
-                let mut dy = dstheighthalf as i32 - y;
-                let mut sdx = (ax + (isin * dy)) + xd;
-                let mut sdy = (ay - (icos * dy)) + yd;
-                
-            //  debug!("DY {:?} SDX {:?} SDY {:?}", dy, sdx, sdy);
-
-                for x in 0..dw {
-                    let mut dx = sdx >> 16;
-                    dy = sdy >> 16;
-
-                    if flip_x {
-                        dx = (sw as i32 - 1) - dx;
-                    }
-                    if flip_y {
-                        dy = (sh as i32 - 1) - dy;
-                    }
-
-    //                debug!("DX {:?} DY {:?}", dx, dy);
-                    if (dx >= 0) && (dy >= 0) && (dx < sw as i32) && (dy < sh as i32) {
-                        let d = v[(dy * sw as i32 + dx) as usize];
-                        if d != 0 {
-                            if !self.is_transparent(d as u32) {
-                                self.putpixel_(x as i32 + destx, y as i32 + desty, d as u32);
-                            }
-                        }
-                    }
-
-                    sdx += icos;
-                    sdy += isin;
-                }
-            }
-
-            (dw, dh)
-     /*   } else {
-            let mut dw = sw as i32 * zoom;
-            let mut dh = sh as i32 * zoom;
-
-
-            
-
-        }*/
+        return self._sprite_rotazoom(v, sw, sh, destx, desty, angle, zoom, flip_x, flip_y)
     }
 
     #[inline]
@@ -1431,7 +1500,7 @@ impl Screen {
         if c0 < 0 || c1 < 0 {
             self._reset_colors();
         } else {
-            self.color_map[c0 as usize] = c1 as u8;
+            self.color_map[c0 as usize] = c1 as u32;
         }
     }
 
@@ -1444,7 +1513,7 @@ impl Screen {
     }
 
     pub fn peek(&mut self, addr: u32) -> u8 {
-        self.frame_buffer[addr as usize]
+        self.frame_buffer[addr as usize] as u8
     }
 
     pub fn poke(&mut self, _addr: u32, _val: u16) {}
@@ -1465,7 +1534,7 @@ impl Screen {
         while idx < len * 2 {
             let value = a[idx as usize] as u32;
 
-            self.frame_buffer[(dest_addr + idx) as usize] = value as u8;
+            self.frame_buffer[(dest_addr + idx) as usize] = value as u32;
 
             idx += 1;
         }
