@@ -12,6 +12,15 @@ license = "MIT"
 
 exclude = [ ".idea/*", ".travis.yml" ]
 
+[profile.release]
+opt-level = 3
+debug = false
+rpath = false
+lto = false
+debug-assertions = false
+codegen-units = 1
+panic = 'unwind'
+
 [features]
 default = []
 blit_perf = []

@@ -723,8 +723,6 @@ impl Frontend {
             let dt = now.duration_since(previous_frame_time);
             previous_frame_time = now;
             self.uc.update_time(dt);
-            info!("DT {:?}", dt);
-
             self.blit();
         }
     }
