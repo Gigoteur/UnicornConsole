@@ -124,7 +124,6 @@ pub mod plugin {
                    _ctx: &mut Context,
                    args: &[Value<'static>])
                    -> DuktapeResult<Value<'static>> {
-            // println!("RUST CLS {:?}", args);
             let mut value: i8 = -1;
 
             if let Value::Number(arg) = args[0] {

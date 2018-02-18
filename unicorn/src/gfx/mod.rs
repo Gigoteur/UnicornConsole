@@ -1014,6 +1014,10 @@ impl Screen {
                flip_x,
                flip_y);*/
 
+        if w < -1 || h < -1 {
+            return;
+        }
+
         if dynamic {
             let sprite = self.dyn_sprites[n as usize].clone();
             if w != sprite.width as i32 || h != sprite.height as i32 {

@@ -1,18 +1,14 @@
 [package]
-name = "unicorn_web"
+name = "dino"
 version = "0.0.1"
 authors = ["hallucino <d@t0t0.fr>"]
-description = "Unicorn Console web"
+description = "Dino - Unicorn Console web"
 documentation = ""
 homepage = ""
 repository = ""
 readme = "README.md"
 keywords = []
 license = "MIT"
-
-[lib]
-name       = "unicorn_web"
-path       = "src/lib.rs"
 
 [dependencies]
 serde = "1"
@@ -22,8 +18,12 @@ lazy_static = "0.1.*"
 [dependencies.stdweb]
 version = "0.3"
 
+
+[dependencies.unicorn_web]
+path = "../../unicorn-web"
+
 [dependencies.unicorn]
-path = "../unicorn"
+path = "../../unicorn"
 
 [profile.dev]
 opt-level = 2

@@ -61,8 +61,8 @@ macro_rules! enclose {
 }
 
 
-struct UnicornWeb {
-    state: unicorn::unicorn::Unicorn,
+pub struct UnicornWeb {
+    pub state: unicorn::unicorn::Unicorn,
     audio_buffer: Vec< f32 >,
     audio_chunk_counter: u32,
     audio_underrun: Option< usize >,
@@ -209,7 +209,7 @@ fn setup_webgl( canvas: &Element ) -> Value {
 }
 
 impl UnicornWeb {
-    fn new( canvas: &Element ) -> Self {
+    pub fn new( canvas: &Element ) -> Self {
         let gl = setup_webgl( &canvas );
 
         let js_ctx = js!(
@@ -403,7 +403,7 @@ fn emulate_for_a_single_frame( uc: Rc< RefCell< UnicornWeb > > ) {
     }), 0 );*/
 }
 
-fn main_loop( uc: Rc< RefCell< UnicornWeb > > ) {
+pub fn main_loop( uc: Rc< RefCell< UnicornWeb > > ) {
     // If we're running too slowly there is no point
     // in queueing up even more work.
     if !uc.borrow_mut().busy {
@@ -445,16 +445,16 @@ struct RomEntry {
 
 js_deserializable!( RomEntry );
 
-fn show( id: &str ) {
+pub fn show( id: &str ) {
     web::document().get_element_by_id( id ).unwrap().class_list().remove( "hidden" );
 }
 
-fn hide( id: &str ) {
+pub fn hide( id: &str ) {
     web::document().get_element_by_id( id ).unwrap().class_list().add( "hidden" );
 }
 
 
-fn support_input( uc: Rc< RefCell< UnicornWeb > > ) {
+pub fn support_input( uc: Rc< RefCell< UnicornWeb > > ) {
     web::window().add_event_listener( enclose!( [uc] move |event: KeydownEvent| {
         let handled = uc.borrow_mut().on_key( &event.key(), event.location(), true );
         if handled {
@@ -479,34 +479,4 @@ fn handle_error< E: Into< Box< Error > > >( error: E ) {
     hide( "rom-menu-close" );
     show( "change-rom-menu" );
     show( "error" );
-}
-
-fn main() {
-    stdweb::initialize();
-
-    let canvas = web::document().get_element_by_id( "viewport" ).unwrap();
-    let uc = Rc::new( RefCell::new( UnicornWeb::new( &canvas ) ) );
-
-    uc.borrow_mut().state.setup();
-    uc.borrow_mut().state.init();
-
-    uc.borrow_mut().state.toggle_debug();
-
-    let data = include_bytes!("../../unicorn/sys/unicorn.uni");
-    let data_final: Vec<u8> = unicorn::unicorn::array_to_vec(data);
-
-    uc.borrow_mut().state.load_cartridge_raw("unicorn.uni", data_final, true);
-
-    hide( "loading" );
-    hide( "error" );
-
-    show( "viewport" );
-
-    support_input( uc.clone() );
-
-    web::window().request_animation_frame( move |_| {
-        main_loop( uc );
-    });
-
-    stdweb::event_loop();
 }

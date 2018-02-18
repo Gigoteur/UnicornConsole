@@ -29,7 +29,9 @@ class Pipe(object):
         self.x -= speed * 0.01
 
     def draw(self):
-        print(self.x, self.y, self.w, self.h)
+        if self.x < -self.w:
+            return
+
         if self.bottom:
             spr(ASSETS['pipe.png'],
                 self.x, self.y, self.w, self.h,
@@ -75,7 +77,7 @@ class Bird(object):
     def draw(self):
         spr(ASSETS["bird%d.png" % self.anim],
             self.x, self.y,
-            zoom=1, angle=self.angle,
+            zoom=0.5, angle=self.angle,
             dynamic=True)
 
 
@@ -126,54 +128,64 @@ def ImportAllPng(directory):
 
 DT = 0
 BIRD = Bird(40, 64)
-PIPES = []
+UPPER_PIPES = []
+LOWER_PIPES = []
+LAND_H = 0
 
 
 def getRandomPipe(w, land_h):
     pipeX = 400 + 10
 
-    y = random.randint(40, 240 - int(land_h))
+    heigh_upper = random.randint(20, 60)
+    heigh_lower = random.randint(heigh_upper, 240 - int(land_h) - 40)
 
     return [
-        Pipe(pipeX, 0, w, y - 10, True),  # upper pipe
-        Pipe(pipeX, y, w, 240 - land_h - y, False)  # lower pipe
+        Pipe(pipeX, 0, w, heigh_upper, True),  # upper pipe
+        Pipe(pipeX, 240 - land_h - heigh_lower, w, heigh_lower, False)  # lower pipe
     ]
 
 
 def _init():
-    global PIPES
+    global PIPES, LAND_H
     ImportAllPng("../unicorn-games/floppybird/assets/")
 
-    land_h = DIMENSIONS['land.png']['height']/3
+    LAND_H = DIMENSIONS['land.png']['height'] / 3
 
-    PIPES.extend(getRandomPipe(30, land_h))
-    print(PIPES)
-
-    
-    #PIPES.append(Pipe(300, 64, w=20, h=240-land_h-64))
-    #PIPES.append(Pipe(360, 64, w=20, h=240-land_h-64))
-    #PIPES.append(Pipe(400, 64, w=20, h=240-land_h-64))
-
+    pipes = getRandomPipe(30, LAND_H)
+    UPPER_PIPES.append(pipes[0])
+    LOWER_PIPES.append(pipes[1])
+    print(UPPER_PIPES, LOWER_PIPES)
 
 def _update():
     global DT
     BIRD.update(DT)
-    for pipe in PIPES:
-        pipe.update(DT, BIRD.speed)
+
+    for uPipe, lPipe in zip(UPPER_PIPES, LOWER_PIPES):
+        uPipe.update(DT, BIRD.speed)
+        lPipe.update(DT, BIRD.speed)
+
+    if (int(UPPER_PIPES[0].x) % 150 == 0):
+        print("ADD NEW")
+        pipes = getRandomPipe(30, LAND_H)
+        UPPER_PIPES.append(pipes[0])
+        LOWER_PIPES.append(pipes[1])
+
+    if UPPER_PIPES[0].x < -10:
+        UPPER_PIPES.pop(0)
+        LOWER_PIPES.pop(0)
+
     DT += 1
 
-
 def _draw():
-    cls(0)
-    land_h = DIMENSIONS['land.png']['height']/3
+    rectfill(0, 0, 400, 100, 12)
+    spr(ASSETS['sky.png'], 0, 100, w=400, h = 240 - LAND_H - 100, dynamic=True)
+    spr(ASSETS['land.png'], 0, 240 - LAND_H, w=400, h=LAND_H, dynamic=True)
 
-    spr(ASSETS['sky.png'], 0, 0, w=400, h = 240 - land_h, dynamic=True)
-    spr(ASSETS['land.png'], 0, 240 - land_h, w=400, h=land_h, dynamic=True)
+    for uPipe, lPipe in zip(UPPER_PIPES, LOWER_PIPES):
+        uPipe.draw()
+        lPipe.draw()
 
     BIRD.draw()
-    for pipe in PIPES:
-        pipe.draw()
-
 
 __palette__
 __gfx__
