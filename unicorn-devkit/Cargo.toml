@@ -2,7 +2,7 @@
 name = "uc-devkit"
 version = "0.0.1"
 authors = ["hallucino <d@t0t0.fr>"]
-description = "Unicorn console dev kit (via sdl2)"
+description = "Unicorn Console web devkit"
 documentation = ""
 homepage = ""
 repository = ""
@@ -10,34 +10,35 @@ readme = "README.md"
 keywords = []
 license = "MIT"
 
-exclude = [ ".idea/*", ".travis.yml" ]
-
-[profile.release]
-opt-level = 3
-debug = false
-rpath = false
-lto = false
-debug-assertions = false
-codegen-units = 1
-panic = 'unwind'
-
-[features]
-default = []
-blit_perf = []
-
 [dependencies]
-time = "0.1.35"
 getopts = "0.2.14"
-regex = "0.2.1"
 log = "0.3.6"
 fern = "0.3.5"
-chrono = "0.4"
+time = "0.1.35"
+
+[dependencies.stdweb]
+version = "0.3"
+
+[dependencies.unicorn_sdl]
+path = "../unicorn-sdl"
 
 [dependencies.unicorn]
 path="../unicorn"
 features = ["cpython", "unicorn_plugin_lua", "duktape", "libksnd", "syntect", "noise", "image"]
 
 
-[dependencies.sdl2]
-version = "0.27.2"
-default-features = false
+[profile.dev]
+opt-level = 2
+debug = true
+rpath = false
+lto = false
+debug-assertions = true
+codegen-units = 4
+
+[profile.release]
+opt-level = 3
+debug = false
+rpath = false
+lto = true
+debug-assertions = false
+codegen-units = 1

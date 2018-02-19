@@ -50,8 +50,8 @@ pub mod renderer {
             let mut window = (if opengl { wb.opengl() } else { wb }).build().unwrap();
 
             if !cfg!(target_os = "android") {
-                let temp_surface = Surface::load_bmp(Path::new("unicorn_logo_alpha.bmp")).unwrap();
-                window.set_icon(temp_surface);
+            //    let temp_surface = Surface::load_bmp(Path::new("unicorn_logo_alpha.bmp")).unwrap();
+            //    window.set_icon(temp_surface);
             }
 
             info!("[SDL] Creating renderer");

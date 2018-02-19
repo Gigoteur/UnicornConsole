@@ -1,0 +1,43 @@
+[package]
+name = "unicorn_sdl"
+version = "0.0.1"
+authors = ["hallucino <d@t0t0.fr>"]
+description = "Unicorn console, sdl gfx"
+documentation = ""
+homepage = ""
+repository = ""
+readme = "README.md"
+keywords = []
+license = "MIT"
+
+exclude = [ ".idea/*", ".travis.yml" ]
+
+[lib]
+name       = "unicorn_sdl"
+path       = "src/lib.rs"
+
+[profile.release]
+opt-level = 3
+debug = false
+rpath = false
+lto = false
+debug-assertions = false
+codegen-units = 1
+panic = 'unwind'
+
+[features]
+default = []
+blit_perf = []
+
+[dependencies]
+time = "0.1.35"
+regex = "0.2.1"
+log = "0.3.6"
+chrono = "0.4"
+
+[dependencies.unicorn]
+path="../unicorn"
+
+[dependencies.sdl2]
+version = "0.27.2"
+default-features = false
