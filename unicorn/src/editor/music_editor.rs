@@ -1,17 +1,15 @@
-
 use std::sync::{Arc, Mutex};
 use std::collections::HashMap;
 
-use unicorn::editor::State;
 use unicorn::{UnicornCartridge, UnicornConfig};
-use unicorn::editor::Widget;
-use unicorn::editor::point_in_rect;
+use unicorn::utils::{Button, ButtonSlider, Widget, point_in_rect};
+use unicorn::edit::edit::State;
+
 use gfx::Screen;
 use config::Players;
 use config::scancode::Scancode;
 
 use sound::sound::{SoundInternal, Sound};
-use unicorn::editor::{Button, ButtonSlider};
 use chiptune::chiptune;
 
 static KEYS_NOTE: [Scancode; 29] = [
@@ -907,6 +905,7 @@ pub enum MusicState {
 }
 
 pub struct MusicEditor {
+    state: Arc<Mutex<State>>,
     state_editor: MusicState,
     se: SFXEditor,
     te: TrackEditor,
@@ -919,8 +918,7 @@ impl MusicEditor {
         let mut highlight = HashMap::new();
         highlight.insert(6, 10);
 
-        widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(),
-                                                     "TRACK".to_string(),
+        widgets.push(Arc::new(Mutex::new(Widget::new("TRACK".to_string(),
                                                      350,
                                                      20,
                                                      16,
@@ -944,8 +942,7 @@ impl MusicEditor {
                                                      highlight.clone(),
                                                      true, true))));
 
-        widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(),
-                                                     "SFX".to_string(),
+        widgets.push(Arc::new(Mutex::new(Widget::new("SFX".to_string(),
                                                      370,
                                                      20,
                                                      16,
@@ -970,6 +967,7 @@ impl MusicEditor {
                                                      false, true))));
 
         MusicEditor {
+            state: state.clone(),
             state_editor: MusicState::TrackEditor,
             se: SFXEditor::new(state.clone()),
             te: TrackEditor::new(state.clone()),
@@ -982,9 +980,13 @@ impl MusicEditor {
     }
 
     pub fn update(&mut self, cartridge: &mut UnicornCartridge, screen: &mut Screen, players: Arc<Mutex<Players>>, sound_internal: Arc<Mutex<SoundInternal>>, sound: Arc<Mutex<Sound>>) -> bool {
+        let mouse_state = self.state.lock().unwrap().mouse_state;
+        let mouse_x = self.state.lock().unwrap().mouse_x as u32;
+        let mouse_y = self.state.lock().unwrap().mouse_y as u32;
+
         let mut is_clickable = false;
         for widget in &self.widgets {
-            is_clickable = widget.lock().unwrap().is_clickable();
+            is_clickable = widget.lock().unwrap().is_clickable(mouse_state, mouse_x, mouse_y);
             if is_clickable {
                 break;
             }
@@ -993,7 +995,7 @@ impl MusicEditor {
         if is_clickable {
             for widget in &self.widgets {
                 widget.lock().unwrap().reset();
-                widget.lock().unwrap().update();
+                widget.lock().unwrap().update(mouse_state, mouse_x, mouse_y);
                 
                 let is_click = widget.lock().unwrap().is_click();
                 if is_click {

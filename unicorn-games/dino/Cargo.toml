@@ -2,7 +2,7 @@
 name = "dino"
 version = "0.0.1"
 authors = ["hallucino <d@t0t0.fr>"]
-description = "Dino - Unicorn Console web"
+description = "Dino Game - Unicorn Console"
 documentation = ""
 homepage = ""
 repository = ""
@@ -11,19 +11,18 @@ keywords = []
 license = "MIT"
 
 [dependencies]
-serde = "1"
-serde_derive = "1"
-lazy_static = "0.1.*"
+getopts = "0.2.14"
+log = "0.3.6"
+fern = "0.3.5"
+time = "0.1.35"
 
-[dependencies.stdweb]
-version = "0.3"
-
-
-[dependencies.unicorn_web]
-path = "../../unicorn-web"
+[dependencies.unicorn_sdl]
+path = "../../unicorn-sdl"
 
 [dependencies.unicorn]
-path = "../../unicorn"
+path="../../unicorn"
+features = []
+
 
 [profile.dev]
 opt-level = 2

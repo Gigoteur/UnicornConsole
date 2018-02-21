@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::collections::hash_map::Entry;
 
-use unicorn::editor::text_editor::keyboard::Key;
+use editor::text_editor::keyboard::Key;
 
 pub enum Trie<T: Copy> {
     Leaf(T),

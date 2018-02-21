@@ -1,9 +1,9 @@
-use unicorn::editor::text_editor::keyboard::Key;
-use unicorn::editor::text_editor::keymap::{ KeyMap, KeyMapState };
-use unicorn::editor::text_editor::buffer::Mark;
-use unicorn::editor::text_editor::textobject::{ TextObject, Offset, Kind, Anchor };
-use unicorn::editor::text_editor::overlay::OverlayType;
-use unicorn::editor::text_editor::modes::ModeType;
+use editor::text_editor::keyboard::Key;
+use editor::text_editor::keymap::{ KeyMap, KeyMapState };
+use editor::text_editor::buffer::Mark;
+use editor::text_editor::textobject::{ TextObject, Offset, Kind, Anchor };
+use editor::text_editor::overlay::OverlayType;
+use editor::text_editor::modes::ModeType;
 
 /// Instructions for the Editor.
 /// These do NOT alter the text, but may change editor/view state

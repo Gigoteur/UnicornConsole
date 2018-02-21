@@ -17,10 +17,10 @@ use syntect::highlighting::{ThemeSet, Style};
 use syntect::easy::HighlightLines;
 
 use gfx::Screen;
-use unicorn::editor::text_editor::buffer::{Buffer, Mark};
-use unicorn::editor::text_editor::overlay::{Overlay, OverlayType};
-use unicorn::editor::text_editor::utils;
-use unicorn::editor::text_editor::textobject::{Anchor, TextObject, Kind, Offset};
+use editor::text_editor::buffer::{Buffer, Mark};
+use editor::text_editor::overlay::{Overlay, OverlayType};
+use editor::text_editor::utils;
+use editor::text_editor::textobject::{Anchor, TextObject, Kind, Offset};
 use unicorn::Palettes;
 
 

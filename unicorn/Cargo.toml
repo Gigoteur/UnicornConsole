@@ -29,6 +29,7 @@ panic = 'unwind'
 
 [features]
 default = []
+editor = []
 libksnd = ["chiptune/libksnd"]
 
 [patch.crates-io]
@@ -69,11 +70,11 @@ path="src/plugins/lua"
 [dependencies.duktape]
 optional = true
 version="0.0.1"
-path="./src/plugins/duktape"
+path="src/plugins/duktape"
 
 [dependencies.chiptune]
 version="0.0.1"
-path="./src/chiptune"
+path="src/chiptune"
 
 [dependencies.syntect]
 optional = true

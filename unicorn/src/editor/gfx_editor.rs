@@ -6,9 +6,8 @@ use std::collections::HashMap;
 
 use unicorn::UnicornConfig;
 
-use unicorn::editor::Widget;
-use unicorn::editor::State;
-use unicorn::editor::point_in_rect;
+use unicorn::utils::{Widget, point_in_rect};
+use unicorn::edit::edit::State;
 use unicorn;
 
 pub struct PalettePicker {
@@ -412,8 +411,7 @@ impl SpriteEditor {
         let mut highlight = HashMap::new();
         highlight.insert(6, 10);
 
-        widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(),
-                                                     "ERASE".to_string(),
+        widgets.push(Arc::new(Mutex::new(Widget::new("ERASE".to_string(),
                                                      160,
                                                      90,
                                                      8,
@@ -426,8 +424,7 @@ impl SpriteEditor {
                                                           6, 6, 6, 6],
                                                      HashMap::new(),
                                                      false, false))));
-        widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(),
-                                                     "COPY".to_string(),
+        widgets.push(Arc::new(Mutex::new(Widget::new("COPY".to_string(),
                                                      170,
                                                      90,
                                                      8,
@@ -440,8 +437,7 @@ impl SpriteEditor {
                                                           5, 5, 5, 5],
                                                      HashMap::new(),
                                                      false, false))));
-        widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(),
-                                                     "PASTE".to_string(),
+        widgets.push(Arc::new(Mutex::new(Widget::new("PASTE".to_string(),
                                                      180,
                                                      90,
                                                      8,
@@ -454,8 +450,7 @@ impl SpriteEditor {
                                                           5, 5, 5, 5],
                                                      HashMap::new(),
                                                      false, false))));
-        widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(),
-                                                     "ROTATE LEFT".to_string(),
+        widgets.push(Arc::new(Mutex::new(Widget::new("ROTATE LEFT".to_string(),
                                                      190,
                                                      90,
                                                      8,
@@ -468,8 +463,7 @@ impl SpriteEditor {
                                                           5, 5, 5, 5],
                                                      HashMap::new(),
                                                      false, false))));
-        widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(),
-                                                     "ROTATE RIGHT".to_string(),
+        widgets.push(Arc::new(Mutex::new(Widget::new("ROTATE RIGHT".to_string(),
                                                      200,
                                                      90,
                                                      8,
@@ -482,8 +476,7 @@ impl SpriteEditor {
                                                           5, 5, 5, 5],
                                                      HashMap::new(),
                                                      false, false))));
-        widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(),
-                                                     "FILL".to_string(),
+        widgets.push(Arc::new(Mutex::new(Widget::new("FILL".to_string(),
                                                      210, 90, 8, 8,
                                                      vec![5, 5, 5, 5, 5, 5, 5, 5,
                                                           5, 5, 6, 6, 6, 6, 6, 5,
@@ -587,7 +580,11 @@ impl SpriteEditor {
 
         // Update widgets
         for widget in &self.widgets {
-            widget.lock().unwrap().update();
+            let mouse_state = self.state.lock().unwrap().mouse_state;
+            let mouse_x = self.state.lock().unwrap().mouse_x as u32;
+            let mouse_y = self.state.lock().unwrap().mouse_y as u32;
+            
+            widget.lock().unwrap().update(mouse_state, mouse_x, mouse_y);
         }
 
         let zoom_sprite = self.state.lock().unwrap().zoom_sprite;
@@ -995,8 +992,7 @@ impl GFXEditor {
         let mut highlight = HashMap::new();
         highlight.insert(6, 10);
 
-        widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(),
-                                                     "SPRITES".to_string(),
+        widgets.push(Arc::new(Mutex::new(Widget::new("SPRITES".to_string(),
                                                      350,
                                                      20,
                                                      16,
@@ -1019,8 +1015,7 @@ impl GFXEditor {
                                                            6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6],
                                                      highlight.clone(),
                                                      true, true))));
-        widgets.push(Arc::new(Mutex::new(Widget::new(state.clone(),
-                                                     "MAP".to_string(),
+        widgets.push(Arc::new(Mutex::new(Widget::new("MAP".to_string(),
                                                      370,
                                                      20,
                                                      16,
@@ -1059,9 +1054,13 @@ impl GFXEditor {
     }
 
     pub fn update(&mut self, screen: &mut Screen, _players: Arc<Mutex<Players>>) -> bool {
+        let mouse_state = self.state.lock().unwrap().mouse_state;
+        let mouse_x = self.state.lock().unwrap().mouse_x as u32;
+        let mouse_y = self.state.lock().unwrap().mouse_y as u32;
+        
         let mut is_clickable = false;
         for widget in &self.widgets {
-            is_clickable = widget.lock().unwrap().is_clickable();
+            is_clickable = widget.lock().unwrap().is_clickable(mouse_state, mouse_x, mouse_y);
             if is_clickable {
                 break;
             }
@@ -1070,7 +1069,7 @@ impl GFXEditor {
         if is_clickable {
             for widget in &self.widgets {
                 widget.lock().unwrap().reset();
-                widget.lock().unwrap().update();
+                widget.lock().unwrap().update(mouse_state, mouse_x, mouse_y);
 
                 let is_click = widget.lock().unwrap().is_click();
                 if is_click {

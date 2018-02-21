@@ -16,10 +16,10 @@ use syntect::parsing::syntax_definition::SyntaxDefinition;
 use syntect::parsing::SyntaxSet;
 
 // local dependencies
-use unicorn::editor::text_editor::log::{Log, Change, LogEntry};
-use unicorn::editor::text_editor::input::Input;
-use unicorn::editor::text_editor::iterators::Lines;
-use unicorn::editor::text_editor::textobject::{TextObject, Kind, Offset, Anchor};
+use editor::text_editor::log::{Log, Change, LogEntry};
+use editor::text_editor::input::Input;
+use editor::text_editor::iterators::Lines;
+use editor::text_editor::textobject::{TextObject, Kind, Offset, Anchor};
 
 
 #[derive(PartialEq, Debug)]

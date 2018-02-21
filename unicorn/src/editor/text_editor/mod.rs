@@ -24,19 +24,19 @@ use syntect::highlighting::ThemeSet;
 use syntect::parsing::SyntaxSet;
 
 use unicorn::UnicornConfig;
-use unicorn::editor::State;
+use unicorn::edit::edit::State;
 
 use gfx::Screen;
 use config::Players;
 
-use unicorn::editor::text_editor::input::Input;
-use unicorn::editor::text_editor::keyboard::Key;
-use unicorn::editor::text_editor::view::View;
-use unicorn::editor::text_editor::modes::{Mode, ModeType, InsertMode, NormalMode, StandardMode};
-use unicorn::editor::text_editor::overlay::{Overlay, OverlayEvent};
-use unicorn::editor::text_editor::buffer::Buffer;
-use unicorn::editor::text_editor::command::Command;
-use unicorn::editor::text_editor::command::{Action, BuilderEvent, Operation, Instruction};
+use editor::text_editor::input::Input;
+use editor::text_editor::keyboard::Key;
+use editor::text_editor::view::View;
+use editor::text_editor::modes::{Mode, ModeType, InsertMode, NormalMode, StandardMode};
+use editor::text_editor::overlay::{Overlay, OverlayEvent};
+use editor::text_editor::buffer::Buffer;
+use editor::text_editor::command::Command;
+use editor::text_editor::command::{Action, BuilderEvent, Operation, Instruction};
 use unicorn::Palettes;
 
 

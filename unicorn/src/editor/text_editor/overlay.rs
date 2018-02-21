@@ -1,7 +1,7 @@
 use unicode_width::UnicodeWidthChar;
 use gfx::Screen;
 
-use unicorn::editor::text_editor::keyboard::Key;
+use editor::text_editor::keyboard::Key;
 
 /// State for the overlay
 pub enum OverlayEvent {

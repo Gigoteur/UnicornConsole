@@ -1,6 +1,6 @@
-use unicorn::editor::text_editor::keyboard::Key;
-use unicorn::editor::text_editor::keymap::{KeyMap, KeyMapState};
-use unicorn::editor::text_editor::command::{Builder, BuilderEvent, Command};
+use editor::text_editor::keyboard::Key;
+use editor::text_editor::keymap::{KeyMap, KeyMapState};
+use editor::text_editor::command::{Builder, BuilderEvent, Command};
 
 use super::{Mode, ModeType};
 

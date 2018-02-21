@@ -1,5 +1,5 @@
-use unicorn::editor::text_editor::keyboard::Key;
-use unicorn::editor::text_editor::command::BuilderEvent;
+use editor::text_editor::keyboard::Key;
+use editor::text_editor::command::BuilderEvent;
 
 pub use self::standard::StandardMode;
 pub use self::normal::NormalMode;

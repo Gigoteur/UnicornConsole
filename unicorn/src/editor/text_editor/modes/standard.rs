@@ -1,9 +1,9 @@
-use unicorn::editor::text_editor::keyboard::Key;
-use unicorn::editor::text_editor::keymap::{KeyMap, KeyMapState};
-use unicorn::editor::text_editor::buffer::Mark;
-use unicorn::editor::text_editor::command::{BuilderEvent, Operation, Instruction, Command, Action};
-use unicorn::editor::text_editor::textobject::{Anchor, Kind, TextObject, Offset};
-use unicorn::editor::text_editor::overlay::OverlayType;
+use editor::text_editor::keyboard::Key;
+use editor::text_editor::keymap::{KeyMap, KeyMapState};
+use editor::text_editor::buffer::Mark;
+use editor::text_editor::command::{BuilderEvent, Operation, Instruction, Command, Action};
+use editor::text_editor::textobject::{Anchor, Kind, TextObject, Offset};
+use editor::text_editor::overlay::OverlayType;
 
 use super::Mode;
 

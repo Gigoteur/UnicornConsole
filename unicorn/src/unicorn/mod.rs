@@ -1,4 +1,4 @@
-pub mod editor;
+pub mod edit;
 pub mod info;
 pub mod cartdata;
 pub mod emscripten;
@@ -7,6 +7,7 @@ pub mod math;
 pub mod packet;
 pub mod wfc;
 pub mod bump;
+pub mod utils;
 
 use std::collections::HashMap;
 use std::io::Cursor;
@@ -655,7 +656,7 @@ pub struct Unicorn {
     pub configuration: Arc<Mutex<UnicornConfig>>,
     pub noise: Arc<Mutex<Noise>>,
     pub cartridges: Vec<UnicornCartridge>,
-    pub editor: editor::Editor,
+    pub editor: edit::edit::Editor,
     pub editing: bool,
     pub menu: Menu,
     pub current_cartridge: usize,
@@ -691,7 +692,7 @@ impl Unicorn {
             configuration: Arc::new(Mutex::new(UnicornConfig::new())),
             noise: Arc::new(Mutex::new(Noise::new())),
             cartridges: Vec::new(),
-            editor: editor::Editor::new(screen.clone()),
+            editor: edit::edit::Editor::new(screen.clone()),
             editing: false,
             current_cartridge: 0,
             current_code_type: Code::UNKNOWN,

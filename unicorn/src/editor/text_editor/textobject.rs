@@ -1,6 +1,6 @@
 use std::default::Default;
 
-use unicorn::editor::text_editor::buffer::Mark;
+use editor::text_editor::buffer::Mark;
 
 #[derive(Copy, Clone, Debug)]
 pub enum Kind {

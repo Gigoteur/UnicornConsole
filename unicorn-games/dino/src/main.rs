@@ -1,43 +1,105 @@
-extern crate unicorn_web;
+extern crate unicorn_sdl;
+
 extern crate unicorn;
 
-use std::sync::{Arc, Mutex};
-use std::cell::RefCell;
-use std::rc::Rc;
+extern crate getopts;
 
-#[macro_use]
-extern crate stdweb;
+extern crate log;
+extern crate fern;
+extern crate time;
 
-use stdweb::web::{
-    self
-};
+use std::env;
+use getopts::Options;
+
+use unicorn::gfx;
+use unicorn::gfx::Scale;
+use unicorn::cartridge::Cartridge;
+
+pub struct Dino {
+    pub sprite_filename: String,
+}
+
+impl Dino {
+    pub fn new(sprite_filename: String) -> Dino {
+        Dino {
+            sprite_filename: sprite_filename,
+        }
+    }
+}
+
+impl RustPlugin for Dino {
+    fn init(&mut self, screen: &mut gfx::Screen) -> f64 {
+        match cartridge::Cartridge::parse(&self.sprite_filename, false) {
+            Ok(c) => screen.set_sprites(c.gfx.sprites),
+            Err(e) => panic!("Impossible to load the assets {:?}", e),
+        }
+
+        0.0
+    }
+
+    fn update(&mut self, players: &mut Players) -> f64 {
+        0.0
+    }
+
+    fn draw(&mut self, screen: &mut gfx::Screen, info: &mut info::Info) -> f64 {
+        screen.cls();
+        0.0
+    }
+}
+
+
+fn print_usage(program: &str, opts: &Options) {
+    let brief = format!("Usage: {} FILE [options]", program);
+    print!("{}", opts.usage(&brief));
+}
 
 fn main() {
-    stdweb::initialize();
+    let logger_config = fern::DispatchConfig {
+        format: Box::new(|msg: &str, level: &log::LogLevel, _location: &log::LogLocation| {
+            format!("[{}][{}] {}",
+                    time::now().strftime("%Y-%m-%d][%H:%M:%S").unwrap(),
+                    level,
+                    msg)
+        }),
+        output: vec![fern::OutputConfig::stdout()],
+        level: log::LogLevelFilter::Trace,
+    };
 
-    let canvas = web::document().get_element_by_id( "viewport" ).unwrap();
-    let uc = Rc::new( RefCell::new( unicorn_web::UnicornWeb::new( &canvas ) ) );
+    let args: Vec<String> = env::args().collect();
+    let program = args[0].clone();
 
-    uc.borrow_mut().state.setup();
-    uc.borrow_mut().state.init();
+    let mut opts = Options::new();
+    opts.optflag("v", "verbose", "Debug mode level");
+    opts.optflag("h", "help", "print this help menu");
 
-    uc.borrow_mut().state.toggle_debug();
+    let matches = match opts.parse(&args[1..]) {
+        Ok(m) => m,
+        Err(f) => panic!(f.to_string()),
+    };
+    if matches.opt_present("h") {
+        print_usage(&program, &opts);
+        return;
+    }
 
-    let data = include_bytes!("../../../unicorn/sys/unicorn.uni");
-    let data_final: Vec<u8> = unicorn::unicorn::array_to_vec(data);
+    if matches.opt_present("v") {
+        if let Err(e) = fern::init_global_logger(logger_config, log::LogLevelFilter::Debug) {
+            panic!("Failed to initialize global logger: {}", e);
+        }
+    } else {
+        if let Err(e) = fern::init_global_logger(logger_config, log::LogLevelFilter::Info) {
+            panic!("Failed to initialize global logger: {}", e);
+        }
+    }
 
-    uc.borrow_mut().state.load_cartridge_raw("unicorn.uni", data_final, true);
+    let dino = Dino::new("./assets/dino.duc".to_string());
 
-    unicorn_web::hide( "loading" );
-    unicorn_web::hide( "error" );
+    let mut frontend =
+        match unicorn::frontend::Frontend::init(unicorn::gfx::Scale::Scale4x, false, true, true) {
+            Err(error) => panic!("{:?}", error),
+            Ok(frontend) => frontend,
+        };
 
-    unicorn_web::show( "viewport" );
-
-    unicorn_web::support_input( uc.clone() );
-
-    web::window().request_animation_frame( move |_| {
-        unicorn_web::main_loop( uc );
-    });
-
-    stdweb::event_loop();
+    frontend.unicorn.register(dino);
+    frontend.start("../unicorn_sdl/sys/config/gamecontrollerdb.txt".to_string());
+    frontend.run_native_cartridge();
 }
