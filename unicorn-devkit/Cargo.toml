@@ -21,7 +21,7 @@ path = "../unicorn-sdl"
 
 [dependencies.unicorn]
 path="../unicorn"
-features = ["cpython", "unicorn_plugin_lua", "duktape", "libksnd", "syntect", "noise", "image"]
+features = ["cpython", "unicorn_plugin_lua", "duktape", "libksnd", "syntect", "noise", "image", "editor"]
 
 
 [profile.dev]

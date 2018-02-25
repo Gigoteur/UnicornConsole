@@ -583,7 +583,6 @@ impl Frontend {
                             self.uc.save_current_cartridge();
                         } else if scancode == Scancode::F6 || scancode == Scancode::AcBack {
                             self.uc.switch_code();
-                            self.uc.init();
                         }
 
                         if self.uc.players.lock().unwrap().get_value_quick(0, 7) == 1 {

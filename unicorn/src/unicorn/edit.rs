@@ -301,4 +301,15 @@ pub mod edit {
 
 #[cfg(not(feature = "editor"))]
 pub mod edit {
+    use std::sync::{Arc, Mutex};
+    use gfx::Screen;
+
+    pub struct Editor {
+    }
+
+    impl Editor {
+        pub fn new(screen: Arc<Mutex<Screen>>) -> Editor {
+            Editor {}
+        }
+    }
 }

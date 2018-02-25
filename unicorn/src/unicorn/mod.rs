@@ -837,8 +837,11 @@ impl Unicorn {
                 return return_value;
             }
             UnicornState::EDITOR => {
-                let cartridge = self.cartridges.get_mut(self.current_cartridge).unwrap();
-                return self.editor.update(cartridge, &mut self.screen.lock().unwrap(), self.players.clone(), self.sound_internal.clone(), self.sound.clone());
+                #[cfg(feature = "editor")]
+                {
+                    let cartridge = self.cartridges.get_mut(self.current_cartridge).unwrap();
+                    return self.editor.update(cartridge, &mut self.screen.lock().unwrap(), self.players.clone(), self.sound_internal.clone(), self.sound.clone());
+                }
             }
         }
         true
@@ -856,8 +859,11 @@ impl Unicorn {
                 self.menu.draw(&mut self.cartridges, &mut self.screen.lock().unwrap());
             }
             UnicornState::EDITOR => {
-                self.editor
-                    .draw(self.players.clone(), self.palettes.clone(), &mut self.screen.lock().unwrap());
+                #[cfg(feature = "editor")]
+                {
+                    self.editor
+                        .draw(self.players.clone(), self.palettes.clone(), &mut self.screen.lock().unwrap());
+                }
             }
         }
 
@@ -1205,15 +1211,18 @@ impl Unicorn {
 
         self.editing = editor;
 
-        if editor {
-            self.editor
-                .init(self.configuration.clone(),
-                      self.palettes.clone(),
-                      &mut self.screen.lock().unwrap(),
-                      cartridge.cartridge.filename.clone(),
-                      data.clone());
-            self.state = UnicornState::EDITOR;
-            return true;
+        #[cfg(feature = "editor")]
+        {
+            if editor {
+                self.editor
+                    .init(self.configuration.clone(),
+                          self.palettes.clone(),
+                          &mut self.screen.lock().unwrap(),
+                          cartridge.cartridge.filename.clone(),
+                          data.clone());
+                self.state = UnicornState::EDITOR;
+                return true;
+            }
         }
 
         ret
@@ -1323,65 +1332,70 @@ impl Unicorn {
     pub fn switch_code(&mut self) {
         info!("[Unicorn] Switch code");
 
-        let idx = self.current_cartridge;
+        #[cfg(feature = "editor")]
+        {
+            let idx = self.current_cartridge;
 
-        if self.editing {
-            info!("[Unicorn] Switch editor to run");
+            if self.editing {
+                info!("[Unicorn] Switch editor to run");
 
-            self.cartridges[idx].set_code(self.editor.get_code());
+                self.cartridges[idx].set_code(self.editor.get_code());
 
-            // Reload the code for the Unicorn format
-           /* match self.cartridges[idx].cartridge.format {
-                CartridgeFormat::UnicornSplittedFormat => {
-                    info!("[Unicorn] Reloading code section for the cartridge from the file");
-                    self.cartridges[idx].cartridge.code.reload();
-                }
-                CartridgeFormat::UnicornFormat => {
-                    info!("[Unicorn] Reloading code section for the cartridge from the buffer");
-                    self.cartridges[idx].set_code(self.editor.get_code());
-                }
-                _ => (),
-            }*/
+                // Reload the code for the Unicorn format
+               /* match self.cartridges[idx].cartridge.format {
+                    CartridgeFormat::UnicornSplittedFormat => {
+                        info!("[Unicorn] Reloading code section for the cartridge from the file");
+                        self.cartridges[idx].cartridge.code.reload();
+                    }
+                    CartridgeFormat::UnicornFormat => {
+                        info!("[Unicorn] Reloading code section for the cartridge from the buffer");
+                        self.cartridges[idx].set_code(self.editor.get_code());
+                    }
+                    _ => (),
+                }*/
 
-            let data = self.cartridges[idx].get_code();
-            let code_type = self.cartridges[idx].get_code_type();
+                let data = self.cartridges[idx].get_code();
+                let code_type = self.cartridges[idx].get_code_type();
 
-            match code_type {
-                Code::LUA => {
-                    self.cartridges[idx].lua_plugin.load_code(data);
+                match code_type {
+                    Code::LUA => {
+                        self.cartridges[idx].lua_plugin.load_code(data);
+                    }
+                    Code::JAVASCRIPT => {
+                        self.cartridges[idx].javascript_plugin.load_code(data);
+                    }
+                    Code::PYTHON => {
+                        self.cartridges[idx].python_plugin.load_code(data);
+                    }
+                    _ => (),
                 }
-                Code::JAVASCRIPT => {
-                    self.cartridges[idx].javascript_plugin.load_code(data);
+
+                self.editing = false;
+                self.state = UnicornState::RUN;
+                self.reset();
+            } else {
+                info!("[Unicorn] Switch run to editor");
+                info!("[Unicorn] Back to {:?}/{:?}", self.current_cartridge, self.cartridges.len());
+                let filename = self.cartridges[self.current_cartridge].filename.clone();
+                let full_filename = self.cartridges[self.current_cartridge].full_filename.clone();
+
+                if self.cartridges[self.current_cartridge].loaded == false {
+                    self.load_cartridge(filename.as_str(), full_filename.as_str(), false);
                 }
-                Code::PYTHON => {
-                    self.cartridges[idx].python_plugin.load_code(data);
-                }
-                _ => (),
+                let code = self.cartridges[self.current_cartridge].get_code();
+
+                self.editor
+                    .init(self.configuration.clone(),
+                          self.palettes.clone(),
+                          &mut self.screen.lock().unwrap(),
+                          filename,
+                          code);
+                self.editing = true;
+                self.state = UnicornState::EDITOR;
+                self.sound_internal.lock().unwrap().stop();
             }
 
-            self.editing = false;
-            self.state = UnicornState::RUN;
-            self.reset();
-        } else {
-            info!("[Unicorn] Switch run to editor");
-            info!("[Unicorn] Back to {:?}/{:?}", self.current_cartridge, self.cartridges.len());
-            let filename = self.cartridges[self.current_cartridge].filename.clone();
-            let full_filename = self.cartridges[self.current_cartridge].full_filename.clone();
-
-            if self.cartridges[self.current_cartridge].loaded == false {
-                self.load_cartridge(filename.as_str(), full_filename.as_str(), false);
-            }
-            let code = self.cartridges[self.current_cartridge].get_code();
-
-            self.editor
-                .init(self.configuration.clone(),
-                      self.palettes.clone(),
-                      &mut self.screen.lock().unwrap(),
-                      filename,
-                      code);
-            self.editing = true;
-            self.state = UnicornState::EDITOR;
-            self.sound_internal.lock().unwrap().stop();
+            self.init();
         }
     }
 
