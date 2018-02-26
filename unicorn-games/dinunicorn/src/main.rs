@@ -12,24 +12,24 @@ use std::env;
 use getopts::Options;
 
 use unicorn::gfx;
-use unicorn::gfx::Scale;
 use unicorn::cartridge::Cartridge;
+use unicorn::unicorn::info;
+use unicorn::unicorn::RustPlugin;
+use unicorn::config::Players;
 
 pub struct Dino {
-    pub sprite_filename: String,
 }
 
 impl Dino {
-    pub fn new(sprite_filename: String) -> Dino {
+    pub fn new() -> Dino {
         Dino {
-            sprite_filename: sprite_filename,
         }
     }
 }
 
 impl RustPlugin for Dino {
     fn init(&mut self, screen: &mut gfx::Screen) -> f64 {
-        match cartridge::Cartridge::parse(&self.sprite_filename, false) {
+        match Cartridge::from_dunicorn_string(include_bytes!("../assets/dino.duc").to_vec()) {
             Ok(c) => screen.set_sprites(c.gfx.sprites),
             Err(e) => panic!("Impossible to load the assets {:?}", e),
         }
@@ -42,7 +42,7 @@ impl RustPlugin for Dino {
     }
 
     fn draw(&mut self, screen: &mut gfx::Screen, info: &mut info::Info) -> f64 {
-        screen.cls();
+        screen.cls(1);
         0.0
     }
 }
@@ -91,15 +91,19 @@ fn main() {
         }
     }
 
-    let dino = Dino::new("./assets/dino.duc".to_string());
+    let dino = Dino::new();
 
     let mut frontend =
-        match unicorn::frontend::Frontend::init(unicorn::gfx::Scale::Scale4x, false, true, true) {
+        match unicorn_sdl::frontend::Frontend::init(unicorn::gfx::Scale::Scale4x, false, true, true) {
             Err(error) => panic!("{:?}", error),
             Ok(frontend) => frontend,
         };
 
-    frontend.unicorn.register(dino);
-    frontend.start("../unicorn_sdl/sys/config/gamecontrollerdb.txt".to_string());
+    frontend.uc.register(dino);
+    frontend.start();
+
+    #[cfg(not(target_os = "emscripten"))]
+    frontend.init_controllers("../../unicorn-sdl/sys/config/gamecontrollerdb.txt".to_string());
+    
     frontend.run_native_cartridge();
 }

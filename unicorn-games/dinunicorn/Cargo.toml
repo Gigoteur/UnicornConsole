@@ -1,8 +1,8 @@
 [package]
-name = "dino"
+name = "dinucorn"
 version = "0.0.1"
 authors = ["hallucino <d@t0t0.fr>"]
-description = "Dino Game - Unicorn Console"
+description = "Dino Unicorn Game :) - Unicorn Console"
 documentation = ""
 homepage = ""
 repository = ""

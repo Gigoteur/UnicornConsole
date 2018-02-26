@@ -19,6 +19,9 @@ use frametimes;
 use controllers;
 use input::{map_axis, map_button, map_button_joystick, map_axis_joystick};
 
+#[cfg(target_os = "emscripten")]
+use emscripten;
+
 use unicorn;
 use unicorn::gfx::Scale;
 use unicorn::config::scancode;
@@ -361,13 +364,10 @@ impl Frontend {
         })
     }
 
-    pub fn start(&mut self, pathdb: String) {
+    pub fn start(&mut self) {
         info!("[Frontend] Start");
 
         self.times.reset();
-
-        info!("[Frontend] initialise controllers");
-        self.init_controllers(pathdb);
 
         info!("[Frontend] initialise Unicorn");
         self.uc.setup();
@@ -471,6 +471,7 @@ impl Frontend {
     }
 
 
+    #[cfg(not(target_os = "emscripten"))]
     fn handle_event(&mut self) {
         let mut previous_frame_time = Instant::now();
         
@@ -726,6 +727,255 @@ impl Frontend {
         }
     }
 
+
+    #[cfg(target_os = "emscripten")]
+    fn handle_event(&mut self) {
+        let mut previous_frame_time = Instant::now();
+        
+        emscripten::set_main_loop_callback(|| {
+            self.times.update();
+
+            self.fps_counter.update(self.times.get_last_time());
+
+            self.uc.fps = self.fps_counter.get_fps();
+
+            let mouse_state = self.event_pump.mouse_state();
+            let (width, height) = self.renderer.get_dimensions();
+
+            let mouse_state_x = (mouse_state.x() as f32 * (400.0 / width as f32)) as i32;
+            let mouse_state_y = (mouse_state.y() as f32 * (240.0 / height as f32)) as i32;
+
+            self.uc
+                .players
+                .lock()
+                .unwrap()
+                .set_mouse_x(mouse_state_x);
+
+            self.uc
+                .players
+                .lock()
+                .unwrap()
+                .set_mouse_y(mouse_state_y);
+
+            self.uc.players.lock().unwrap().clear_text();
+
+            for event in self.event_pump.poll_iter() {
+                match event {
+                    Event::Quit { .. } => return,
+                    Event::Window { win_event: WindowEvent::Close, .. } => {
+                        return;
+                    }
+                    Event::MouseButtonDown { mouse_btn, .. } => {
+                        let mut left = false;
+                        let mut right = false;
+                        let mut middle = false;
+
+                        match mouse_btn {
+                            MouseButton::Left => left = true,
+                            MouseButton::Right => right = true,
+                            MouseButton::Middle => middle = true,
+                            _ => {}
+                        }
+
+                        self.uc
+                            .players
+                            .lock()
+                            .unwrap()
+                            .mouse_button_down(left,
+                                               right,
+                                               middle,
+                                               self.uc.info.lock().unwrap().elapsed_time);
+                    }
+                    Event::MouseButtonUp { mouse_btn, .. } => {
+                        self.uc
+                            .players
+                            .lock()
+                            .unwrap()
+                            .mouse_button_up();
+                    }
+                    Event::TextInput { text, .. } => {
+                        if text.len() == 1 {
+                            self.uc.players.lock().unwrap().set_text(text.clone());
+                        }
+                    }
+                    Event::KeyDown { scancode: Some(scancode), keycode, keymod, repeat, .. } => {
+                        if scancode == Scancode::AcHome {
+                            return;
+                        }
+
+                        self.uc
+                            .players
+                            .lock()
+                            .unwrap()
+                            .key_down(map_sdlmod(keymod),
+                                      map_sdlscancode(scancode),
+                                      repeat,
+                                      self.uc.info.lock().unwrap().elapsed_time);
+
+                        if scancode == Scancode::F2 {
+                            self.uc.configuration.lock().unwrap().toggle_info_overlay();
+                        } else if scancode == Scancode::F3 {
+                            let dt = Utc::now();
+                            self.uc
+                                .screenshot(&("screenshot-".to_string() +
+                                              &dt.format("%Y-%m-%d-%H-%M-%S.png").to_string()));
+                        } else if scancode == Scancode::F4 {
+                            let record_screen = self.uc.is_recording();
+                            if !record_screen {
+                                let dt = Utc::now();
+                                self.uc
+                                    .start_record(&("record-".to_string() +
+                                                    &dt.format("%Y-%m-%d-%H-%M-%S.gif")
+                                        .to_string()));
+                            } else {
+                                self.uc.stop_record();
+                            }
+                        } else if scancode == Scancode::F5 {
+                            self.uc.save_current_cartridge();
+                        } else if scancode == Scancode::F6 || scancode == Scancode::AcBack {
+                            self.uc.switch_code();
+                        }
+
+                        if self.uc.players.lock().unwrap().get_value_quick(0, 7) == 1 {
+                            self.uc.switch_pause();
+                        }
+                    }
+                    Event::KeyUp { scancode: Some(scancode), keymod, .. } => {
+                        self.uc
+                            .players
+                            .lock()
+                            .unwrap()
+                            .key_up(map_sdlmod(keymod), map_sdlscancode(scancode));
+                    }
+
+                    Event::ControllerButtonDown { which: id, button, .. } => {
+                        if !self.controllers.is_controller(id as u32) {
+                            break;
+                        }
+
+                        if let Some(key) = map_button(button) {
+                            self.uc
+                                .players
+                                .lock()
+                                .unwrap()
+                                .key_down_direct(0,
+                                                 key,
+                                                 false,
+                                                 self.uc.info.lock().unwrap().elapsed_time)
+                        }
+                    }
+
+                    Event::ControllerButtonUp { which: id, button, .. } => {
+                        if !self.controllers.is_controller(id as u32) {
+                            break;
+                        }
+
+                        if let Some(key) = map_button(button) {
+                            self.uc.players.lock().unwrap().key_up_direct(0, key);
+                        }
+                    }
+
+                    Event::ControllerAxisMotion { which: id, axis, value, .. } => {
+                        if !self.controllers.is_controller(id as u32) {
+                            break;
+                        }
+
+                        if let Some((key, state)) = map_axis(axis, value) {
+                            if axis == Axis::LeftX && value == 128 {
+                                self.uc.players.lock().unwrap().key_direc_hor_up(0);
+                            } else if axis == Axis::LeftY && value == -129 {
+                                self.uc.players.lock().unwrap().key_direc_ver_up(0);
+                            } else {
+                                if state {
+                                    self.uc
+                                        .players
+                                        .lock()
+                                        .unwrap()
+                                        .key_down_direct(0,
+                                                         key,
+                                                         false,
+                                                         self.uc.info.lock().unwrap().elapsed_time);
+                                } else {
+                                    self.uc.players.lock().unwrap().key_up_direct(0, key);
+                                }
+                            }
+                        }
+                    }
+
+                    Event::JoyAxisMotion { which: id, axis_idx, value, .. } => {
+                        if !self.controllers.is_joystick(id as u32) {
+                            break;
+                        }
+
+                        if let Some((key, state)) = map_axis_joystick(axis_idx, value) {
+                            if axis_idx == 0 && value == 128 {
+                                self.uc.players.lock().unwrap().key_direc_hor_up(0);
+                            } else if axis_idx == 1 && value == -129 {
+                                self.uc.players.lock().unwrap().key_direc_ver_up(0);
+                            } else {
+                                if state {
+                                    self.uc
+                                        .players
+                                        .lock()
+                                        .unwrap()
+                                        .key_down_direct(0,
+                                                         key,
+                                                         false,
+                                                         self.uc.info.lock().unwrap().elapsed_time);
+                                } else {
+                                    self.uc.players.lock().unwrap().key_up_direct(0, key);
+                                }
+                            }
+                        }
+                    }
+
+                    Event::JoyButtonDown { which: id, button_idx, .. } => {
+                        if !self.controllers.is_joystick(id as u32) {
+                            break;
+                        }
+
+                        if let Some(key) = map_button_joystick(button_idx) {
+                            self.uc
+                                .players
+                                .lock()
+                                .unwrap()
+                                .key_down_direct(0,
+                                                 key,
+                                                 false,
+                                                 self.uc.info.lock().unwrap().elapsed_time);
+                        }
+                    }
+
+                    Event::JoyButtonUp { which: id, button_idx, .. } => {
+                        if !self.controllers.is_joystick(id as u32) {
+                            break;
+                        }
+
+                        if let Some(key) = map_button_joystick(button_idx) {
+                            self.uc.players.lock().unwrap().key_up_direct(0, key);
+                        }
+                    }
+
+                    _ => (),
+                }
+            }
+
+            if !self.uc.update() {
+                info!("[Frontend] End of requested");
+                self.uc.stop();
+                return;
+            }
+
+            self.uc.draw();
+            self.uc.update_sound();
+
+            let now = Instant::now();
+            let dt = now.duration_since(previous_frame_time);
+            previous_frame_time = now;
+            self.uc.update_time(dt);
+            self.blit();
+        });
+    }
 
     pub fn blit(&mut self) {
         self.renderer.blit(&mut self.uc.screen.lock().unwrap());

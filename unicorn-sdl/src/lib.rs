@@ -14,3 +14,6 @@ pub mod frametimes;
 pub mod input;
 pub mod renderer;
 pub mod frontend;
+
+#[cfg(target_os = "emscripten")]
+pub mod emscripten;
