@@ -78,7 +78,7 @@ path="src/chiptune"
 
 [dependencies.syntect]
 optional = true
-version = "1.8"
+version = "2.0.0"
 
 [dependencies.noise]
 optional = true

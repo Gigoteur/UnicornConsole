@@ -6,7 +6,7 @@ use sdl2::event::{Event, WindowEvent};
 
 use std::path::Path;
 
-use chrono::Local;
+use std::time::Instant;
 
 use sdl2::controller::Axis;
 use sdl2::keyboard::Scancode;
@@ -413,15 +413,6 @@ impl Frontend {
         self.uc.setup();
     }
 
-    pub fn update_time(&mut self) {
-        self.uc.info.lock().unwrap().update();
-        self.uc
-            .players
-            .lock()
-            .unwrap()
-            .update(self.uc.info.lock().unwrap().elapsed_time);
-    }
-
     pub fn init_controllers(&mut self, pathdb: String) {
         info!("[Frontend] Init Controllers");
 
@@ -521,6 +512,8 @@ impl Frontend {
 
 
     fn handle_event(&mut self) {
+        let mut previous_frame_time = Instant::now();
+
         set_main_loop_callback(|| {
             self.times.update();
 
@@ -607,22 +600,6 @@ impl Frontend {
 
                         if scancode == Scancode::F2 {
                             self.uc.configuration.lock().unwrap().toggle_info_overlay();
-                        } else if scancode == Scancode::F3 {
-                            let dt = Local::now();
-                            self.uc
-                                .screenshot(&("screenshot-".to_string() +
-                                              &dt.format("%Y-%m-%d-%H-%M-%S.png").to_string()));
-                        } else if scancode == Scancode::F4 {
-                            let record_screen = self.uc.is_recording();
-                            if !record_screen {
-                                let dt = Local::now();
-                                self.uc
-                                    .start_record(&("record-".to_string() +
-                                                    &dt.format("%Y-%m-%d-%H-%M-%S.gif")
-                                        .to_string()));
-                            } else {
-                                self.uc.stop_record();
-                            }
                         } else if scancode == Scancode::F5 {
                             self.uc.save_current_cartridge();
                         } else if scancode == Scancode::F6 || scancode == Scancode::AcBack {
@@ -763,8 +740,10 @@ impl Frontend {
             self.uc.draw();
             self.uc.update_sound();
 
-            self.update_time();
-
+            let now = Instant::now();
+            let dt = now.duration_since(previous_frame_time);
+            previous_frame_time = now;
+            self.uc.update_time(dt);
             self.blit();
         });
     }

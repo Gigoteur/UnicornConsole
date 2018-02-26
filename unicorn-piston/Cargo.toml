@@ -20,7 +20,13 @@ log = "0.3.6"
 fern = "0.3.5"
 chrono = "0.2.25"
 piston_window = "^0.73.0"
+piston2d-gfx_graphics="0.50.0"
+pistoncore-glutin_window = "0.45.0"
+piston = "0.36.0"
+piston2d-graphics="0.26.0"
+gfx = "0.17.1"
+gfx_device_gl = "0.15.0"
 
 [dependencies.unicorn]
 path="../unicorn"
-features = ["cpython", "unicorn_plugin_lua", "duktape", "libksnd", "syntect"]
+features = ["cpython", "unicorn_plugin_lua", "duktape", "syntect", "image", "noise"]
