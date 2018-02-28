@@ -21,7 +21,7 @@ path = "../../unicorn-sdl"
 
 [dependencies.unicorn]
 path="../../unicorn"
-features = []
+features = ["libksnd"]
 
 
 [profile.dev]
