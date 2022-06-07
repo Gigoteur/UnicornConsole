@@ -10,6 +10,8 @@ extern crate time;
 
 use std::env;
 use getopts::Options;
+use fern::colors::{Color, ColoredLevelConfig};
+use log::{debug};
 
 use unicorn::gfx;
 use unicorn::gfx::Scale;
@@ -20,17 +22,53 @@ fn print_usage(program: &str, opts: &Options) {
     print!("{}", opts.usage(&brief));
 }
 
+fn set_up_logging(level: log::LevelFilter) {
+    // configure colors for the whole line
+    let colors_line = ColoredLevelConfig::new()
+        .error(Color::Red)
+        .warn(Color::Yellow)
+        // we actually don't need to specify the color for debug and info, they are white by default
+        .info(Color::White)
+        .debug(Color::White)
+        // depending on the terminals color scheme, this is the same as the background color
+        .trace(Color::BrightBlack);
+
+    // configure colors for the name of the level.
+    // since almost all of them are the same as the color for the whole line, we
+    // just clone `colors_line` and overwrite our changes
+    let colors_level = colors_line.clone().info(Color::Green);
+    // here we set up our fern Dispatch
+    fern::Dispatch::new()
+        .format(move |out, message, record| {
+            out.finish(format_args!(
+                "{color_line}[{date}][{target}][{level}{color_line}] {message}\x1B[0m",
+                color_line = format_args!(
+                    "\x1B[{}m",
+                    colors_line.get_color(&record.level()).to_fg_str()
+                ),
+                date = chrono::Local::now().format("%Y-%m-%d %H:%M:%S"),
+                target = record.target(),
+                level = colors_level.color(record.level()),
+                message = message,
+            ));
+        })
+        // set the default log level. to filter out verbose log messages from dependencies, set
+        // this to Warn and overwrite the log level for your crate.
+        .level(level)
+        // change log levels for individual modules. Note: This looks for the record's target
+        // field which defaults to the module path but can be overwritten with the `target`
+        // parameter:
+        // `info!(target="special_target", "This log message is about special_target");`
+        .level_for("pretty_colored", log::LevelFilter::Trace)
+        // output to stdout
+        .chain(std::io::stdout())
+        .apply()
+        .unwrap();
+
+    debug!("finished setting up logging! yay!");
+}
+
 fn main() {
-    let logger_config = fern::DispatchConfig {
-        format: Box::new(|msg: &str, level: &log::LogLevel, _location: &log::LogLocation| {
-            format!("[{}][{}] {}",
-                    time::now().strftime("%Y-%m-%d][%H:%M:%S").unwrap(),
-                    level,
-                    msg)
-        }),
-        output: vec![fern::OutputConfig::stdout()],
-        level: log::LogLevelFilter::Trace,
-    };
 
     let args: Vec<String> = env::args().collect();
     let program = args[0].clone();
@@ -52,21 +90,20 @@ fn main() {
 
     let matches = match opts.parse(&args[1..]) {
         Ok(m) => m,
-        Err(f) => panic!(f.to_string()),
+        Err(f) => panic!("{}", f.to_string()),
     };
+
+
+    if matches.opt_present("v") {
+        set_up_logging(log::LevelFilter::Debug);
+    } else {
+        set_up_logging(log::LevelFilter::Warn);
+
+    }
+    
     if matches.opt_present("h") {
         print_usage(&program, &opts);
         return;
-    }
-
-    if matches.opt_present("v") {
-        if let Err(e) = fern::init_global_logger(logger_config, log::LogLevelFilter::Debug) {
-            panic!("Failed to initialize global logger: {}", e);
-        }
-    } else {
-        if let Err(e) = fern::init_global_logger(logger_config, log::LogLevelFilter::Info) {
-            panic!("Failed to initialize global logger: {}", e);
-        }
     }
 
     let mut scale = Scale::Scale1x;
@@ -105,21 +142,21 @@ fn main() {
                 Ok(c) => {
                     println!("{:?}", c);
                 }
-                Err(e) => panic!(e),
+                Err(e) => std::panic::panic_any(e),
             }
         } else if input.contains(".uc") {
             match Cartridge::from_unicorn_splitted_file(&input) {
                 Ok(c) => {
                     println!("{:?}", c);
                 }
-                Err(e) => panic!(e),
+                Err(e) => std::panic::panic_any(e),
             }
         } else if input.contains(".duc") {
             match Cartridge::from_dunicorn_file(&input) {
                 Ok(c) => {
                     println!("{:?}", c);
                 }
-                Err(e) => panic!(e),
+                Err(e) => std::panic::panic_any(e),
             }
         }
     } else {

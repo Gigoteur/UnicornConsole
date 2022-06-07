@@ -4,8 +4,6 @@ pub mod cartdata;
 pub mod emscripten;
 pub mod noise;
 pub mod math;
-pub mod packet;
-pub mod wfc;
 pub mod utils;
 
 use std::collections::HashMap;
@@ -13,17 +11,20 @@ use std::io::Cursor;
 use std::sync::{Arc, Mutex};
 use std::fmt;
 use std::cmp::{max, PartialOrd};
+use std::io::prelude::*;
+use std::time::Duration;
 
 #[cfg(feature = "image")]
 use image;
 
+#[cfg(feature = "image")]
 use gif;
 
-use std::io::prelude::*;
-use std::time::Duration;
-
+#[cfg(feature = "image")]
 use std::path::Path;
+#[cfg(feature = "image")]
 use std::fs::File;
+
 
 use plugins::lua_plugin::plugin::LuaPlugin;
 use plugins::python_plugin::plugin::PythonPlugin;

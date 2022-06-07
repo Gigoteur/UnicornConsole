@@ -561,7 +561,7 @@ pub mod plugin {
 
         pub fn draw(&mut self) -> bool {
             let mut return_draw_value = true;
-            debug!("[PLUGIN][PYTHON] Call DRAW");
+            //debug!("[PLUGIN][PYTHON] Call DRAW");
 
             if !self.loaded_code {
                 return false;
@@ -592,7 +592,7 @@ pub mod plugin {
 
         pub fn update(&mut self) -> bool {
             let mut return_update_value = true;
-            debug!("[PLUGIN][PYTHON] Call UPDATE");
+            //debug!("[PLUGIN][PYTHON] Call UPDATE");
 
             if !self.loaded_code {
                 return false;

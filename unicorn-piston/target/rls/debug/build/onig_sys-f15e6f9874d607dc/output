@@ -1,0 +1,166 @@
+TARGET = Some("x86_64-pc-windows-msvc")
+OPT_LEVEL = Some("0")
+HOST = Some("x86_64-pc-windows-msvc")
+CC_x86_64-pc-windows-msvc = None
+CC_x86_64_pc_windows_msvc = None
+HOST_CC = None
+CC = None
+CFLAGS_x86_64-pc-windows-msvc = None
+CFLAGS_x86_64_pc_windows_msvc = None
+HOST_CFLAGS = None
+CFLAGS = None
+CRATE_CC_NO_DEFAULTS = None
+CARGO_CFG_TARGET_FEATURE = Some("fxsr,sse,sse2")
+DEBUG = Some("true")
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\regexec.o" "-c" "oniguruma\\src\\regexec.c"
+regexec.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\regerror.o" "-c" "oniguruma\\src\\regerror.c"
+regerror.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\regparse.o" "-c" "oniguruma\\src\\regparse.c"
+regparse.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\regext.o" "-c" "oniguruma\\src\\regext.c"
+regext.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\regcomp.o" "-c" "oniguruma\\src\\regcomp.c"
+regcomp.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\reggnu.o" "-c" "oniguruma\\src\\reggnu.c"
+reggnu.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\regenc.o" "-c" "oniguruma\\src\\regenc.c"
+regenc.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\regsyntax.o" "-c" "oniguruma\\src\\regsyntax.c"
+regsyntax.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\regtrav.o" "-c" "oniguruma\\src\\regtrav.c"
+regtrav.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\regversion.o" "-c" "oniguruma\\src\\regversion.c"
+regversion.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\st.o" "-c" "oniguruma\\src\\st.c"
+st.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\onig_init.o" "-c" "oniguruma\\src\\onig_init.c"
+onig_init.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\unicode.o" "-c" "oniguruma\\src\\unicode.c"
+unicode.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\ascii.o" "-c" "oniguruma\\src\\ascii.c"
+ascii.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\utf8.o" "-c" "oniguruma\\src\\utf8.c"
+utf8.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\utf16_be.o" "-c" "oniguruma\\src\\utf16_be.c"
+utf16_be.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\utf16_le.o" "-c" "oniguruma\\src\\utf16_le.c"
+utf16_le.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\utf32_be.o" "-c" "oniguruma\\src\\utf32_be.c"
+utf32_be.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\utf32_le.o" "-c" "oniguruma\\src\\utf32_le.c"
+utf32_le.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\euc_jp.o" "-c" "oniguruma\\src\\euc_jp.c"
+euc_jp.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\sjis.o" "-c" "oniguruma\\src\\sjis.c"
+sjis.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\iso8859_1.o" "-c" "oniguruma\\src\\iso8859_1.c"
+iso8859_1.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\iso8859_2.o" "-c" "oniguruma\\src\\iso8859_2.c"
+iso8859_2.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\iso8859_3.o" "-c" "oniguruma\\src\\iso8859_3.c"
+iso8859_3.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\iso8859_4.o" "-c" "oniguruma\\src\\iso8859_4.c"
+iso8859_4.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\iso8859_5.o" "-c" "oniguruma\\src\\iso8859_5.c"
+iso8859_5.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\iso8859_6.o" "-c" "oniguruma\\src\\iso8859_6.c"
+iso8859_6.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\iso8859_7.o" "-c" "oniguruma\\src\\iso8859_7.c"
+iso8859_7.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\iso8859_8.o" "-c" "oniguruma\\src\\iso8859_8.c"
+iso8859_8.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\iso8859_9.o" "-c" "oniguruma\\src\\iso8859_9.c"
+iso8859_9.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\iso8859_10.o" "-c" "oniguruma\\src\\iso8859_10.c"
+iso8859_10.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\iso8859_11.o" "-c" "oniguruma\\src\\iso8859_11.c"
+iso8859_11.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\iso8859_13.o" "-c" "oniguruma\\src\\iso8859_13.c"
+iso8859_13.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\iso8859_14.o" "-c" "oniguruma\\src\\iso8859_14.c"
+iso8859_14.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\iso8859_15.o" "-c" "oniguruma\\src\\iso8859_15.c"
+iso8859_15.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\iso8859_16.o" "-c" "oniguruma\\src\\iso8859_16.c"
+iso8859_16.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\euc_tw.o" "-c" "oniguruma\\src\\euc_tw.c"
+euc_tw.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\euc_kr.o" "-c" "oniguruma\\src\\euc_kr.c"
+euc_kr.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\big5.o" "-c" "oniguruma\\src\\big5.c"
+big5.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\gb18030.o" "-c" "oniguruma\\src\\gb18030.c"
+gb18030.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\koi8_r.o" "-c" "oniguruma\\src\\koi8_r.c"
+koi8_r.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\cp1251.o" "-c" "oniguruma\\src\\cp1251.c"
+cp1251.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\euc_jp_prop.o" "-c" "oniguruma\\src\\euc_jp_prop.c"
+euc_jp_prop.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\sjis_prop.o" "-c" "oniguruma\\src\\sjis_prop.c"
+sjis_prop.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\unicode_unfold_key.o" "-c" "oniguruma\\src\\unicode_unfold_key.c"
+unicode_unfold_key.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\unicode_fold1_key.o" "-c" "oniguruma\\src\\unicode_fold1_key.c"
+unicode_fold1_key.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\unicode_fold2_key.o" "-c" "oniguruma\\src\\unicode_fold2_key.c"
+unicode_fold2_key.c
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-Z7" "-Brepro" "-I" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out" "-I" "oniguruma\\src" "-Fod:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\unicode_fold3_key.o" "-c" "oniguruma\\src\\unicode_fold3_key.c"
+unicode_fold3_key.c
+exit code: 0
+AR_x86_64-pc-windows-msvc = None
+AR_x86_64_pc_windows_msvc = None
+HOST_AR = None
+AR = None
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\lib.exe" "-out:d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\libonig.a" "-nologo" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\regexec.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\regerror.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\regparse.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\regext.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\regcomp.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\reggnu.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\regenc.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\regsyntax.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\regtrav.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\regversion.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\st.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\onig_init.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\unicode.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\ascii.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\utf8.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\utf16_be.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\utf16_le.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\utf32_be.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\utf32_le.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\euc_jp.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\sjis.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\iso8859_1.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\iso8859_2.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\iso8859_3.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\iso8859_4.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\iso8859_5.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\iso8859_6.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\iso8859_7.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\iso8859_8.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\iso8859_9.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\iso8859_10.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\iso8859_11.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\iso8859_13.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\iso8859_14.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\iso8859_15.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\iso8859_16.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\euc_tw.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\euc_kr.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\big5.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\gb18030.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\koi8_r.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\cp1251.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\euc_jp_prop.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\sjis_prop.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\unicode_unfold_key.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\unicode_fold1_key.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\unicode_fold2_key.o" "d:\\UnicornConsole\\UnicornConsole\\unicorn-piston\\target\\rls\\debug\\build\\onig_sys-f15e6f9874d607dc\\out\\oniguruma\\src\\unicode_fold3_key.o"
+exit code: 0
+cargo:rustc-link-lib=static=onig
+cargo:rustc-link-search=native=d:\UnicornConsole\UnicornConsole\unicorn-piston\target\rls\debug\build\onig_sys-f15e6f9874d607dc\out

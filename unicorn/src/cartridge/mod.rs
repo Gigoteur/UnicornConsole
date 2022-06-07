@@ -561,7 +561,7 @@ fn read_from_uniformat<R: io::BufRead>(filename: &str, buf: &mut R) -> Result<Ca
 
     let re_delim_section = Regex::new(SECTION_DELIM_RE).unwrap();
 
-    let mut sections: HashMap<String, Vec<(String)>> = HashMap::new();
+    let mut sections: HashMap<String, Vec<String>> = HashMap::new();
 
     let mut section_name = "".to_string();
 
@@ -661,7 +661,7 @@ pub fn from_dunicorn_file_raw<R: io::BufRead>(buf_reader: &mut R) -> Result<Cart
 
     let re_delim_section = Regex::new(SECTION_DELIM_RE).unwrap();
 
-    let mut sections: HashMap<String, Vec<(String)>> = HashMap::new();
+    let mut sections: HashMap<String, Vec<String>> = HashMap::new();
 
     let mut section_name = "".to_string();
 
@@ -770,19 +770,19 @@ impl Cartridge {
 
     pub fn from_uni_raw(filename: &str, data: Vec<u8>) -> Result<Cartridge, Error> {
         let mut buf_reader = Cursor::new(data);
-        let cartridge = try!(read_from_uniformat(filename, &mut buf_reader));
+        let cartridge = read_from_uniformat(filename, &mut buf_reader)?;
         Ok(cartridge)
     }
 
     pub fn from_unicorn_file(filename: &str) -> Result<Cartridge, Error> {
-        let f = try!(File::open(filename));
+        let f = File::open(filename)?;
         let mut buf_reader = BufReader::new(f);
-        let cartridge = try!(read_from_uniformat(filename, &mut buf_reader));
+        let cartridge = read_from_uniformat(filename, &mut buf_reader)?;
         Ok(cartridge)
     }
 
     pub fn from_unicorn_splitted_file(filename: &str) -> Result<Cartridge, Error> {
-        let mut f = try!(File::open(filename));
+        let mut f = File::open(filename)?;
 
         let mut data = String::new();
         f.read_to_string(&mut data).unwrap();
@@ -791,7 +791,7 @@ impl Cartridge {
 
         let code_file = json.code.as_str();
 
-        let f1 = try!(File::open(code_file));
+        let f1 = File::open(code_file)?;
         let buf_reader = BufReader::new(f1);
 
         let mut code_section = Vec::new();
@@ -802,12 +802,12 @@ impl Cartridge {
         }
 
         let data_file = json.data.as_str();
-        let f2 = try!(File::open(data_file));
+        let f2 = File::open(data_file)?;
         let buf_reader = BufReader::new(f2);
 
         let re_delim_section = Regex::new(SECTION_DELIM_RE).unwrap();
 
-        let mut sections: HashMap<String, Vec<(String)>> = HashMap::new();
+        let mut sections: HashMap<String, Vec<String>> = HashMap::new();
 
         let mut section_name = "".to_string();
 
@@ -899,7 +899,7 @@ impl Cartridge {
     }
 
     pub fn from_dunicorn_file(filename: &str) -> Result<Cartridge, Error> {
-        let mut f = try!(File::open(filename));
+        let mut f = File::open(filename)?;
 
         let mut data = String::new();
         f.read_to_string(&mut data).unwrap();

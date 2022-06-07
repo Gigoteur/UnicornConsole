@@ -545,7 +545,7 @@ impl Frontend {
                         }
                     }
                     Event::KeyDown { scancode: Some(scancode), keycode: _, keymod, repeat, .. } => {
-                        // info!("KEY DOWN {:?} {:?} {:?}", scancode, keycode, keymod);
+                        debug!("KEY DOWN {:?} {:?}", scancode, keymod);
 
                         if scancode == Scancode::AcHome {
                             break 'main;

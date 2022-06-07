@@ -11,6 +11,8 @@ use std::convert::From;
 use gapbuffer::GapBuffer;
 
 #[cfg(feature = "syntect")]
+use syntect::parsing::SyntaxReference;
+#[cfg(feature = "syntect")]
 use syntect::parsing::syntax_definition::SyntaxDefinition;
 #[cfg(feature = "syntect")]
 use syntect::parsing::SyntaxSet;
@@ -90,7 +92,7 @@ pub struct Buffer {
     pub log: Log,
     /// Location on disk where the current buffer should be written
     pub file_path: Option<PathBuf>,
-    pub syntax: Option<SyntaxDefinition>,
+    pub syntax: Option<SyntaxReference>,
     /// Whether or not the Buffer has unsaved changes
     pub dirty: bool,
 }
@@ -137,7 +139,7 @@ impl Buffer {
     }
 
     pub fn new_raw(code: String) -> Buffer {
-        let mut buf = Buffer::from(code);
+        let buf = Buffer::from(code);
         buf
     }
 

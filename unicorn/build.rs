@@ -39,16 +39,7 @@ fn prebuild() -> io::Result<()> {
 }
 
 fn main() {
-    let profile = env::var("PROFILE").unwrap_or("Debug".to_string());
-    let current_dir = std::env::current_dir().unwrap();
-    let target;
     let target_os = env::var("TARGET").unwrap();
-
-    if profile == "Release" {
-        target = Path::new(&current_dir).join("target/release");
-    } else {
-        target = Path::new(&current_dir).join("target/debug");
-    }
 
     match prebuild() {
         Err(e) => panic!("Error: {}", e),
@@ -67,7 +58,7 @@ fn main() {
         // We should also add the following instead of defining our toolchain in .cargo/config
         // -C link-arg=--sysroot=$NDK_ROOT/platforms/android-<api level you are targeting>/arch-arm
 
-        let abi = if target_os.contains("armv7") {
+        let _abi = if target_os.contains("armv7") {
             "armeabi-v7a"
         } else if target_os.contains("arm") {
             "armeabi"
@@ -80,12 +71,5 @@ fn main() {
         } else {
             panic!("Invalid target architecture {}", target_os);
         };
-/*
-        let src = Path::new(&current_dir).join("target").join(target_os).join("debug").join("libuc.so");
-        let dst = Path::new(&current_dir).join("android/app/src/main/jniLibs").join(abi).join("libuc.so");
-        //panic!("{:?}", dst);
-        //std::fs::remove_file(Path::new(&dst)).unwrap();
-        // This won't work as it's being executed before the actual library has finished building :(
-        std::fs::copy(src, dst).unwrap();*/
     }
 }

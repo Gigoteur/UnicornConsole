@@ -3,47 +3,6 @@ import random
 from math import frexp, copysign
 from sys import float_info
 
-# Audio
-
-
-def music(id=-1, filename="", loops=0, start_position=0, channel=-1):
-    unicorn_audio.chiptune_music(id, filename, channel, loops, start_position)
-
-
-def sfx(id=-1, filename="", note=13312, panning=64,
-        rate=50, loops=0, channel=-1):
-    unicorn_audio.chiptune_sfx(id, filename, channel, note, panning,
-                               rate, loops)
-
-
-def music_stop():
-    unicorn_audio.chiptune_stop()
-
-
-def music_pause():
-    unicorn_audio.chiptune_pause()
-
-
-def music_resume():
-    unicorn_audio.chiptune_resume()
-
-
-def music_volume(volume):
-    unicorn_audio.chiptune_volume(volume)
-
-
-def music_position():
-    return unicorn_audio.chiptune_position()
-
-
-globals()["music"] = music
-globals()["sfx"] = sfx
-globals()["music_stop"] = music_stop
-globals()["music_pause"] = music_pause
-globals()["music_resume"] = music_resume
-globals()["music_volume"] = music_volume
-globals()["music_position"] = music_position
-
 # Cart Data
 
 # Collision

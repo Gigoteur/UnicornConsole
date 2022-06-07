@@ -85,7 +85,7 @@ impl Players {
             akeys_quick: HashMap::new(),
             all_frames: HashMap::new(),
             text: "".to_string(),
-            delta: 0.1,
+            delta: 0.01,
         }
     }
 
@@ -137,7 +137,7 @@ impl Players {
         for (key_val, value) in self.akeys.iter_mut() {
             if *value {
                 match self.all_frames.get(&key_val) {
-                    Some(&delay_value) => {
+                    Some(&delay_value) => {                       
                         if elapsed - delay_value >= self.delta {
                             self.akeys_quick.insert(*key_val, false);
                         } else {
@@ -210,7 +210,7 @@ impl Players {
     }
 
     pub fn key_down_direct(&mut self, player: u8, key: PX8Key, repeat: bool, elapsed: f64) {
-        debug!("KEY {:?} {:?} {:?} Player {:?} -> DOWN",
+        debug!("KEY {:?} {:?} {:?} Player {:?} -> DOWN DIRECT",
                key,
                repeat,
                elapsed,

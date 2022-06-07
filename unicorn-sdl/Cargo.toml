@@ -1,6 +1,6 @@
 [package]
 name = "unicorn_sdl"
-version = "0.0.1"
+version = "0.0.2"
 authors = ["hallucino <d@t0t0.fr>"]
 description = "Unicorn console, sdl gfx"
 documentation = ""

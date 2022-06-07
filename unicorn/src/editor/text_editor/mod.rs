@@ -15,8 +15,6 @@ use std::path::PathBuf;
 use std::sync::{Mutex, Arc};
 use std::sync::mpsc::{Sender, Receiver};
 use std::sync::mpsc::channel;
-use std::env;
-use std::rc::Rc;
 
 #[cfg(feature = "syntect")]
 use syntect::highlighting::ThemeSet;
@@ -45,7 +43,7 @@ pub struct TextEditor {
 }
 
 impl TextEditor {
-    pub fn new(state: Arc<Mutex<State>>) -> TextEditor {
+    pub fn new(_state: Arc<Mutex<State>>) -> TextEditor {
         let options = Options { syntax_enabled: true };
 
         TextEditor {
@@ -56,8 +54,8 @@ impl TextEditor {
     }
 
     pub fn init(&mut self,
-                config: Arc<Mutex<UnicornConfig>>,
-                screen: &mut Screen,
+                _config: Arc<Mutex<UnicornConfig>>,
+                _screen: &mut Screen,
                 filename: String,
                 code: String) {
         info!("[EDITOR][TXT] Init");
@@ -66,7 +64,7 @@ impl TextEditor {
         self.editor.set_buffer(filename.clone(), code.clone());
     }
 
-    pub fn update(&mut self, players: Arc<Mutex<Players>>) -> bool {
+    pub fn update(&mut self, _players: Arc<Mutex<Players>>) -> bool {
         true
     }
 
@@ -101,7 +99,7 @@ pub struct Editor {
     buffers: Vec<Arc<Mutex<Buffer>>>,
     view: View,
     running: bool,
-    mode: Box<Mode>,
+    mode: Box<dyn Mode>,
     options: Options,
 
     command_queue: Receiver<Command>,
@@ -111,7 +109,7 @@ pub struct Editor {
 impl Editor {
     /// Create a new Editor instance from the given source
     #[cfg(not(feature = "syntect"))]
-    pub fn new(source: Input, mode: Box<Mode>, opts: Options) -> Editor {
+    pub fn new(source: Input, mode: Box<dyn Mode>, opts: Options) -> Editor {
         let (snd, recv) = channel();
 
         let mut buffers = Vec::new();
@@ -146,7 +144,6 @@ impl Editor {
 
 
         let mut ps = SyntaxSet::load_defaults_nonewlines();
-        ps.link_syntaxes();
 
         let buffer = match source {
             Input::Code(data) => Buffer::new_with_syntax_raw(data, &ps),
@@ -192,7 +189,7 @@ impl Editor {
 
 
     #[cfg(not(feature = "syntect"))]
-    pub fn set_buffer(&mut self, filename: String, code: String) {
+    pub fn set_buffer(&mut self, _filename: String, code: String) {
         let buffer = Buffer::new_raw(code);
         self.view.set_buffer(Arc::new(Mutex::new(buffer)));
     }
@@ -200,7 +197,6 @@ impl Editor {
     #[cfg(feature = "syntect")]
     pub fn set_buffer(&mut self, filename: String, code: String) {
         let mut ps = SyntaxSet::load_defaults_nonewlines();
-        ps.link_syntaxes();
 
         let buffer = Buffer::new_with_syntax_raw(code, &ps);
 
@@ -309,9 +305,9 @@ impl Editor {
     /// Handle resize events
     ///
     /// width and height represent the new height of the window.
-    fn handle_resize_event(&mut self, width: usize, height: usize) {
-        self.view.resize(width, height);
-    }
+   // fn handle_resize_event(&mut self, width: usize, height: usize) {
+   //     self.view.resize(width, height);
+   // }
 
     /// Draw the current view to the frontend
     fn draw(&mut self, rb: &mut Screen, palettes: Arc<Mutex<Palettes>>) {

@@ -2,7 +2,6 @@
 extern crate unicorn_plugin_lua;
 
 #[cfg(feature = "cpython")]
-#[macro_use]
 extern crate cpython;
 
 #[cfg(feature = "duktape")]

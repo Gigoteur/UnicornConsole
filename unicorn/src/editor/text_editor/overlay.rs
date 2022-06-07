@@ -66,14 +66,14 @@ impl Overlay {
         }
     }
 
-    pub fn draw_cursor(&mut self, rb: &mut Screen) {
+    pub fn draw_cursor(&mut self, _rb: &mut Screen) {
         match *self {
-            Overlay::SelectFile     {cursor_x, ..} |
-            Overlay::Prompt         {cursor_x, ..} |
-            Overlay::SavePrompt     {cursor_x, ..} => {
+            Overlay::SelectFile     {cursor_x: _, ..} |
+            Overlay::Prompt         {cursor_x: _, ..} |
+            Overlay::SavePrompt     {cursor_x: _, ..} => {
                 // Prompt is always on the bottom, so we can use the
                 // height given by the frontend here
-                let height = (rb.height - 1) as i32;
+                //let height = (rb.height - 1) as i32;
                 //rb.set_cursor(cursor_x as isize, height as isize)
             },
 

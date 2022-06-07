@@ -103,7 +103,7 @@ pub mod edit {
     }
 
     impl Editor {
-        pub fn new(screen: Arc<Mutex<Screen>>) -> Editor {
+        pub fn new(_screen: Arc<Mutex<Screen>>) -> Editor {
             let state = Arc::new(Mutex::new(State::new()));
             let mut highlight = HashMap::new();
             highlight.insert(6, 10);
@@ -206,7 +206,7 @@ pub mod edit {
             self.txt.get_buffer()
         }
 
-        pub fn update(&mut self, cartridge: &mut UnicornCartridge, screen: &mut Screen, players: Arc<Mutex<Players>>) -> bool {
+        pub fn update(&mut self, _cartridge: &mut UnicornCartridge, screen: &mut Screen, players: Arc<Mutex<Players>>) -> bool {
             self.state.lock().unwrap().update(players.clone());
 
             let mut is_clickable = false;

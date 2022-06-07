@@ -1,14 +1,7 @@
 use std::cmp;
-use std::borrow::Cow;
-use std::path::Path;
-use std::path::PathBuf;
-use std::io::Write;
-use std::fs::{File, rename};
 use std::sync::{Mutex, Arc};
 use std::time::SystemTime;
-use std::rc::Rc;
 
-use unicode_width::UnicodeWidthChar;
 use std::collections::HashMap;
 
 #[cfg(feature = "syntect")]
@@ -193,13 +186,13 @@ impl View {
     }
 
     #[cfg(not(feature = "syntect"))]
-    pub fn draw(&mut self, rb: &mut Screen, palettes: Arc<Mutex<Palettes>>, syntax_enabled: bool) {
+    pub fn draw(&mut self, rb: &mut Screen, _palettes: Arc<Mutex<Palettes>>, _syntax_enabled: bool) {
        self.draw_cursor(rb);
        // self.clear(rb);
         {
             let buffer = self.buffer.lock().unwrap();
             let height = self.get_height() - 1;
-            let width = self.get_width() - 1;
+            let _width = self.get_width() - 1;
 
             let mut lines = buffer.lines_from(self.top_line).unwrap().take(height);
             for y_position in 0..height {

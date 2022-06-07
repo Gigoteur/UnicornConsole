@@ -1,6 +1,0 @@
-cargo:include=C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\sdl2-sys-0.35.2\SDL\include
-cargo:rustc-flags=-l SDL2
-cargo:rustc-flags=-l SDL2_mixer
-cargo:rustc-flags=-l SDL2_image
-cargo:rustc-flags=-l SDL2_ttf
-cargo:rustc-flags=-l SDL2_gfx
