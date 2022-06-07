@@ -12,16 +12,17 @@ license = "MIT"
 
 [dependencies]
 getopts = "0.2.14"
-log = "0.3.6"
-fern = "0.3.5"
-time = "0.1.35"
+log = "0.4"
+fern = "0.6.1"
+time = "0.3.9"
 
 [dependencies.unicorn_sdl]
 path = "../unicorn-sdl"
 
 [dependencies.unicorn]
 path="../unicorn"
-features = ["cpython", "unicorn_plugin_lua", "duktape", "libksnd", "syntect", "noise", "image", "editor"]
+features = ["cpython", "syntect", "noise", "editor"]
+#features = ["cpython", "unicorn_plugin_lua", "duktape", "syntect", "noise", "image", "editor"]
 
 
 [profile.dev]

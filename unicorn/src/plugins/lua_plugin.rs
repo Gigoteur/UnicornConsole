@@ -14,7 +14,6 @@ pub mod plugin {
 
     use unicorn::info::Info;
     use unicorn::noise::Noise;
-    use sound::sound::Sound;
 
     use gfx::Screen;
 
@@ -96,7 +95,6 @@ pub mod plugin {
         pub screen: Arc<Mutex<Screen>>,
         pub info: Arc<Mutex<Info>>,
         pub noise: Arc<Mutex<Noise>>,
-        pub sound: Arc<Mutex<Sound>>,
     }
 
     pub struct LuaPlugin {
@@ -117,8 +115,7 @@ pub mod plugin {
                     players: Arc<Mutex<Players>>,
                     info: Arc<Mutex<Info>>,
                     screen: Arc<Mutex<Screen>>,
-                    noise: Arc<Mutex<Noise>>,
-                    sound: Arc<Mutex<Sound>>) {
+                    noise: Arc<Mutex<Noise>>) {
             info!("[PLUGIN][LUA] Init plugin");
 
             let extra = ExtraData {
@@ -126,7 +123,6 @@ pub mod plugin {
                 info: info.clone(),
                 screen: screen.clone(),
                 noise: noise.clone(),
-                sound: sound.clone(),
             };
 
             let mut lua_state = self.lua_state.lock().unwrap();
@@ -1049,20 +1045,6 @@ pub mod plugin {
             let start_position = state2.check_integer(5);
             let channel = state2.check_integer(6);
 
-            let sound = state2.with_extra(|extra| {
-                                              let data = extra
-                                                  .as_ref()
-                                                  .unwrap()
-                                                  .downcast_ref::<ExtraData>()
-                                                  .unwrap();
-                                              data.sound.clone()
-                                          });
-
-            sound
-                .lock()
-                .unwrap()
-                .music(id as i32, filename.to_string(), channel as i32, loops as i32, start_position as i32);
-
             1
         }
 
@@ -1079,20 +1061,6 @@ pub mod plugin {
             let panning = state2.check_integer(6);
             let rate = state2.check_integer(7);
             let loops = state2.check_integer(8);
-
-            let sound = state2.with_extra(|extra| {
-                                              let data = extra
-                                                  .as_ref()
-                                                  .unwrap()
-                                                  .downcast_ref::<ExtraData>()
-                                                  .unwrap();
-                                              data.sound.clone()
-                                          });
-
-            sound
-                .lock()
-                .unwrap()
-                .sfx(id as i32, filename.to_string(), channel as i32, note as u16, panning as i32, rate as i32, loops as i32);
 
             1
         }
@@ -2196,7 +2164,6 @@ pub mod plugin {
 
     use unicorn::noise::Noise;
     use unicorn::info::Info;
-    use sound::sound::Sound;
 
     use gfx::Screen;
 
@@ -2213,8 +2180,7 @@ pub mod plugin {
                     _players: Arc<Mutex<Players>>,
                     _info: Arc<Mutex<Info>>,
                     _screen: Arc<Mutex<Screen>>,
-                    _noise: Arc<Mutex<Noise>>,
-                    _sound: Arc<Mutex<Sound>>) {
+                    _noise: Arc<Mutex<Noise>>) {
             error!("LUA plugin disabled");
         }
         pub fn load_code(&mut self, _data: String) -> bool {

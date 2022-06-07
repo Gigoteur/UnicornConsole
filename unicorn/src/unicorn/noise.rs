@@ -44,10 +44,10 @@ impl Noise {
         Noise { }
     }
 
-    pub fn get(&mut self, x: f64, y: f64, z: f64) -> f64 {
+    pub fn get(&mut self, _x: f64, _y: f64, _z: f64) -> f64 {
         0.
     }
 
-    pub fn set_seed(&mut self, seed: u32) {
+    pub fn set_seed(&mut self, _seed: u32) {
     }
 }

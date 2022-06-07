@@ -1,6 +1,6 @@
 [package]
 name = "unicorn"
-version = "0.0.1"
+version = "0.0.2"
 authors = ["hallucino <d@t0t0.fr>"]
 description = "Unicorn console"
 documentation = ""
@@ -30,36 +30,35 @@ panic = 'unwind'
 [features]
 default = []
 editor = []
-libksnd = ["chiptune/libksnd"]
 
 [patch.crates-io]
 rand = { git = "https://github.com/hallucino/rand.git", branch = "wasm" }
 
 [dependencies]
-regex = "0.2.1"
-byteorder = "1.0.0"
+regex = "1.5.6"
+byteorder = "1"
 rand = "0.4"
-libc = "0.2.18"
-log = "0.3.6"
-fern = "0.3.5"
-rusttype = "0.2.1"
-gif = "0.9.0"
-lazy_static = "0.1.*"
-serde = "1"
-serde_derive = "1"
-serde_json = "1"
-num-traits = "0.1"
-glob = "0.2.11"
+libc = "0.2"
+log = "0.4"
+fern = "0.6.1"
+rusttype = "0.9.2"
+gif = "0.11.3"
+lazy_static = "1.4.0"
+serde = "1.0.137"
+serde_derive = "1.0.137"
+serde_json = "1.0.81"
+num-traits = "0.2.15"
+glob = "0.3.0"
 clippy = {version = "*", optional = true}
 gapbuffer = "0.1.1"
-unicode-width = "0.1.1"
-ordered-float = "0.5.0"
+unicode-width = "0.1.9"
+ordered-float = "3.0.0"
 
 [target.'cfg(target_os="android")'.dependencies]
 jni = { version = "0.4", default-features = false }
 
 [dependencies.cpython]
-version = "0.1.0"
+version = "0.7"
 optional = true
 
 [dependencies.unicorn_plugin_lua]
@@ -72,13 +71,9 @@ optional = true
 version="0.0.1"
 path="src/plugins/duktape"
 
-[dependencies.chiptune]
-version="0.0.1"
-path="src/chiptune"
-
 [dependencies.syntect]
 optional = true
-version = "2.0.0"
+version = "5.0.0"
 
 [dependencies.noise]
 optional = true

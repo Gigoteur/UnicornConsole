@@ -7,9 +7,9 @@ authors = ["hallucino <d@t0t0.fr>"]
 crate-type = ["cdylib"]
 
 [dependencies]
-time = "0.1.35"
-log = "0.3.6"
-fern = "0.3.5"
+time = "0.3.9"
+log = "0.4"
+fern = "0.6.1"
 
 [dependencies.libretro-backend]
 git="https://github.com/Gigoteur/libretro-backend.git"

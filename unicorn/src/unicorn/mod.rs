@@ -6,7 +6,6 @@ pub mod noise;
 pub mod math;
 pub mod packet;
 pub mod wfc;
-pub mod bump;
 pub mod utils;
 
 use std::collections::HashMap;
@@ -19,7 +18,6 @@ use std::cmp::{max, PartialOrd};
 use image;
 
 use gif;
-use gif::SetParameter;
 
 use std::io::prelude::*;
 use std::time::Duration;
@@ -35,8 +33,6 @@ use config::Players;
 use self::noise::Noise;
 use gfx;
 use cartridge::{Cartridge, CartridgeFormat};
-use sound::sound::{Sound, SoundInternal};
-use chiptune::chiptune;
 
 include!(concat!(env!("OUT_DIR"), "/parameters.rs"));
 
@@ -467,7 +463,7 @@ impl Palettes {
 
         for line in buf_reader.lines() {
             let line = line.unwrap();
-            let l = line.trim_left().to_string();
+            let l = line.trim_start().to_string();
 
             if l.is_empty() {
                 continue;
@@ -572,11 +568,8 @@ pub struct UnicornCartridge {
     pub cartridge: Cartridge,
     pub lua_plugin: LuaPlugin,
     pub python_plugin: PythonPlugin,
-    pub rust_plugin: Vec<Box<RustPlugin>>,
+    pub rust_plugin: Vec<Box<dyn RustPlugin>>,
     pub javascript_plugin: JavascriptPlugin,
-    pub music_track: Vec<chiptune::ChiptuneSong>,
-    pub sound_tracks: HashMap<String, chiptune::ChiptuneSound>,
-    pub sound_tracks_name: Vec<String>,
 }
 
 
@@ -601,9 +594,6 @@ impl UnicornCartridge {
             python_plugin: PythonPlugin::new(),
             javascript_plugin: JavascriptPlugin::new(),
             rust_plugin: Vec::new(),
-            music_track: Vec::new(),
-            sound_tracks: HashMap::new(),
-            sound_tracks_name: Vec::new(),
         }
     }
 
@@ -618,9 +608,6 @@ impl UnicornCartridge {
             python_plugin: PythonPlugin::new(),
             rust_plugin: Vec::new(),
             javascript_plugin: JavascriptPlugin::new(),
-            music_track: Vec::new(),
-            sound_tracks: HashMap::new(),
-            sound_tracks_name: Vec::new(),
         }
     }
 
@@ -649,8 +636,6 @@ impl UnicornCartridge {
 pub struct Unicorn {
     pub screen: Arc<Mutex<gfx::Screen>>,
     pub info: Arc<Mutex<info::Info>>,
-    pub sound: Arc<Mutex<Sound>>,
-    pub sound_internal: Arc<Mutex<SoundInternal>>,
     pub palettes: Arc<Mutex<Palettes>>,
     pub players: Arc<Mutex<Players>>,
     pub configuration: Arc<Mutex<UnicornConfig>>,
@@ -678,14 +663,10 @@ impl Unicorn {
     pub fn new() -> Unicorn {
         info!("[Unicorn] Creating new Unicorn");
 
-        let sound_internal = Arc::new(Mutex::new(SoundInternal::new()));
-        let csend = sound_internal.lock().unwrap().csend.clone();
         let screen = Arc::new(Mutex::new(gfx::Screen::new(400, 240)));
 
         Unicorn {
             screen: screen.clone(),
-            sound_internal: sound_internal,
-            sound: Arc::new(Mutex::new(Sound::new(csend))),
             info: Arc::new(Mutex::new(info::Info::new())),
             palettes: Arc::new(Mutex::new(Palettes::new())),
             players: Arc::new(Mutex::new(Players::new())),
@@ -714,19 +695,12 @@ impl Unicorn {
     pub fn setup(&mut self) {
         info!("[Unicorn] Setup");
 
-        self.sound_internal.lock().unwrap().init();
         self.palettes.lock().unwrap().init();
 
         self.reset();
     }
 
-    pub fn update_sound(&mut self) {
-        let mut cartridge = self.cartridges.get_mut(self.current_cartridge).unwrap();
-        self.sound_internal.lock().unwrap().update(&mut cartridge, self.sound.clone());
-    }
-
     pub fn stop(&mut self) {
-        self.sound_internal.lock().unwrap().stop();
     }
 
     pub fn toggle_debug(&mut self) {
@@ -814,7 +788,6 @@ impl Unicorn {
 
                 if self.pause_menu.quit() {
                     self.state = UnicornState::INTERACTIVE;
-                    self.sound_internal.lock().unwrap().stop();
                 }
 
                 return self.pause_menu.update(self.players.clone());
@@ -840,7 +813,7 @@ impl Unicorn {
                 #[cfg(feature = "editor")]
                 {
                     let cartridge = self.cartridges.get_mut(self.current_cartridge).unwrap();
-                    return self.editor.update(cartridge, &mut self.screen.lock().unwrap(), self.players.clone(), self.sound_internal.clone(), self.sound.clone());
+                    return self.editor.update(cartridge, &mut self.screen.lock().unwrap(), self.players.clone());
                 }
             }
         }
@@ -995,7 +968,7 @@ impl Unicorn {
     }
 
     #[cfg(not(feature = "image"))]
-    pub fn screenshot(&mut self, filename: &str) {
+    pub fn screenshot(&mut self, _filename: &str) {
     }
 
     #[cfg(feature = "image")]
@@ -1064,7 +1037,6 @@ impl Unicorn {
             CartridgeFormat::UnicornSplittedFormat => {
                 cartridge.save_in_unicorn_splitted();
             }
-            _ => (),
         }
     }
 
@@ -1091,13 +1063,11 @@ impl Unicorn {
                 /* Restore previous state */
                 screen.restore();
                 screen.font(&self.cartridges[self.current_cartridge].font_name.clone());
-                self.sound_internal.lock().unwrap().resume();
             }
             UnicornState::RUN => {
                 /* Save state */
                 screen.save();
                 self.cartridges[self.current_cartridge].font_name = screen.get_font();
-                self.sound_internal.lock().unwrap().pause();
 
                 screen.font("pico-8");
 
@@ -1108,13 +1078,11 @@ impl Unicorn {
                 self.pause_menu.reset();
                 self.state = UnicornState::PAUSE;
                 screen.save();
-                self.sound_internal.lock().unwrap().pause();
             }
             UnicornState::EDITOR => {
                 self.pause_menu.reset();
                 self.state = UnicornState::PAUSE;
                 screen.save();
-                self.sound_internal.lock().unwrap().stop();
             }
         }
         info!("[Unicorn] End Switch pause");
@@ -1171,8 +1139,7 @@ impl Unicorn {
                     .load(self.players.clone(),
                           self.info.clone(),
                           self.screen.clone(),
-                          self.noise.clone(),
-                          self.sound.clone());
+                          self.noise.clone());
 
                 ret = cartridge.lua_plugin.load_code(data.clone());
             }
@@ -1184,8 +1151,7 @@ impl Unicorn {
                     .load(self.players.clone(),
                           self.info.clone(),
                           self.screen.clone(),
-                          self.noise.clone(),
-                          self.sound.clone());
+                          self.noise.clone());
 
                 ret = cartridge.javascript_plugin.load_code(data.clone());
             }
@@ -1198,7 +1164,6 @@ impl Unicorn {
                           self.players.clone(),
                           self.info.clone(),
                           self.screen.clone(),
-                          self.sound.clone(),
                           self.noise.clone(),
                           self.configuration.clone());
 
@@ -1264,11 +1229,11 @@ impl Unicorn {
             if self.state != UnicornState::EDITOR {
                 self.state = UnicornState::RUN;
             }
+            unicorn_cartridge.loaded = true;
 
             self.add_cartridge(unicorn_cartridge);
             self._setup_screen();
 
-            unicorn_cartridge.loaded = true;
 
             self.init();
         }
@@ -1392,7 +1357,6 @@ impl Unicorn {
                           code);
                 self.editing = true;
                 self.state = UnicornState::EDITOR;
-                self.sound_internal.lock().unwrap().stop();
             }
 
             self.init();

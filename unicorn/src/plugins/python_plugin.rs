@@ -11,7 +11,6 @@ pub mod plugin {
     use unicorn::noise::Noise;
     use unicorn::UnicornConfig;
     use gfx::Screen;
-    use sound::sound::Sound;
 
     /*
         # GFX                   #    Python     #    New name       #
@@ -41,14 +40,14 @@ pub mod plugin {
         sspr_rotazoom           #       X       #                   #
         trigon                  #       X       #                   #
         # Audio                 #               #                   #
-        music                   #       X       #                   #
-        sfx                     #       X       #                   #
-        music_stop              #       X       #                   #
-        music_volume            #       X       #                   #
-        music_pause             #       X       #                   #
-        music_resume            #       X       #                   #
-        music_stop              #       X       #                   #
-        music_position          #       X       #                   #
+        music                   #               #                   #
+        sfx                     #               #                   #
+        music_stop              #               #                   #
+        music_volume            #               #                   #
+        music_pause             #               #                   #
+        music_resume            #               #                   #
+        music_stop              #               #                   #
+        music_position          #               #                   #
         # Input                 #               #                   #
         btn                     #       X       #                   #
         btnp                    #       X       #                   #
@@ -85,46 +84,6 @@ pub mod plugin {
         show_mouse              #       X       #                   #
     */
 
-    // Audio
-    py_class!(class UnicornAudio |py| {
-    data sound: Arc<Mutex<Sound>>;
-
-    // Audio    
-    def chiptune_music(&self, id: i32, filename: String, channel: i32, loops: i32, start_position: i32) -> PyResult<i32> {
-        self.sound(py).lock().unwrap().music(id, filename, channel, loops, start_position);
-        Ok(0)
-    }
-
-    def chiptune_sfx(&self, id: i32, filename: String, channel: i32, note: u16, panning: i32, rate: i32, loops: i32) -> PyResult<i32> {
-        self.sound(py).lock().unwrap().sfx(id, filename, channel, note, panning, rate, loops);
-        Ok(0)
-    }
-
-    def chiptune_stop(&self) -> PyResult<i32> {
-        self.sound(py).lock().unwrap().music_stop();
-        Ok(0)
-    }
-    
-    def chiptune_pause(&self) -> PyResult<i32> {
-        self.sound(py).lock().unwrap().music_pause();
-        Ok(0)
-    }
-    
-    def chiptune_resume(&self) -> PyResult<i32> {
-        self.sound(py).lock().unwrap().music_resume();
-        Ok(0)
-    }
-
-    def chiptune_volume(&self, volume: i32) -> PyResult<i32> {
-        self.sound(py).lock().unwrap().music_volume(volume);
-        Ok(0)
-    }
-
-    def chiptune_position(&self) -> PyResult<i32> {
-        Ok(self.sound(py).lock().unwrap().chiptune_get_position())
-    }
-
-    });
 
     // Palettes
     py_class!(class UnicornPalette |py| {
@@ -507,7 +466,6 @@ pub mod plugin {
                     players: Arc<Mutex<Players>>,
                     info: Arc<Mutex<Info>>,
                     screen: Arc<Mutex<Screen>>,
-                    sound: Arc<Mutex<Sound>>,
                     noise: Arc<Mutex<Noise>>,
                     config: Arc<Mutex<UnicornConfig>>) {
             info!("[PLUGIN][PYTHON] Init plugin");
@@ -523,11 +481,6 @@ pub mod plugin {
             let unicorn_palette_obj = UnicornPalette::create_instance(py, palettes.clone()).unwrap();
             self.mydict
                 .set_item(py, "unicorn_palette", unicorn_palette_obj)
-                .unwrap();
-
-            let unicorn_audio_obj = UnicornAudio::create_instance(py, sound.clone()).unwrap();
-            self.mydict
-                .set_item(py, "unicorn_audio", unicorn_audio_obj)
                 .unwrap();
 
             let unicorn_input_obj = UnicornInput::create_instance(py, players.clone()).unwrap();
@@ -550,10 +503,6 @@ pub mod plugin {
                 .unwrap();
 
             py.run(r###"globals()["unicorn_graphic"] = unicorn_graphic;"###,
-                     None,
-                     Some(&self.mydict))
-                .unwrap();
-            py.run(r###"globals()["unicorn_audio"] = unicorn_audio;"###,
                      None,
                      Some(&self.mydict))
                 .unwrap();
@@ -707,7 +656,6 @@ pub mod plugin {
 
     use gfx::Screen;
     use unicorn::Palettes;
-    use sound::sound::Sound;
     use unicorn::noise::Noise;
     use unicorn::UnicornConfig;
 
@@ -724,7 +672,6 @@ pub mod plugin {
                     _players: Arc<Mutex<Players>>,
                     _info: Arc<Mutex<Info>>,
                     _screen: Arc<Mutex<Screen>>,
-                    _sound: Arc<Mutex<Sound>>,
                     _noise: Arc<Mutex<Noise>>,
                     _config: Arc<Mutex<UnicornConfig>>) {
             error!("[PLUGIN][PYTHON] plugin disabled");

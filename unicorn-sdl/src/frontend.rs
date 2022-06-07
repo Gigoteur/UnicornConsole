@@ -275,10 +275,10 @@ pub fn map_sdlscancode(code: Scancode) -> scancode::Scancode {
 
 pub fn map_sdlmod(keymod: sdl2::keyboard::Mod) -> scancode::Mod {
     match keymod {
-        sdl2::keyboard::LCTRLMOD => scancode::Mod::LCTRLMOD,
-        sdl2::keyboard::RCTRLMOD => scancode::Mod::RCTRLMOD,
-        sdl2::keyboard::LGUIMOD => scancode::Mod::LGUIMOD,
-        sdl2::keyboard::RGUIMOD => scancode::Mod::RGUIMOD,
+        sdl2::keyboard::Mod::LCTRLMOD => scancode::Mod::LCTRLMOD,
+        sdl2::keyboard::Mod::RCTRLMOD => scancode::Mod::RCTRLMOD,
+        sdl2::keyboard::Mod::LGUIMOD => scancode::Mod::LGUIMOD,
+        sdl2::keyboard::Mod::RGUIMOD => scancode::Mod::RGUIMOD,
         _ => scancode::Mod::NONE,
     }
 }
@@ -317,7 +317,6 @@ pub struct Frontend {
     controllers: controllers::Controllers,
     times: frametimes::FrameTimes,
     pub uc: unicorn::unicorn::Unicorn,
-    scale: Scale,
     fps_counter: fps::FpsCounter,
 }
 
@@ -329,16 +328,16 @@ impl Frontend {
                 show_mouse: bool)
                 -> FrontendResult<Frontend> {
         info!("[Frontend] SDL2 init");
-        let sdl_context = try!(sdl2::init());
+        let sdl_context = sdl2::init()?;
 
         info!("[Frontend] SDL2 Video init");
-        let sdl_video = try!(sdl_context.video());
+        let sdl_video = sdl_context.video()?;
 
         info!("[Frontend] SDL2 event pump");
-        let event_pump = try!(sdl_context.event_pump());
+        let event_pump = sdl_context.event_pump()?;
 
         info!("[Frontend] SDL2 audio");
-        try!(sdl_context.audio());
+        sdl_context.audio()?;
 
         let uc = unicorn::unicorn::Unicorn::new();
 
@@ -359,7 +358,6 @@ impl Frontend {
             controllers: controllers::Controllers::new(),
             times: frametimes::FrameTimes::new(Duration::from_secs(1) / 60),
             uc: uc,
-            scale: scale,
             fps_counter: fps::FpsCounter::new(),
         })
     }
@@ -533,7 +531,7 @@ impl Frontend {
                                                middle,
                                                self.uc.info.lock().unwrap().elapsed_time);
                     }
-                    Event::MouseButtonUp { mouse_btn, .. } => {
+                    Event::MouseButtonUp { mouse_btn: _, .. } => {
                         self.uc
                             .players
                             .lock()
@@ -546,7 +544,7 @@ impl Frontend {
                             self.uc.players.lock().unwrap().set_text(text.clone());
                         }
                     }
-                    Event::KeyDown { scancode: Some(scancode), keycode, keymod, repeat, .. } => {
+                    Event::KeyDown { scancode: Some(scancode), keycode: _, keymod, repeat, .. } => {
                         // info!("KEY DOWN {:?} {:?} {:?}", scancode, keycode, keymod);
 
                         if scancode == Scancode::AcHome {
@@ -717,7 +715,6 @@ impl Frontend {
             }
 
             self.uc.draw();
-            self.uc.update_sound();
 
             let now = Instant::now();
             let dt = now.duration_since(previous_frame_time);

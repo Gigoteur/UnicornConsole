@@ -330,7 +330,7 @@ impl Players {
         self.get_value(player, index) == 1
     }
 
-    pub fn btn2(&mut self, c: i32) -> bool {
+    pub fn btn2(&mut self, _c: i32) -> bool {
         // match Scancode::from_i32(c as i32) {
         // Some(scancode) => {
         // match self.akeys.get(&scancode) {
@@ -370,7 +370,7 @@ impl Players {
         self.get_value_quick(player, index) == 1
     }
 
-    pub fn btnp2(&mut self, c: i32) -> bool {
+    pub fn btnp2(&mut self, _c: i32) -> bool {
         // match Scancode::from_i32(c as i32) {
         // Some(scancode) => {
         // match self.akeys_quick.get(&scancode) {

@@ -1,7 +1,6 @@
 #[cfg(feature = "editor")]
 pub mod edit {
     use editor::gfx_editor;
-    use editor::music_editor;
     use editor::text_editor;
     
     use std::sync::{Arc, Mutex};
@@ -11,7 +10,6 @@ pub mod edit {
 
     use gfx::Screen;
     use config::Players;
-    use sound::sound::{SoundInternal, Sound};
     use unicorn::{UnicornCartridge, UnicornConfig, Palettes};
 
     #[derive(Clone, Copy)]
@@ -100,7 +98,6 @@ pub mod edit {
         state_editor: STATE,
         gfx: gfx_editor::GFXEditor,
         txt: text_editor::TextEditor,
-        music: music_editor::MusicEditor,
         filename: String,
         widgets: Vec<Arc<Mutex<Widget>>>,
     }
@@ -188,7 +185,6 @@ pub mod edit {
                 state_editor: STATE::GfxEditor,
                 gfx: gfx_editor::GFXEditor::new(state.clone()),
                 txt: text_editor::TextEditor::new(state.clone()),
-                music: music_editor::MusicEditor::new(state.clone()),
                 filename: "".to_string(),
                 widgets: widgets,
             }
@@ -204,14 +200,13 @@ pub mod edit {
 
             self.gfx.init(config.clone(), screen);
             self.txt.init(config.clone(), screen, filename.clone(), code);
-            self.music.init(config.clone(), screen);
         }
 
         pub fn get_code(&mut self) -> Vec<String> {
             self.txt.get_buffer()
         }
 
-        pub fn update(&mut self, cartridge: &mut UnicornCartridge, screen: &mut Screen, players: Arc<Mutex<Players>>, sound_internal: Arc<Mutex<SoundInternal>>, sound: Arc<Mutex<Sound>>) -> bool {
+        pub fn update(&mut self, cartridge: &mut UnicornCartridge, screen: &mut Screen, players: Arc<Mutex<Players>>) -> bool {
             self.state.lock().unwrap().update(players.clone());
 
             let mut is_clickable = false;
@@ -261,7 +256,6 @@ pub mod edit {
                     self.txt.update(players.clone());
                 }
                 STATE::MusicEditor => {
-                    self.music.update(cartridge, screen, players.clone(), sound_internal.clone(), sound.clone());
                 }
             }
 
@@ -282,7 +276,6 @@ pub mod edit {
                     self.txt.draw(players, palettes, screen);
                 }
                 STATE::MusicEditor => {
-                    self.music.draw(players, screen);
                 }
             }
 
@@ -308,7 +301,7 @@ pub mod edit {
     }
 
     impl Editor {
-        pub fn new(screen: Arc<Mutex<Screen>>) -> Editor {
+        pub fn new(_screen: Arc<Mutex<Screen>>) -> Editor {
             Editor {}
         }
     }

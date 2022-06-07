@@ -1,14 +1,12 @@
 pub mod renderer {
+    use sdl2::video::{Window};
     use unicorn;
     use unicorn::gfx::{Scale, Screen};
-
-    use sdl2::surface::Surface;
 
     use sdl2::VideoSubsystem;
     use sdl2::render;
     use sdl2::pixels::PixelFormatEnum;
-    use time::PreciseTime;
-    use std::path::Path;
+    use time::Instant;
 
     #[derive(Clone, Debug)]
     pub enum RendererError {
@@ -20,7 +18,7 @@ pub mod renderer {
     pub type RendererResult<T> = Result<T, RendererError>;
 
     pub struct Renderer {
-        pub renderer: render::Renderer<'static>,
+        pub canvas: render::Canvas<Window>,
         pub texture: render::Texture,
         buffer_rgb: Vec<u8>,
         frame: u32,
@@ -47,7 +45,7 @@ pub mod renderer {
                 window_builder.resizable().position_centered()
             };
 
-            let mut window = (if opengl { wb.opengl() } else { wb }).build().unwrap();
+            let window = (if opengl { wb.opengl() } else { wb }).build().unwrap();
 
             if !cfg!(target_os = "android") {
             //    let temp_surface = Surface::load_bmp(Path::new("unicorn_logo_alpha.bmp")).unwrap();
@@ -55,25 +53,26 @@ pub mod renderer {
             }
 
             info!("[SDL] Creating renderer");
-            let renderer = window.renderer()
+            let canvas = window.into_canvas()
                 .accelerated()
                 .present_vsync()
                 .build()
                 .unwrap();
 
+            let texture_creator = canvas.texture_creator();
+
 
             info!("[SDL] Creating texture");
             let texture_width = screen.width as u32;
             let texture_height = screen.height as u32;
-            let texture = renderer.create_texture(PixelFormatEnum::RGB24,
-                                render::TextureAccess::Streaming,
+            let texture = texture_creator.create_texture_streaming(PixelFormatEnum::RGB24,
                                 texture_width,
                                 texture_height)
                 .unwrap();
 
 
             Ok(Renderer {
-                renderer: renderer,
+                canvas: canvas,
                 texture: texture,
                 buffer_rgb: vec![0; 0],
                 frame: 0,
@@ -94,7 +93,7 @@ pub mod renderer {
             let mut cached_pixel: u32 = 0;
             let mut rgb = palette.get_rgb(cached_pixel as u32);
 
-            let start = PreciseTime::now();
+            let start = Instant::now();
 
             for pixel in src_buffer.iter() {
                 if *pixel != cached_pixel {
@@ -107,32 +106,32 @@ pub mod renderer {
                 j += 3;
             }
 
-            let t1 = PreciseTime::now();
+            let t1 = Instant::now();
 
             // Update the texture with the RGB values.
             self.texture
                 .update(None, &rgb_buffer, screen.width * 3)
                 .unwrap();
 
-            let t2 = PreciseTime::now();
+            let t2 = Instant::now();
 
-            self.renderer
+            self.canvas
                 .copy(&self.texture, None, None)
                 .unwrap();
 
-            let t3 = PreciseTime::now();
+            let t3 = Instant::now();
 
-            self.renderer.present();
+            self.canvas.present();
 
-            let t4 = PreciseTime::now();
+            let t4 = Instant::now();
 
             if cfg!(feature = "blit_perf") {
                 if self.frame % 60 == 0 {
                     info!("gen_rgb:{} update_tex:{} copy_tex:{} present:{}",
-                          start.to(t1),
-                          t1.to(t2),
-                          t2.to(t3),
-                          t3.to(t4))
+                          t1 - start,
+                          t2 - t1,
+                          t3 - t2,
+                          t4 - t3)
                 }
             }
 
@@ -140,7 +139,7 @@ pub mod renderer {
         }
 
         pub fn get_dimensions(&mut self) -> (u32, u32) {
-            self.renderer.window().unwrap().size()
+            self.canvas.window().size()
         }
     }
 }

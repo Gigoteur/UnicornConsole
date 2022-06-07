@@ -26,21 +26,19 @@ pub fn map_axis(axis: Axis, value: i16) -> Option<(PX8Key, bool)> {
     match axis {
         Axis::LeftX => {
             match value {
-                -32768...-16384 => Some((PX8Key::Left, true)),
-                -16383...-1 => Some((PX8Key::Left, false)),
-                0...16383 => Some((PX8Key::Right, false)),
-                16384...32767 => Some((PX8Key::Right, true)),
-                _ => None,
+                -32768..=-16384 => Some((PX8Key::Left, true)),
+                -16383..=-1 => Some((PX8Key::Left, false)),
+                0..=16383 => Some((PX8Key::Right, false)),
+                16384..=32767 => Some((PX8Key::Right, true)),
             }
         }
 
         Axis::LeftY => {
             match value {
-                -32768...-16384 => Some((PX8Key::Up, true)),
-                -16383...-1 => Some((PX8Key::Up, false)),
-                0...16383 => Some((PX8Key::Down, false)),
-                16384...32767 => Some((PX8Key::Down, true)),
-                _ => None,
+                -32768..=-16384 => Some((PX8Key::Up, true)),
+                -16383..=-1 => Some((PX8Key::Up, false)),
+                0..=16383 => Some((PX8Key::Down, false)),
+                16384..=32767 => Some((PX8Key::Down, true)),
             }
         }
         _ => None,
@@ -51,20 +49,20 @@ pub fn map_axis_joystick(axis: u8, value: i16) -> Option<(PX8Key, bool)> {
     match axis {
         0 => {
             match value {
-                -32768...-16384 => Some((PX8Key::Left, true)),
-                -16383...-1 => Some((PX8Key::Left, false)),
-                1...16383 => Some((PX8Key::Right, false)),
-                16384...32767 => Some((PX8Key::Right, true)),
+                -32768..=-16384 => Some((PX8Key::Left, true)),
+                -16383..=-1 => Some((PX8Key::Left, false)),
+                1..=16383 => Some((PX8Key::Right, false)),
+                16384..=32767 => Some((PX8Key::Right, true)),
                 _ => None,
             }
         }
 
         1 => {
             match value {
-                -32768...-16384 => Some((PX8Key::Up, true)),
-                -16383...-1 => Some((PX8Key::Up, false)),
-                1...16383 => Some((PX8Key::Down, false)),
-                16384...32767 => Some((PX8Key::Down, true)),
+                -32768..=-16384 => Some((PX8Key::Up, true)),
+                -16383..=-1 => Some((PX8Key::Up, false)),
+                1..=16383 => Some((PX8Key::Down, false)),
+                16384..=32767 => Some((PX8Key::Down, true)),
                 _ => None,
             }
         }

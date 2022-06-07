@@ -37,12 +37,13 @@ impl RustPlugin for Dino {
         0.0
     }
 
-    fn update(&mut self, players: &mut Players) -> f64 {
+    fn update(&mut self, _players: &mut Players) -> f64 {
         0.0
     }
 
-    fn draw(&mut self, screen: &mut gfx::Screen, info: &mut info::Info) -> f64 {
-        screen.cls(1);
+    fn draw(&mut self, screen: &mut gfx::Screen, _info: &mut info::Info) -> f64 {
+        screen.rectfill(0, 0, 100, 100, 3);
+        //screen.cls(1);
         0.0
     }
 }

@@ -125,8 +125,6 @@ impl CartridgePalette {
     pub fn new(lines: &[String]) -> CartridgePalette {
         let mut colors = HashMap::new();
 
-        let data = "".to_string();
-
         for line in lines {
             let split_line = line.split(" ");
             let vec: Vec<&str> = split_line.collect();
@@ -282,7 +280,6 @@ impl CartridgeGFX {
         let mut sprites: Vec<Sprite> = Vec::new();
 
         if !lines.is_empty() {
-            let mut nbsprites = 0;
             let mut v = Vec::new();
 
             for line in lines {
@@ -298,7 +295,6 @@ impl CartridgeGFX {
                     v.push(value);
                     
                     i += 3;
-                    nbsprites += 1;
                 }
             }
 
@@ -558,10 +554,10 @@ impl convert::From<io::Error> for Error {
 
 fn read_from_uniformat<R: io::BufRead>(filename: &str, buf: &mut R) -> Result<Cartridge, Error> {
     let mut header = String::new();
-    try!(buf.read_line(&mut header));
+    buf.read_line(&mut header)?;
 
     let mut version = String::new();
-    try!(buf.read_line(&mut version));
+    buf.read_line(&mut version)?;
 
     let re_delim_section = Regex::new(SECTION_DELIM_RE).unwrap();
 

@@ -10,7 +10,6 @@ pub mod plugin {
 
     use unicorn::info::Info;
     use unicorn::noise::Noise;
-    use sound::sound::Sound;
 
     use gfx::Screen;
 
@@ -90,7 +89,6 @@ pub mod plugin {
         info: Vec<Arc<Mutex<Info>>>,
         screen: Vec<Arc<Mutex<Screen>>>,
         players: Vec<Arc<Mutex<Players>>>,
-        sound: Vec<Arc<Mutex<Sound>>>,
     }
 
     impl JavascriptPluginRust {
@@ -99,7 +97,6 @@ pub mod plugin {
                 info: Vec::new(),
                 screen: Vec::new(),
                 players: Vec::new(),
-                sound: Vec::new(),
             }
         }
 
@@ -113,11 +110,6 @@ pub mod plugin {
 
         pub fn set_players(&mut self, players: Arc<Mutex<Players>>) {
             self.players.push(players);
-        }
-
-
-        pub fn set_sound(&mut self, sound: Arc<Mutex<Sound>>) {
-            self.sound.push(sound);
         }
 
         pub fn cls(&self,
@@ -164,8 +156,6 @@ pub mod plugin {
                 channel = arg as i32;
             }
 
-            self.sound[0].lock().unwrap().music(id, filename, channel, loops, start_position);
-
             Ok(Value::Number(0.))
         }
 
@@ -208,8 +198,6 @@ pub mod plugin {
             if let Value::Number(arg) = args[6] {
                 channel = arg as i32;
             }
-
-            self.sound[0].lock().unwrap().sfx(id, filename, channel, note, panning, rate, loops);
 
             Ok(Value::Number(0.))
         }
@@ -689,13 +677,11 @@ pub mod plugin {
                     players: Arc<Mutex<Players>>,
                     info: Arc<Mutex<Info>>,
                     screen: Arc<Mutex<Screen>>,
-                    noise: Arc<Mutex<Noise>>,
-                    sound: Arc<Mutex<Sound>>) {
+                    noise: Arc<Mutex<Noise>>) {
             info!("[PLUGIN][JAVASCRIPT] Init plugin");
             self.javascript.lock().unwrap().set_info(info.clone());
             self.javascript.lock().unwrap().set_screen(screen.clone());
             self.javascript.lock().unwrap().set_players(players.clone());
-            self.javascript.lock().unwrap().set_sound(sound.clone());
 
             self.ctx.register(0x1, "pset", self.javascript.clone(), Some(3));
             self.ctx.register(0x2, "cls", self.javascript.clone(), Some(1));
@@ -774,7 +760,6 @@ pub mod plugin {
 
     use unicorn::noise::Noise;
     use unicorn::info::Info;
-    use sound::sound::Sound;
 
     use gfx::Screen;
 
@@ -791,8 +776,7 @@ pub mod plugin {
                     _players: Arc<Mutex<Players>>,
                     _info: Arc<Mutex<Info>>,
                     _screen: Arc<Mutex<Screen>>,
-                    _noise: Arc<Mutex<Noise>>,
-                    _sound: Arc<Mutex<Sound>>) {
+                    _noise: Arc<Mutex<Noise>>) {
             error!("Javascript plugin disabled");
         }
         pub fn load_code(&mut self, _data: String) -> bool {

@@ -13,7 +13,6 @@ pub struct Button {
     y2: i32,
     color: u32,
     text: String,
-    highlight: bool,
     clicked: bool,
 }
 
@@ -33,7 +32,6 @@ impl Button {
             y2: y2,
             color: color,
             text: text,
-            highlight: highlight,
             clicked: highlight,
         }
     }
@@ -93,7 +91,7 @@ impl ButtonSlider {
         self.value = value.clone();
     }
 
-    pub fn update(&mut self, mouse_state: u32, mouse_x: i32, mouse_y: i32, players: Arc<Mutex<Players>>) {
+    pub fn update(&mut self, mouse_state: u32, mouse_x: i32, mouse_y: i32, _players: Arc<Mutex<Players>>) {
         self.global_text = format!("{} {}", self.text, self.value);
 
         let len_text_size = (4*self.global_text.len()) as i32 + 2;

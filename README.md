@@ -9,7 +9,7 @@
 [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/UnicornConsole/Lobby)
 
 
-Unicorn Console is a quick and dirty engine that let you do what you want with a resolution of 400x240 pixels. The main engine is not dependant of a specific GFX library so you can use it where you want:
+Unicorn Console (PX8 in the past) is a quick and dirty engine that let you do what you want with a resolution of 400x240 pixels. The main engine is not dependant of a specific GFX library so you can use it where you want:
   * [unicorn](https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn): Main engine source code
   * [unicorn-devkit](https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn-devkit): SDL2 version
   * [unicorn-libretro](https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn-libretro): [libretro](http://www.libretro.com/index.php/api/) API version
@@ -33,8 +33,7 @@ TOC:
   * Dynamic sprite: create/save sprites with all size
   * Map: 400x60 cells, 3200x480 pixels
   * Code: Rust/Javascript/Python/Lua
-  * Sound: chiptune support via [klystron](http://kometbomb.github.io/klystrack/) engine 
-  * Editor: GFX/SOUND/CODE editor
+  * Editor: GFX/CODE editor
   
 
 ## Download
@@ -59,7 +58,7 @@ and run it with the default embedded game:
 
 or load an existing one:
 ```
-./target/release/uc-devkit ../unicorn/games/floppybird/floppybird.uni
+./target/release/uc-devkit ../unicorn-games/floppybird/floppybird.uni
 ```
 
 You can also choose to build the libretro version:

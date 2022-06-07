@@ -17,8 +17,6 @@ extern crate noise;
 #[cfg(feature = "image")]
 extern crate image;
 
-extern crate chiptune;
-
 extern crate gif;
 extern crate ordered_float;
 
@@ -53,7 +51,6 @@ pub mod gfx;
 pub mod unicorn;
 pub mod cartridge;
 pub mod plugins;
-pub mod sound;
 pub mod editor;
 
 include!(concat!(env!("OUT_DIR"), "/parameters.rs"));

@@ -1239,7 +1239,7 @@ impl Screen {
         //self.map[x as usize][y as usize]
     }
 
-    pub fn mset(&mut self, x: i32, y: i32, v: u32) {
+    pub fn mset(&mut self, x: i32, y: i32, _v: u32) {
         //info!("MSET x {:?} y {:?} v {:?}", x, y, v);
 
         if x < 0 || y < 0 {
@@ -1250,7 +1250,7 @@ impl Screen {
             return;
         }
 
-  //      self.map[x as usize][y as usize] = v;
+   //     self.map[x as usize][y as usize] = v;
     }
 
     pub fn sspr(&mut self,
