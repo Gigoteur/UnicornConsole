@@ -483,8 +483,8 @@ impl Frontend {
             let mouse_state = self.event_pump.mouse_state();
             let (width, height) = self.renderer.get_dimensions();
 
-            let mouse_state_x = (mouse_state.x() as f32 * (400.0 / width as f32)) as i32;
-            let mouse_state_y = (mouse_state.y() as f32 * (240.0 / height as f32)) as i32;
+            let mouse_state_x = (mouse_state.x() as f32 * (128.0 / width as f32)) as i32;
+            let mouse_state_y = (mouse_state.y() as f32 * (128.0 / height as f32)) as i32;
 
             self.uc
                 .players
@@ -739,8 +739,8 @@ impl Frontend {
             let mouse_state = self.event_pump.mouse_state();
             let (width, height) = self.renderer.get_dimensions();
 
-            let mouse_state_x = (mouse_state.x() as f32 * (400.0 / width as f32)) as i32;
-            let mouse_state_y = (mouse_state.y() as f32 * (240.0 / height as f32)) as i32;
+            let mouse_state_x = (mouse_state.x() as f32 * (128.0 / width as f32)) as i32;
+            let mouse_state_y = (mouse_state.y() as f32 * (128.0 / height as f32)) as i32;
 
             self.uc
                 .players

@@ -451,7 +451,7 @@ def pset(x, y, color):
 
 
 def unicorn_print(str, x=-1, y=-1, col=-1):
-    return unicorn_graphic.print(str, x, y, col)
+    return unicorn_graphic.print(str, math.floor(x), math.floor(y), math.floor(col))
 
 
 def rect(x1, y1, x2, y2, color=-1):
@@ -474,7 +474,7 @@ def spr_reg(n, d, width, height):
     return unicorn_graphic.spr_reg(n, d, width, height)
 
 
-def spr(n, x, y, w=-1, h=-1, flip_x=False, flip_y=False, angle=0, zoom=1, dynamic=False):
+def spr(n, x, y, w=1, h=1, flip_x=False, flip_y=False, angle=0, zoom=1, dynamic=False):
     unicorn_graphic.spr(math.floor(n), math.floor(x), math.floor(y),
                         math.floor(w), math.floor(h), flip_x, flip_y,
                         angle, zoom, dynamic)
@@ -654,7 +654,7 @@ globals()["bxor"] = bxor
 
 
 def memcpy(dest_addr, source_addr, len_buff):
-    unicorn_mem.memcpy(dest_addr, source_addr, len_buff)
+    unicorn_mem.memcpy(dest_addr, source_addr, math.floor(len_buff))
 
 
 globals()["memcpy"] = memcpy

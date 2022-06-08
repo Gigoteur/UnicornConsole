@@ -31,9 +31,11 @@ pub mod renderer {
                    opengl: bool,
                    scale: Scale)
                    -> RendererResult<Renderer> {
-            info!("[SDL] Creating window fullscreen={:?} opengl={:?}",
+            info!("[SDL] Creating window fullscreen={:?} opengl={:?} width={:?} height={:?}",
                   fullscreen,
-                  opengl);
+                  opengl,
+                  screen.width,
+                  screen.height);
 
             let mut window_builder = sdl_video.window("Unicorn Console",
                         (screen.width as usize * scale.factor()) as u32,
@@ -90,7 +92,7 @@ pub mod renderer {
             let mut palette = unicorn::unicorn::PALETTE.lock().unwrap();
 
             let mut j = 0;
-            let mut cached_pixel: u32 = 0;
+            let mut cached_pixel: u8 = 0;
             let mut rgb = palette.get_rgb(cached_pixel as u32);
 
             let start = Instant::now();

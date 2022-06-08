@@ -9,7 +9,7 @@
 [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/UnicornConsole/Lobby)
 
 
-Unicorn Console (PX8 in the past) is a quick and dirty engine that let you do what you want with a resolution of 400x240 pixels. The main engine is not dependant of a specific GFX library so you can use it where you want:
+Unicorn Console (PX8 in the past) is a quick and dirty engine that let you do what you want with a resolution of 128x128 pixels. The main engine is not dependant of a specific GFX library so you can use it where you want:
   * [unicorn](https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn): Main engine source code
   * [unicorn-devkit](https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn-devkit): SDL2 version
   * [unicorn-libretro](https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn-libretro): [libretro](http://www.libretro.com/index.php/api/) API version
@@ -27,12 +27,12 @@ TOC:
 
 ## Features
 
-  * Display: 400x240 pixels, 32 bits color
+  * Display: 128x128 pixels, 8 bits color
   * Palette: predefined palettes/extend existing one
   * Sprite: 3200 8x8 sprites
   * Dynamic sprite: create/save sprites with all size
   * Map: 400x60 cells, 3200x480 pixels
-  * Code: Rust/Javascript/Python/Lua
+  * Code: Rust/Python
   * Editor: GFX/CODE editor
   
 

@@ -14,7 +14,7 @@ def random_radius():
 
 
 def random_coord():
-    return random.randint(0, 128)
+    return random.randint(0, 400)
 
 
 class Rect(object):
@@ -300,24 +300,6 @@ class Memcpy(object):
             self.distort_orig(self.dist_amt)
 
 
-class Audio(object):
-    def __init__(self):
-        self.T = 0
-        self.filename = "../unicorn/examples/assets/AmsterdamBoppe.kt"
-
-    def init(self):
-        music(self.filename)
-
-    def update(self):
-        self.T += 1
-
-    def draw(self):
-        cls()
-
-    def stop():
-        music_stop(self.filename)
-
-
 def local_noise(nx, ny, nz=0.0, freq=10, zoom=300.0):
     return noise((freq * nx) / zoom, (freq * ny) / zoom, nz) / 2.0 + 1.0
 
@@ -412,7 +394,6 @@ demos = [
     ["palette", [Palette()]],
     ["map", [Map()]],
     ["memcpy", [Memcpy()]],
-    ["audio", [Audio()]],
     ["noise", [Noise()]],
     ["noise2", [Noise2()]],
     ["print", [Print()]],

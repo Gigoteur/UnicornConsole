@@ -283,18 +283,14 @@ impl CartridgeGFX {
             let mut v = Vec::new();
 
             for line in lines {
-                if line.len() > 1200 {
+                debug!("[CARTRIDGE][CartridgeGFX] LEN LINE {:?}", line.len());
+
+                if line.len() > 128 {
                     continue;
                 }
 
-                let mut i = 0;
-                while i < 1200 {
-                    let value = u32::from_str_radix(&line[i..i + 3], 16).unwrap();
-                    //info!("VAL {:?} {:?}", v, z);
-
-                    v.push(value);
-                    
-                    i += 3;
+                for c in line.as_bytes() {
+                    v.push((*c as char).to_digit(16).unwrap());
                 }
             }
 
@@ -302,14 +298,16 @@ impl CartridgeGFX {
 
             let mut g_off = 0;
 
+            info!("[CARTRIDGE][CartridgeGFX] Finding all sprites ...");
+
             // Fill all sprites
-            for idx in 0..1500 {
-                let mut data: [u32; 8 * 8] = [0; 8 * 8];
+            for idx in 0..256 {
+                let mut data: [u8; 8 * 8] = [0; 8 * 8];
 
                 let mut idx_vec = 0;
 
                 if idx > 0 {
-                    if idx % 50 == 0 {
+                    if idx % 16 == 0 {
                         g_off = idx * 8 * 8;
                     } else {
                         g_off += 8;
@@ -318,12 +316,14 @@ impl CartridgeGFX {
 
                 for y in 0..8 {
                     for x in 0..8 {
-                        let offset = g_off + y * 400 + x;
+                        let offset = g_off + y * 128 + x;
 
-                        data[idx_vec] = v[offset];
+                        data[idx_vec] = v[offset] as u8;
                         idx_vec += 1;
                     }
                 }
+
+                debug!("[CARTRIDGE][CartridgeGFX] Sprite number {:?} {:?}", sprites.len(), data);
 
                 sprites.push(Sprite::new(data));
             }
@@ -344,14 +344,14 @@ impl CartridgeGFX {
         let mut idx_sprites = 0;
         let mut line;
 
-        for y in 0..240 {
+        for y in 0..128 {
             line = y % 8;
 
             if y > 0 && (y % 8) == 0 {
-                idx_sprites += 50;
+                idx_sprites += 16;
             }
 
-            for idx in idx_sprites..idx_sprites + 50 {
+            for idx in idx_sprites..idx_sprites + 16 {
                 let mut gfx_sprites = self.sprites[idx].clone();
 
                 data.push_str(&gfx_sprites.get_line(line));
@@ -473,29 +473,32 @@ impl CartridgeMap {
     }
 
     pub fn new(lines: &[String]) -> CartridgeMap {
-        info!("[CARTRIDGE] CartridgeMap");
+        info!("[CARTRIDGE] [CartridgeMap]");
 
         let mut map = Vec::new();
         let mut y = 0;
 
         for line in lines {
+            debug!("[CARTRIDGE] [CartridgeMap] Line {:?} {:?}", y, line);
+
             let mut i = 0;
 
-            while i < unicorn::MAP_WIDTH*3 {
-                let idx_sprite = u32::from_str_radix(&line[i..i + 3], 16).unwrap();
-                //info!("VAL {:?} {:?}", v, z);
+            while i < unicorn::MAP_WIDTH*2 {
+                let idx_sprite = u32::from_str_radix(&line[i..i + 2], 16).unwrap();
 
                 map.push(idx_sprite);
                 
-                i += 3;
+                i += 2;
             }
 
             y += 1;
 
-            if y == 60 {
+            if y == 32 {
                 break;
             }
         }
+
+        debug!("[CARTRIDGE] [CartridgeMap] {:?}", map);
 
         CartridgeMap { map: map }
     }
@@ -503,10 +506,10 @@ impl CartridgeMap {
     pub fn get_data(&mut self) -> String {
         let mut data = String::new();
 
-        for y in 0..unicorn::MAP_HEIGHT {
-            for x in 0..unicorn::MAP_WIDTH {
+        for y in 0..32 {
+            for x in 0..128 {
                 let idx_sprite = *self.map.get(x * unicorn::MAP_WIDTH + y).unwrap_or(&0);
-                data.push_str(&format!("{:03x}", idx_sprite));
+                data.push_str(&format!("{:02x}", idx_sprite));
             }
             data.push('\n');
         }
@@ -570,7 +573,7 @@ fn read_from_uniformat<R: io::BufRead>(filename: &str, buf: &mut R) -> Result<Ca
     for line in buf.lines() {
         let l = line.unwrap();
         if re_delim_section.is_match(l.as_str()) {
-            debug!("NEW SECTION {:?}", l);
+            debug!("[CARTRIDGE] [Cartridge] NEW SECTION {:?}", l);
             section_name = l.clone();
 
             let vec_section = Vec::new();
@@ -583,7 +586,7 @@ fn read_from_uniformat<R: io::BufRead>(filename: &str, buf: &mut R) -> Result<Ca
         if new_section {
             match sections.get_mut(&section_name) {
                 Some(vec_section2) => vec_section2.push(l),
-                _ => debug!("Impossible to find section {:?}", section_name),
+                _ => debug!("[CARTRIDGE] [Cartridge] Impossible to find section {:?}", section_name),
             }
         }
     }
@@ -816,7 +819,7 @@ impl Cartridge {
         for line in buf_reader.lines() {
             let l = line.unwrap();
             if re_delim_section.is_match(l.as_str()) {
-                debug!("NEW SECTION {:?}", l);
+                debug!("[CARTRIDGE] [Cartridge] New Section {:?}", l);
                 section_name = l.clone();
 
                 let vec_section = Vec::new();
@@ -829,7 +832,7 @@ impl Cartridge {
             if new_section {
                 match sections.get_mut(&section_name) {
                     Some(vec_section2) => vec_section2.push(l),
-                    _ => debug!("Impossible to find section {:?}", section_name),
+                    _ => debug!("[CARTRIDGE] [Cartridge] Impossible to find section {:?}", section_name),
                 }
             }
         }
@@ -852,7 +855,7 @@ impl Cartridge {
         } else if code_file.contains(".lua") {
             cartridge_code = CartridgeCode::new("lua".to_string(), &code_section);
         } else {
-            panic!("Unknown file to load the code {:?}", code_file);
+            panic!("[CARTRIDGE] [Cartridge]Unknown file to load the code {:?}", code_file);
         }
 
         cartridge_code.set_filename(code_file);
@@ -917,11 +920,11 @@ impl Cartridge {
 
 
     pub fn save_in_unicorn(&mut self, filename: &str, version: &str) {
-        info!("Save the modified cartridge in Unicorn format {:?}", filename);
+        info!("[CARTRIDGE] [Cartridge] Save the modified cartridge in Unicorn format {:?}", filename);
 
         let mut f = File::create(filename).unwrap();
 
-        f.write_all(b"Saved by unicorn\n").unwrap();
+        f.write_all(b"Saved by Unicorn Console https://github.com/Gigoteur/UnicornConsole\n").unwrap();
         f.write_all(format!("Version {:?}\n", version).as_bytes())
             .unwrap();
 
@@ -948,7 +951,7 @@ impl Cartridge {
     }
 
     pub fn save_in_unicorn_splitted(&mut self) {
-        info!("Save the date of the Unicorn Splitted file in {:?}", self.data_filename);
+        info!("[CARTRIDGE] [Cartridge] Save the date of the Unicorn Splitted file in {:?}", self.data_filename);
 
         match self.format {
             CartridgeFormat::UnicornFormat => {
@@ -973,7 +976,7 @@ impl Cartridge {
 
 
     pub fn dump(&mut self, filename: &str) {
-        info!("Dump the code in {:?}", filename);
+        info!("[CARTRIDGE] [Cartridge] Dump the code in {:?}", filename);
 
         let mut f = File::create(filename).unwrap();
         f.write_all(self.code.get_data().clone().as_bytes())

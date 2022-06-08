@@ -31,14 +31,14 @@ pub struct Font {
 
 #[derive(Clone)]
 pub struct DynamicSprite {
-    pub data: Vec<u32>,
+    pub data: Vec<u8>,
     pub width: u32,
     pub height: u32,
     pub flags: u8,
 }
 
 impl DynamicSprite {
-    pub fn new(d: Vec<u32>, width: u32, height: u32) -> DynamicSprite {
+    pub fn new(d: Vec<u8>, width: u32, height: u32) -> DynamicSprite {
         DynamicSprite { data: d, width: width, height: height, flags: 0 }
     }
 
@@ -46,7 +46,7 @@ impl DynamicSprite {
 
 #[derive(Copy)]
 pub struct Sprite {
-    pub data: [u32; 64],
+    pub data: [u8; 64],
     pub flags: u8,
 }
 
@@ -57,7 +57,7 @@ impl Clone for Sprite {
 }
 
 impl Sprite {
-    pub fn new(d: [u32; 64]) -> Sprite {
+    pub fn new(d: [u8; 64]) -> Sprite {
         Sprite { data: d, flags: 0 }
     }
 
@@ -85,7 +85,7 @@ impl Sprite {
         self.flags = flags;
     }
 
-    pub fn set_data(&mut self, idx: usize, col: u32) {
+    pub fn set_data(&mut self, idx: usize, col: u8) {
         self.data[idx] = col;
     }
 
@@ -118,8 +118,8 @@ impl Sprite {
         data
     }
 
-    pub fn horizontal_reflection(&self) -> [u32; 64] {
-        let mut ret: [u32; 64] = self.to_u32_64_array();
+    pub fn horizontal_reflection(&self) -> [u8; 64] {
+        let mut ret: [u8; 64] = self.to_u8_64_array();
 
         for i in 0..4 {
             for j in 0..8 {
@@ -130,8 +130,8 @@ impl Sprite {
         ret
     }
 
-    pub fn vertical_reflection(&self) -> [u32; 64] {
-        let mut ret: [u32; 64] = self.to_u32_64_array();
+    pub fn vertical_reflection(&self) -> [u8; 64] {
+        let mut ret: [u8; 64] = self.to_u8_64_array();
 
         for i in 0..4 {
             for j in 0..8 {
@@ -150,8 +150,8 @@ impl Sprite {
         Sprite::new(self.vertical_reflection())
     }
 
-    pub fn to_u32_64_array(&self) -> [u32; 64] {
-        let mut arr = [0u32; 64];
+    pub fn to_u8_64_array(&self) -> [u8; 64] {
+        let mut arr = [0u8; 64];
         for (place, element) in arr.iter_mut().zip(self.data.iter()) {
             *place = *element;
         }
@@ -280,8 +280,8 @@ pub struct Screen {
     pub height: usize,
     pub aspect_ratio: f32,
 
-    pub frame_buffer: Vec<u32>,
-    pub saved_frame_buffer: Vec<u32>,
+    pub frame_buffer: Vec<u8>,
+    pub saved_frame_buffer: Vec<u8>,
     pub sprites: Vec<Sprite>,
     pub dyn_sprites: Vec<DynamicSprite>,
 
@@ -290,7 +290,7 @@ pub struct Screen {
     pub transparency_map: [bool; 256],
 
     pub color: u32,
-    pub color_map: [u32; 0xFFF],
+    pub color_map: [u8; 0xFFF],
 
     pub camera: Camera,
     pub cliprect: ClipRect,
@@ -303,7 +303,7 @@ unsafe impl Sync for Screen {}
 
 impl Screen {
     pub fn new(width: usize, height: usize) -> Screen {
-        info!("Creating Screen. width:{} height:{}", width, height);
+        info!("[GFX] [Screen] Creating Screen. width:{:?} height:{:?}", width, height);
         Screen {
             width: width,
             height: height,
@@ -345,7 +345,7 @@ impl Screen {
 
     pub fn _reset_colors(&mut self) {
         for i in 0..0xFFF {
-            self.color_map[i] = i as u32;
+            self.color_map[i] = i as u8;
         }
     }
 
@@ -359,12 +359,12 @@ impl Screen {
     }
 
     pub fn save(&mut self) {
-        info!("[GFX] SAVE SCREEN");
+        info!("[GFX] [Screen] SAVE SCREEN");
         self.saved_frame_buffer.copy_from_slice(&self.frame_buffer);
     }
 
     pub fn restore(&mut self) {
-        info!("[GFX] Restore SCREEN");
+        info!("[GFX] [Screen] Restore SCREEN");
         self.frame_buffer.copy_from_slice(&self.saved_frame_buffer);
     }
 
@@ -413,11 +413,13 @@ impl Screen {
         }
 
         let offset = self.pixel_offset(x, y);
-        self.frame_buffer[offset] = col;
+        self.frame_buffer[offset] = col as u8;
     }
 
     #[inline]
     pub fn putpixel_(&mut self, x: i32, y: i32, col: u32) {
+        //debug!("[SCREEN] [Screen] [Putpixel_] x:{:?} y:{:?} col:{:?}", x, y, col);
+
         // Make camera adjustment
         let x = x - self.camera.x;
         let y = y - self.camera.y;
@@ -427,10 +429,12 @@ impl Screen {
             return;
         }
 
-        let draw_col = self.color_map[col as usize];
+        if col < self.color_map.len() as u32 {
+            let draw_col = self.color_map[col as usize];
 
-        let offset = self.pixel_offset(x, y);
-        self.frame_buffer[offset] = draw_col as u32;
+            let offset = self.pixel_offset(x, y);
+            self.frame_buffer[offset] = draw_col as u8;
+        }
     }
 
     #[inline]
@@ -473,7 +477,7 @@ impl Screen {
     }
 
     pub fn pget(&mut self, x: u32, y: u32) -> u32 {
-        self.getpixel(x as usize, y as usize)
+        self.getpixel(x as usize, y as usize) as u32
     }
 
     pub fn pset(&mut self, x: i32, y: i32, col: i32) {
@@ -481,10 +485,10 @@ impl Screen {
         self.putpixel_(x, y, color);
     }
 
-    pub fn sget(&mut self, x: u32, y: u32) -> u32 {
+    pub fn sget(&mut self, x: u32, y: u32) -> u8 {
         let idx_sprite = (x / 8) + 50 * (y / 8);
         let sprite = &self.sprites[idx_sprite as usize];
-        sprite.data[((x % 8) + (y % 8) * 8) as usize] as u32
+        sprite.data[((x % 8) + (y % 8) * 8) as usize] as u8
     }
 
     pub fn sset(&mut self, x: u32, y: u32, col: i32) {
@@ -492,7 +496,7 @@ impl Screen {
 
         let idx_sprite = (x / 8) + 50 * (y / 8);
         let sprite = &mut self.sprites[idx_sprite as usize];
-        sprite.set_data(((x % 8) + (y % 8) * 8) as usize, col as u32);
+        sprite.set_data(((x % 8) + (y % 8) * 8) as usize, col as u8);
     }
 
     pub fn fget(&mut self, idx: u32, v: u8) -> bool {
@@ -975,7 +979,7 @@ impl Screen {
         self.line(vx[idx], vy[idx], vx[0], vy[0], col);
     }
 
-    pub fn spr_reg(&mut self, n: i64, data: Vec<u32>, width: u32, height: u32) -> i64 {
+    pub fn spr_reg(&mut self, n: i64, data: Vec<u8>, width: u32, height: u32) -> i64 {
         let mut dynamic_sprite = false;
 
         if width != 8 || height != 8 {
@@ -1005,14 +1009,16 @@ impl Screen {
                flip_x: bool, flip_y: bool,
                angle: f64, zoom: f64,
                dynamic: bool) {
-        /* debug!("PRINT SPRITE = x:{:?} y:{:?} n:{:?} w:{:?} h:{:?} flip_x:{:?} flip_y:{:?}",
+        debug!("[SCREEN] [Screen] [SPR] n:{:?} x:{:?} y:{:?} w:{:?} h:{:?} flip_x:{:?} flip_y:{:?} angle:{:?} zoom:{:?} dynamic:{:?}",
+               n,
                x,
                y,
-               n,
                w,
                h,
                flip_x,
-               flip_y);*/
+               flip_y,
+               angle, zoom,
+               dynamic);
 
         if w < -1 || h < -1 {
             return;
@@ -1068,42 +1074,22 @@ impl Screen {
                     angle,
                     zoom,
                     flip_x, flip_y);
-        }
-
-
-    /*        let orig_x = x;
-            let orig_y = y;
-
-            let mut idx = 0;
-
-            let sprite = self.dyn_sprites[n as usize].clone();
-            for idx_y in 0..sprite.height {
-                for idx_x in 0..sprite.width {
-                    let new_x = orig_x + idx_x as i32;
-                    let new_y = orig_y + idx_y as i32;
-
-                    let c = sprite.data[idx as usize];
-
-                    if !self.is_transparent(c) {
-                        self.putpixel(new_x, new_y, c);
-                    }
-
-                    idx += 1;
                 }
-            }*/
+
         } else {
-       /*     let mut orig_x = x;
+            let mut orig_x = x;
             let mut orig_y = y;
 
             let sprites_len = self.sprites.len();
             for i in 0..h {
                 for j in 0..w {
-                    let sprite_offset = ((j + n) + i * 50) as usize;
+                    let sprite_offset = ((j + n as i32) + i * 16) as usize;
                     if sprite_offset >= sprites_len {
                         break;
                     }
 
                     let mut sprite = self.sprites[sprite_offset].clone();
+                    debug!("[SCREEN] [Screen] [SPR] Access to sprite {:?} {:?}", sprite_offset, sprite);
 
                     if flip_x {
                         sprite = sprite.flip_x();
@@ -1114,12 +1100,6 @@ impl Screen {
 
                     let mut new_x = orig_x;
                     let mut new_y = orig_y;
-
-                    /*                debug!("SPRITE = {:?} x:{:?} y:{:?} {:?}",
-                           sprite_offset,
-                           new_x,
-                           new_y,
-                           sprite);*/
 
                     let mut index = 0;
                     for (_, c) in sprite.data.iter_mut().enumerate() {
@@ -1141,9 +1121,31 @@ impl Screen {
                 }
                 orig_y += 8;
                 orig_x = x;
-            }*/
+            }
         }
     }
+ 
+    /*
+             let orig_x = x;
+            let orig_y = y;
+
+            let mut idx = 0;
+
+            let sprite = self.dyn_sprites[n as usize].clone();
+            for idx_y in 0..sprite.height {
+                for idx_x in 0..sprite.width {
+                    let new_x = orig_x + idx_x as i32;
+                    let new_y = orig_y + idx_y as i32;
+
+                    let c = sprite.data[idx as usize];
+
+                    if !self.is_transparent(c) {
+                        self.putpixel(new_x, new_y, c);
+                    }
+
+                    idx += 1;
+                }
+            }*/
 
     pub fn mapdraw(&mut self,
                    cel_x: u32,
@@ -1354,7 +1356,7 @@ impl Screen {
         }
     }
 
-    pub fn _sprite_rotazoom(&mut self, v: Vec<u32>, 
+    pub fn _sprite_rotazoom(&mut self, v: Vec<u8>, 
                             sw: u32,
                             sh: u32,
                             destx: i32,
@@ -1504,7 +1506,7 @@ impl Screen {
         if c0 < 0 || c1 < 0 {
             self._reset_colors();
         } else {
-            self.color_map[c0 as usize] = c1 as u32;
+            self.color_map[c0 as usize] = c1 as u8;
         }
     }
 
@@ -1538,11 +1540,14 @@ impl Screen {
         while idx < len * 2 {
             let value = a[idx as usize] as u32;
 
-            self.frame_buffer[(dest_addr + idx) as usize] = value as u32;
+            self.frame_buffer[(dest_addr + idx) as usize] = value as u8;
 
             idx += 1;
         }
     }
 
-    pub fn memset(&mut self, _dest_addr: u32, _val: u32, _len: u32) {}
+    pub fn memset(&mut self, _dest_addr: u32, _val: u32, _len: u32) {
+
+        
+    }
 }

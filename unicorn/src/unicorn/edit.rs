@@ -110,7 +110,7 @@ pub mod edit {
 
             let mut widgets = Vec::new();
             widgets.push(Arc::new(Mutex::new(Widget::new("GFX".to_string(),
-                                                         200,
+                                                         0,
                                                            1,
                                                          16,
                                                          16,

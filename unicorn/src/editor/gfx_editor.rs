@@ -400,7 +400,7 @@ pub struct SpriteEditor {
     state: Arc<Mutex<State>>,
     pp: PalettePicker,
     widgets: Vec<Arc<Mutex<Widget>>>,
-    buffer_copy: Vec<u32>,
+    buffer_copy: Vec<u8>,
     buffer_copy_size: [u32; 2],
 }
 
@@ -719,7 +719,7 @@ impl SpriteEditor {
             }
 
             let (a, b) = buffer_copy.split_at(8 * zoom_sprite as usize);
-            let mut spun_vector: Vec<u32> = vec![];
+            let mut spun_vector: Vec<u8> = vec![];
             spun_vector.extend_from_slice(b);
             spun_vector.extend_from_slice(a);
 
@@ -750,7 +750,7 @@ impl SpriteEditor {
 
             let max_size = (8 * zoom_sprite * 8 * zoom_sprite) - (8 * zoom_sprite);
             let (a, b) = buffer_copy.split_at(max_size as usize);
-            let mut spun_vector: Vec<u32> = vec![];
+            let mut spun_vector: Vec<u8> = vec![];
             spun_vector.extend_from_slice(b);
             spun_vector.extend_from_slice(a);
 
@@ -781,7 +781,7 @@ impl SpriteEditor {
             }
 
             let (a, b) = buffer_copy.split_at(8 * zoom_sprite as usize);
-            let mut spun_vector: Vec<u32> = vec![];
+            let mut spun_vector: Vec<u8> = vec![];
             spun_vector.extend_from_slice(b);
             spun_vector.extend_from_slice(a);
 
@@ -813,7 +813,7 @@ impl SpriteEditor {
 
             let max_size = (8 * zoom_sprite * 8 * zoom_sprite) - (8 * zoom_sprite);
             let (a, b) = buffer_copy.split_at(max_size as usize);
-            let mut spun_vector: Vec<u32> = vec![];
+            let mut spun_vector: Vec<u8> = vec![];
             spun_vector.extend_from_slice(b);
             spun_vector.extend_from_slice(a);
 

@@ -664,7 +664,7 @@ impl Unicorn {
     pub fn new() -> Unicorn {
         info!("[Unicorn] Creating new Unicorn");
 
-        let screen = Arc::new(Mutex::new(gfx::Screen::new(400, 240)));
+        let screen = Arc::new(Mutex::new(gfx::Screen::new(MAP_WIDTH, MAP_HEIGHT)));
 
         Unicorn {
             screen: screen.clone(),
@@ -1276,7 +1276,7 @@ impl Unicorn {
         if filename.contains(".uni") {
             match Cartridge::from_uni_raw(filename, data) {
                 Ok(c) => cartridge = c,
-                Err(e) => panic!("Impossible to load the p8 cartridge {:?}", e),
+                Err(e) => panic!("Impossible to load the uni cartridge {:?}", e),
             }
         } else {
             panic!("[Unicorn] Unknown file");
