@@ -25,7 +25,7 @@ def large_rectfill():
 
 
 def text():
-    px8_print("ABCDEFGHIJKLMNOPQRSTUVWXYZ", 0, 64, 7)
+    unicorn_print("ABCDEFGHIJKLMNOPQRSTUVWXYZ", 0, 64, 7)
 
 
 def line_test():

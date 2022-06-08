@@ -177,7 +177,7 @@ pub fn draw_logo(screen: &mut gfx::Screen) {
 
     screen
         .print(format!("Powered by Unicorn {:?}.{:?}.{:?}", VERSION, MAJOR_VERSION, MINOR_VERSION).to_string(),
-        (width/3) as i32,
+        0,
         (height-16) as i32,
         7);
 }

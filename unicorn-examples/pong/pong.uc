@@ -1,4 +1,4 @@
 {
-    "code": "./examples/pong/pong.py",
-    "data": "./examples/pong/pong.dpx8"
+    "code": "../unicorn-examples/pong/pong.py",
+    "data": "../unicorn-examples/pong/pong.dpx8"
 }

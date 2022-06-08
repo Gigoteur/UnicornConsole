@@ -39,7 +39,7 @@ def draw_data(xx, yy, n):
         y+=4
 
 def draw_pad(x, y, n, o):
-    spr_map(0, 0, x, y, 11, 5)
+    mapdraw(0, 0, x, y, 11, 5)
 
     if btn(0,n):
         spr(48,x+8,y+16)
