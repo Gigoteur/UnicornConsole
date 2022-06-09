@@ -251,6 +251,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "deflate"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c86f7e25f518f4b81808a2cf1c50996a61f5c2eb394b2393bd87f2a4780a432f"
+dependencies = [
+ "adler32",
+]
+
+[[package]]
 name = "dirs"
 version = "1.0.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -419,7 +428,7 @@ dependencies = [
  "num-iter",
  "num-rational",
  "num-traits 0.1.43",
- "png",
+ "png 0.11.0",
  "scoped_threadpool",
 ]
 
@@ -708,9 +717,21 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f0b0cabbbd20c2d7f06dbf015e06aad59b6ca3d9ed14848783e98af9aaf19925"
 dependencies = [
  "bitflags 1.3.2",
- "deflate",
+ "deflate 0.7.20",
  "inflate",
  "num-iter",
+]
+
+[[package]]
+name = "png"
+version = "0.17.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dc38c0ad57efb786dd57b9864e5b18bae478c00c824dc55a38bbc9da95dde3ba"
+dependencies = [
+ "bitflags 1.3.2",
+ "crc32fast",
+ "deflate 1.0.0",
+ "miniz_oxide",
 ]
 
 [[package]]
@@ -1042,6 +1063,7 @@ dependencies = [
  "noise",
  "num-traits 0.2.15",
  "ordered-float",
+ "png 0.17.5",
  "rand 0.4.6",
  "regex",
  "rusttype",

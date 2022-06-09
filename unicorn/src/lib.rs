@@ -16,6 +16,8 @@ extern crate noise;
 #[cfg(feature = "image")]
 extern crate image;
 
+extern crate png;
+
 extern crate gif;
 extern crate ordered_float;
 

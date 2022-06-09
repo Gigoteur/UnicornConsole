@@ -1038,6 +1038,7 @@ impl Unicorn {
             CartridgeFormat::UnicornSplittedFormat => {
                 cartridge.save_in_unicorn_splitted();
             }
+            _ => {}
         }
     }
 
@@ -1219,6 +1220,16 @@ impl Unicorn {
             match Cartridge::from_dunicorn_file(full_filename) {
                 Ok(c) => cartridge = c,
                 Err(e) => panic!("[Unicorn] Impossible to load the dUnicorn cartridge {:?}", e),
+            }
+        } else if filename.contains(".png") {
+            match Cartridge::from_png_file(full_filename) {
+                Ok(c) => cartridge = c,
+                Err(e) => panic!("[Unicorn] Impossible to load the Pico8 PNG cartridge {:?}", e),
+            }
+        } else if filename.contains(".p8") {
+            match Cartridge::from_p8_file(full_filename) {
+                Ok(c) => cartridge = c,
+                Err(e) => panic!("[Unicorn] Impossible to load the Pico8 P8 cartridge {:?}", e),
             }
         } else {
             panic!("[Unicorn] Unknown file format !");

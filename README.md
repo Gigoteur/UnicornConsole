@@ -9,7 +9,9 @@
 [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/UnicornConsole/Lobby)
 
 
-Unicorn Console (PX8 in the past) is a quick and dirty engine that let you do what you want with a resolution of 128x128 pixels. The main engine is not dependant of a specific GFX library so you can use it where you want:
+Unicorn Console (previously known as PX8 in the past, but I think Unicorn is a better name) is a quick and dirty engine that let you do what you want with a resolution of 128x128 pixels. After few iterations, I try to keep some compatibility with ![pico-8](https://www.lexaloffle.com/pico-8.php) as it is the first and still the best fantasy console (unfortunately not opensource, but go grab a license it is really valuable).
+
+The main engine is not dependant of a specific GFX library so you can use it where you want:
   * [unicorn](https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn): Main engine source code
   * [unicorn-devkit](https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn-devkit): SDL2 version
   * [unicorn-libretro](https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn-libretro): [libretro](http://www.libretro.com/index.php/api/) API version
@@ -22,6 +24,7 @@ TOC:
   * [Requirements](#requirements)
   * [Download](#download)
     + [Build](#build)
+  * [File format](#format)
   * [Create](#create)
   * [API](#api)
 
@@ -29,11 +32,13 @@ TOC:
 
   * Display: 128x128 pixels, 8 bits color
   * Palette: predefined palettes/extend existing one
-  * Sprite: 3200 8x8 sprites
-  * Dynamic sprite: create/save sprites with all size
-  * Map: 400x60 cells, 3200x480 pixels
-  * Code: Rust/Python
-  * Editor: GFX/CODE editor
+  * Font: predefined list of fonts (pico8, bbc, trollmini, etc)
+  * Sprites: Single bank of 128 8x8 sprites
+  * Dynamic sprites: create sprites dynamically with all size
+  * Code: No limit size (lua, python, rust, javascript)
+  * Map: 128x32 8-bit cells
+  * Editor: GFX editor (code/audio editor in progress) 
+  * Audio (still in progess)
   
 
 ## Download
@@ -43,7 +48,6 @@ Cargo feature:
   * cpython: enable python support
   * unicorn_plugin_lua: enable lua support
   * duktape: enable duktape (javascript) support
-  * libksnd: use the native version of klystron for the sound
 
 You can choose to build the main UI to play/edit games:
 ```
@@ -69,11 +73,17 @@ cargo build --release
 
 And load the shared library with retroarch:
 ```
-retroarch -L target/release/libunicorn_libretro.so ../unicorn/examples/api_demos.uni
+retroarch -L target/release/libunicorn_libretro.so ../unicorn-examples/api_demos.uni
 ```
 
 
+## File format
 
+| File format  | Read | Write |
+| ------------- | ------------- | ------------- |
+| Pico8 PNG  | X  | / |
+| Pico8 P8  | X  | / |
+| Unicorn (UNI) | X  | X |
 
 ## Create
 

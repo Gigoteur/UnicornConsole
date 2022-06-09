@@ -15,7 +15,7 @@ use std::u32;
 use std::str;
 
 use serde_json;
-
+use png;
 use regex::Regex;
 
 use unicorn;
@@ -23,20 +23,20 @@ use unicorn::RGB;
 
 use gfx::Sprite;
 
-/* CART FORMAT
+/* [CART FORMAT]
 
 RANDOM COMMENT
 version XX
-__python__ __javascript__ __lua__
+{__python__} | {__javascript__} | {__lua__}
 
 __palette__
 
-__gfx__ 400x240 -> 1500
+__gfx__ 128x128 -> 1500
 
 XXXXXXXX
 XXXXXXXX
 XXXXXXXX
-XXXXXXXX    => X: 0..1024
+XXXXXXXX    => X: 0..128
 XXXXXXXX
 XXXXXXXX
 XXXXXXXX
@@ -283,7 +283,7 @@ impl CartridgeGFX {
             let mut v = Vec::new();
 
             for line in lines {
-                debug!("[CARTRIDGE][CartridgeGFX] LEN LINE {:?}", line.len());
+                //debug!("[CARTRIDGE][CartridgeGFX] LEN LINE {:?}", line.len());
 
                 if line.len() > 128 {
                     continue;
@@ -525,6 +525,8 @@ impl CartridgeMap {
 pub enum CartridgeFormat {
     UnicornSplittedFormat = 0,
     UnicornFormat = 1,
+    Pico8PNGFormat = 2,
+    Pico8P8Format = 3,
 }
 
 pub struct Cartridge {
@@ -555,7 +557,10 @@ impl convert::From<io::Error> for Error {
     }
 }
 
+/* Unicorn format cardrgide */
 fn read_from_uniformat<R: io::BufRead>(filename: &str, buf: &mut R) -> Result<Cartridge, Error> {
+    debug!("[CARTRIDGE] read_from_uniformat");
+
     let mut header = String::new();
     buf.read_line(&mut header)?;
 
@@ -753,6 +758,185 @@ struct UnicornSplittedFormat {
     data: String,
 }
 
+/* Pico8 PNG format cartridge */
+fn read_from_pngformat<R: io::BufRead>(filename: &str, buf: &mut R) -> Result<Cartridge, Error> {
+    info!("[CARTRIDGE] [read_from_pngformat] Starting to parse the Pico8 PNG");
+
+    let decoder = png::Decoder::new(buf);
+    let mut reader = decoder.read_info().unwrap();
+    info!("{:?}", reader.output_buffer_size());
+
+    let mut buf = vec![0; reader.output_buffer_size()];
+    let info = reader.next_frame(&mut buf).unwrap();
+
+    let mut picodata = Vec::new();
+
+    let mut row = 0;
+    while row < buf.len() {
+        for col_i in 0..info.width {
+            let g_idx: u32 = row as u32;
+
+            let mut r = buf[(g_idx + col_i * 4) as usize] as u8;
+            let mut g = buf[(g_idx + col_i * 4 + 1) as usize] as u8;
+            let mut b = buf[(g_idx + col_i * 4 + 2) as usize] as u8;
+            let mut a = buf[(g_idx + col_i * 4 + 3) as usize] as u8;
+
+            r &= 3;
+            g &= 3;
+            b &= 3;
+            a &= 3;
+
+            let v = b | (g << 2) | (r << 4) | (a << 6);
+            let lo = v & 0x0f;
+            let hi = v >> 4;
+
+            picodata.push(lo);
+            picodata.push(hi);
+        }
+
+        row += 640;
+    }
+
+    let mut gfx_data: Vec<String> = Vec::new();
+    for i in 0..0x2000 * 2 {
+        gfx_data.push(picodata[i].to_string());
+    }
+
+    let mut map_data = Vec::new();
+    for i in 0x2000 * 2..0x3000 * 2 {
+        map_data.push(picodata[i]);
+    }
+
+    let mut gff_data = Vec::new();
+    for i in 0x3000 * 2..0x3100 * 2 {
+        gff_data.push(picodata[i]);
+    }
+
+    let version = picodata[0x8000 * 2];
+
+    let mut code_data = Vec::new();
+    for i in 0x4300 * 2..0x8000 * 2 {
+        code_data.push(picodata[i]);
+    }
+
+    let mut music_data = Vec::new();
+    for i in 0x3100 * 2..0x3200 * 2 {
+        music_data.push(picodata[i]);
+    }
+
+    let cartridge_gfx = CartridgeGFX::new(&gfx_data);
+    //let cartridge_code = CartridgeCode::new("lua".to_string(), &mut code_data, version);
+    //let cartridge_map = CartridgeMap::new(&map_data);
+    //let cartridge_gff = CartridgeGFF::new(&gff_data);
+    //let cartridge_music = CartridgeMusic::new(&music_data);
+
+    Ok(Cartridge {
+           filename: filename.to_string(),
+           data_filename: "".to_string(),
+           header: "".to_string(),
+           version: "".to_string(),
+           gfx: cartridge_gfx,
+           code: CartridgeCode::empty(),
+           map: CartridgeMap::empty(),
+           gff: CartridgeGFF::empty(),
+           palette: CartridgePalette::empty(),
+           music: CartridgeMusic::empty(),
+           format: CartridgeFormat::Pico8PNGFormat,
+       })
+}
+
+/* Pico8 P8 format cartridge */
+fn read_from_p8format<R: io::BufRead>(filename: &str, buf: &mut R) -> Result<Cartridge, Error> {
+    info!("[CARTRIDGE] [read_from_p8format] Starting to parse the Pico8 P8");
+
+    let mut header = String::new();
+    buf.read_line(&mut header)?;
+
+    let mut version = String::new();
+    buf.read_line(&mut version)?;
+
+    let re_delim_section = Regex::new(SECTION_DELIM_RE).unwrap();
+
+    let mut sections: HashMap<String, Vec<String>> = HashMap::new();
+
+    let mut section_name = "".to_string();
+
+    let mut new_section;
+
+    for line in buf.lines() {
+        let l = line.unwrap();
+        if re_delim_section.is_match(l.as_str()) {
+            debug!("NEW SECTION {:?}", l);
+            section_name = l.clone();
+
+            let vec_section = Vec::new();
+            sections.insert(section_name.clone(), vec_section);
+            new_section = false;
+        } else {
+            new_section = true;
+        }
+
+        if new_section {
+            match sections.get_mut(&section_name) {
+                Some(vec_section2) => vec_section2.push(l),
+                _ => debug!("Impossible to find section {:?}", section_name),
+            }
+        }
+    }
+
+    for (section_name, section) in &sections {
+        debug!("{}: \"{}\"", section_name, section.len());
+    }
+
+    let cartridge_gfx;
+    let cartridge_code;
+    let cartridge_map;
+    let cartridge_gff;
+    let cartridge_music;
+
+
+    if sections.contains_key("__lua__") {
+        cartridge_code = CartridgeCode::new("lua".to_string(),
+                                            sections.get_mut("__lua__").unwrap());
+    } else {
+        return Err(Error::Err("NO CODE DATA".to_string()));
+    }
+
+    match sections.get_mut("__gfx__") {
+        Some(vec_section) => cartridge_gfx = CartridgeGFX::new(vec_section),
+        _ => cartridge_gfx = CartridgeGFX::empty(),
+    }
+
+    match sections.get_mut("__map__") {
+        Some(vec_section) => cartridge_map = CartridgeMap::new(vec_section),
+        _ => cartridge_map = CartridgeMap::empty(),
+    }
+
+    match sections.get_mut("__gff__") {
+        Some(vec_section) => cartridge_gff = CartridgeGFF::new(vec_section),
+        _ => cartridge_gff = CartridgeGFF::empty(),
+    }
+
+    match sections.get_mut("__music__") {
+        Some(vec_section) => cartridge_music = CartridgeMusic::new(vec_section),
+        _ => cartridge_music = CartridgeMusic::empty(),
+    }
+
+
+    Ok(Cartridge {
+           filename: filename.to_string(),
+           data_filename: "".to_string(),
+           header: header.clone(),
+           version: version.clone(),
+           gfx: cartridge_gfx,
+           code: CartridgeCode::empty(),
+           map: CartridgeMap::empty(),
+           gff: CartridgeGFF::empty(),
+           palette: CartridgePalette::empty(),
+           music: CartridgeMusic::empty(),
+           format: CartridgeFormat::Pico8P8Format,
+       })
+}
 
 impl Cartridge {
     pub fn empty() -> Cartridge {
@@ -918,6 +1102,27 @@ impl Cartridge {
         from_dunicorn_file_raw(&mut buf_reader)
     }
 
+    pub fn from_png_file(filename: &str) -> Result<Cartridge, Error> {
+        let mut f = File::open(filename)?;
+
+        let mut data = Vec::new();
+        f.read_to_end(&mut data).unwrap();
+
+        let mut buf_reader = Cursor::new(data);
+
+        read_from_pngformat(filename, &mut buf_reader)
+    }
+
+    pub fn from_p8_file(filename: &str) -> Result<Cartridge, Error> {
+        let mut f = File::open(filename)?;
+
+        let mut data = String::new();
+        f.read_to_string(&mut data).unwrap();
+
+        let mut buf_reader = Cursor::new(data);
+
+        read_from_p8format(filename, &mut buf_reader)
+    }
 
     pub fn save_in_unicorn(&mut self, filename: &str, version: &str) {
         info!("[CARTRIDGE] [Cartridge] Save the modified cartridge in Unicorn format {:?}", filename);
