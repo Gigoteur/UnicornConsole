@@ -101,6 +101,8 @@ pub struct CartridgeLua {
 
 impl CartridgeLua {
     pub fn new(lines: &[String]) -> CartridgeLua {
+        info!("[CARTRIDGE] [CartridgeLua]");
+
         let mut data = "".to_string();
 
         for line in lines {
@@ -301,7 +303,7 @@ impl CartridgeGFX {
             info!("[CARTRIDGE][CartridgeGFX] Finding all sprites ...");
 
             // Fill all sprites
-            for idx in 0..256 {
+            for idx in 0..(v.len()/64) {
                 let mut data: [u8; 8 * 8] = [0; 8 * 8];
 
                 let mut idx_vec = 0;
@@ -323,9 +325,15 @@ impl CartridgeGFX {
                     }
                 }
 
-                debug!("[CARTRIDGE][CartridgeGFX] Sprite number {:?} {:?}", sprites.len(), data);
+                debug!("[CARTRIDGE][CartridgeGFX] Sprite number {:?} {:?}:{:?}", sprites.len(), data.len(), data);
 
                 sprites.push(Sprite::new(data));
+            }
+            // Fill with empty sprites
+            if sprites.len() == 0 {
+                for _ in 0..128 {
+                    sprites.push(Sprite::new([0; 8 * 8]));
+                }
             }
 
             info!("[CARTRIDGE][CartridgeGFX] {:?}", sprites.len());
@@ -866,7 +874,7 @@ fn read_from_p8format<R: io::BufRead>(filename: &str, buf: &mut R) -> Result<Car
     for line in buf.lines() {
         let l = line.unwrap();
         if re_delim_section.is_match(l.as_str()) {
-            debug!("NEW SECTION {:?}", l);
+            debug!("[CARTRIDGE] [Cartridge] NEW SECTION {:?}", l);
             section_name = l.clone();
 
             let vec_section = Vec::new();
@@ -929,11 +937,11 @@ fn read_from_p8format<R: io::BufRead>(filename: &str, buf: &mut R) -> Result<Car
            header: header.clone(),
            version: version.clone(),
            gfx: cartridge_gfx,
-           code: CartridgeCode::empty(),
-           map: CartridgeMap::empty(),
-           gff: CartridgeGFF::empty(),
+           code: cartridge_code,
+           map: cartridge_map,
+           gff: cartridge_gff,
            palette: CartridgePalette::empty(),
-           music: CartridgeMusic::empty(),
+           music: cartridge_music,
            format: CartridgeFormat::Pico8P8Format,
        })
 }

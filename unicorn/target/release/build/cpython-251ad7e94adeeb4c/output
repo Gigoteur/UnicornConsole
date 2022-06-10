@@ -1,3 +1,0 @@
-cargo:rustc-cfg=py_sys_config="WITH_THREAD"
-cargo:rustc-cfg=py_sys_config="Py_UNICODE_SIZE_2"
-cargo:rustc-cfg=py_sys_config="Py_USING_UNICODE"

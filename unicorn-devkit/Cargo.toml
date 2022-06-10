@@ -23,7 +23,7 @@ path = "../unicorn-sdl"
 
 [dependencies.unicorn]
 path="../unicorn"
-features = ["cpython", "noise", "editor"]
+features = ["cpython", "rlua", "noise", "editor"]
 #features = ["cpython", "unicorn_plugin_lua", "duktape", "syntect", "noise", "image", "editor"]
 
 
