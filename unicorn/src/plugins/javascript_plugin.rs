@@ -1,6 +1,7 @@
 #[cfg(feature = "duktape")]
 pub mod plugin {
     use std::sync::{Arc, Mutex};
+    use anyhow::{Context, Result, anyhow};
 
     use duktape::*;
     use duktape::types::*;
@@ -700,40 +701,36 @@ pub mod plugin {
 
         }
 
-        pub fn init(&mut self) {
-            if !self.loaded_code {
-                return;
+        pub fn init(&mut self) -> Result<()> {
+            if self.loaded_code {
+                match self.ctx.eval("_init();") {
+                    Result::Ok(_) => return Ok(()),
+                    Result::Err(err) => return Err(anyhow!("Error during the init function {:?}", err)),
+                }
             }
-
-            match self.ctx.eval("_init();") {
-                Result::Ok(_) => (),
-                Result::Err(err) => warn!("Error during the init function {:?}", err),
-            }
+            Err(anyhow!("[PLUGIN][Javascript] [init] impossible to load the code"))
         }
 
-        pub fn draw(&mut self) -> bool {
-            if !self.loaded_code {
-                return false;
+        pub fn draw(&mut self) -> Result<()>  {
+            if self.loaded_code {
+                match self.ctx.eval("_draw();") {
+                    Result::Ok(_) => (),
+                    Result::Err(err) => return Err(anyhow!("Error during the draw function {:?}", err)),
+                }
             }
 
-            match self.ctx.eval("_draw();") {
-                Result::Ok(_) => (),
-                Result::Err(err) => warn!("Error during the draw function {:?}", err),
-            }
-
-            true
+            Err(anyhow!("[PLUGIN][Javascript] [draw] impossible to load the code"))
         }
 
-        pub fn update(&mut self) -> bool {
-            if !self.loaded_code {
-                return false;
-            }
-            match self.ctx.eval("_update();") {
-                Result::Ok(_) => (),
-                Result::Err(err) => warn!("Error during the update function {:?}", err),
+        pub fn update(&mut self) -> Result<()>  {
+            if self.loaded_code {
+                match self.ctx.eval("_update();") {
+                    Result::Ok(_) => return Ok(()),
+                    Result::Err(err) => return Err(anyhow!("Error during the update function {:?}", err)),
+                }
             }
 
-            true
+            Err(anyhow!("[PLUGIN][Javascript] [update] impossible to load the code"))
         }
 
         pub fn load_code(&mut self, data: String) -> bool {
@@ -755,6 +752,7 @@ pub mod plugin {
 #[cfg(not(feature = "duktape"))]
 pub mod plugin {
     use std::sync::{Arc, Mutex};
+    use anyhow::{Result, anyhow};
 
     use config::Players;
 
@@ -782,12 +780,14 @@ pub mod plugin {
         pub fn load_code(&mut self, _data: String) -> bool {
             false
         }
-        pub fn init(&mut self) {}
-        pub fn draw(&mut self) -> bool {
-            false
+        pub fn init(&mut self) -> Result<()> {
+            Err(anyhow!("[PLUGIN][Javascript] [init] javascript is not compiled"))
         }
-        pub fn update(&mut self) -> bool {
-            false
+        pub fn draw(&mut self) -> Result<()> {
+            Err(anyhow!("[PLUGIN][Javascript] [draw] javascript is not compiled"))
+        }
+        pub fn update(&mut self) -> Result<()> {
+            Err(anyhow!("[PLUGIN][Javascript] [update] javascript is not compiled"))
         }
     }
 }

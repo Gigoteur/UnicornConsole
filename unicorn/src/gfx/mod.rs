@@ -644,6 +644,8 @@ impl Screen {
     }
 
     pub fn rectfill(&mut self, x0: i32, y0: i32, x1: i32, y1: i32, col: i32) {
+        debug!("[GFX][rectfill] x0:{:?} y0:{:?} x1:{:?} y1:{:?} col:{:?}", x0, y0, x1, y1, col);
+        
         let x_min = cmp::min(x0, x1);
         let x_max = cmp::max(x0, x1);
         let y_min = cmp::min(y0, y1);

@@ -54,6 +54,7 @@ gapbuffer = "0.1.1"
 unicode-width = "0.1.9"
 ordered-float = "3.0.0"
 png = "0.17.5"
+anyhow = "1.0"
 
 [target.'cfg(target_os="android")'.dependencies]
 jni = { version = "0.4", default-features = false }
@@ -62,10 +63,9 @@ jni = { version = "0.4", default-features = false }
 version = "0.7"
 optional = true
 
-[dependencies.unicorn_plugin_lua]
+[dependencies.rlua]
 optional = true
-version="0.0.11"
-path="src/plugins/lua"
+version="0.19.2"
 
 [dependencies.duktape]
 optional = true

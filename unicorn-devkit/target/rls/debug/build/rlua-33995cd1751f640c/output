@@ -1,0 +1,1 @@
+cargo:rustc-cfg=rlua_lua54

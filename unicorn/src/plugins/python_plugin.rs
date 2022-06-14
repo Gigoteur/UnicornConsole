@@ -4,6 +4,7 @@ pub mod plugin {
     use cpython::*;
 
     use std::sync::{Arc, Mutex};
+    use anyhow::{Result, anyhow};
 
     use config::Players;
     use unicorn::info::Info;
@@ -545,80 +546,48 @@ pub mod plugin {
         }
 
 
-        pub fn init(&mut self) {
+        pub fn init(&mut self) -> PyResult<()> {
             info!("[PLUGIN][PYTHON] Call INIT");
 
-            if !self.loaded_code {
-                return;
-            }
+          //  if !self.loaded_code {
+          //      return;
+          //  }
 
             let gil = Python::acquire_gil();
             let py = gil.python();
 
             let result = py.run(r###"_init()"###, None, Some(&self.mydict));
             info!("[PLUGIN][PYTHON] INIT -> {:?}", result);
+
+            Ok(())
         }
 
-        pub fn draw(&mut self) -> bool {
-            let mut return_draw_value = true;
-            //debug!("[PLUGIN][PYTHON] Call DRAW");
+        pub fn draw(&mut self) -> Result<()> {
+            if self.loaded_code {
+                let gil = Python::acquire_gil();
+                let py = gil.python();
 
-            if !self.loaded_code {
-                return false;
-            }
-
-            let gil = Python::acquire_gil();
-            let py = gil.python();
-
-            let result = py.eval(r###"_draw()"###, None, Some(&self.mydict));
-
-            match result {
-                Err(v) => {
-                    return_draw_value = false;
-                    warn!("[PLUGIN][PYTHON] DRAW = {:?}", v);
-                }
-                Ok(v) => {
-                    match v.extract(py) {
-                        Ok(draw_value) => {
-                            return_draw_value = draw_value;
-                        }
-                        _ => (),
-                    }
+                match py.eval(r###"_draw()"###, None, Some(&self.mydict)) {
+                    Ok(v) => return Ok(()),
+                    Err(v) => return Err(anyhow!("[PLUGIN][Python] [draw] impossible to call _draw {:?}", v)),
                 }
             }
 
-            return return_draw_value;
+            Err(anyhow!("[PLUGIN][Python] [draw] impossible to load the code"))
         }
 
-        pub fn update(&mut self) -> bool {
-            let mut return_update_value = true;
-            //debug!("[PLUGIN][PYTHON] Call UPDATE");
+        pub fn update(&mut self) -> Result<()> {
+            if self.loaded_code {
+                let gil = Python::acquire_gil();
+                let py = gil.python();
 
-            if !self.loaded_code {
-                return false;
-            }
-
-            let gil = Python::acquire_gil();
-            let py = gil.python();
-
-            let result = py.eval(r###"_update()"###, None, Some(&self.mydict));
-
-            match result {
-                Err(v) => {
-                    return_update_value = false;
-                    warn!("[PLUGIN][PYTHON] UPDATE = {:?}", v);
-                }
-                Ok(v) => {
-                    match v.extract(py) {
-                        Ok(update_value) => {
-                            return_update_value = update_value;
-                        }
-                        _ => (),
-                    }
+                match py.eval(r###"_update()"###, None, Some(&self.mydict)) {
+                    Ok(v) => return Ok(()),
+                    Err(v) => return Err(anyhow!("[PLUGIN][Python] [update] impossible to call _update {:?}", v)),
                 }
             }
 
-            return return_update_value;
+            Err(anyhow!("[PLUGIN][Python] [update] impossible to load the code"))
         }
 
 
@@ -649,6 +618,7 @@ pub mod plugin {
 #[cfg(not(feature = "cpython"))]
 pub mod plugin {
     use std::sync::{Arc, Mutex};
+    use anyhow::{Result, anyhow};
 
     use config::Players;
 
@@ -676,15 +646,17 @@ pub mod plugin {
                     _config: Arc<Mutex<UnicornConfig>>) {
             error!("[PLUGIN][PYTHON] plugin disabled");
         }
-        pub fn init(&mut self) {}
-        pub fn draw(&mut self) -> bool {
-            false
-        }
-        pub fn update(&mut self) -> bool {
-            false
-        }
         pub fn load_code(&mut self, _data: String) -> bool {
             false
+        }
+        pub fn init(&mut self) -> Result<()> {
+            Err(anyhow!("[PLUGIN][Python] [init] python is not compiled"))
+        }
+        pub fn draw(&mut self) -> Result<()> {
+            Err(anyhow!("[PLUGIN][Python] [draw] python is not compiled"))
+        }
+        pub fn update(&mut self) -> Result<()> {
+            Err(anyhow!("[PLUGIN][Python] [update] python is not compiled"))
         }
     }
 }

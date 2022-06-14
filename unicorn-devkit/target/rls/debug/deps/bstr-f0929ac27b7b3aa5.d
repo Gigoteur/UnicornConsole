@@ -1,0 +1,15 @@
+d:\UnicornConsole\UnicornConsole\unicorn-devkit\target\rls\debug\deps\bstr-f0929ac27b7b3aa5.rmeta: C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\bstr-0.2.17\src\lib.rs C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\bstr-0.2.17\src\ascii.rs C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\bstr-0.2.17\src\bstr.rs C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\bstr-0.2.17\src\bstring.rs C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\bstr-0.2.17\src\byteset\mod.rs C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\bstr-0.2.17\src\byteset\scalar.rs C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\bstr-0.2.17\src\ext_slice.rs C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\bstr-0.2.17\src\ext_vec.rs C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\bstr-0.2.17\src\impls.rs C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\bstr-0.2.17\src\io.rs C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\bstr-0.2.17\src\utf8.rs
+
+d:\UnicornConsole\UnicornConsole\unicorn-devkit\target\rls\debug\deps\bstr-f0929ac27b7b3aa5.d: C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\bstr-0.2.17\src\lib.rs C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\bstr-0.2.17\src\ascii.rs C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\bstr-0.2.17\src\bstr.rs C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\bstr-0.2.17\src\bstring.rs C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\bstr-0.2.17\src\byteset\mod.rs C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\bstr-0.2.17\src\byteset\scalar.rs C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\bstr-0.2.17\src\ext_slice.rs C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\bstr-0.2.17\src\ext_vec.rs C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\bstr-0.2.17\src\impls.rs C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\bstr-0.2.17\src\io.rs C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\bstr-0.2.17\src\utf8.rs
+
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\bstr-0.2.17\src\lib.rs:
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\bstr-0.2.17\src\ascii.rs:
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\bstr-0.2.17\src\bstr.rs:
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\bstr-0.2.17\src\bstring.rs:
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\bstr-0.2.17\src\byteset\mod.rs:
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\bstr-0.2.17\src\byteset\scalar.rs:
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\bstr-0.2.17\src\ext_slice.rs:
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\bstr-0.2.17\src\ext_vec.rs:
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\bstr-0.2.17\src\impls.rs:
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\bstr-0.2.17\src\io.rs:
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\bstr-0.2.17\src\utf8.rs:

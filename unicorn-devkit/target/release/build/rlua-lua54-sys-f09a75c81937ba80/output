@@ -1,0 +1,182 @@
+TARGET = Some("x86_64-pc-windows-msvc")
+OPT_LEVEL = Some("3")
+HOST = Some("x86_64-pc-windows-msvc")
+CC_x86_64-pc-windows-msvc = None
+CC_x86_64_pc_windows_msvc = None
+HOST_CC = None
+CC = None
+CFLAGS_x86_64-pc-windows-msvc = None
+CFLAGS_x86_64_pc_windows_msvc = None
+HOST_CFLAGS = None
+CFLAGS = None
+CRATE_CC_NO_DEFAULTS = None
+CARGO_CFG_TARGET_FEATURE = Some("fxsr,sse,sse2")
+DEBUG = Some("false")
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-O2" "-Brepro" "-I" "lua-5.4.3\\src" "-DLUA_USE_WINDOWS" "-FoD:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\lapi.o" "-c" "lua-5.4.3\\src\\lapi.c"
+lapi.c
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\rlua-lua54-sys-0.1.2\lua-5.4.3\src\luaconf.h(51): warning C4005: 'LUA_USE_WINDOWS'ÿ: red‚finition de macro
+lua-5.4.3\src\lapi.c: note: voir la d‚finition pr‚c‚dente de 'LUA_USE_WINDOWS'
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-O2" "-Brepro" "-I" "lua-5.4.3\\src" "-DLUA_USE_WINDOWS" "-FoD:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\lbaselib.o" "-c" "lua-5.4.3\\src\\lbaselib.c"
+lbaselib.c
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\rlua-lua54-sys-0.1.2\lua-5.4.3\src\luaconf.h(51): warning C4005: 'LUA_USE_WINDOWS'ÿ: red‚finition de macro
+lua-5.4.3\src\lbaselib.c: note: voir la d‚finition pr‚c‚dente de 'LUA_USE_WINDOWS'
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-O2" "-Brepro" "-I" "lua-5.4.3\\src" "-DLUA_USE_WINDOWS" "-FoD:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\lcode.o" "-c" "lua-5.4.3\\src\\lcode.c"
+lcode.c
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\rlua-lua54-sys-0.1.2\lua-5.4.3\src\luaconf.h(51): warning C4005: 'LUA_USE_WINDOWS'ÿ: red‚finition de macro
+lua-5.4.3\src\lcode.c: note: voir la d‚finition pr‚c‚dente de 'LUA_USE_WINDOWS'
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-O2" "-Brepro" "-I" "lua-5.4.3\\src" "-DLUA_USE_WINDOWS" "-FoD:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\lcorolib.o" "-c" "lua-5.4.3\\src\\lcorolib.c"
+lcorolib.c
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\rlua-lua54-sys-0.1.2\lua-5.4.3\src\luaconf.h(51): warning C4005: 'LUA_USE_WINDOWS'ÿ: red‚finition de macro
+lua-5.4.3\src\lcorolib.c: note: voir la d‚finition pr‚c‚dente de 'LUA_USE_WINDOWS'
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-O2" "-Brepro" "-I" "lua-5.4.3\\src" "-DLUA_USE_WINDOWS" "-FoD:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\lctype.o" "-c" "lua-5.4.3\\src\\lctype.c"
+lctype.c
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\rlua-lua54-sys-0.1.2\lua-5.4.3\src\luaconf.h(51): warning C4005: 'LUA_USE_WINDOWS'ÿ: red‚finition de macro
+lua-5.4.3\src\lctype.c: note: voir la d‚finition pr‚c‚dente de 'LUA_USE_WINDOWS'
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-O2" "-Brepro" "-I" "lua-5.4.3\\src" "-DLUA_USE_WINDOWS" "-FoD:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\ldblib.o" "-c" "lua-5.4.3\\src\\ldblib.c"
+ldblib.c
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\rlua-lua54-sys-0.1.2\lua-5.4.3\src\luaconf.h(51): warning C4005: 'LUA_USE_WINDOWS'ÿ: red‚finition de macro
+lua-5.4.3\src\ldblib.c: note: voir la d‚finition pr‚c‚dente de 'LUA_USE_WINDOWS'
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-O2" "-Brepro" "-I" "lua-5.4.3\\src" "-DLUA_USE_WINDOWS" "-FoD:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\ldebug.o" "-c" "lua-5.4.3\\src\\ldebug.c"
+ldebug.c
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\rlua-lua54-sys-0.1.2\lua-5.4.3\src\luaconf.h(51): warning C4005: 'LUA_USE_WINDOWS'ÿ: red‚finition de macro
+lua-5.4.3\src\ldebug.c: note: voir la d‚finition pr‚c‚dente de 'LUA_USE_WINDOWS'
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-O2" "-Brepro" "-I" "lua-5.4.3\\src" "-DLUA_USE_WINDOWS" "-FoD:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\ldo.o" "-c" "lua-5.4.3\\src\\ldo.c"
+ldo.c
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\rlua-lua54-sys-0.1.2\lua-5.4.3\src\luaconf.h(51): warning C4005: 'LUA_USE_WINDOWS'ÿ: red‚finition de macro
+lua-5.4.3\src\ldo.c: note: voir la d‚finition pr‚c‚dente de 'LUA_USE_WINDOWS'
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-O2" "-Brepro" "-I" "lua-5.4.3\\src" "-DLUA_USE_WINDOWS" "-FoD:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\ldump.o" "-c" "lua-5.4.3\\src\\ldump.c"
+ldump.c
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\rlua-lua54-sys-0.1.2\lua-5.4.3\src\luaconf.h(51): warning C4005: 'LUA_USE_WINDOWS'ÿ: red‚finition de macro
+lua-5.4.3\src\ldump.c: note: voir la d‚finition pr‚c‚dente de 'LUA_USE_WINDOWS'
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-O2" "-Brepro" "-I" "lua-5.4.3\\src" "-DLUA_USE_WINDOWS" "-FoD:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\lfunc.o" "-c" "lua-5.4.3\\src\\lfunc.c"
+lfunc.c
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\rlua-lua54-sys-0.1.2\lua-5.4.3\src\luaconf.h(51): warning C4005: 'LUA_USE_WINDOWS'ÿ: red‚finition de macro
+lua-5.4.3\src\lfunc.c: note: voir la d‚finition pr‚c‚dente de 'LUA_USE_WINDOWS'
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-O2" "-Brepro" "-I" "lua-5.4.3\\src" "-DLUA_USE_WINDOWS" "-FoD:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\lgc.o" "-c" "lua-5.4.3\\src\\lgc.c"
+lgc.c
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\rlua-lua54-sys-0.1.2\lua-5.4.3\src\luaconf.h(51): warning C4005: 'LUA_USE_WINDOWS'ÿ: red‚finition de macro
+lua-5.4.3\src\lgc.c: note: voir la d‚finition pr‚c‚dente de 'LUA_USE_WINDOWS'
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-O2" "-Brepro" "-I" "lua-5.4.3\\src" "-DLUA_USE_WINDOWS" "-FoD:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\linit.o" "-c" "lua-5.4.3\\src\\linit.c"
+linit.c
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\rlua-lua54-sys-0.1.2\lua-5.4.3\src\luaconf.h(51): warning C4005: 'LUA_USE_WINDOWS'ÿ: red‚finition de macro
+lua-5.4.3\src\linit.c: note: voir la d‚finition pr‚c‚dente de 'LUA_USE_WINDOWS'
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-O2" "-Brepro" "-I" "lua-5.4.3\\src" "-DLUA_USE_WINDOWS" "-FoD:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\liolib.o" "-c" "lua-5.4.3\\src\\liolib.c"
+liolib.c
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\rlua-lua54-sys-0.1.2\lua-5.4.3\src\luaconf.h(51): warning C4005: 'LUA_USE_WINDOWS'ÿ: red‚finition de macro
+lua-5.4.3\src\liolib.c: note: voir la d‚finition pr‚c‚dente de 'LUA_USE_WINDOWS'
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-O2" "-Brepro" "-I" "lua-5.4.3\\src" "-DLUA_USE_WINDOWS" "-FoD:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\llex.o" "-c" "lua-5.4.3\\src\\llex.c"
+llex.c
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\rlua-lua54-sys-0.1.2\lua-5.4.3\src\luaconf.h(51): warning C4005: 'LUA_USE_WINDOWS'ÿ: red‚finition de macro
+lua-5.4.3\src\llex.c: note: voir la d‚finition pr‚c‚dente de 'LUA_USE_WINDOWS'
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-O2" "-Brepro" "-I" "lua-5.4.3\\src" "-DLUA_USE_WINDOWS" "-FoD:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\lmathlib.o" "-c" "lua-5.4.3\\src\\lmathlib.c"
+lmathlib.c
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\rlua-lua54-sys-0.1.2\lua-5.4.3\src\luaconf.h(51): warning C4005: 'LUA_USE_WINDOWS'ÿ: red‚finition de macro
+lua-5.4.3\src\lmathlib.c: note: voir la d‚finition pr‚c‚dente de 'LUA_USE_WINDOWS'
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-O2" "-Brepro" "-I" "lua-5.4.3\\src" "-DLUA_USE_WINDOWS" "-FoD:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\lauxlib.o" "-c" "lua-5.4.3\\src\\lauxlib.c"
+lauxlib.c
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\rlua-lua54-sys-0.1.2\lua-5.4.3\src\luaconf.h(51): warning C4005: 'LUA_USE_WINDOWS'ÿ: red‚finition de macro
+lua-5.4.3\src\lauxlib.c: note: voir la d‚finition pr‚c‚dente de 'LUA_USE_WINDOWS'
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-O2" "-Brepro" "-I" "lua-5.4.3\\src" "-DLUA_USE_WINDOWS" "-FoD:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\lmem.o" "-c" "lua-5.4.3\\src\\lmem.c"
+lmem.c
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\rlua-lua54-sys-0.1.2\lua-5.4.3\src\luaconf.h(51): warning C4005: 'LUA_USE_WINDOWS'ÿ: red‚finition de macro
+lua-5.4.3\src\lmem.c: note: voir la d‚finition pr‚c‚dente de 'LUA_USE_WINDOWS'
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-O2" "-Brepro" "-I" "lua-5.4.3\\src" "-DLUA_USE_WINDOWS" "-FoD:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\loadlib.o" "-c" "lua-5.4.3\\src\\loadlib.c"
+loadlib.c
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\rlua-lua54-sys-0.1.2\lua-5.4.3\src\luaconf.h(51): warning C4005: 'LUA_USE_WINDOWS'ÿ: red‚finition de macro
+lua-5.4.3\src\loadlib.c: note: voir la d‚finition pr‚c‚dente de 'LUA_USE_WINDOWS'
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-O2" "-Brepro" "-I" "lua-5.4.3\\src" "-DLUA_USE_WINDOWS" "-FoD:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\lobject.o" "-c" "lua-5.4.3\\src\\lobject.c"
+lobject.c
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\rlua-lua54-sys-0.1.2\lua-5.4.3\src\luaconf.h(51): warning C4005: 'LUA_USE_WINDOWS'ÿ: red‚finition de macro
+lua-5.4.3\src\lobject.c: note: voir la d‚finition pr‚c‚dente de 'LUA_USE_WINDOWS'
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-O2" "-Brepro" "-I" "lua-5.4.3\\src" "-DLUA_USE_WINDOWS" "-FoD:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\lopcodes.o" "-c" "lua-5.4.3\\src\\lopcodes.c"
+lopcodes.c
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\rlua-lua54-sys-0.1.2\lua-5.4.3\src\luaconf.h(51): warning C4005: 'LUA_USE_WINDOWS'ÿ: red‚finition de macro
+lua-5.4.3\src\lopcodes.c: note: voir la d‚finition pr‚c‚dente de 'LUA_USE_WINDOWS'
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-O2" "-Brepro" "-I" "lua-5.4.3\\src" "-DLUA_USE_WINDOWS" "-FoD:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\loslib.o" "-c" "lua-5.4.3\\src\\loslib.c"
+loslib.c
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\rlua-lua54-sys-0.1.2\lua-5.4.3\src\luaconf.h(51): warning C4005: 'LUA_USE_WINDOWS'ÿ: red‚finition de macro
+lua-5.4.3\src\loslib.c: note: voir la d‚finition pr‚c‚dente de 'LUA_USE_WINDOWS'
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-O2" "-Brepro" "-I" "lua-5.4.3\\src" "-DLUA_USE_WINDOWS" "-FoD:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\lparser.o" "-c" "lua-5.4.3\\src\\lparser.c"
+lparser.c
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\rlua-lua54-sys-0.1.2\lua-5.4.3\src\luaconf.h(51): warning C4005: 'LUA_USE_WINDOWS'ÿ: red‚finition de macro
+lua-5.4.3\src\lparser.c: note: voir la d‚finition pr‚c‚dente de 'LUA_USE_WINDOWS'
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-O2" "-Brepro" "-I" "lua-5.4.3\\src" "-DLUA_USE_WINDOWS" "-FoD:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\lstate.o" "-c" "lua-5.4.3\\src\\lstate.c"
+lstate.c
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\rlua-lua54-sys-0.1.2\lua-5.4.3\src\luaconf.h(51): warning C4005: 'LUA_USE_WINDOWS'ÿ: red‚finition de macro
+lua-5.4.3\src\lstate.c: note: voir la d‚finition pr‚c‚dente de 'LUA_USE_WINDOWS'
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-O2" "-Brepro" "-I" "lua-5.4.3\\src" "-DLUA_USE_WINDOWS" "-FoD:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\lstring.o" "-c" "lua-5.4.3\\src\\lstring.c"
+lstring.c
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\rlua-lua54-sys-0.1.2\lua-5.4.3\src\luaconf.h(51): warning C4005: 'LUA_USE_WINDOWS'ÿ: red‚finition de macro
+lua-5.4.3\src\lstring.c: note: voir la d‚finition pr‚c‚dente de 'LUA_USE_WINDOWS'
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-O2" "-Brepro" "-I" "lua-5.4.3\\src" "-DLUA_USE_WINDOWS" "-FoD:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\lstrlib.o" "-c" "lua-5.4.3\\src\\lstrlib.c"
+lstrlib.c
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\rlua-lua54-sys-0.1.2\lua-5.4.3\src\luaconf.h(51): warning C4005: 'LUA_USE_WINDOWS'ÿ: red‚finition de macro
+lua-5.4.3\src\lstrlib.c: note: voir la d‚finition pr‚c‚dente de 'LUA_USE_WINDOWS'
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-O2" "-Brepro" "-I" "lua-5.4.3\\src" "-DLUA_USE_WINDOWS" "-FoD:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\ltable.o" "-c" "lua-5.4.3\\src\\ltable.c"
+ltable.c
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\rlua-lua54-sys-0.1.2\lua-5.4.3\src\luaconf.h(51): warning C4005: 'LUA_USE_WINDOWS'ÿ: red‚finition de macro
+lua-5.4.3\src\ltable.c: note: voir la d‚finition pr‚c‚dente de 'LUA_USE_WINDOWS'
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-O2" "-Brepro" "-I" "lua-5.4.3\\src" "-DLUA_USE_WINDOWS" "-FoD:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\ltablib.o" "-c" "lua-5.4.3\\src\\ltablib.c"
+ltablib.c
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\rlua-lua54-sys-0.1.2\lua-5.4.3\src\luaconf.h(51): warning C4005: 'LUA_USE_WINDOWS'ÿ: red‚finition de macro
+lua-5.4.3\src\ltablib.c: note: voir la d‚finition pr‚c‚dente de 'LUA_USE_WINDOWS'
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-O2" "-Brepro" "-I" "lua-5.4.3\\src" "-DLUA_USE_WINDOWS" "-FoD:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\ltm.o" "-c" "lua-5.4.3\\src\\ltm.c"
+ltm.c
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\rlua-lua54-sys-0.1.2\lua-5.4.3\src\luaconf.h(51): warning C4005: 'LUA_USE_WINDOWS'ÿ: red‚finition de macro
+lua-5.4.3\src\ltm.c: note: voir la d‚finition pr‚c‚dente de 'LUA_USE_WINDOWS'
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-O2" "-Brepro" "-I" "lua-5.4.3\\src" "-DLUA_USE_WINDOWS" "-FoD:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\lundump.o" "-c" "lua-5.4.3\\src\\lundump.c"
+lundump.c
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\rlua-lua54-sys-0.1.2\lua-5.4.3\src\luaconf.h(51): warning C4005: 'LUA_USE_WINDOWS'ÿ: red‚finition de macro
+lua-5.4.3\src\lundump.c: note: voir la d‚finition pr‚c‚dente de 'LUA_USE_WINDOWS'
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-O2" "-Brepro" "-I" "lua-5.4.3\\src" "-DLUA_USE_WINDOWS" "-FoD:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\lutf8lib.o" "-c" "lua-5.4.3\\src\\lutf8lib.c"
+lutf8lib.c
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\rlua-lua54-sys-0.1.2\lua-5.4.3\src\luaconf.h(51): warning C4005: 'LUA_USE_WINDOWS'ÿ: red‚finition de macro
+lua-5.4.3\src\lutf8lib.c: note: voir la d‚finition pr‚c‚dente de 'LUA_USE_WINDOWS'
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-O2" "-Brepro" "-I" "lua-5.4.3\\src" "-DLUA_USE_WINDOWS" "-FoD:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\lvm.o" "-c" "lua-5.4.3\\src\\lvm.c"
+lvm.c
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\rlua-lua54-sys-0.1.2\lua-5.4.3\src\luaconf.h(51): warning C4005: 'LUA_USE_WINDOWS'ÿ: red‚finition de macro
+lua-5.4.3\src\lvm.c: note: voir la d‚finition pr‚c‚dente de 'LUA_USE_WINDOWS'
+exit code: 0
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe" "-nologo" "-MD" "-O2" "-Brepro" "-I" "lua-5.4.3\\src" "-DLUA_USE_WINDOWS" "-FoD:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\lzio.o" "-c" "lua-5.4.3\\src\\lzio.c"
+lzio.c
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\rlua-lua54-sys-0.1.2\lua-5.4.3\src\luaconf.h(51): warning C4005: 'LUA_USE_WINDOWS'ÿ: red‚finition de macro
+lua-5.4.3\src\lzio.c: note: voir la d‚finition pr‚c‚dente de 'LUA_USE_WINDOWS'
+exit code: 0
+AR_x86_64-pc-windows-msvc = None
+AR_x86_64_pc_windows_msvc = None
+HOST_AR = None
+AR = None
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\lib.exe" "-out:D:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\liblua5.4.a" "-nologo" "D:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\lapi.o" "D:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\lbaselib.o" "D:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\lcode.o" "D:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\lcorolib.o" "D:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\lctype.o" "D:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\ldblib.o" "D:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\ldebug.o" "D:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\ldo.o" "D:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\ldump.o" "D:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\lfunc.o" "D:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\lgc.o" "D:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\linit.o" "D:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\liolib.o" "D:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\llex.o" "D:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\lmathlib.o" "D:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\lauxlib.o" "D:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\lmem.o" "D:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\loadlib.o" "D:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\lobject.o" "D:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\lopcodes.o" "D:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\loslib.o" "D:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\lparser.o" "D:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\lstate.o" "D:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\lstring.o" "D:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\lstrlib.o" "D:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\ltable.o" "D:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\ltablib.o" "D:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\ltm.o" "D:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\lundump.o" "D:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\lutf8lib.o" "D:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\lvm.o" "D:\\UnicornConsole\\UnicornConsole\\unicorn-devkit\\target\\release\\build\\rlua-lua54-sys-f09a75c81937ba80\\out\\lib\\lua-5.4.3\\src\\lzio.o"
+exit code: 0
+cargo:rustc-link-lib=static=lua5.4
+cargo:rustc-link-search=native=D:\UnicornConsole\UnicornConsole\unicorn-devkit\target\release\build\rlua-lua54-sys-f09a75c81937ba80\out\lib

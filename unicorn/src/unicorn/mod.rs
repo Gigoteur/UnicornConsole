@@ -652,7 +652,6 @@ pub struct Unicorn {
     pub pause_menu: PauseMenu,
     pub fps: f64,
     pub record: Record,
-    pub draw_return: bool,
     pub update_return: bool,
     pub mouse_spr: Vec<u8>,
     pub version: u32,
@@ -684,7 +683,6 @@ impl Unicorn {
             menu: Menu::new(),
             fps: 0.0,
             record: Record::new(),
-            draw_return: true,
             update_return: true,
             mouse_spr: Unicorn::mouse_sprite(),
             version: VERSION,
@@ -731,7 +729,6 @@ impl Unicorn {
         self.screen.lock().unwrap().init();
 
         self.update_return = true;
-        self.draw_return = true;
     }
 
     pub fn init_interactive(&mut self) {
@@ -1381,11 +1378,16 @@ impl Unicorn {
         self.reset();
 
         match self.current_code_type {
-            Code::LUA => self.cartridges[self.current_cartridge].lua_plugin.init(),
-            Code::JAVASCRIPT => self.cartridges[self.current_cartridge].javascript_plugin.init(),
-            Code::PYTHON => self.cartridges[self.current_cartridge].python_plugin.init(),
+            Code::LUA => match self.cartridges[self.current_cartridge].lua_plugin.init() {
+                _ => (),
+            }
+            Code::JAVASCRIPT => match self.cartridges[self.current_cartridge].javascript_plugin.init() {
+                _ => (),
+            }
+            Code::PYTHON => match self.cartridges[self.current_cartridge].python_plugin.init() {
+                _ => (),
+            }
             Code::RUST => {
-                self.draw_return = true;
                 for callback in &mut self.cartridges[self.current_cartridge].rust_plugin {
                     callback.init(&mut self.screen.lock().unwrap());
                 }
@@ -1397,22 +1399,29 @@ impl Unicorn {
     pub fn call_draw(&mut self) {
         match self.current_code_type {
             Code::LUA => {
-                self.draw_return = self.cartridges[self.current_cartridge].lua_plugin.draw()
+                match self.cartridges[self.current_cartridge].lua_plugin.draw() {
+                    Ok(()) => (),
+                    Err(err) => error!("[Unicorn] [call_draw / lua]: {}", err),
+                }
             }
             Code::JAVASCRIPT => {
-                self.draw_return = self.cartridges[self.current_cartridge].javascript_plugin.draw()
+                match self.cartridges[self.current_cartridge].javascript_plugin.draw() {
+                    Ok(()) => (),
+                    Err(err) => error!("[Unicorn] [call_draw / javascript]: {}", err),
+                }
             }
             Code::PYTHON => {
-                self.draw_return = self.cartridges[self.current_cartridge].python_plugin.draw()
-            }
+                match self.cartridges[self.current_cartridge].python_plugin.draw() {
+                    Ok(()) => (),
+                    Err(err) => error!("[Unicorn] [call_draw / python]: {}", err),
+                }
+            }/*
             Code::RUST => {
-                self.draw_return = true;
-
                 for callback in &mut self.cartridges[self.current_cartridge].rust_plugin {
                     callback.draw(&mut self.screen.lock().unwrap(),
                                   &mut self.info.lock().unwrap());
                 }
-            }
+            }*/
             _ => (),
         }
     }
@@ -1420,23 +1429,31 @@ impl Unicorn {
     pub fn call_update(&mut self) {
         match self.current_code_type {
             Code::LUA => {
-                self.update_return = self.cartridges[self.current_cartridge].lua_plugin.update()
+                match self.cartridges[self.current_cartridge].lua_plugin.update() {
+                    Ok(()) => (),
+                    Err(err) => error!("[Unicorn] [call_update / lua]: {}", err),
+                }
             }
+            
             Code::JAVASCRIPT => {
-                self.update_return = self.cartridges[self.current_cartridge].javascript_plugin.update()
+                match self.cartridges[self.current_cartridge].javascript_plugin.update() {
+                    Ok(()) => (),
+                    Err(err) => error!("[Unicorn] [call_update / javascript]: {}", err),
+                }
             }
             Code::PYTHON => {
-                self.update_return = self.cartridges[self.current_cartridge]
-                    .python_plugin
-                    .update()
-            }
+                match self.cartridges[self.current_cartridge].python_plugin.update() {
+                        Ok(()) => (),
+                        Err(err) => error!("[Unicorn] [call_update / python]: {}", err),
+                    }
+            }/*
             Code::RUST => {
                 self.update_return = true;
 
                 for callback in &mut self.cartridges[self.current_cartridge].rust_plugin {
                     callback.update(&mut self.players.lock().unwrap());
                 }
-            }
+            }*/
             _ => (),
         }
     }

@@ -90,7 +90,7 @@ function gameov()
    dino.sizex=3
    if gmov_y<127 then
     gameovertext=true
-    gmov_y+=1
+    gmov_y = gmov_y + 1
    end
    if isbtw(d,fdead+1,fdead+2)then
     dino.y+=1

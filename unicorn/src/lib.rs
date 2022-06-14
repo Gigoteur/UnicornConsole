@@ -1,5 +1,5 @@
-#[cfg(feature = "unicorn_plugin_lua")]
-extern crate unicorn_plugin_lua;
+#[cfg(feature = "rlua")]
+extern crate rlua;
 
 #[cfg(feature = "cpython")]
 extern crate cpython;
@@ -15,6 +15,8 @@ extern crate noise;
 
 #[cfg(feature = "image")]
 extern crate image;
+
+extern crate anyhow;
 
 extern crate png;
 

@@ -1,0 +1,12 @@
+d:\UnicornConsole\UnicornConsole\unicorn\src\plugins\duktape\target\rls\debug\deps\gcc-d49d0505f24ed3f2.rmeta: C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\gcc-0.3.54\src\lib.rs C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\gcc-0.3.54\src\registry.rs C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\gcc-0.3.54\src\winapi.rs C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\gcc-0.3.54\src\com.rs C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\gcc-0.3.54\src\setup_config.rs C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\gcc-0.3.54\src\windows_registry.rs
+
+d:\UnicornConsole\UnicornConsole\unicorn\src\plugins\duktape\target\rls\debug\deps\libgcc-d49d0505f24ed3f2.rlib: C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\gcc-0.3.54\src\lib.rs C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\gcc-0.3.54\src\registry.rs C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\gcc-0.3.54\src\winapi.rs C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\gcc-0.3.54\src\com.rs C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\gcc-0.3.54\src\setup_config.rs C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\gcc-0.3.54\src\windows_registry.rs
+
+d:\UnicornConsole\UnicornConsole\unicorn\src\plugins\duktape\target\rls\debug\deps\gcc-d49d0505f24ed3f2.d: C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\gcc-0.3.54\src\lib.rs C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\gcc-0.3.54\src\registry.rs C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\gcc-0.3.54\src\winapi.rs C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\gcc-0.3.54\src\com.rs C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\gcc-0.3.54\src\setup_config.rs C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\gcc-0.3.54\src\windows_registry.rs
+
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\gcc-0.3.54\src\lib.rs:
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\gcc-0.3.54\src\registry.rs:
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\gcc-0.3.54\src\winapi.rs:
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\gcc-0.3.54\src\com.rs:
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\gcc-0.3.54\src\setup_config.rs:
+C:\Users\toto\.cargo\registry\src\github.com-1ecc6299db9ec823\gcc-0.3.54\src\windows_registry.rs:

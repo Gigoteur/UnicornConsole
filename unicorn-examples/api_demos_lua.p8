@@ -1,14 +1,19 @@
-px8 / python cartridge
-version 1
+pico-8 cartridge // http://www.pico-8.com
+version 36
+__lua__
 __lua__
 
 function _init()
+    print("Init Lua")
 end
 
 function _update()
+    -- print("Update Lua")
 end
 
 function _draw()
+    -- print("Draw Lua")
+    rectfill(0, 0, 100, 100, 8)
 end
 
 __gfx__
