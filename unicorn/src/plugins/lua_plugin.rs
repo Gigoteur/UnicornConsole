@@ -19,9 +19,66 @@ pub mod plugin {
     use unicorn::noise::Noise;
 
     use gfx::Screen;
+    
+    pub struct ExtraData {
+        /* External objects to get access to Unicorn data ! */
+        pub players: Arc<Mutex<Players>>,
+        pub info: Arc<Mutex<Info>>,
+        pub screen: Arc<Mutex<Screen>>,
+        pub noise: Arc<Mutex<Noise>>,
+    }
 
-    /*
-        # GFX                   #    Lua        #    New name   #
+    impl UserData for ExtraData {
+        fn add_methods<'lua, T: UserDataMethods<'lua, Self>>(methods: &mut T) {
+/*
+        # Input                 #               #               #
+        btn                     #     X         #               #
+        btnp                    #               #               #
+        mouse_x                 #               #               #
+        mouse_y                 #               #               #
+        mouse_state             #               #               #
+        mouse_statep            #               #               #
+        # Map                   #               #               #
+        mapdraw                 #     X         #               #
+        mget                    #     X         #               #
+        mset                    #     X         #               #
+        # Noise                 #               #               #
+        noise                   #     X         #               #
+        noise_set_seed          #     X         #               #
+        # Palette               #               #               #
+        palette                 #               #               #
+        palette_hexa            #               #               #
+        palette_reset           #               #               #
+        palette_switch          #               #               #
+        # Math                  #               #               #
+        atan2                   #               #               #
+        cos                     #               #               #
+        sin                     #               #               #
+        flr                     #               #               #
+        rnd                     #     X         #               #
+        srand                   #               #               #
+        mid                     #               #               #
+        bxor                    #               #               #
+        # Memory                #               #               #
+        memcpy                  #               #               #
+        # System                #               #               #
+        time                    #     X         #               #
+        time_sec                #               #               #
+        show_mouse              #               #               #
+*/    
+            methods.add_method("btn", |_lua_ctx, game_state, (player, i):(u8, u8)| {
+               let value = game_state.players.lock().unwrap().get_value(player as u8, i as u8);
+
+               Ok(value)
+            });
+
+            methods.add_method("btnp", |_lua_ctx, game_state, (player, i):(u8, u8)| {
+                let value = game_state.players.lock().unwrap().get_value_quick(player as u8, i as u8);
+ 
+                Ok(value)
+             });
+/*
+        # GFX                   #    Lua        #    New name (if conflicted with keywords language)   #
         camera                  #     X         #               #
         circ                    #     X         #               #
         circfill                #     X         #               #
@@ -31,6 +88,7 @@ pub mod plugin {
         ellipse                 #     X         #               #
         ellipsefill             #     X         #               #
         fget                    #     X         #               #
+        fset                    #     X         #               #
         font                    #     X         #               #
         line                    #     X         #               #
         pal                     #     X         #               #
@@ -47,68 +105,7 @@ pub mod plugin {
         sspr                    #     X         #               #
         sspr_rotazoom           #               #               #
         trigon                  #     X         #               #
-        # Audio                 #               #               #
-        music                   #     X         #               #
-        sfx                     #     X         #               #
-        music_stop              #               #               #
-        music_volume            #               #               #
-        music_pause             #               #               #
-        music_resume            #               #               #
-        music_stop              #               #               #
-        music_position          #               #               #
-        # Input                 #               #               #
-        btn                     #     X         #               #
-        btnp                    #               #               #
-        mouse_x                 #               #               #
-        mouse_y                 #               #               #
-        mouse_state             #               #               #
-        mouse_statep            #               #               #
-        # Map                   #               #               #
-        mapdraw                 #     X         #               #
-        mget                    #     X         #               #
-        mset                    #     X         #               #
-        # Noise                 #               #               #
-        noise                   #     X         #               #
-        noise_set_seed          #     X         #               #
-        # Palette               #               #               #
-        palette                 #               #               #
-        palette_hexa            #               #               #
-        palette_reset           #               #               #
-        palette_switch          #               #               #
-        # Math                  #               #               #
-        atan2                   #               #               #
-        cos                     #               #               #
-        sin                     #               #               #
-        flr                     #               #               #
-        rnd                     #     X         #               #
-        srand                   #               #               #
-        mid                     #               #               #
-        bxor                    #               #               #
-        # Memory                #               #               #
-        memcpy                  #               #               #
-        # System                #               #               #
-        time                    #     X         #               #
-        time_sec                #               #               #
-        show_mouse              #               #               #
-    */
-    
-    pub struct ExtraData {
-        /* External objects to get access to Unicorn data ! */
-        pub players: Arc<Mutex<Players>>,
-        pub info: Arc<Mutex<Info>>,
-        pub screen: Arc<Mutex<Screen>>,
-        pub noise: Arc<Mutex<Noise>>,
-    }
-
-    impl UserData for ExtraData {
-        fn add_methods<'lua, T: UserDataMethods<'lua, Self>>(methods: &mut T) {
-            methods.add_method("btn", |_lua_ctx, game_state, (player, i):(u8, u8)| {
-               let value = game_state.players.lock().unwrap().get_value(player as u8, i as u8);
-
-               Ok(value)
-            });
-
-
+*/
             methods.add_method("camera", |_lua_ctx, game_state, (x, y):(i32, i32)| {
                 game_state.screen
                .lock()
@@ -118,11 +115,175 @@ pub mod plugin {
                Ok(())
             });
 
-            methods.add_method("color", |_lua_ctx, game_state, value:i32| {
+            methods.add_method("circ", |_lua_ctx, game_state, (x, y, r, col):(i32, i32, i32, i32)| {
                 game_state.screen
                .lock()
                .unwrap()
-               .color(value);
+               .circ(x, y, r, col);
+               
+               Ok(())
+            });
+
+            methods.add_method("circfill", |_lua_ctx, game_state, (x, y, r, col):(i32, i32, i32, i32)| {
+                game_state.screen
+               .lock()
+               .unwrap()
+               .circfill(x, y, r, col);
+               
+               Ok(())
+            });
+
+
+            methods.add_method("clip", |_lua_ctx, game_state, (x, y, w, h):(i32, i32, i32, i32)| {
+                game_state.screen
+               .lock()
+               .unwrap()
+               .clip(x, y, w, h);
+               
+               Ok(())
+            });
+
+            methods.add_method("cls", |_lua_ctx, game_state, col:i8| {
+                game_state.screen
+               .lock()
+               .unwrap()
+               .cls(col);
+               
+               Ok(())
+            });
+
+
+            methods.add_method("color", |_lua_ctx, game_state, col:i32| {
+                game_state.screen
+               .lock()
+               .unwrap()
+               .color(col);
+               
+               Ok(())
+            });
+
+            methods.add_method("ellipse", |_lua_ctx, game_state, (x, y, rx, ry, col):(i32, i32, i32, i32, i32)| {
+                game_state.screen
+               .lock()
+               .unwrap()
+               .ellipse(x, y, rx, ry, col);
+               
+               Ok(())
+            });
+
+            methods.add_method("ellipsefill", |_lua_ctx, game_state, (x, y, rx, ry, col):(i32, i32, i32, i32, i32)| {
+                game_state.screen
+               .lock()
+               .unwrap()
+               .ellipsefill(x, y, rx, ry, col);
+               
+               Ok(())
+            });
+    
+            methods.add_method("fget", |_lua_ctx, game_state, (idx, flag):(u32, u8)| {
+                let value = game_state.screen
+               .lock()
+               .unwrap()
+               .fget(idx, flag);
+               
+               Ok(value)
+            });
+
+            methods.add_method("fget_all", |_lua_ctx, game_state, (idx, flag):(u32, u8)| {
+                let value = game_state.screen
+               .lock()
+               .unwrap()
+               .fget_all(idx);
+               
+               Ok(value)
+            });
+
+            methods.add_method("fset", |_lua_ctx, game_state, (idx, flag, value):(u32, u8, bool)| {
+                game_state.screen
+               .lock()
+               .unwrap()
+               .fset(idx, flag, value);
+               
+               Ok(())
+            });
+
+            methods.add_method("fset_all", |_lua_ctx, game_state, (idx, flag):(u32, u8)| {
+                game_state.screen
+               .lock()
+               .unwrap()
+               .fset_all(idx, flag);
+               
+               Ok(())
+            });
+
+            methods.add_method("font", |_lua_ctx, game_state, name:String| {
+                game_state.screen
+               .lock()
+               .unwrap()
+               .font(&name);
+               
+               Ok(())
+            });
+
+            methods.add_method("line", |_lua_ctx, game_state, (x0, y0, x1, y1, col):(i32, i32, i32, i32, i32)| {
+                game_state.screen
+               .lock()
+               .unwrap()
+               .line(x0, y0, x1, y1, col);
+               
+               Ok(())
+            });
+
+            methods.add_method("pal", |_lua_ctx, game_state, (c0, c1, pal_idx):(i32, i32, i32)| {
+                game_state.screen
+               .lock()
+               .unwrap()
+               .pal(c0, c1);
+               
+               Ok(())
+            });
+
+            methods.add_method("palt", |_lua_ctx, game_state, (c, t):(i32, bool)| {
+                game_state.screen
+               .lock()
+               .unwrap()
+               .palt(c, t);
+               
+               Ok(())
+            });
+
+            methods.add_method("pset", |_lua_ctx, game_state, (x, y, col):(i32, i32, i32)| {
+                game_state.screen
+               .lock()
+               .unwrap()
+               .pset(x, y, col);
+               
+               Ok(())
+            });
+
+            methods.add_method("pget", |_lua_ctx, game_state, (x, y):(u32, u32)| {
+                let value = game_state.screen
+               .lock()
+               .unwrap()
+               .pget(x, y);
+               
+               Ok(value)
+            });
+
+            methods.add_method("print", |_lua_ctx, game_state, (str_data, x, y, col):(String, i32, i32, i32)| {
+                game_state.screen
+               .lock()
+               .unwrap()
+               .print(str_data, x, y, col);
+               
+               Ok(())
+            });
+    
+            methods.add_method("rect", |_lua_ctx, game_state, (x0, y0, x1, y1, col):(i32, i32, i32, i32, i32)| {
+                game_state.screen
+               .lock()
+               .unwrap()
+               .rect(x0, y0, x1, y1, col);
                
                Ok(())
             });
@@ -193,17 +354,172 @@ pub mod plugin {
                             end
                             return userdata:btn(p, i) == 1
                         end
+                        
+                        function btnp(p, i)
+                            if p == nil then
+                                p = 0
+                            end
+                            return userdata:btnp(p, i) == 1
+                        end
 
                         function camera(x, y)
                             userdata:camera(x, y)
+                        end
+                        
+                        function circ(x, y, r, col)
+                            if col == nil then
+                                col = -1
+                            end
+                            userdata:circ(x, y, r, col)
+                        end
+                        
+                        function circfill(x, y, r, col)
+                            if col == nil then
+                                col = -1
+                            end
+                            userdata:circfill(x, y, r, col)
+                        end
+
+                        function clip(x, y, w, h)
+                            if x == nil then
+                                x = -1
+                            end
+                            if y == nil then
+                                y = -1
+                            end
+                            if w == nil then
+                                w = -1
+                            end
+                            if h == nil then
+                                h = -1
+                            end
+
+                            userdata:clip(x, y, w, h)
+                        end
+
+                        function cls(col)
+                            if col == nil then
+                                col = -1
+                            end
+                            userdata:cls(col)
                         end
 
                         function color(value)
                             userdata:color(value)
                         end
 
+                        function ellipse(x, y, rx, ry, col)
+                            if col == nil then
+                                col = -1
+                            end
+                            userdata:ellipse(x, y, rx, ry, col)
+                        end
+
+                        function ellipsefill(x, y, rx, ry, col)
+                            if col == nil then
+                                col = -1
+                            end
+                            userdata:ellipsefill(x, y, rx, ry, col)
+                        end
+
+                        function fget(idx, flag)                       
+                            if flag == nil then
+                                return userdata:fget_all(idx)
+                            end
+                            return userdata:fget(idx, flag)
+                        end
+
+
+                        function fset(idx, flag, value)                       
+                            if value == nil then
+                                return userdata:fset_all(idx, flag)
+                            end
+
+                            return userdata:fset(idx, flag, value)
+                        end
+
+                        function font(name)
+                            if name == nil then
+                                name = "pico8"
+                            end
+                            userdata:font(name)
+                        end
+
+                        function line(x0, y0, x1, y1, col)
+                            if col == nil then
+                                col = -1
+                            end
+                            userdata:line(x0, y0, x1, y1, col)
+                        end
+
+                        function pal(c0, c1, p)
+                            if c0 == nil then
+                                c0 = -1
+                            end
+                            if c1 == nil then
+                                c1 = -1
+                            end
+                            if p == nil then
+                                p = -1
+                            end
+                            userdata:pal(c0, c1, p)
+                        end
+
+                        function palt(c, t)
+                            if c == nil then
+                                c = -1
+                            end
+                            if t == nil then
+                                t = -1
+                            end
+                            userdata:palt(c, t)
+                        end
+
+                        function pget(x, y)
+                            return userdata:pget(x, y)
+                        end
+
+
+                        function pset(x, y, col)
+                            if col == nil then
+                                col = -1
+                            end
+                            userdata:pset(x, y, col)
+                        end
+
+                        
+                        function print(str, x, y, col)
+                            if x == nil then
+                                x = -1
+                            end
+                            if y == nil then
+                                y = -1
+                            end
+                            if col == nil then
+                                col = -1
+                            end
+                            userdata:print(str, x, y, col)
+                        end
+
+                        function rect(x0, y0, x1, y1, col)
+                            if col == nil then
+                                col = -1
+                            end
+                            userdata:rect(x0, y0, x1, y1, col)
+                        end
+
                         function rectfill(x0, y0, x1, y1, col)
+                            if col == nil then
+                                col = -1
+                            end
                             userdata:rectfill(x0, y0, x1, y1, col)
+                        end
+
+
+                        function music(n, fadems, channelmask)
+                        end
+
+                        function sfx(n, channel, offset, length)
                         end
                     "#,
                 )
@@ -276,6 +592,8 @@ pub mod plugin {
             self.lua.context(|lua| {
                 lua.load(
                     r#"
+                debug_print = print
+
                 function min(a,b)
                     if a == nil or b == nil then
                             warning("min a or b are nil returning 0")
