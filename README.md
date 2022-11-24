@@ -6,10 +6,9 @@
 
 [![Build Status](https://travis-ci.org/sunjay/UnicornConsole.svg?branch=master)](https://travis-ci.org/Gigoteur/UnicornConsole)
 [![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/Gigoteur/UnicornConsole/blob/master/LICENSE.md)
-[![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/UnicornConsole/Lobby)
 
 
-Unicorn Console (previously known as PX8 in the past, but I think UnicornConsole is a better name) is a quick and dirty engine that let you do what you want with a resolution of 128x128 pixels. After few iterations, I try to keep some compatibility with ![pico-8](https://www.lexaloffle.com/pico-8.php) as it is the first and still the best fantasy console (unfortunately not opensource, but go grab a license it is really valuable).
+Unicorn Console (previously known as PX8 in the past, but I think UnicornConsole is a better name) is a quick and dirty engine that let you do what you want with a resolution of 128x128 pixels. After few iterations, I try to keep some compatibility with [pico-8](https://www.lexaloffle.com/pico-8.php) as it is the first and still the best fantasy console (unfortunately not opensource, but go grab a license it is really valuable).
 
 The main engine is not dependant of a specific GFX library so you can use it where you want:
   * [unicorn](https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn): Main engine source code
