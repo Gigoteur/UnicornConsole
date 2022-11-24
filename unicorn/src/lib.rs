@@ -55,6 +55,7 @@ pub mod unicorn;
 pub mod cartridge;
 pub mod plugins;
 pub mod editor;
+pub mod audio;
 
 include!(concat!(env!("OUT_DIR"), "/parameters.rs"));
 

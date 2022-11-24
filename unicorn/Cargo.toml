@@ -55,6 +55,7 @@ unicode-width = "0.1.9"
 ordered-float = "3.0.0"
 png = "0.17.5"
 anyhow = "1.0"
+rust-synth = { git = "https://github.com/vitobasso/rust-synth.git" }
 
 [target.'cfg(target_os="android")'.dependencies]
 jni = { version = "0.4", default-features = false }

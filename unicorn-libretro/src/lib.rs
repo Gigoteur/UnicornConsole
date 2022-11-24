@@ -5,11 +5,8 @@ extern crate log;
 extern crate fern;
 extern crate time;
 
-#[macro_use]
-extern crate libretro_backend;
+use libretro_rs::*;
 
-use libretro_backend::{CoreInfo, AudioVideoInfo, PixelFormat, GameData, LoadGameResult, Region,
-                       RuntimeHandle, JoypadButton};
 
 use std::slice;
 use std::mem;
