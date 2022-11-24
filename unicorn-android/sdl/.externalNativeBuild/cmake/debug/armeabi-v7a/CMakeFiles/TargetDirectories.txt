@@ -1,3 +1,0 @@
-/Volumes/Personnel/Gigoteur/UnicornConsole/android/sdl/.externalNativeBuild/cmake/debug/armeabi-v7a/CMakeFiles/edit_cache.dir
-/Volumes/Personnel/Gigoteur/UnicornConsole/android/sdl/.externalNativeBuild/cmake/debug/armeabi-v7a/CMakeFiles/rebuild_cache.dir
-/Volumes/Personnel/Gigoteur/UnicornConsole/android/sdl/.externalNativeBuild/cmake/debug/armeabi-v7a/CMakeFiles/SDL2.dir

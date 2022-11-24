@@ -1,3 +1,0 @@
-/Volumes/Personnel/Gigoteur/UnicornConsole/android/sdl/.externalNativeBuild/cmake/debug/x86_64/CMakeFiles/edit_cache.dir
-/Volumes/Personnel/Gigoteur/UnicornConsole/android/sdl/.externalNativeBuild/cmake/debug/x86_64/CMakeFiles/rebuild_cache.dir
-/Volumes/Personnel/Gigoteur/UnicornConsole/android/sdl/.externalNativeBuild/cmake/debug/x86_64/CMakeFiles/SDL2.dir
