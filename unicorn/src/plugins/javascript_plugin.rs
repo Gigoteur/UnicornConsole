@@ -9,8 +9,8 @@ pub mod plugin {
 
     use config::Players;
 
-    use unicorn::info::Info;
-    use unicorn::noise::Noise;
+    use core::info::Info;
+    use core::noise::Noise;
 
     use gfx::Screen;
 
@@ -756,8 +756,8 @@ pub mod plugin {
 
     use config::Players;
 
-    use unicorn::noise::Noise;
-    use unicorn::info::Info;
+    use core::noise::Noise;
+    use core::info::Info;
 
     use gfx::Screen;
 

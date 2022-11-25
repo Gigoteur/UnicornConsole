@@ -7,10 +7,10 @@ pub mod plugin {
     use anyhow::{Result, anyhow};
 
     use config::Players;
-    use unicorn::info::Info;
-    use unicorn::Palettes;
-    use unicorn::noise::Noise;
-    use unicorn::UnicornConfig;
+    use core::info::Info;
+    use core::Palettes;
+    use core::noise::Noise;
+    use core::UnicornConfig;
     use gfx::Screen;
 
     /*
@@ -622,12 +622,12 @@ pub mod plugin {
 
     use config::Players;
 
-    use unicorn::info::Info;
+    use core::info::Info;
 
     use gfx::Screen;
-    use unicorn::Palettes;
-    use unicorn::noise::Noise;
-    use unicorn::UnicornConfig;
+    use core::Palettes;
+    use core::noise::Noise;
+    use core::UnicornConfig;
 
     pub struct PythonPlugin {}
 

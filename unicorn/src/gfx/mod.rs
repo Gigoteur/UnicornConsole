@@ -2,7 +2,7 @@ mod fonts;
 
 use std::fmt;
 
-use unicorn;
+use crate::core;
 use std::cmp;
 use std::ptr;
 use num_traits::pow;
@@ -1161,13 +1161,13 @@ impl Screen {
         let mut idx_y: i32 = 0;
 
         let mut cel_w = cel_w;
-        if cel_w > unicorn::MAP_WIDTH as u32 {
-            cel_w = unicorn::MAP_WIDTH as u32;
+        if cel_w > core::MAP_WIDTH as u32 {
+            cel_w = core::MAP_WIDTH as u32;
         }
 
         let mut cel_h = cel_h;
-        if cel_h > unicorn::MAP_HEIGHT as u32 {
-            cel_h = unicorn::MAP_HEIGHT as u32;
+        if cel_h > core::MAP_HEIGHT as u32 {
+            cel_h = core::MAP_HEIGHT as u32;
         }
 
         /*debug!("MAP cel_x {:?} cel_y {:?} sx {:?} sy {:?} cel_w {:?} cel_h {:?} layer {:?}",
@@ -1192,8 +1192,8 @@ impl Screen {
 
                 //debug!("MAP X {:?} MAP Y {:?}", map_x, map_y);
 
-                let idx_sprite: u32 = *self.map.get(((map_x as usize) % unicorn::MAP_WIDTH) * unicorn::MAP_WIDTH + (map_y as usize) % unicorn::MAP_HEIGHT).unwrap_or(&0);
-                //self.map[(map_x as usize) % unicorn::MAP_WIDTH][(map_y as usize) % unicorn::MAP_HEIGHT];
+                let idx_sprite: u32 = *self.map.get(((map_x as usize) % core::MAP_WIDTH) * core::MAP_WIDTH + (map_y as usize) % core::MAP_HEIGHT).unwrap_or(&0);
+                //self.map[(map_x as usize) % core::MAP_WIDTH][(map_y as usize) % core::MAP_HEIGHT];
 
                 // Skip the sprite 0
                 if idx_sprite != 0 {
@@ -1235,7 +1235,7 @@ impl Screen {
             return 0;
         }
 
-        if x as usize > unicorn::MAP_WIDTH || y as usize >= unicorn::MAP_HEIGHT {
+        if x as usize > core::MAP_WIDTH || y as usize >= core::MAP_HEIGHT {
             return 0;
         }
 
@@ -1250,7 +1250,7 @@ impl Screen {
             return;
         }
 
-        if x as usize > unicorn::MAP_WIDTH || y as usize >= unicorn::MAP_HEIGHT {
+        if x as usize > core::MAP_WIDTH || y as usize >= core::MAP_HEIGHT {
             return;
         }
 
