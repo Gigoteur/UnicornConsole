@@ -16,7 +16,6 @@ pub mod plugin {
     use config::Players;
 
     use core::info::Info;
-    use core::noise::Noise;
 
     use gfx::Screen;
     
@@ -25,7 +24,6 @@ pub mod plugin {
         pub players: Arc<Mutex<Players>>,
         pub info: Arc<Mutex<Info>>,
         pub screen: Arc<Mutex<Screen>>,
-        pub noise: Arc<Mutex<Noise>>,
     }
 
     impl UserData for ExtraData {
@@ -42,9 +40,6 @@ pub mod plugin {
         mapdraw                 #     X         #               #
         mget                    #     X         #               #
         mset                    #     X         #               #
-        # Noise                 #               #               #
-        noise                   #     X         #               #
-        noise_set_seed          #     X         #               #
         # Palette               #               #               #
         palette                 #               #               #
         palette_hexa            #               #               #
@@ -307,7 +302,6 @@ pub mod plugin {
         players: Vec<Arc<Mutex<Players>>>,
         info: Vec<Arc<Mutex<Info>>>,
         screen: Arc<Mutex<Screen>>,
-        noise: Vec<Arc<Mutex<Noise>>>
     }
 
     impl LuaPlugin {
@@ -317,16 +311,14 @@ pub mod plugin {
                 loaded_code: false,
                 players: Vec::new(),
                 info: Vec::new(),
-                screen: Arc::new(Mutex::new(Screen::new(0, 0))),
-                noise: Vec::new()
+                screen: Arc::new(Mutex::new(Screen::new(0, 0)))
             }
         }
 
         pub fn load(&mut self,
                     players: Arc<Mutex<Players>>,
                     info: Arc<Mutex<Info>>,
-                    screen: Arc<Mutex<Screen>>,
-                    noise: Arc<Mutex<Noise>>) {
+                    screen: Arc<Mutex<Screen>>) {
             info!("[PLUGIN][LUA] Init plugin");
 
             self.players.push(players.clone());
@@ -341,8 +333,7 @@ pub mod plugin {
                 let userdata = lua.create_userdata(ExtraData{
                     players:players.clone(), 
                     info:info.clone(),
-                    screen:screen.clone(),
-                    noise:noise.clone()}).unwrap();
+                    screen:screen.clone()}).unwrap();
                 
                 globals.set("userdata", userdata.clone()).unwrap();
 
@@ -761,7 +752,6 @@ pub mod plugin {
 
     use config::Players;
 
-    use core::noise::Noise;
     use core::info::Info;
 
     use gfx::Screen;
@@ -778,8 +768,7 @@ pub mod plugin {
         pub fn load(&mut self,
                     _players: Arc<Mutex<Players>>,
                     _info: Arc<Mutex<Info>>,
-                    _screen: Arc<Mutex<Screen>>,
-                    _noise: Arc<Mutex<Noise>>) {
+                    _screen: Arc<Mutex<Screen>>) {
             error!("LUA plugin disabled");
         }
         pub fn load_code(&mut self, _data: String) -> bool {

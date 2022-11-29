@@ -2,7 +2,7 @@
 name = "unicorn"
 version = "0.1.0"
 authors = ["hallucino <d@t0t0.fr>"]
-description = "Unicorn console"
+description = "Unicorn Console"
 documentation = ""
 homepage = ""
 repository = ""
@@ -39,7 +39,6 @@ byteorder = "1"
 rand = "0.4"
 libc = "0.2"
 log = "0.4"
-fern = { version = "0.6", features = ["colored"] }
 rusttype = "0.9.2"
 gif = "0.11.3"
 lazy_static = "1.4.0"
@@ -65,14 +64,6 @@ version="0.19.2"
 optional = true
 version="0.0.1"
 path="src/plugins/duktape"
-
-[dependencies.syntect]
-optional = true
-version = "5.0.0"
-
-[dependencies.noise]
-optional = true
-version = "0.4.1"
 
 [dependencies.image]
 optional = true

@@ -7,9 +7,6 @@ extern crate cpython;
 #[cfg(feature = "duktape")]
 extern crate duktape;
 
-#[cfg(feature = "noise")]
-extern crate noise;
-
 #[cfg(feature = "image")]
 extern crate image;
 
@@ -31,12 +28,7 @@ extern crate rusttype;
 extern crate gapbuffer;
 extern crate unicode_width;
 
-#[macro_use]
 extern crate log;
-extern crate fern;
-
-#[macro_use]
-extern crate lazy_static;
 
 extern crate serde;
 

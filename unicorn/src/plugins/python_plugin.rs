@@ -9,7 +9,6 @@ pub mod plugin {
     use config::Players;
     use core::info::Info;
     use core::Palettes;
-    use core::noise::Noise;
     use core::UnicornConfig;
     use gfx::Screen;
 
@@ -60,9 +59,6 @@ pub mod plugin {
         mapdraw                 #       X       #                   #
         mget                    #       X       #                   #
         mset                    #       X       #                   #
-        # Noise                 #               #                   #
-        noise                   #       X       #                   #
-        noise_set_seed          #       X       #                   #
         # Palette               #               #                   #
         palette                 #       X       #                   #
         palette_hexa            #       X       #                   #
@@ -408,20 +404,7 @@ pub mod plugin {
         Ok(0)
     }
 
-    });
-
-    // Noise
-    py_class!(class UnicornNoise |py| {
-    data _noise: Arc < Mutex < Noise > >;
-        def noise(&self, x: f64, y: f64, z: f64) -> PyResult<f64> {
-            Ok(self._noise(py).lock().unwrap().get(x, y, z))
-        }
-
-        def noise_set_seed(&self, seed: u32) -> PyResult<u32> {
-            self._noise(py).lock().unwrap().set_seed(seed);
-            Ok(0)
-        }
-    });
+    })
 
 
     // Others
@@ -467,7 +450,6 @@ pub mod plugin {
                     players: Arc<Mutex<Players>>,
                     info: Arc<Mutex<Info>>,
                     screen: Arc<Mutex<Screen>>,
-                    noise: Arc<Mutex<Noise>>,
                     config: Arc<Mutex<UnicornConfig>>) {
             info!("[PLUGIN][PYTHON] Init plugin");
 
@@ -498,11 +480,6 @@ pub mod plugin {
             let unicorn_mem_obj = UnicornMemory::create_instance(py, screen.clone()).unwrap();
             self.mydict.set_item(py, "unicorn_mem", unicorn_mem_obj).unwrap();
 
-            let unicorn_noise_obj = UnicornNoise::create_instance(py, noise.clone()).unwrap();
-            self.mydict
-                .set_item(py, "unicorn_noise", unicorn_noise_obj)
-                .unwrap();
-
             py.run(r###"globals()["unicorn_graphic"] = unicorn_graphic;"###,
                      None,
                      Some(&self.mydict))
@@ -524,10 +501,6 @@ pub mod plugin {
                      Some(&self.mydict))
                 .unwrap();
             py.run(r###"globals()["unicorn_mem"] = unicorn_mem;"###,
-                     None,
-                     Some(&self.mydict))
-                .unwrap();
-            py.run(r###"globals()["unicorn_noise"] = unicorn_noise;"###,
                      None,
                      Some(&self.mydict))
                 .unwrap();
@@ -626,7 +599,6 @@ pub mod plugin {
 
     use gfx::Screen;
     use core::Palettes;
-    use core::noise::Noise;
     use core::UnicornConfig;
 
     pub struct PythonPlugin {}
@@ -642,7 +614,6 @@ pub mod plugin {
                     _players: Arc<Mutex<Players>>,
                     _info: Arc<Mutex<Info>>,
                     _screen: Arc<Mutex<Screen>>,
-                    _noise: Arc<Mutex<Noise>>,
                     _config: Arc<Mutex<UnicornConfig>>) {
             error!("[PLUGIN][PYTHON] plugin disabled");
         }

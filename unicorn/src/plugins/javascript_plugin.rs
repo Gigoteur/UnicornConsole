@@ -10,7 +10,6 @@ pub mod plugin {
     use config::Players;
 
     use core::info::Info;
-    use core::noise::Noise;
 
     use gfx::Screen;
 
@@ -61,9 +60,6 @@ pub mod plugin {
         mapdraw                 #               #               #
         mget                    #               #               #
         mset                    #               #               #
-        # Noise                 #               #               #
-        noise                   #               #               #
-        noise_set_seed          #               #               #
         # Palette               #               #               #
         palette                 #               #               #
         palette_hexa            #               #               #
@@ -677,8 +673,7 @@ pub mod plugin {
         pub fn load(&mut self,
                     players: Arc<Mutex<Players>>,
                     info: Arc<Mutex<Info>>,
-                    screen: Arc<Mutex<Screen>>,
-                    noise: Arc<Mutex<Noise>>) {
+                    screen: Arc<Mutex<Screen>>) {
             info!("[PLUGIN][JAVASCRIPT] Init plugin");
             self.javascript.lock().unwrap().set_info(info.clone());
             self.javascript.lock().unwrap().set_screen(screen.clone());
@@ -756,7 +751,6 @@ pub mod plugin {
 
     use config::Players;
 
-    use core::noise::Noise;
     use core::info::Info;
 
     use gfx::Screen;
@@ -773,8 +767,7 @@ pub mod plugin {
         pub fn load(&mut self,
                     _players: Arc<Mutex<Players>>,
                     _info: Arc<Mutex<Info>>,
-                    _screen: Arc<Mutex<Screen>>,
-                    _noise: Arc<Mutex<Noise>>) {
+                    _screen: Arc<Mutex<Screen>>) {
             error!("Javascript plugin disabled");
         }
         pub fn load_code(&mut self, _data: String) -> bool {

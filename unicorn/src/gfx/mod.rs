@@ -1,287 +1,25 @@
 mod fonts;
 
-use std::fmt;
-
 use crate::core;
+use crate::core::Palette;
 use std::cmp;
 use std::ptr;
 use num_traits::pow;
 use std::f64;
 use std::f64::consts::PI;
 
-// Fixed pitch font definition
-#[allow(dead_code)]
-pub struct Font {
-    // Width of glyph in pixels
-    glyph_width: i32,
-    // Height of glyph in pixels
-    glyph_height: i32,
-    // Number of x pixels before glyph
-    left_bearing: i32,
-    // Number of y pixels before glyph
-    top_bearing: i32,
-    // Horizontal distance to next character
-    advance_width: i32,
-    // Vertical distance between lines
-    line_height: i32,
-    // Glyph bitmap data - one byte per row, first bit in MSB
-    glyph_data: &'static [u8],
-    name: &'static str,
-}
-
-#[derive(Clone)]
-pub struct DynamicSprite {
-    pub data: Vec<u8>,
-    pub width: u32,
-    pub height: u32,
-    pub flags: u8,
-}
-
-impl DynamicSprite {
-    pub fn new(d: Vec<u8>, width: u32, height: u32) -> DynamicSprite {
-        DynamicSprite { data: d, width: width, height: height, flags: 0 }
-    }
-
-}
-
-#[derive(Copy)]
-pub struct Sprite {
-    pub data: [u8; 64],
-    pub flags: u8,
-}
-
-impl Clone for Sprite {
-    fn clone(&self) -> Sprite {
-        *self
-    }
-}
-
-impl Sprite {
-    pub fn new(d: [u8; 64]) -> Sprite {
-        Sprite { data: d, flags: 0 }
-    }
-
-    pub fn is_flags_set(&self, value: u8) -> bool {
-        (self.flags & pow(2, value as usize)) != 0
-    }
-
-    pub fn is_bit_flags_set(&self, value: u8) -> bool {
-        (self.flags & value) != 0
-    }
-
-    pub fn get_flags(&self) -> u8 {
-        self.flags
-    }
-
-    pub fn set_flag(&mut self, flag: u8, value: bool) {
-        if value {
-            self.flags |= pow(2, flag as usize);
-        } else {
-            self.flags &= !(1 << flag);
-        }
-    }
-
-    pub fn set_flags(&mut self, flags: u8) {
-        self.flags = flags;
-    }
-
-    pub fn set_data(&mut self, idx: usize, col: u8) {
-        self.data[idx] = col;
-    }
-
-    pub fn get_data(&mut self) -> String {
-        let mut data = String::new();
-
-        for (_, elem) in self.data.iter_mut().enumerate() {
-            data.push_str(&format!("{:?}", elem));
-        }
-
-        data
-    }
-
-    pub fn get_line(&mut self, line: u32) -> String {
-        let mut v = Vec::new();
-        v.extend(self.data.iter().cloned());
-
-        let mut data = String::new();
-
-        let mut data_clone = v.clone();
-
-        let data_line: Vec<_> = data_clone
-            .drain((line * 8) as usize..(line * 8 + 8) as usize)
-            .collect();
-
-        for c in data_line.clone() {
-            data.push_str(&format!("{:03x}", c));
-        }
-
-        data
-    }
-
-    pub fn horizontal_reflection(&self) -> [u8; 64] {
-        let mut ret: [u8; 64] = self.to_u8_64_array();
-
-        for i in 0..4 {
-            for j in 0..8 {
-                ret.swap((i + j * 8) as usize, ((8 - (i + 1)) + j * 8) as usize);
-            }
-        }
-
-        ret
-    }
-
-    pub fn vertical_reflection(&self) -> [u8; 64] {
-        let mut ret: [u8; 64] = self.to_u8_64_array();
-
-        for i in 0..4 {
-            for j in 0..8 {
-                ret.swap((j + i * 8) as usize, (j + (8 - (i + 1)) * 8) as usize);
-            }
-        }
-
-        ret
-    }
-
-    pub fn flip_x(&self) -> Sprite {
-        Sprite::new(self.horizontal_reflection())
-    }
-
-    pub fn flip_y(&self) -> Sprite {
-        Sprite::new(self.vertical_reflection())
-    }
-
-    pub fn to_u8_64_array(&self) -> [u8; 64] {
-        let mut arr = [0u8; 64];
-        for (place, element) in arr.iter_mut().zip(self.data.iter()) {
-            *place = *element;
-        }
-        arr
-    }
-}
-
-impl fmt::Debug for Sprite {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut data_matrix = String::new();
-        data_matrix.push('\n');
-
-        for i in 0..8 {
-            data_matrix.push_str(format!("{:?}", &self.data[i * 8..i * 8 + 8]).as_str());
-            data_matrix.push('\n');
-        }
-
-        write!(f, "{}", data_matrix)
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::Sprite;
-
-    #[test]
-    fn test_sprite_flags() {
-        let mut s = Sprite::new([0; 64]);
-        s.set_flag(0, true);
-        assert_eq!(s.is_flags_set(0), true);
-
-        s.set_flag(7, true);
-        assert_eq!(s.is_flags_set(7), true);
-
-        s.set_flag(7, false);
-        assert_eq!(s.is_flags_set(7), false);
-    }
-
-    #[test]
-    fn test_sprite_flags2() {
-        let mut s = Sprite::new([0; 64]);
-        s.set_flags(131);
-        assert_eq!(s.is_flags_set(0), true);
-        assert_eq!(s.is_flags_set(1), true);
-        assert_eq!(s.is_flags_set(2), false);
-        assert_eq!(s.is_flags_set(3), false);
-        assert_eq!(s.is_flags_set(4), false);
-        assert_eq!(s.is_flags_set(5), false);
-        assert_eq!(s.is_flags_set(6), false);
-        assert_eq!(s.is_flags_set(7), true);
-    }
-}
-
-// Screen scaling
-
-#[derive(Copy, Clone)]
-pub enum Scale {
-    Scale1x,
-    Scale2x,
-    Scale3x,
-    Scale4x,
-    Scale5x,
-    Scale6x,
-    Scale8x,
-    Scale10x,
-}
-
-impl Scale {
-    pub fn factor(self) -> usize {
-        match self {
-            Scale::Scale1x => 1,
-            Scale::Scale2x => 2,
-            Scale::Scale3x => 3,
-            Scale::Scale4x => 4,
-            Scale::Scale5x => 5,
-            Scale::Scale6x => 6,
-            Scale::Scale8x => 8,
-            Scale::Scale10x => 10,
-        }
-    }
-}
-
-pub struct Camera {
-    pub x: i32,
-    pub y: i32,
-}
-
-impl Camera {
-    pub fn new() -> Camera {
-        Camera { x: 0, y: 0 }
-    }
-}
-
-// ClipRect rectangle is exclusive of right and bottom edges
-pub struct ClipRect {
-    left: i32,
-    top: i32,
-    right: i32,
-    bottom: i32,
-}
-
-impl ClipRect {
-    pub fn new() -> ClipRect {
-        ClipRect {
-            left: 0,
-            top: 0,
-            right: 0,
-            bottom: 0,
-        }
-    }
-
-    pub fn intersect(&mut self, other: &ClipRect) {
-        self.left = cmp::max(self.left, other.left);
-        self.top = cmp::max(self.top, other.top);
-        self.right = cmp::min(self.right, other.right);
-        self.bottom = cmp::min(self.bottom, other.bottom);
-    }
-
-    pub fn contains(&self, x: i32, y: i32) -> bool {
-        (x >= self.left) && (x < self.right) && (y >= self.top) && (y < self.bottom)
-    }
-}
 
 pub struct Screen {
     pub width: usize,
     pub height: usize,
-    pub aspect_ratio: f32,
 
-    pub frame_buffer: Vec<u8>,
-    pub saved_frame_buffer: Vec<u8>,
+    pub pixel_buffer: Box<[u8]>,
+
+    pub palettes: Palettes,
+    pub palette: Palette,
+
+//    pub saved_frame_buffer: Vec<u8>,
+  
     pub sprites: Vec<Sprite>,
     pub dyn_sprites: Vec<DynamicSprite>,
 
@@ -298,25 +36,32 @@ pub struct Screen {
     pub font: &'static Font,
 }
 
-unsafe impl Send for Screen {}
-unsafe impl Sync for Screen {}
-
 impl Screen {
     pub fn new(width: usize, height: usize) -> Screen {
         info!("[GFX] [Screen] Creating Screen. width:{:?} height:{:?}", width, height);
+        let pixel_buffer = (0..width * height * 4)
+            .map(|_| 0)
+            .collect::<Vec<u8>>()
+            .into_boxed_slice();
+
+
         Screen {
             width: width,
             height: height,
-            frame_buffer: vec![0; width * height],
-            saved_frame_buffer: vec![0; width * height],
-            aspect_ratio: width as f32 / height as f32,
+            pixel_buffer: pixel_buffer,
+            palettes: Palettes::new(),
+            palette: Palette::new(),
+
             sprites: Vec::new(),
             dyn_sprites: Vec::new(),
+            
             map: Vec::new(),
             transparency_map: [false; 256],
             color_map: [0; 0xFFF],
+            
             color: 0,
             camera: Camera::new(),
+            
             cliprect: ClipRect::new(),
             font: &fonts::pico8::FONT,
         }
@@ -326,6 +71,8 @@ impl Screen {
         self._reset_colors();
         self._reset_transparency();
         self._reset_cliprect();
+        self._reset_palette();
+        
         self.color = 0;
     }
 
@@ -360,12 +107,12 @@ impl Screen {
 
     pub fn save(&mut self) {
         info!("[GFX] [Screen] SAVE SCREEN");
-        self.saved_frame_buffer.copy_from_slice(&self.frame_buffer);
+       // self.saved_frame_buffer.copy_from_slice(&self.frame_buffer);
     }
 
     pub fn restore(&mut self) {
         info!("[GFX] [Screen] Restore SCREEN");
-        self.frame_buffer.copy_from_slice(&self.saved_frame_buffer);
+      //  self.frame_buffer.copy_from_slice(&self.saved_frame_buffer);
     }
 
     #[inline]
@@ -413,7 +160,7 @@ impl Screen {
         }
 
         let offset = self.pixel_offset(x, y);
-        self.frame_buffer[offset] = col as u8;
+        self.pixel_buffer[offset] = col as u8;
     }
 
     #[inline]
@@ -1521,12 +1268,13 @@ impl Screen {
     }
 
     pub fn peek(&mut self, addr: u32) -> u8 {
-        self.frame_buffer[addr as usize] as u8
+       0
+        // self.frame_buffer[addr as usize] as u8
     }
 
     pub fn poke(&mut self, _addr: u32, _val: u16) {}
 
-    pub fn memcpy(&mut self, dest_addr: u32, source_addr: u32, len: u32) {
+    pub fn memcpy(&mut self, dest_addr: u32, source_addr: u32, len: u32) {/*
         let mut idx = 0;
 
         let dest_addr = dest_addr * 2;
@@ -1545,7 +1293,7 @@ impl Screen {
             self.frame_buffer[(dest_addr + idx) as usize] = value as u8;
 
             idx += 1;
-        }
+        }*/
     }
 
     pub fn memset(&mut self, _dest_addr: u32, _val: u32, _len: u32) {
