@@ -261,11 +261,12 @@ pub struct RGB {
     pub r: u8,
     pub g: u8,
     pub b: u8,
+    pub a: u8,
 }
 
 impl RGB {
     pub fn new(r: u8, g: u8, b: u8) -> RGB {
-        RGB { r: r, g: g, b: b }
+        RGB { r: r, g: g, b: b, a: 0xFF }
     }
 
     pub fn new_hexa(v: u32) -> RGB {
@@ -273,10 +274,22 @@ impl RGB {
             r: ((v & 0xff0000) >> 16) as u8,
             g: ((v & 0x00ff00) >> 8) as u8,
             b: (v & 0x0000ff) as u8,
+            a: 0xFF,
         }
     }
 
     pub fn into_pixel_data(&self) -> [u8; 4] {
         [self.r, self.g, self.b, 0xff]
+    }
+}
+
+impl From<[u8; 4]> for RGB {
+    fn from(color: [u8; 4]) -> Self {
+        Self {
+            r: color[0],
+            g: color[1],
+            b: color[2],
+            a: color[3],
+        }
     }
 }
