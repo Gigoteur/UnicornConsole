@@ -1,6 +1,6 @@
-use log::{debug, error, log_enabled, info, Level};
+use log::{debug, info};
 
-use gfx::Sprite;
+use gfx::sprite::Sprite;
 
 #[derive(Debug)]
 pub struct CartridgeGFX {

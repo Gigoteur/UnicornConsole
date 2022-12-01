@@ -6,11 +6,9 @@ pub mod utils;
 pub mod resolution;
 
 use std::collections::HashMap;
-use std::io::Cursor;
 use std::sync::{Arc, Mutex};
 use std::fmt;
 use std::cmp::{max, PartialOrd};
-use std::io::prelude::*;
 use std::time::Duration;
 use log::{debug, error, log_enabled, info, Level};
 
@@ -189,7 +187,7 @@ impl UnicornCartridge {
         self.cartridge.code.set_data(data);
     }
 
-    pub fn get_palettes(&mut self) -> HashMap<u32, RGB> {
+    pub fn get_palettes(&mut self) -> HashMap<u32, gfx::palette::RGB> {
         self.cartridge.palette.colors.clone()
     }
 }
@@ -256,13 +254,7 @@ impl Unicorn {
         info!("[Unicorn] Reset");
 
         self.configuration.lock().unwrap().toggle_mouse(false);
-
-        self.palettes.lock().unwrap().reset();
-        self.screen.set_palette(self.palettes.lock().unwrap().get("pico-8"));
-        self.palettes.lock().unwrap().switch_to_palette("pico-8");
-
-        self.screen.lock().unwrap().init();
-
+        self.screen.lock().unwrap().reset();
         self.update_return = true;
     }
 
@@ -277,7 +269,7 @@ impl Unicorn {
             
             screen.rectfill(0, 0, width, 8, 0);
 
-            screen.force_print(format!("{:.0}FPS {:.2?} {:.2?} {:?} {:?}",
+          /*  screen.force_print(format!("{:.0}FPS {:.2?} {:.2?} {:?} {:?}",
                                        self.fps,
                                        mouse_x,
                                        mouse_y,
@@ -286,7 +278,7 @@ impl Unicorn {
                                        .to_string(),
                                0,
                                0,
-                               7);
+                               7);*/
         }
     }
 
@@ -586,7 +578,7 @@ impl Unicorn {
             .unwrap()
             .set_map(cartridge.cartridge.map.map.clone());
 
-        self.palettes.lock().unwrap().set_colors(cartridge.cartridge.palette.colors.clone());
+        //self.palettes.lock().unwrap().set_colors(cartridge.cartridge.palette.colors.clone());
     }
 
     pub fn _load_cartridge(&mut self,
@@ -627,8 +619,7 @@ impl Unicorn {
 
                 cartridge
                     .python_plugin
-                    .load(self.palettes.clone(),
-                          self.players.clone(),
+                    .load(self.players.clone(),
                           self.info.clone(),
                           self.screen.clone(),
                           self.configuration.clone());

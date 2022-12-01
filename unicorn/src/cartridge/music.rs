@@ -1,3 +1,4 @@
+use log::{info};
 
 #[derive(Debug)]
 pub struct CartridgeMusic {}

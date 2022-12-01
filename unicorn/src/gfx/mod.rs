@@ -1,10 +1,15 @@
-mod fonts;
+pub mod fonts;
+pub mod camera;
+pub mod clip;
+pub mod palette;
+pub mod sprite;
+
+use log::{debug, error, info};
+
 
 use crate::core;
-use crate::core::Palette;
 use std::cmp;
 use std::ptr;
-use num_traits::pow;
 use std::f64;
 use std::f64::consts::PI;
 
@@ -14,14 +19,13 @@ pub struct Screen {
     pub height: usize,
 
     pub pixel_buffer: Box<[u8]>,
-
-    pub palettes: Palettes,
-    pub palette: Palette,
-
 //    pub saved_frame_buffer: Vec<u8>,
-  
-    pub sprites: Vec<Sprite>,
-    pub dyn_sprites: Vec<DynamicSprite>,
+
+    pub palettes: palette::Palettes,
+    pub palette: palette::Palette,
+
+    pub sprites: Vec<sprite::Sprite>,
+    pub dyn_sprites: Vec<sprite::DynamicSprite>,
 
     pub map: Vec<u32>,
 
@@ -30,16 +34,16 @@ pub struct Screen {
     pub color: u32,
     pub color_map: [u8; 0xFFF],
 
-    pub camera: Camera,
-    pub cliprect: ClipRect,
+    pub camera: camera::Camera,
+    pub cliprect: clip::ClipRect,
     
-    pub font: &'static Font,
+    pub font: &'static fonts::Font,
 }
 
 impl Screen {
     pub fn new(width: usize, height: usize) -> Screen {
-        info!("[GFX] [Screen] Creating Screen. width:{:?} height:{:?}", width, height);
-        let pixel_buffer = (0..width * height * 4)
+        info!("[GFX] [Screen] Creating Screen [width:{:?} height:{:?}]", width, height);
+        let pixel_buffer = (0..(width * height)*4)
             .map(|_| 0)
             .collect::<Vec<u8>>()
             .into_boxed_slice();
@@ -49,8 +53,8 @@ impl Screen {
             width: width,
             height: height,
             pixel_buffer: pixel_buffer,
-            palettes: Palettes::new(),
-            palette: Palette::new(),
+            palettes: palette::Palettes::new(),
+            palette: palette::Palette::new(),
 
             sprites: Vec::new(),
             dyn_sprites: Vec::new(),
@@ -60,19 +64,20 @@ impl Screen {
             color_map: [0; 0xFFF],
             
             color: 0,
-            camera: Camera::new(),
+            camera: camera::Camera::new(),
             
-            cliprect: ClipRect::new(),
+            cliprect: clip::ClipRect::new(),
             font: &fonts::pico8::FONT,
         }
     }
 
-    pub fn init(&mut self) {
+    pub fn reset(&mut self) {
         self._reset_colors();
         self._reset_transparency();
         self._reset_cliprect();
+        self._reset_palettes();
         self._reset_palette();
-        
+
         self.color = 0;
     }
 
@@ -83,6 +88,22 @@ impl Screen {
 
     pub fn mode_height(&mut self) -> usize {
         self.height
+    }
+
+    pub fn _reset_palettes(&mut self) {
+        info!("[GFX] [Screen] Reset palettes");
+        self.palettes.reset();
+    }
+
+    pub fn _reset_palette(&mut self) {
+        info!("[GFX] [Screen] Reset palette");
+
+        let values = &self.palettes.palettes[&"pico-8".to_string()];
+        info!("VALUES {:?}", values);
+
+        for (idx, rgb_value) in values.iter().enumerate() {
+            self.palette._set_color(idx as u32, rgb_value.r, rgb_value.g, rgb_value.b);
+        }
     }
 
     pub fn _reset_transparency(&mut self) {
@@ -97,7 +118,7 @@ impl Screen {
     }
 
     pub fn _reset_cliprect(&mut self) {
-        self.cliprect = ClipRect {
+        self.cliprect = clip::ClipRect {
             left: 0,
             top: 0,
             right: self.width as i32,
@@ -115,6 +136,10 @@ impl Screen {
       //  self.frame_buffer.copy_from_slice(&self.saved_frame_buffer);
     }
 
+    pub fn get_palette_rgb(&mut self, value: u32) -> palette::RGB {
+        return self.palette.get_rgb(value);
+    }
+
     #[inline]
     pub fn _find_color(&mut self, col: i32) -> u32 {
         if col == -1 { self.color } else { col as u32 }
@@ -125,7 +150,7 @@ impl Screen {
         self.camera.y = y;
     }
 
-    pub fn set_sprites(&mut self, sprites: Vec<Sprite>) {
+    pub fn set_sprites(&mut self, sprites: Vec<sprite::Sprite>) {
         self.sprites = sprites;
     }
 
@@ -150,7 +175,9 @@ impl Screen {
 
     #[inline]
     pub fn pixel_offset(&self, x: i32, y: i32) -> usize {
-        (x as usize) + ((y as usize) * self.width)
+        //(x as usize) + ((y as usize) * self.width)
+        ((x as usize) + ((y as usize) * self.width))*4
+
     }
 
     #[inline]
@@ -160,7 +187,14 @@ impl Screen {
         }
 
         let offset = self.pixel_offset(x, y);
-        self.pixel_buffer[offset] = col as u8;
+
+        //self.pixel_buffer[offset] = col as u8;
+
+        let rgb = self.palette.get_rgb(col as u32);
+        self.pixel_buffer[offset] = rgb.r;
+        self.pixel_buffer[offset + 1] = rgb.g;
+        self.pixel_buffer[offset + 2] = rgb.b;
+        self.pixel_buffer[offset + 3] = 0xff;     
     }
 
     #[inline]
@@ -180,7 +214,13 @@ impl Screen {
             let draw_col = self.color_map[col as usize];
 
             let offset = self.pixel_offset(x, y);
-            self.frame_buffer[offset] = draw_col as u8;
+//            self.pixel_buffer[offset] = draw_col as u8;
+
+            let rgb = self.palette.get_rgb(col as u32);
+            self.pixel_buffer[offset] = rgb.r;
+            self.pixel_buffer[offset + 1] = rgb.g;
+            self.pixel_buffer[offset + 2] = rgb.b;
+            self.pixel_buffer[offset + 3] = 0xff;     
         }
     }
 
@@ -220,7 +260,7 @@ impl Screen {
             return 0;
         }
 
-        self.frame_buffer[x + y * self.width] as u32
+        self.pixel_buffer[x + y * self.width] as u32
     }
 
     pub fn pget(&mut self, x: u32, y: u32) -> u32 {
@@ -279,11 +319,10 @@ impl Screen {
         if value == -1 {
             nvalue = 0;
         }
-        // Maximum performance!
-        unsafe {
-            let fb_ptr = self.frame_buffer.as_mut_ptr();
-            ptr::write_bytes(fb_ptr, nvalue, self.frame_buffer.len());
-        }
+        let rgb = self.palette.get_rgb(nvalue as u32);
+        self.pixel_buffer
+        .chunks_exact_mut(4)
+        .for_each(|pixel| pixel.copy_from_slice(&rgb.into_pixel_data()));
     }
 
     pub fn force_print(&mut self, string: String, x: i32, y: i32, col: i32) {
@@ -429,7 +468,7 @@ impl Screen {
         }
 
         self.cliprect
-            .intersect(&ClipRect {
+            .intersect(&clip::ClipRect {
                            left: x,
                            top: y,
                            right: x + w,
@@ -736,7 +775,7 @@ impl Screen {
         }
 
         if dynamic_sprite {
-            let dyn_sprite = DynamicSprite::new(data, width, height);
+            let dyn_sprite = sprite::DynamicSprite::new(data, width, height);
             if n == -1 {
                 self.dyn_sprites.push(dyn_sprite);
                 return (self.dyn_sprites.len() - 1) as i64;

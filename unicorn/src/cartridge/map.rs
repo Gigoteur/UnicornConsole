@@ -1,5 +1,7 @@
 use core;
 
+use log::{debug, warn, info};
+
 #[derive(Debug)]
 pub struct CartridgeMap {
     pub map: Vec<u32>,

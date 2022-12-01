@@ -747,6 +747,8 @@ pub mod plugin {
 
 #[cfg(not(feature = "rlua"))]
 pub mod plugin {
+    use log::{error};
+
     use std::sync::{Arc, Mutex};
     use anyhow::{Result, anyhow};
 

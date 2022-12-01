@@ -1,3 +1,7 @@
+use std::collections::HashMap;
+use std::io::Cursor;
+use std::io::prelude::*;
+
 
 pub struct Palettes {
     pub palette_idx: u32,
@@ -16,8 +20,8 @@ impl Palettes {
         }
     }
 
-    pub fn init(&mut self) {
-        // load palettes statically for emscripten
+    pub fn reset(&mut self) {
+        // load palettes statically for wasm
         self.load("a64".to_string(),
                   include_str!("../../sys/assets/palettes/a64.gpl").to_string());
         self.load("apple-ii".to_string(),
@@ -132,6 +136,7 @@ impl Palettes {
         self.palettes_list.push(name.clone());
     }
 
+    /* 
     pub fn switch_to_palette(&mut self, name: &str) {
         let values = &self.palettes[name];
 
@@ -173,7 +178,7 @@ impl Palettes {
 
     pub fn reset(&mut self) {
         PALETTE.lock().unwrap().reset();
-    }
+    }*/
 
     pub fn get_name(&mut self) -> String {
         self.name.clone()
@@ -181,6 +186,7 @@ impl Palettes {
 }
 
 
+#[derive(Clone, Debug)]
 pub struct Palette {
     colors: HashMap<u32, RGB>,
     rcolors: HashMap<u32, u32>,
@@ -249,11 +255,6 @@ impl Palette {
     }
 }
 
-lazy_static! {
-    pub static ref PALETTE: Mutex<Palette> = {
-        Mutex::new(Palette::new())
-    };
-}
 
 #[derive(Clone, Debug)]
 pub struct RGB {
@@ -273,5 +274,9 @@ impl RGB {
             g: ((v & 0x00ff00) >> 8) as u8,
             b: (v & 0x0000ff) as u8,
         }
+    }
+
+    pub fn into_pixel_data(&self) -> [u8; 4] {
+        [self.r, self.g, self.b, 0xff]
     }
 }

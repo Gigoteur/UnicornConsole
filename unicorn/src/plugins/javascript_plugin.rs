@@ -746,6 +746,8 @@ pub mod plugin {
 
 #[cfg(not(feature = "duktape"))]
 pub mod plugin {
+    use log::{error};
+
     use std::sync::{Arc, Mutex};
     use anyhow::{Result, anyhow};
 

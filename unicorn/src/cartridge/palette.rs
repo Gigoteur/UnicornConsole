@@ -1,4 +1,4 @@
-use core::RGB;
+use gfx::palette::RGB;
 
 use std::collections::HashMap;
 

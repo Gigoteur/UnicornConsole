@@ -1,6 +1,8 @@
 pub mod keys;
 pub mod scancode;
 
+use log::{debug};
+
 use self::keys::PX8Key;
 use self::scancode::{Scancode, Mod};
 

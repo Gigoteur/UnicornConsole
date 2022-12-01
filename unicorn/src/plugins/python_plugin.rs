@@ -404,7 +404,7 @@ pub mod plugin {
         Ok(0)
     }
 
-    })
+    });
 
 
     // Others
@@ -590,6 +590,8 @@ pub mod plugin {
 
 #[cfg(not(feature = "cpython"))]
 pub mod plugin {
+    use log::{error};
+
     use std::sync::{Arc, Mutex};
     use anyhow::{Result, anyhow};
 
@@ -598,7 +600,7 @@ pub mod plugin {
     use core::info::Info;
 
     use gfx::Screen;
-    use core::Palettes;
+    use gfx::palette::Palettes;
     use core::UnicornConfig;
 
     pub struct PythonPlugin {}
@@ -610,7 +612,6 @@ pub mod plugin {
 
 
         pub fn load(&mut self,
-                    _palettes: Arc<Mutex<Palettes>>,
                     _players: Arc<Mutex<Players>>,
                     _info: Arc<Mutex<Info>>,
                     _screen: Arc<Mutex<Screen>>,

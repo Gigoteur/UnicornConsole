@@ -1,4 +1,4 @@
-use log::{debug, error, log_enabled, info, Level};
+use log::{warn, info};
 
 use std::io::BufRead;
 

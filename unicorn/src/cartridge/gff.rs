@@ -1,8 +1,8 @@
-use log::{debug, error, log_enabled, info, Level};
+use log::{warn, info};
 
 pub use super::utils::read_u8;
 
-use gfx::Sprite;
+use gfx::sprite::Sprite;
 
 #[derive(Debug)]
 pub struct CartridgeGFF {

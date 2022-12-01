@@ -5,6 +5,7 @@ use env_logger;
 use std::{
     path::PathBuf,
     time::{Duration, Instant},
+    env,
 };
 
 use pixels::{Pixels, SurfaceTexture};
@@ -16,11 +17,13 @@ use winit::{
 };
 use winit_input_helper::WinitInputHelper;
 
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    env::set_var("RUST_LOG", "info");
+    env_logger::init();
+
     let mut uc = unicorn::core::Unicorn::new();
     uc.setup();
-
-    env_logger::init();
 
     let event_loop = EventLoop::new();
 
@@ -63,36 +66,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             screen.cls(5);
 
             screen.line(0, 0, 50, 50, 7);
+            screen.trigon(0, 0, 50, 70, 100, 90, 4);
+            screen.print("Hello World".to_string(), 64, 64, 6);
 
-            let src_buffer = &screen.frame_buffer;
-            let rgb_buffer_len = src_buffer.len() * 4;
-
-            let mut rgb_buffer = vec![0; rgb_buffer_len];
-            let mut palette = unicorn::core::PALETTE.lock().unwrap();
-
-            let mut j = 0;
-            let mut cached_pixel: u8 = 0;
-            let mut rgb = palette.get_rgb(cached_pixel as u32);
-
-            let start = Instant::now();
-
-            for pixel in src_buffer.iter() {
-                if *pixel != cached_pixel {
-                    rgb = palette.get_rgb(*pixel as u32);
-                    cached_pixel = *pixel;
-                }
-
-                rgb_buffer[j] = rgb.r;
-                rgb_buffer[j + 1] = rgb.g;
-                rgb_buffer[j + 2] = rgb.b;
-                rgb_buffer[j + 3] = 0x20;     
-
-                j += 4;
-
-            }
-
-            pixels.get_frame_mut().copy_from_slice(&rgb_buffer);
-            
+            pixels.get_frame_mut().copy_from_slice(&screen.pixel_buffer);
 
             pixels.render();
 

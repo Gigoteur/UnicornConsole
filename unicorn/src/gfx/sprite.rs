@@ -1,3 +1,5 @@
+use num_traits::pow;
+
 #[derive(Clone)]
 pub struct DynamicSprite {
     pub data: Vec<u8>,
@@ -13,7 +15,7 @@ impl DynamicSprite {
 
 }
 
-#[derive(Copy)]
+#[derive(Copy, Debug)]
 pub struct Sprite {
     pub data: [u8; 64],
     pub flags: u8,
@@ -128,6 +130,7 @@ impl Sprite {
     }
 }
 
+/* 
 impl fmt::Debug for Sprite {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let mut data_matrix = String::new();
@@ -140,7 +143,7 @@ impl fmt::Debug for Sprite {
 
         write!(f, "{}", data_matrix)
     }
-}
+}*/
 
 #[cfg(test)]
 mod tests {

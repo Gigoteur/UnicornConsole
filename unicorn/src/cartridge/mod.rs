@@ -6,6 +6,7 @@ mod music;
 mod palette;
 mod utils;
 
+use log::{debug, info};
 
 use std::fs::File;
 use std::io::BufReader;

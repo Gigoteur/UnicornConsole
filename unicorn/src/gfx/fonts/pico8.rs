@@ -1,7 +1,7 @@
-use gfx;
+use crate::gfx::fonts;
 
 #[allow(dead_code)]
-pub static FONT: gfx::Font = gfx::Font {
+pub static FONT: fonts::Font = fonts::Font {
     glyph_width: 3,
     glyph_height: 7,
     left_bearing: 1,

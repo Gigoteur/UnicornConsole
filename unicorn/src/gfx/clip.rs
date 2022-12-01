@@ -1,9 +1,11 @@
+use std::cmp;
+
 // ClipRect rectangle is exclusive of right and bottom edges
 pub struct ClipRect {
-    left: i32,
-    top: i32,
-    right: i32,
-    bottom: i32,
+    pub left: i32,
+    pub top: i32,
+    pub right: i32,
+    pub bottom: i32,
 }
 
 impl ClipRect {
