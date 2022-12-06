@@ -1,4 +1,10 @@
+mod gui;
+
 use unicorn;
+use crate::{
+    gui::{framework::Framework, Gui},
+};
+
 use log::{debug, error, log_enabled, info, Level};
 use env_logger;
 
@@ -25,6 +31,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut uc = unicorn::core::Unicorn::new();
     uc.setup();
 
+    
+
     let event_loop = EventLoop::new();
 
     let window = init_window(&event_loop);
@@ -35,8 +43,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut input = WinitInputHelper::new();
     let mut last_update = Instant::now();
     
+    let mut framework = Framework::new(
+        window_size.width,
+        window_size.height,
+        scale_factor,
+        &pixels,
+        Gui::default(),
+    );
+
     event_loop.run(move |event, _, control_flow| {
         if let Event::WindowEvent { event, .. } = &event {
+            framework.handle_event(event);
         }
 
         // Close events
@@ -46,39 +63,45 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
 
         if input.key_pressed(VirtualKeyCode::Space) {
-         //   framework.gui.window_open = !framework.gui.window_open;
+            framework.gui.window_open = !framework.gui.window_open;
         }
 
         // Update the scale factor
         if let Some(scale_factor) = input.scale_factor() {
-         //   framework.scale_factor(scale_factor);
+            framework.scale_factor(scale_factor);
         }
 
         // Resize the window
         if let Some(size) = input.window_resized() {
             pixels.resize_surface(size.width, size.height);
-          //  framework.resize(size.width, size.height);
+            framework.resize(size.width, size.height);
         }
+
+        framework.prepare(
+            &mut pixels,
+            &mut session,
+            &window,
+            &mut input_manager,
+            &mut gilrs,
+        );
 
         // Handle input events
         if input.update(&event) {
             let screen = &mut uc.screen.lock().unwrap();
-            screen.cls(5);
+           /* screen.cls(5);
 
             screen.line(0, 0, 50, 50, 7);
             screen.trigon(0, 0, 50, 70, 100, 90, 4);
-            screen.print("Hello World".to_string(), 64, 64, 6);
+            screen.print("Hello World".to_string(), 64, 64, 6);*/
 
             pixels.get_frame_mut().copy_from_slice(&screen.pixel_buffer);
 
             pixels.render();
 
 
-            /*let render_result = pixels.render_with(|encoder, render_target, context| {
+            let render_result = pixels.render_with(|encoder, render_target, context| {
                 context.scaling_renderer.render(encoder, render_target);
-
-            //framework.render(encoder, render_target, context)?;
-
+                framework.render(encoder, render_target, context)?;
                 Ok(())
             });
 
@@ -86,7 +109,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 println!("render_with failed");
                 *control_flow = ControlFlow::Exit;
                 return;
-            }*/
+            }
 
             window.request_redraw();
         }

@@ -175,9 +175,7 @@ impl Screen {
 
     #[inline]
     pub fn pixel_offset(&self, x: i32, y: i32) -> usize {
-        //(x as usize) + ((y as usize) * self.width)
         ((x as usize) + ((y as usize) * self.width))*4
-
     }
 
     #[inline]
@@ -187,8 +185,6 @@ impl Screen {
         }
 
         let offset = self.pixel_offset(x, y);
-
-        //self.pixel_buffer[offset] = col as u8;
 
         let rgb = self.palette.get_rgb(col as u32);
         self.pixel_buffer[offset] = rgb.r;
@@ -214,9 +210,8 @@ impl Screen {
             let draw_col = self.color_map[col as usize];
 
             let offset = self.pixel_offset(x, y);
-//            self.pixel_buffer[offset] = draw_col as u8;
 
-            let rgb = self.palette.get_rgb(col as u32);
+            let rgb = self.palette.get_rgb(draw_col as u32);
             self.pixel_buffer[offset] = rgb.r;
             self.pixel_buffer[offset + 1] = rgb.g;
             self.pixel_buffer[offset + 2] = rgb.b;
@@ -260,7 +255,13 @@ impl Screen {
             return 0;
         }
 
-        self.pixel_buffer[x + y * self.width] as u32
+        let offset = self.pixel_offset(x as i32, y as i32);
+        
+        let r = self.pixel_buffer[offset];
+        let g = self.pixel_buffer[offset + 1];
+        let b = self.pixel_buffer[offset + 2];
+        
+        return self.palette.get_color_rgb(r, g, b)
     }
 
     pub fn pget(&mut self, x: u32, y: u32) -> u32 {

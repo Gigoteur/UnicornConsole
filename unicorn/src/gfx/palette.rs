@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::hash::Hash;
 use std::io::Cursor;
 use std::io::prelude::*;
 
@@ -228,6 +229,7 @@ impl Palette {
 
         self.colors.insert(color, RGB::new(r, g, b));
         self.rcolors.insert(u32_color, color);
+
         if color < 16 {
             self.cached_colors[color as usize] = u32_color;
         }
@@ -249,6 +251,17 @@ impl Palette {
         match self.colors.get(&color) {
             Some(rgb_value) => {
                 (rgb_value.r as u32) << 16 | (rgb_value.g as u32) << 8 | (rgb_value.b as u32)
+            }
+            _ => 0,
+        }
+    }
+
+    pub fn get_color_rgb(&mut self, r: u8, g: u8, b: u8) -> u32 {
+        let u32_color = (r as u32) << 16 | (g as u32) << 8 | (b as u32);
+
+        match self.rcolors.get(&u32_color) {
+            Some(value) => {
+                *value
             }
             _ => 0,
         }
