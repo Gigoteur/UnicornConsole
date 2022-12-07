@@ -22,6 +22,7 @@ use winit::{
     window::{Window, WindowBuilder},
 };
 use winit_input_helper::WinitInputHelper;
+use gilrs::Gilrs;
 
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -31,7 +32,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut uc = unicorn::core::Unicorn::new();
     uc.setup();
 
-    
+    let mut gilrs = Gilrs::new().unwrap();
+
 
     let event_loop = EventLoop::new();
 
@@ -79,9 +81,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         framework.prepare(
             &mut pixels,
-            &mut session,
             &window,
-            &mut input_manager,
             &mut gilrs,
         );
 

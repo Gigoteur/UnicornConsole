@@ -124,12 +124,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cf186d1a8aa5f5bee5fd662bc9c1b949e0259e1bcc379d1f006847b0080c7417"
 
 [[package]]
-name = "lazy_static"
-version = "1.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
-
-[[package]]
 name = "libc"
 version = "0.2.126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -365,7 +359,6 @@ dependencies = [
  "gapbuffer",
  "gif",
  "glob",
- "lazy_static 1.4.0",
  "libc",
  "log",
  "num-traits",
@@ -382,7 +375,7 @@ dependencies = [
 name = "unicorn_web"
 version = "0.0.1"
 dependencies = [
- "lazy_static 0.1.16",
+ "lazy_static",
  "serde",
  "serde_derive",
  "stdweb",

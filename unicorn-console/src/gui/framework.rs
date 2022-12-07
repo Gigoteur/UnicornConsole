@@ -1,11 +1,8 @@
 use egui::{ClippedMesh, Context, TexturesDelta};
 use egui_wgpu_backend::{BackendError, RenderPass, ScreenDescriptor};
-use ggrs::P2PSession;
 use gilrs::Gilrs;
 use pixels::{wgpu, Pixels, PixelsContext};
 use winit::window::Window;
-
-use crate::console::{LocalInputManager, WasmConsole};
 
 use super::Gui;
 
@@ -77,16 +74,14 @@ impl Framework {
     pub(crate) fn prepare(
         &mut self,
         pixels: &mut Pixels,
-        session: &mut Option<P2PSession<WasmConsole>>,
         window: &Window,
-        input: &mut LocalInputManager,
         gilrs: &mut Gilrs,
     ) {
         // Run the egui frame and create all paint jobs to prepare for rendering.
         let raw_input = self.egui_state.take_egui_input(window);
         let output = self.egui_ctx.run(raw_input, |egui_ctx| {
             // Draw the demo application.
-            self.gui.ui(pixels, window, session, egui_ctx, input, gilrs);
+            self.gui.ui(pixels, window, egui_ctx, gilrs);
         });
 
         self.textures.append(output.textures_delta);
