@@ -1,8 +1,9 @@
-use egui::{ClippedMesh, Context, TexturesDelta};
+use egui::{Context, TexturesDelta};
 use egui_wgpu_backend::{BackendError, RenderPass, ScreenDescriptor};
 use gilrs::Gilrs;
 use pixels::{wgpu, Pixels, PixelsContext};
 use winit::window::Window;
+use egui_winit::winit::event_loop::EventLoopWindowTarget;
 
 use super::Gui;
 
@@ -13,7 +14,7 @@ pub(crate) struct Framework {
     egui_state: egui_winit::State,
     screen_descriptor: ScreenDescriptor,
     rpass: RenderPass,
-    paint_jobs: Vec<ClippedMesh>,
+  //  paint_jobs: Vec<ClippedMesh>,
     textures: TexturesDelta,
 
     // Our stuff
@@ -22,17 +23,19 @@ pub(crate) struct Framework {
 
 impl Framework {
     /// Create egui.
-    pub(crate) fn new(
+    pub(crate) fn new<E>(
         width: u32,
         height: u32,
         scale_factor: f32,
         pixels: &pixels::Pixels,
         gui: Gui,
+        event_loop: &EventLoopWindowTarget<E>
     ) -> Self {
         let max_texture_size = pixels.device().limits().max_texture_dimension_2d as usize;
 
         let egui_ctx = Context::default();
-        let egui_state = egui_winit::State::from_pixels_per_point(max_texture_size, scale_factor);
+        let egui_state = egui_winit::State::new(event_loop);
+
         let screen_descriptor = ScreenDescriptor {
             physical_width: width,
             physical_height: height,
@@ -46,7 +49,7 @@ impl Framework {
             egui_state,
             screen_descriptor,
             rpass,
-            paint_jobs: Vec::new(),
+            //paint_jobs: Vec::new(),
             textures,
             gui,
         }
@@ -87,7 +90,7 @@ impl Framework {
         self.textures.append(output.textures_delta);
         self.egui_state
             .handle_platform_output(window, &self.egui_ctx, output.platform_output);
-        self.paint_jobs = self.egui_ctx.tessellate(output.shapes);
+        //self.paint_jobs = self.egui_ctx.tessellate(output.shapes);
     }
 
     /// Render egui.

@@ -51,6 +51,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         scale_factor,
         &pixels,
         Gui::default(),
+        &event_loop,
     );
 
     event_loop.run(move |event, _, control_flow| {
