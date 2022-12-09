@@ -59,27 +59,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             framework.handle_event(event);
         }
 
-        // Close events
-        if input.key_pressed(VirtualKeyCode::Escape) || input.quit() {
-            *control_flow = ControlFlow::Exit;
-            return;
-        }
-
-        if input.key_pressed(VirtualKeyCode::Space) {
-            framework.gui.window_open = !framework.gui.window_open;
-        }
-
-        // Update the scale factor
-        if let Some(scale_factor) = input.scale_factor() {
-            framework.scale_factor(scale_factor);
-        }
-
-        // Resize the window
-        if let Some(size) = input.window_resized() {
-            pixels.resize_surface(size.width, size.height);
-            framework.resize(size.width, size.height);
-        }
-
         framework.prepare(
             &mut pixels,
             &window,
@@ -88,6 +67,27 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         // Handle input events
         if input.update(&event) {
+                    // Close events
+            if input.key_pressed(VirtualKeyCode::Escape) || input.quit() {
+                *control_flow = ControlFlow::Exit;
+                return;
+            }
+
+            if input.key_pressed(VirtualKeyCode::Space) {
+                framework.gui.window_open = !framework.gui.window_open;
+            }
+
+            // Update the scale factor
+            if let Some(scale_factor) = input.scale_factor() {
+                framework.scale_factor(scale_factor);
+            }
+
+            // Resize the window
+            if let Some(size) = input.window_resized() {
+                pixels.resize_surface(size.width, size.height);
+                framework.resize(size.width, size.height);
+            }
+        
             let screen = &mut uc.screen.lock().unwrap();
             screen.cls(5);
 
@@ -96,9 +96,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             screen.print("Hello World".to_string(), 64, 64, 6);
 
             pixels.get_frame_mut().copy_from_slice(&screen.pixel_buffer);
-
-            pixels.render();
-
 
             let render_result = pixels.render_with(|encoder, render_target, context| {
                 context.scaling_renderer.render(encoder, render_target);
