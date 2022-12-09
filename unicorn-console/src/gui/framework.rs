@@ -1,4 +1,4 @@
-use egui::{Context, TexturesDelta};
+use egui::{ClippedPrimitive , Context, TexturesDelta};
 use egui_wgpu_backend::{BackendError, RenderPass, ScreenDescriptor};
 use gilrs::Gilrs;
 use pixels::{wgpu, Pixels, PixelsContext};
@@ -14,7 +14,7 @@ pub(crate) struct Framework {
     egui_state: egui_winit::State,
     screen_descriptor: ScreenDescriptor,
     rpass: RenderPass,
-  //  paint_jobs: Vec<ClippedMesh>,
+    paint_jobs: Vec<ClippedPrimitive>,
     textures: TexturesDelta,
 
     // Our stuff
@@ -49,7 +49,7 @@ impl Framework {
             egui_state,
             screen_descriptor,
             rpass,
-            //paint_jobs: Vec::new(),
+            paint_jobs: Vec::new(),
             textures,
             gui,
         }
@@ -90,7 +90,7 @@ impl Framework {
         self.textures.append(output.textures_delta);
         self.egui_state
             .handle_platform_output(window, &self.egui_ctx, output.platform_output);
-        //self.paint_jobs = self.egui_ctx.tessellate(output.shapes);
+        self.paint_jobs = self.egui_ctx.tessellate(output.shapes);
     }
 
     /// Render egui.

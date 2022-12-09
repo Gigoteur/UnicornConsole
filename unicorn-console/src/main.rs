@@ -89,11 +89,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         // Handle input events
         if input.update(&event) {
             let screen = &mut uc.screen.lock().unwrap();
-           /* screen.cls(5);
+            screen.cls(5);
 
             screen.line(0, 0, 50, 50, 7);
             screen.trigon(0, 0, 50, 70, 100, 90, 4);
-            screen.print("Hello World".to_string(), 64, 64, 6);*/
+            screen.print("Hello World".to_string(), 64, 64, 6);
 
             pixels.get_frame_mut().copy_from_slice(&screen.pixel_buffer);
 
