@@ -1,9 +1,14 @@
 mod gui;
+mod fps;
+mod frametimes;
 
 use unicorn;
+
+
 use crate::{
     gui::{framework::Framework, Gui},
 };
+
 
 use log::{debug, error, log_enabled, info, Level};
 use env_logger;
@@ -30,7 +35,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     env_logger::init();
 
     let mut uc = unicorn::core::Unicorn::new();
-    uc.setup();
 
     let mut gilrs = Gilrs::new().unwrap();
 
@@ -45,6 +49,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut input = WinitInputHelper::new();
     let mut last_update = Instant::now();
     
+    let mut times = frametimes::FrameTimes::new(Duration::from_secs(1) / 60);
+    let mut fps_counter = fps::FpsCounter::new();
+    let mut previous_frame_time = Instant::now();
+
+    times.reset();
+    uc.setup();
+
+
     let mut framework = Framework::new(
         window_size.width,
         window_size.height,
@@ -55,6 +67,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     );
 
     event_loop.run(move |event, _, control_flow| {
+        times.update();
+        fps_counter.update(times.get_last_time());
+        uc.fps = fps_counter.get_fps();
+
         if let Event::WindowEvent { event, .. } = &event {
             framework.handle_event(event);
         }
@@ -97,10 +113,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             screen.print("Hello World".to_string(), 64, 64, 6);
             */
 
-            if (uc.state == unicorn::core::UnicornState::RUN) {
+            if uc.state == unicorn::core::UnicornState::RUN {
                 uc.update();
                 uc.draw();
+            
+                let now = Instant::now();
+                let dt = now.duration_since(previous_frame_time);
+                previous_frame_time = now;
+                uc.update_time(dt);
             }
+
             let screen = &mut uc.screen.lock().unwrap();
             pixels.get_frame_mut().copy_from_slice(&screen.pixel_buffer);
 
@@ -117,6 +139,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
 
             window.request_redraw();
+            //times.limit();
         }
 
     });

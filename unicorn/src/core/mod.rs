@@ -260,8 +260,8 @@ impl Unicorn {
     }
 
     pub fn debug_draw(&mut self) {
-        let show_info_overlay = self.configuration.lock().unwrap().show_info_overlay;
-        if show_info_overlay {
+      //  let show_info_overlay = self.configuration.lock().unwrap().show_info_overlay;
+ //       if show_info_overlay {
             let screen = &mut self.screen.lock().unwrap();
             let mouse_x = self.players.lock().unwrap().mouse_coordinate(0);
             let mouse_y = self.players.lock().unwrap().mouse_coordinate(1);
@@ -270,17 +270,17 @@ impl Unicorn {
             
             screen.rectfill(0, 0, width, 8, 0);
 
-          /*  screen.force_print(format!("{:.0}FPS {:.2?} {:.2?} {:?} {:?}",
+            screen.force_print(format!("{:.0}FPS {:.2?} {:.2?} {:?} {:?}",
                                        self.fps,
                                        mouse_x,
                                        mouse_y,
-                                       &self.palettes.lock().unwrap().name,
+                                       "xx",
                                        self.state)
                                        .to_string(),
                                0,
                                0,
-                               7);*/
-        }
+                               7);
+       // }
     }
 
     pub fn update_time(&mut self, dt: Duration) {
