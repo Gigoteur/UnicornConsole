@@ -516,6 +516,33 @@ def polygon(x, y, color):
     unicorn_graphic.polygon(x, y, color)
 
 
+# Palette
+
+def palette(col, r, g, b):
+    unicorn_graphic.set_color_palette(col, r, g, b)
+
+
+def palette_hexa(col, value):
+    r = (value & 0xFF0000) >> 16
+    g = (value & 0x00FF00) >> 8
+    b = (value & 0x0000FF)
+    unicorn_graphic.set_color_palette(col, r, g, b)
+
+
+def palette_reset():
+    unicorn_graphic.reset_palette()
+
+
+def palette_switch(name):
+    pass
+    #unicorn_graphic.switch(name)
+
+
+globals()["palette"] = palette
+globals()["palette_hexa"] = palette_hexa
+globals()["palette_reset"] = palette_reset
+globals()["palette_switch"] = palette_switch
+
 globals()["camera"] = camera
 globals()["circ"] = circ
 globals()["circfill"] = circfill
@@ -658,46 +685,6 @@ def memcpy(dest_addr, source_addr, len_buff):
 
 
 globals()["memcpy"] = memcpy
-
-
-# Palette
-
-def palette(col, r, g, b):
-    unicorn_palette.set_color(col, r, g, b)
-
-
-def palette_hexa(col, value):
-    r = (value & 0xFF0000) >> 16
-    g = (value & 0x00FF00) >> 8
-    b = (value & 0x0000FF)
-    unicorn_palette.set_color(col, r, g, b)
-
-
-def palette_reset():
-    unicorn_palette.reset()
-
-
-def palette_switch(name):
-    unicorn_palette.switch(name)
-
-
-globals()["palette"] = palette
-globals()["palette_hexa"] = palette_hexa
-globals()["palette_reset"] = palette_reset
-globals()["palette_switch"] = palette_switch
-
-
-# Noise
-def noise(x, y, z):
-    return unicorn_noise.noise(x, y, z)
-
-
-def noise_set_seed(seed):
-    return unicorn_noise.noise_set_seed(seed)
-
-
-globals()["noise"] = noise
-globals()["noise_set_seed"] = noise_set_seed
 
 # System
 

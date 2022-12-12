@@ -42,6 +42,7 @@ pub enum UnicornState {
     EDITOR,
 }
 
+#[derive(Debug)]
 pub enum Code {
     UNKNOWN = 0,
     LUA = 1,
@@ -225,7 +226,7 @@ impl Unicorn {
             editor: edit::edit::Editor::new(screen.clone()),
             editing: false,
            
-            state: UnicornState::RUN,
+            state: UnicornState::PAUSE,
             
             fps: 0.0,
             record: Record::new(),
@@ -292,12 +293,8 @@ impl Unicorn {
     }
 
     pub fn init(&mut self) {
-        match self.state {
-            UnicornState::RUN => {
-                self.call_init();
-            }
-            _ => {}
-        }
+        self.state = UnicornState::RUN;
+        self.call_init();
     }
 
     pub fn update(&mut self) -> bool {
@@ -633,27 +630,27 @@ impl Unicorn {
         ret
     }
 
-    pub fn load_cartridge(&mut self, filename: &str, full_filename: &str, editor: bool) -> bool {
+    pub fn load_cartridge(&mut self, filename: String, editor: bool) -> bool {
         info!("[Unicorn] Load cartridge from {:?}", filename);
 
         let cartridge;
         if filename.contains(".corn") {
-            match Cartridge::from_unicorn_file(full_filename) {
+            match Cartridge::from_unicorn_file(filename.as_str()) {
                 Ok(c) => cartridge = c,
                 Err(e) => panic!("[Unicorn] Impossible to load the unicorn cartridge {:?}", e),
             }
         } else if filename.contains(".acorn") {
-            match Cartridge::from_dunicorn_file(full_filename) {
+            match Cartridge::from_dunicorn_file(filename.as_str()) {
                 Ok(c) => cartridge = c,
                 Err(e) => panic!("[Unicorn] Impossible to load the dUnicorn cartridge {:?}", e),
             }
         } else if filename.contains(".png") {
-            match Cartridge::from_png_file(full_filename) {
+            match Cartridge::from_png_file(filename.as_str()) {
                 Ok(c) => cartridge = c,
                 Err(e) => panic!("[Unicorn] Impossible to load the Pico8 PNG cartridge {:?}", e),
             }
         } else if filename.contains(".p8") {
-            match Cartridge::from_p8_file(full_filename) {
+            match Cartridge::from_p8_file(filename.as_str()) {
                 Ok(c) => cartridge = c,
                 Err(e) => panic!("[Unicorn] Impossible to load the Pico8 P8 cartridge {:?}", e),
             }
@@ -661,7 +658,7 @@ impl Unicorn {
             panic!("[Unicorn] Unknown file format !");
         }
 
-        let mut unicorn_cartridge = UnicornCartridge::new(cartridge, filename.to_string());
+        let mut unicorn_cartridge = UnicornCartridge::new(cartridge, filename);
         let ret = self._load_cartridge(&mut unicorn_cartridge, editor);
         if ret {
             if self.state != UnicornState::EDITOR {
@@ -749,7 +746,7 @@ impl Unicorn {
     }
 
     pub fn call_init(&mut self) {
-        info!("[Unicorn] CALL INIT");
+        info!("[Unicorn] CALL INIT {:?}", self.cartridge.get_code_type());
 
         self.reset();
 

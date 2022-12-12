@@ -78,13 +78,14 @@ impl Framework {
         &mut self,
         pixels: &mut Pixels,
         window: &Window,
+        session: &mut unicorn::core::Unicorn,
         gilrs: &mut Gilrs,
     ) {
         // Run the egui frame and create all paint jobs to prepare for rendering.
         let raw_input = self.egui_state.take_egui_input(window);
         let output = self.egui_ctx.run(raw_input, |egui_ctx| {
             // Draw the demo application.
-            self.gui.ui(pixels, window, egui_ctx, gilrs);
+            self.gui.ui(pixels, window, session, egui_ctx, gilrs);
         });
 
         self.textures.append(output.textures_delta);

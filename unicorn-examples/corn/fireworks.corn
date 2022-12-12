@@ -57,8 +57,6 @@ function _update()
       for i=1,200 do
         add(particules, p_create(x,y,c,rnd(4)+1,rnd(1)))
       end
-      sfx(-1, "../unicorn/examples/assets/clap.ki")
-
     end
   end
 end

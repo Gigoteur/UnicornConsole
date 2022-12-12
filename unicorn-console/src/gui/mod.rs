@@ -5,6 +5,8 @@ use pixels::Pixels;
 use rfd::FileDialog;
 use winit::{dpi::PhysicalSize, window::Window};
 
+use unicorn;
+
 pub mod framework;
 
 pub struct Gui {
@@ -27,6 +29,7 @@ impl Gui {
         &mut self,
         pixels: &mut Pixels,
         window: &Window,
+        session: &mut unicorn::core::Unicorn,
         ctx: &Context,
         gilrs: &mut Gilrs,
     ) {
@@ -39,7 +42,7 @@ impl Gui {
                     ui.horizontal(|ui| {
                         if ui.button("Select Game").clicked() {
                             self.game_file = FileDialog::new()
-                                .add_filter("gcrom (.gcrom), wasm (.wasm)", &["gcrom", "wasm"])
+                                .add_filter("corn (.corn), p8 (.p8)", &["corn", "p8"])
                                 .pick_file();
                         };
 
@@ -49,7 +52,7 @@ impl Gui {
                                 .expect("filename not found")
                                 .to_string_lossy()
                                 .to_string();
-                            ui.label(filename);
+                            ui.label(filename.clone());
                         }
                     });
                 });
@@ -66,6 +69,10 @@ impl Gui {
                         .add_enabled(self.game_file.is_some(), launch_game)
                         .clicked()
                     {
+                        // Launch the game !
+                        let path = self.game_file.as_ref().unwrap();
+                        session.load_cartridge(String::from(path.to_string_lossy()), false);
+                        session.init();
                     }
 
                     let buttons_enabled = self.game_file.is_some();

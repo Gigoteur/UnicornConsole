@@ -1,5 +1,7 @@
 #[cfg(feature = "rlua")]
 pub mod plugin {
+    use log::{error, info, debug};
+
     use anyhow::{Result, anyhow};
 
     use std::sync::{Arc, Mutex};
@@ -667,6 +669,8 @@ pub mod plugin {
 
 
         pub fn init(&mut self) -> Result<()> {
+            info!("[PLUGIN] LUA INIT");
+            
             if !self.loaded_code {
                return Err(anyhow!("[PLUGIN][LUA] [init] impossible to load the code"))
             }

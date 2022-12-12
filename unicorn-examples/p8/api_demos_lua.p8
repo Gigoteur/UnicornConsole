@@ -4,6 +4,7 @@ __lua__
 __lua__
 
 function _init()
+    cls(5)
     print("Init Lua")
 end
 

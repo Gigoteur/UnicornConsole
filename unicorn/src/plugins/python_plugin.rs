@@ -1,6 +1,8 @@
 #[cfg(feature = "cpython")]
 #[allow(unused_variables)]
 pub mod plugin {
+    use log::{error, info, debug};
+
     use cpython::*;
 
     use std::sync::{Arc, Mutex};
@@ -8,7 +10,6 @@ pub mod plugin {
 
     use config::Players;
     use core::info::Info;
-    use core::Palettes;
     use core::UnicornConfig;
     use gfx::Screen;
 
@@ -82,32 +83,28 @@ pub mod plugin {
     */
 
 
-    // Palettes
-    py_class!(class UnicornPalette |py| {
-    data palettes: Arc<Mutex<Palettes>>;
-
-    def set_color(&self, color:u32, r: u8, g: u8, b: u8) -> PyResult<i32> {
-        self.palettes(py).lock().unwrap().set_color(color, r, g, b);
-        Ok(0)
-    }
-
-    def reset(&self) -> PyResult<i32> {
-        self.palettes(py).lock().unwrap().reset();
-        Ok(0)
-    }
-
-    def switch(&self, name: String) -> PyResult<i32> {
-        self.palettes(py).lock().unwrap().switch_to_palette(&name);
-        Ok(0)
-    }
-
-    });
-
-    // Cart Data
 
     // Graphics
     py_class!(class UnicornGraphic |py| {
     data screen: Arc<Mutex<Screen>>;
+
+
+    // Cart Data
+
+    def set_color_palette(&self, color:u32, r: u8, g: u8, b: u8) -> PyResult<i32> {
+        self.screen(py).lock().unwrap().palette.set_color(color, r, g, b);
+        Ok(0)
+    }
+
+    def reset_palette(&self) -> PyResult<i32> {
+        self.screen(py).lock().unwrap()._reset_palettes();
+        Ok(0)
+    }
+ 
+    def switch_palette(&self, name: String) -> PyResult<i32> {
+        //self.screen(py).lock().unwrap().switch_to_palette(&name);
+        Ok(0)
+    }
 
     def camera(&self, x: i32, y: i32) -> PyResult<i32> {
         self.screen(py).lock().unwrap().camera(x, y);
@@ -446,7 +443,6 @@ pub mod plugin {
 
 
         pub fn load(&mut self,
-                    palettes: Arc<Mutex<Palettes>>,
                     players: Arc<Mutex<Players>>,
                     info: Arc<Mutex<Info>>,
                     screen: Arc<Mutex<Screen>>,
@@ -459,11 +455,6 @@ pub mod plugin {
             let unicorn_graphic_obj = UnicornGraphic::create_instance(py, screen.clone()).unwrap();
             self.mydict
                 .set_item(py, "unicorn_graphic", unicorn_graphic_obj)
-                .unwrap();
-
-            let unicorn_palette_obj = UnicornPalette::create_instance(py, palettes.clone()).unwrap();
-            self.mydict
-                .set_item(py, "unicorn_palette", unicorn_palette_obj)
                 .unwrap();
 
             let unicorn_input_obj = UnicornInput::create_instance(py, players.clone()).unwrap();
@@ -481,10 +472,6 @@ pub mod plugin {
             self.mydict.set_item(py, "unicorn_mem", unicorn_mem_obj).unwrap();
 
             py.run(r###"globals()["unicorn_graphic"] = unicorn_graphic;"###,
-                     None,
-                     Some(&self.mydict))
-                .unwrap();
-            py.run(r###"globals()["unicorn_palette"] = unicorn_palette;"###,
                      None,
                      Some(&self.mydict))
                 .unwrap();

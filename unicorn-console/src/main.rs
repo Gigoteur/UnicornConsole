@@ -62,6 +62,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         framework.prepare(
             &mut pixels,
             &window,
+            &mut uc,
             &mut gilrs,
         );
 
@@ -88,13 +89,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 framework.resize(size.width, size.height);
             }
         
-            let screen = &mut uc.screen.lock().unwrap();
+            /*
             screen.cls(5);
 
             screen.line(0, 0, 50, 50, 7);
             screen.trigon(0, 0, 50, 70, 100, 90, 4);
             screen.print("Hello World".to_string(), 64, 64, 6);
+            */
 
+            if (uc.state == unicorn::core::UnicornState::RUN) {
+                uc.update();
+                uc.draw();
+            }
+            let screen = &mut uc.screen.lock().unwrap();
             pixels.get_frame_mut().copy_from_slice(&screen.pixel_buffer);
 
             let render_result = pixels.render_with(|encoder, render_target, context| {
