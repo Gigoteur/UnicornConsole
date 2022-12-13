@@ -540,8 +540,6 @@ impl Unicorn {
                 self.cartridge.font_name = screen.get_font();
 
                 screen.font("pico-8");
-
-             //   self.pause_menu.reset();
                 self.state = UnicornState::PAUSE;
             }
             UnicornState::EDITOR => {

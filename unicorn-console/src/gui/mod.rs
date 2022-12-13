@@ -58,7 +58,6 @@ impl Gui {
                 });
 
                 // Draw internal content
-
                 let launch_game_text = "Launch Game";
                 
                 ui.separator();
@@ -70,6 +69,8 @@ impl Gui {
                         .clicked()
                     {
                         // Launch the game !
+                        self.window_open = false;
+
                         let path = self.game_file.as_ref().unwrap();
                         session.load_cartridge(String::from(path.to_string_lossy()), false);
                         session.init();
@@ -77,14 +78,16 @@ impl Gui {
 
                     let buttons_enabled = self.game_file.is_some();
 
+                    // Reset the game
                     if ui
                         .add_enabled(buttons_enabled, Button::new("Reset Game"))
                         .clicked()
                     {
                     }
 
+                    // Quit the console
                     if ui
-                        .add_enabled(buttons_enabled, Button::new("Quit Game"))
+                        .add_enabled(buttons_enabled, Button::new("Quit"))
                         .clicked()
                     {
                     }

@@ -40,6 +40,5 @@ pub mod gfx;
 pub mod core;
 pub mod cartridge;
 pub mod plugins;
-pub mod editor;
 
 include!(concat!(env!("OUT_DIR"), "/parameters.rs"));

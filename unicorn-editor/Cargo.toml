@@ -3,6 +3,30 @@ name = "unicorn-editor"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[[bin]]
+name = "editor"
+path = "src/main.rs"
 
 [dependencies]
+# Gamercade Dependencies
+unicorn = { path = "../unicorn/", default-features = false }
+
+# Serialization
+serde = { version = "1.0.144", features = ["derive"] }
+
+# Window and Rendering
+eframe = "0.19.0"
+
+# File Dialogs
+rfd = "0.10.0"
+
+# Image Manipulation
+image = "0.24.3"
+
+# General Improvements
+hashbrown = "0.12.3"
+tinystr = "0.6.2"
+
+# Audio Things
+rtrb = "0.2.2"
+hound = "3.4.0"

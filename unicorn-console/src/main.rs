@@ -84,14 +84,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         // Handle input events
         if input.update(&event) {
-                    // Close events
+            // Close events
             if input.key_pressed(VirtualKeyCode::Escape) || input.quit() {
                 *control_flow = ControlFlow::Exit;
                 return;
             }
 
-            if input.key_pressed(VirtualKeyCode::Space) {
+            // Put in pause
+            if input.key_pressed(VirtualKeyCode::F1) {
                 framework.gui.window_open = !framework.gui.window_open;
+                uc.switch_pause();
             }
 
             // Update the scale factor
