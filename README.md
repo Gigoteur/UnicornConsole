@@ -8,12 +8,12 @@
 [![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/Gigoteur/UnicornConsole/blob/master/LICENSE.md)
 
 
-Unicorn Console (previously known as PX8 in the past, but I think UnicornConsole is a better name) is a quick and dirty engine that let you do what you want with a resolution of 128x128 pixels. After few iterations, I try to keep some compatibility with [pico-8](https://www.lexaloffle.com/pico-8.php) as it is the first and still the best fantasy console (unfortunately not opensource, but go grab a license it is really valuable).
+Unicorn Console (previously known as PX8 in the past, but I think "Unicorn Console" is a better name) is a quick graphical engine that let you do what you want with a resolution of 128x128 pixels. After few iterations, I try to keep some compatibility with [pico-8](https://www.lexaloffle.com/pico-8.php) as it is the first and still the best fantasy console (unfortunately not opensource, but go grab a license it is really valuable).
 
 The main engine is not dependant of a specific GFX library so you can use it where you want:
-  * [unicorn](https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn): Main engine source code
-  * [unicorn-libretro](https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn-libretro): [libretro](http://www.libretro.com/index.php/api/) API version
-  * [unicorn-web](https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn-web): Webassembly version
+  * [unicorn](https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn): Main core engine
+  * [unicorn-console](https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn-console): GUI (egui+pixels) implementation to play game !!
+  * [unicorn-editor](https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn-editor): Edit GFX, sound of your card
   
   
 TOC:
@@ -34,32 +34,20 @@ TOC:
   * Dynamic sprites: create sprites dynamically with all size
   * Code: No limit size (lua, python, rust, javascript)
   * Map: 128x32 8-bit cells
-  * Editor: GFX editor (code/audio editor in progress) 
-  * Audio (still in progess)
+  * Editor: GFX editor
   
 
-## Download
-### Build
+## Build
 
 Cargo feature:
   * cpython: enable python support
-  * unicorn_plugin_lua: enable lua support
-  * duktape: enable duktape (javascript) support
+  * rlua: enable lua support
+  * wasm: enable wasm support
 
-You can choose to build the main UI to play/edit games:
+You can choose to build the main UI to play games:
 ```
-cd unicorn-devkit
+cd unicorn-console
 cargo build --release
-```
-
-and run it with the default embedded game:
-```
-./target/release/uc-devkit
-```
-
-or load an existing one:
-```
-./target/release/uc-devkit ../unicorn-games/floppybird/floppybird.uni
 ```
 
 You can also choose to build the libretro version:
@@ -80,7 +68,7 @@ retroarch -L target/release/libunicorn_libretro.so ../unicorn-examples/api_demos
 | ------------- | ------------- | ------------- |
 | Pico8 PNG  | X  | / |
 | Pico8 P8  | X  | / |
-| Unicorn (UNI) | X  | X |
+| Unicorn (CORN) | X  | X |
 
 ## Create
 

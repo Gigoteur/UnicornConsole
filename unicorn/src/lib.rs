@@ -12,6 +12,8 @@ extern crate image;
 
 extern crate anyhow;
 
+extern crate strum;
+
 extern crate png;
 
 extern crate gif;
@@ -19,7 +21,6 @@ extern crate ordered_float;
 
 extern crate regex;
 extern crate byteorder;
-extern crate rand;
 extern crate libc;
 extern crate glob;
 
@@ -30,14 +31,15 @@ extern crate unicode_width;
 
 extern crate log;
 
-extern crate serde;
-
 extern crate num_traits;
+
+extern crate serde;
 
 #[macro_use]
 pub mod config;
 pub mod gfx;
 pub mod core;
+pub mod input;
 pub mod cartridge;
 pub mod plugins;
 

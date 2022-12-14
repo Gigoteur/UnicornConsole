@@ -1,4 +1,5 @@
 mod gui;
+mod input;
 mod fps;
 mod frametimes;
 
@@ -107,14 +108,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 framework.resize(size.width, size.height);
             }
         
-            /*
-            screen.cls(5);
-
-            screen.line(0, 0, 50, 50, 7);
-            screen.trigon(0, 0, 50, 70, 100, 90, 4);
-            screen.print("Hello World".to_string(), 64, 64, 6);
-            */
-
             if uc.state == unicorn::core::UnicornState::RUN {
                 uc.update();
                 uc.draw();
