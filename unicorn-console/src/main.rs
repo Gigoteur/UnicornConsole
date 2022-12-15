@@ -2,6 +2,7 @@ mod gui;
 mod input;
 mod fps;
 mod frametimes;
+mod network;
 
 use unicorn;
 

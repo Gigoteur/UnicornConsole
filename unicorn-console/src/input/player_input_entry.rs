@@ -1,4 +1,4 @@
-use gamercade_core::{Buttons, InputState, MouseState};
+use unicorn::input::{Buttons, InputState, MouseState};
 
 #[derive(Debug, Default, Clone)]
 pub struct PlayerInputEntry {

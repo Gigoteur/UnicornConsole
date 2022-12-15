@@ -12,6 +12,8 @@ log = "0.4"
 env_logger= "0.10.0"
 unicorn = { path = "../unicorn/", default-features = false }
 
+hashbrown = { version = "0.12.3", features = ["serde"] }
+
 # Windowing & Graphics
 winit = { version = "0.27.5", features = ["serde"] }
 pixels = "0.10.0"

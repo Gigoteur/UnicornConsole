@@ -1,4 +1,4 @@
-use gamercade_core::ButtonCode;
+use unicorn::input::ButtonCode;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy)]

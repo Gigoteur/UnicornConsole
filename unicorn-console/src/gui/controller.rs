@@ -1,7 +1,7 @@
 use egui::{ComboBox, Slider, Ui};
 use gilrs::Gilrs;
 
-use crate::console::{InputMode, LocalInputManager, LocalKeyboardId};
+use crate::input::{InputMode, LocalInputManager, LocalKeyboardId};
 
 pub struct ControllerGui {
     pub local_player_count: usize,

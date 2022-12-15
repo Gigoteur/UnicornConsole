@@ -7,10 +7,10 @@ use winit::{dpi::PhysicalSize, window::Window};
 
 use unicorn;
 
-use controller_gui::ControllerGui;
-
-
+pub mod controller;
 pub mod framework;
+
+use controller::ControllerGui;
 
 pub struct Gui {
     pub window_open: bool,
@@ -64,7 +64,7 @@ impl Gui {
 
                 self.controller_gui
                 .draw(ui, session.is_none(), input, gilrs);
-                
+
                 // Draw internal content
                 let launch_game_text = "Launch Game";
                 

@@ -1,9 +1,9 @@
-use gamercade_core::{AnalogStick as AS, ButtonCode, InputState, MouseState};
+use unicorn::input::{AnalogStick as AS, ButtonCode, InputState, MouseState};
 use gilrs::{Axis, Button, Gamepad, GamepadId, Gilrs};
 use pixels::Pixels;
 use winit_input_helper::WinitInputHelper;
 
-use crate::console::network::NetworkInputState;
+use crate::network::NetworkInputState;
 
 use super::{
     gamepad_bindings::GamepadBindings,

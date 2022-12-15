@@ -1,4 +1,4 @@
-use gamercade_core::ButtonCode;
+use unicorn::input::ButtonCode;
 use gilrs::Button;
 use hashbrown::HashMap;
 

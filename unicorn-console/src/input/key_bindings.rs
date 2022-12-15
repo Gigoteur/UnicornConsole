@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use gamercade_core::ButtonCode;
+use unicorn::input::ButtonCode;
 
 use hashbrown::HashMap;
 use serde::{Deserialize, Serialize};
