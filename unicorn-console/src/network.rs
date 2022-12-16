@@ -4,7 +4,7 @@ use unicorn::input::{Buttons, InputState, MouseState};
 use ggrs::{Config, PlayerType};
 use wasmtime::Global;
 
-use super::WasmConsole;
+use unicorn::core::Unicorn;
 
 #[derive(Clone)]
 pub struct WasmConsoleState {
@@ -25,11 +25,11 @@ pub struct NetworkInputState {
     pub mouse_state: MouseState,
 }
 
-impl Config for WasmConsole {
+/*impl Config for Unicorn {
     type Input = NetworkInputState;
     type State = WasmConsoleState;
     type Address = SocketAddr;
-}
+}*/
 
 #[derive(Clone)]
 pub struct SessionDescriptor {

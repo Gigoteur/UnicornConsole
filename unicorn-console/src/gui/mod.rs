@@ -10,6 +10,7 @@ use unicorn;
 pub mod controller;
 pub mod framework;
 
+use crate::input::LocalInputManager;
 use controller::ControllerGui;
 
 pub struct Gui {
@@ -36,6 +37,7 @@ impl Gui {
         window: &Window,
         session: &mut unicorn::core::Unicorn,
         ctx: &Context,
+        input: &mut LocalInputManager,
         gilrs: &mut Gilrs,
     ) {
         let mut is_open = self.window_open;

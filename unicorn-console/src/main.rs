@@ -9,6 +9,8 @@ use unicorn;
 
 use crate::{
     gui::{framework::Framework, Gui},
+    input::LocalInputManager,
+    input::MouseEventCollector,
 };
 
 
@@ -49,6 +51,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut pixels = init_pixels(&window);
 
     let mut input = WinitInputHelper::new();
+    let mut input_manager = LocalInputManager::new();
     let mut last_update = Instant::now();
     
     let mut times = frametimes::FrameTimes::new(Duration::from_secs(1) / 60);
@@ -68,10 +71,49 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         &event_loop,
     );
 
+    let mut mouse_events = MouseEventCollector::default();
+
     event_loop.run(move |event, _, control_flow| {
         times.update();
         fps_counter.update(times.get_last_time());
         uc.fps = fps_counter.get_fps();
+
+        if uc.state == unicorn::core::UnicornState::RUN {
+            if let Event::DeviceEvent { event, .. } = &event {
+                if let DeviceEvent::MouseMotion { delta } = event {
+                    mouse_events.delta_x += delta.0 as i16;
+                    mouse_events.delta_y += delta.1 as i16;
+                }
+
+                if let DeviceEvent::MouseWheel { delta } = event {
+                    let mut out_x = 0.0;
+                    let mut out_y = 0.0;
+
+                    match delta {
+                        MouseScrollDelta::LineDelta(x, y) => {
+                            out_x += x;
+                            out_y += y;
+                        }
+                        MouseScrollDelta::PixelDelta(d) => {
+                            out_x += d.x as f32;
+                            out_y += d.y as f32
+                        }
+                    }
+
+                    if out_y > 0.0 {
+                        mouse_events.wheel_down = true
+                    } else if out_y < 0.0 {
+                        mouse_events.wheel_up = true
+                    }
+
+                    if out_x > 0.0 {
+                        mouse_events.wheel_right = true
+                    } else if out_x < 0.0 {
+                        mouse_events.wheel_left = true
+                    }
+                }
+            }
+        }
 
         if let Event::WindowEvent { event, .. } = &event {
             framework.handle_event(event);
@@ -81,6 +123,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             &mut pixels,
             &window,
             &mut uc,
+            &mut input_manager,
             &mut gilrs,
         );
 

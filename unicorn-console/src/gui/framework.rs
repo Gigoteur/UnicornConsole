@@ -5,6 +5,8 @@ use pixels::{wgpu, Pixels, PixelsContext};
 use winit::window::Window;
 use egui_winit::winit::event_loop::EventLoopWindowTarget;
 
+use crate::input::LocalInputManager;
+
 use super::Gui;
 
 /// Manages all state required for rendering egui over `Pixels`.
@@ -79,13 +81,14 @@ impl Framework {
         pixels: &mut Pixels,
         window: &Window,
         session: &mut unicorn::core::Unicorn,
+        input: &mut LocalInputManager,
         gilrs: &mut Gilrs,
     ) {
         // Run the egui frame and create all paint jobs to prepare for rendering.
         let raw_input = self.egui_state.take_egui_input(window);
         let output = self.egui_ctx.run(raw_input, |egui_ctx| {
             // Draw the demo application.
-            self.gui.ui(pixels, window, session, egui_ctx, gilrs);
+            self.gui.ui(pixels, window, session, egui_ctx, input, gilrs);
         });
 
         self.textures.append(output.textures_delta);

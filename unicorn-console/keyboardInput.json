@@ -1,0 +1,28 @@
+[
+  {
+    "Key5": "Start",
+    "Y": "RightTrigger",
+    "E": "LeftShoulder",
+    "Down": "Down",
+    "Left": "Left",
+    "W": "LeftYPositive",
+    "I": "ButtonB",
+    "T": "RightYPositive",
+    "Right": "Right",
+    "S": "LeftYNegative",
+    "K": "ButtonD",
+    "A": "LeftXNegative",
+    "G": "RightYNegative",
+    "Q": "LeftTrigger",
+    "F": "RightXNegative",
+    "H": "RightXPositive",
+    "R": "RightShoulder",
+    "D": "LeftXPositive",
+    "Up": "Up",
+    "Key6": "Select",
+    "X": "LeftStick",
+    "U": "ButtonA",
+    "J": "ButtonC",
+    "B": "RightStick"
+  }
+]

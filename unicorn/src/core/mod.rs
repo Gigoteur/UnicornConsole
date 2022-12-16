@@ -37,6 +37,7 @@ include!(concat!(env!("OUT_DIR"), "/parameters.rs"));
 
 #[derive(Debug,PartialEq)]
 pub enum UnicornState {
+    STOP,
     RUN,
     PAUSE,
     EDITOR,
@@ -226,7 +227,7 @@ impl Unicorn {
             editor: edit::edit::Editor::new(screen.clone()),
             editing: false,
            
-            state: UnicornState::PAUSE,
+            state: UnicornState::STOP,
             
             fps: 0.0,
             record: Record::new(),
@@ -236,6 +237,10 @@ impl Unicorn {
             major_version: MAJOR_VERSION,
             minor_version: MINOR_VERSION,
         }
+    }
+
+    pub fn is_none(&mut self) -> bool {
+        self.state == UnicornState::STOP
     }
 
     pub fn setup(&mut self) {
@@ -299,6 +304,9 @@ impl Unicorn {
 
     pub fn update(&mut self) -> bool {
         match self.state {
+            UnicornState::STOP => {
+
+            }
             UnicornState::PAUSE => {
             /*/    if self.pause_menu.stop() {
                     self.state = UnicornState::RUN;
@@ -323,6 +331,9 @@ impl Unicorn {
 
     pub fn draw(&mut self) {
         match self.state {
+            UnicornState::STOP => {
+
+            }
             UnicornState::PAUSE => {
                 // self.pause_menu.draw(&mut self.screen.lock().unwrap());
             }
@@ -524,6 +535,9 @@ impl Unicorn {
         let screen = &mut self.screen.lock().unwrap();
 
         match self.state {
+            UnicornState::STOP => {
+
+            }
             UnicornState::PAUSE => {
                 if self.editing {
                     self.state = UnicornState::EDITOR;
