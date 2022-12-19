@@ -1,22 +1,34 @@
 use egui::{Button, Context};
 use std::path::PathBuf;
+use std::net::SocketAddr;
+
 use gilrs::Gilrs;
 use pixels::Pixels;
 use rfd::FileDialog;
 use winit::{dpi::PhysicalSize, window::Window};
+use ggrs::{P2PSession, PlayerType, SessionBuilder, SessionState, UdpNonBlockingSocket};
 
 use unicorn;
 
 pub mod controller;
 pub mod framework;
+pub mod play_mode_gui;
 
 use crate::input::LocalInputManager;
+use crate::DEFAULT_WINDOW_RESOLUTION;
+use crate::network::SessionDescriptor;
 use controller::ControllerGui;
+use play_mode_gui::PlayModeGui;
+use crate::UnicornConsole;
 
 pub struct Gui {
     pub window_open: bool,
     pub game_file: Option<PathBuf>,
+
+    pub unicorn_console: Option<UnicornConsole>,
+
     pub controller_gui: ControllerGui,
+    pub play_mode_gui : PlayModeGui,
 }
 
 
@@ -25,7 +37,9 @@ impl Default for Gui {
         Self {
             window_open: true,
             game_file: None,
+            unicorn_console : None,
             controller_gui: ControllerGui::default(),
+            play_mode_gui: PlayModeGui::default(),
         }
     }
 }
@@ -35,7 +49,7 @@ impl Gui {
         &mut self,
         pixels: &mut Pixels,
         window: &Window,
-        session: &mut unicorn::core::Unicorn,
+        session: &mut Option<P2PSession<UnicornConsole>>,
         ctx: &Context,
         input: &mut LocalInputManager,
         gilrs: &mut Gilrs,
@@ -67,6 +81,8 @@ impl Gui {
                 self.controller_gui
                 .draw(ui, session.is_none(), input, gilrs);
 
+                self.play_mode_gui.draw(ui);
+
                 // Draw internal content
                 let launch_game_text = "Launch Game";
                 
@@ -79,11 +95,7 @@ impl Gui {
                         .clicked()
                     {
                         // Launch the game !
-                        self.window_open = false;
-
-                        let path = self.game_file.as_ref().unwrap();
-                        session.load_cartridge(String::from(path.to_string_lossy()), false);
-                        session.init();
+                        *session = self.try_launch_game(pixels, window);
                     }
 
                     let buttons_enabled = self.game_file.is_some();
@@ -105,5 +117,72 @@ impl Gui {
             });
     }
 
+    fn init_with_console(
+        &mut self,
+        rom: unicorn::core::Unicorn,
+        pixels: &mut Pixels,
+        window: &Window,
+        session_descriptor: SessionDescriptor,
+    ) -> P2PSession<UnicornConsole> {
+       /*  pixels.resize_buffer(rom.width(), rom.height());
+        window.set_inner_size(PhysicalSize::new(
+            rom.width().max(DEFAULT_WINDOW_RESOLUTION.width() as u32),
+            rom.height().max(DEFAULT_WINDOW_RESOLUTION.height() as u32),
+        ));*/
 
+        let (max_prediction, new_session) = {
+            let new_session = init_session(
+                &rom,
+                session_descriptor.port,
+                &session_descriptor.player_types,
+            );
+            (new_session.max_prediction(), new_session)
+        };
+
+        self.window_open = false;
+
+        let (mut console, reset) = UnicornConsole::new(rom);//, session_descriptor, max_prediction);
+        //console.sync_mouse(window);
+
+        self.unicorn_console = Some(console);
+        //self.initial_state = Some(reset);
+        new_session
+    }
+
+    pub(crate) fn try_launch_game(
+        &mut self,
+        pixels: &mut Pixels,
+        window: &Window,
+    ) -> Option<P2PSession<UnicornConsole>> {
+        let path = self.game_file.as_ref().unwrap();
+
+        let session_descriptor = self
+            .play_mode_gui
+            .generate_session_descriptor(self.controller_gui.local_player_count)?;
+
+        let mut rom = unicorn::core::Unicorn::new();
+        rom.load_cartridge(String::from(path.to_string_lossy()));
+        rom.init();
+
+        Some(self.init_with_console(rom, pixels, window, session_descriptor))
+    }
+
+}
+
+fn init_session(
+    rom: &unicorn::core::Unicorn,
+    port: u16,
+    players: &[PlayerType<SocketAddr>],
+) -> P2PSession<UnicornConsole> {
+    let mut sess_builder = SessionBuilder::new()
+        .with_num_players(players.len())
+        .with_fps(60)
+        .unwrap();
+
+    for (id, address) in players.iter().enumerate() {
+        sess_builder = sess_builder.add_player(*address, id).unwrap();
+    }
+
+    let socket = UdpNonBlockingSocket::bind_to_port(port).unwrap();
+    sess_builder.start_p2p_session(socket).unwrap()
 }

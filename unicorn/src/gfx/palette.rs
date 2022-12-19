@@ -3,7 +3,7 @@ use std::hash::Hash;
 use std::io::Cursor;
 use std::io::prelude::*;
 
-
+#[derive(Debug)]
 pub struct Palettes {
     pub palette_idx: u32,
     pub palettes: HashMap<String, Vec<RGB>>,

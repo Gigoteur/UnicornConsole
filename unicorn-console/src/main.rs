@@ -4,15 +4,17 @@ mod fps;
 mod frametimes;
 mod network;
 
+use network::UnicornConsoleState;
 use unicorn;
-
 
 use crate::{
     gui::{framework::Framework, Gui},
     input::LocalInputManager,
     input::MouseEventCollector,
+    input::LocalPlayerId,
 };
 
+use ggrs::{GGRSRequest, GGRSError, P2PSession, SessionState, Config};
 
 use log::{debug, error, log_enabled, info, Level};
 use env_logger;
@@ -21,6 +23,7 @@ use std::{
     path::PathBuf,
     time::{Duration, Instant},
     env,
+    sync::{Arc, Mutex}
 };
 
 use pixels::{Pixels, SurfaceTexture};
@@ -33,15 +36,101 @@ use winit::{
 use winit_input_helper::WinitInputHelper;
 use gilrs::Gilrs;
 
+pub trait Console: Sized + Config {
+    fn setup(&mut self);
+    fn update(&mut self);
+    fn draw(&mut self);
+    fn blit(&self, buffer: &mut [u8]);
+    fn frames_per_second(&mut self) -> usize;
+    fn handle_requests(&mut self, requests: Vec<GGRSRequest<Self>>);
+}
+
+pub struct UnicornConsole {
+    pub(crate) engine: Arc<Mutex<unicorn::core::Unicorn>>,
+}
+
+impl UnicornConsole {
+    pub fn new(engine: unicorn::core::Unicorn) -> (Self, UnicornConsoleState) {
+        let engine = Arc::new(Mutex::new(engine));
+
+        let mut out = Self {
+            engine,
+        };
+
+        let initial_state = out.generate_save_state();
+
+
+        (out, initial_state)
+    }
+
+    pub fn width(&mut self) -> u32 {
+        self.engine.lock().unwrap().width()
+    }
+
+    pub fn height(&mut self) -> u32 {
+        self.engine.lock().unwrap().height()
+    }
+    
+    fn generate_save_state(&mut self) -> UnicornConsoleState {
+        UnicornConsoleState {
+        }
+    }
+}
+
+impl Console for UnicornConsole {
+    fn frames_per_second(&mut self) -> usize {
+        let engine = self.engine.lock().unwrap();
+        
+        engine.frame_rate.frames_per_second()
+    }
+
+    fn setup(&mut self) {
+        self.engine.lock().unwrap().setup();
+    }
+
+    fn update(&mut self) {
+        self.engine.lock().unwrap().update();
+    }
+
+    fn draw(&mut self) {
+        self.engine.lock().unwrap().draw();
+    }
+
+    fn blit(&self, buffer: &mut [u8]) {
+        let engine = self.engine.lock().unwrap();
+        let screen = &mut engine.screen.lock().unwrap();
+        buffer.copy_from_slice(&screen.pixel_buffer);
+    }
+
+    fn handle_requests(&mut self, requests: Vec<GGRSRequest<Self>>) {
+        for request in requests {
+            match request {
+                GGRSRequest::SaveGameState { cell, frame } => {
+                    let state = self.generate_save_state();
+                    cell.save(frame, Some(state), None);
+                }
+                GGRSRequest::LoadGameState { cell, .. } => {
+                    let state = cell.load().expect("Failed to load game state");
+                   // self.load_save_state(state);
+                }
+                GGRSRequest::AdvanceFrame { inputs } => {
+                }
+            }
+        }
+    }
+
+}
+
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     env::set_var("RUST_LOG", "info");
     env_logger::init();
 
-    let mut uc = unicorn::core::Unicorn::new();
+    let mut session: Option<P2PSession<UnicornConsole>> = None;
+
+   // let mut uc = unicorn::core::Unicorn::new();
 
     let mut gilrs = Gilrs::new().unwrap();
-
 
     let event_loop = EventLoop::new();
 
@@ -59,8 +148,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut previous_frame_time = Instant::now();
 
     times.reset();
-    uc.setup();
 
+    let mut accumulator = Duration::ZERO;
 
     let mut framework = Framework::new(
         window_size.width,
@@ -76,9 +165,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     event_loop.run(move |event, _, control_flow| {
         times.update();
         fps_counter.update(times.get_last_time());
-        uc.fps = fps_counter.get_fps();
+      //  uc.fps = fps_counter.get_fps();
 
-        if uc.state == unicorn::core::UnicornState::RUN {
+        if session.is_some() {
             if let Event::DeviceEvent { event, .. } = &event {
                 if let DeviceEvent::MouseMotion { delta } = event {
                     mouse_events.delta_x += delta.0 as i16;
@@ -122,7 +211,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         framework.prepare(
             &mut pixels,
             &window,
-            &mut uc,
+            &mut session,
             &mut input_manager,
             &mut gilrs,
         );
@@ -138,7 +227,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             // Put in pause
             if input.key_pressed(VirtualKeyCode::F1) {
                 framework.gui.window_open = !framework.gui.window_open;
-                uc.switch_pause();
+                //uc.switch_pause();
             }
 
             // Update the scale factor
@@ -152,7 +241,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 framework.resize(size.width, size.height);
             }
         
-            if uc.state == unicorn::core::UnicornState::RUN {
+            
+           /* if uc.state == unicorn::core::UnicornState::RUN {
+
                 uc.update();
                 uc.draw();
             
@@ -160,10 +251,68 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 let dt = now.duration_since(previous_frame_time);
                 previous_frame_time = now;
                 uc.update_time(dt);
-            }
+            }*/
 
-            let screen = &mut uc.screen.lock().unwrap();
-            pixels.get_frame_mut().copy_from_slice(&screen.pixel_buffer);
+            if let Some(console) = &mut framework.gui.unicorn_console {
+               let session = session.as_mut().unwrap();
+               session.poll_remote_clients();
+
+               if session.current_state() == SessionState::Running {
+                    let mut fps_delta = 1. / console.frames_per_second() as f64;
+                    if session.frames_ahead() > 0 {
+                        fps_delta *= 1.1;
+                    }
+
+                    // get delta time from last iteration and accumulate it
+                    let delta = Instant::now().duration_since(last_update);
+                    accumulator = accumulator.saturating_add(delta);
+                    last_update = Instant::now();
+
+                    while accumulator.as_secs_f64() > fps_delta {
+                        accumulator =
+                        accumulator.saturating_sub(Duration::from_secs_f64(fps_delta));
+
+                        // Process all the gamepad events
+                        while gilrs.next_event().is_some() {}
+
+                        let shared_mouse = std::mem::take(&mut mouse_events);
+
+                        // Generate all local inputs
+                        let mut local_player_id = LocalPlayerId(0);
+                        for handle in session.local_player_handles() {
+                            session
+                                .add_local_input(
+                                    handle,
+                                    input_manager.generate_input_state(
+                                        local_player_id,
+                                        &pixels,
+                                        &shared_mouse,
+                                        &input,
+                                        &gilrs,
+                                    ),
+                                )
+                                .unwrap();
+                            local_player_id.0 += 1;
+                        }
+
+                        // Update internal state
+                        match session.advance_frame() {
+                            Ok(requests) => {
+                                console.handle_requests(requests);
+                            }
+                            Err(GGRSError::PredictionThreshold) => (),
+                            Err(e) => panic!("{}", e),
+                        }
+                    }
+
+                    console.update();
+                    console.draw();
+
+                    console.blit(pixels.get_frame_mut());
+               }
+            }
+            
+
 
             let render_result = pixels.render_with(|encoder, render_target, context| {
                 context.scaling_renderer.render(encoder, render_target);

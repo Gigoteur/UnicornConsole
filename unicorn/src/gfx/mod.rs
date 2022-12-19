@@ -3,6 +3,7 @@ pub mod camera;
 pub mod clip;
 pub mod palette;
 pub mod sprite;
+pub mod framerate;
 
 use log::{debug, error, info};
 
@@ -13,7 +14,7 @@ use std::ptr;
 use std::f64;
 use std::f64::consts::PI;
 
-
+#[derive(Debug)]
 pub struct Screen {
     pub width: usize,
     pub height: usize,

@@ -1,3 +1,5 @@
+use bytemuck::{cast, Pod, Zeroable};
+
 use super::input_code::*;
 
 #[repr(C)]
@@ -100,3 +102,13 @@ impl Buttons {
         self.state & code.to_bit_mask() != 0
     }
 }
+
+unsafe impl Pod for Buttons {}
+unsafe impl Pod for AnalogTrigger {}
+unsafe impl Pod for AnalogStick {}
+unsafe impl Pod for InputState {}
+
+unsafe impl Zeroable for Buttons {}
+unsafe impl Zeroable for AnalogTrigger {}
+unsafe impl Zeroable for AnalogStick {}
+unsafe impl Zeroable for InputState {}

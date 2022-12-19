@@ -1,6 +1,10 @@
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
-#[repr(C)]
-pub struct MouseState(pub u64);
+use bytemuck::{Pod, Zeroable};
+
+#[repr(transparent)]
+#[derive(Default, Debug, Copy, Clone, PartialEq, Eq, Pod, Zeroable)]
+pub struct MouseState {
+    pub state : u64,
+}
 
 // Uses 29/32 bits
 const MASK: u64 = 0b111_1111_1111; // 11 bits
@@ -23,109 +27,109 @@ const Y_DELTA_SHIFT: u64 = 32 + u16::BITS as u64;
 
 impl MouseState {
     pub fn get_x_pos(self) -> u32 {
-        ((self.0 & MASK << X_SHIFT) >> X_SHIFT) as u32
+        ((self.state & MASK << X_SHIFT) >> X_SHIFT) as u32
     }
 
     pub fn get_y_pos(self) -> u32 {
-        ((self.0 & MASK << Y_SHIFT) >> Y_SHIFT) as u32
+        ((self.state & MASK << Y_SHIFT) >> Y_SHIFT) as u32
     }
 
     pub fn get_left_button_down(self) -> bool {
-        self.0 & 1 << LEFT_BUTTON_SHIFT != 0
+        self.state & 1 << LEFT_BUTTON_SHIFT != 0
     }
 
     pub fn get_right_button_down(self) -> bool {
-        self.0 & 1 << RIGHT_BUTTON_SHIFT != 0
+        self.state & 1 << RIGHT_BUTTON_SHIFT != 0
     }
 
     pub fn get_middle_button_down(self) -> bool {
-        self.0 & 1 << MIDDLE_BUTTON_SHIFT != 0
+        self.state & 1 << MIDDLE_BUTTON_SHIFT != 0
     }
 
     pub fn get_wheel_up(self) -> bool {
-        self.0 & 1 << WHEEL_UP != 0
+        self.state & 1 << WHEEL_UP != 0
     }
 
     pub fn get_wheel_down(self) -> bool {
-        self.0 & 1 << WHEEL_DOWN != 0
+        self.state & 1 << WHEEL_DOWN != 0
     }
 
     pub fn get_wheel_left(self) -> bool {
-        self.0 & 1 << WHEEL_LEFT != 0
+        self.state & 1 << WHEEL_LEFT != 0
     }
 
     pub fn get_wheel_right(self) -> bool {
-        self.0 & 1 << WHEEL_RIGHT != 0
+        self.state & 1 << WHEEL_RIGHT != 0
     }
 
     pub fn get_x_delta(self) -> i32 {
-        ((self.0 & DELTA_MASK << X_DELTA_SHIFT) >> X_DELTA_SHIFT) as i16 as i32
+        ((self.state & DELTA_MASK << X_DELTA_SHIFT) >> X_DELTA_SHIFT) as i16 as i32
     }
 
     pub fn get_y_delta(self) -> i32 {
-        ((self.0 & DELTA_MASK << Y_DELTA_SHIFT) >> Y_DELTA_SHIFT) as i16 as i32
+        ((self.state & DELTA_MASK << Y_DELTA_SHIFT) >> Y_DELTA_SHIFT) as i16 as i32
     }
 
     pub fn set_x_pos(&mut self, value: u32) {
-        self.0 &= !(MASK << X_SHIFT);
-        self.0 |= (value as u64) << X_SHIFT;
+        self.state &= !(MASK << X_SHIFT);
+        self.state |= (value as u64) << X_SHIFT;
     }
 
     pub fn set_y_pos(&mut self, value: u32) {
-        self.0 &= !(MASK << Y_SHIFT);
-        self.0 |= (value as u64) << Y_SHIFT;
+        self.state &= !(MASK << Y_SHIFT);
+        self.state |= (value as u64) << Y_SHIFT;
     }
 
     pub fn set_left_button(&mut self, value: bool) {
         let value = value as u64;
-        self.0 &= !(value << LEFT_BUTTON_SHIFT);
-        self.0 |= value << LEFT_BUTTON_SHIFT;
+        self.state &= !(value << LEFT_BUTTON_SHIFT);
+        self.state |= value << LEFT_BUTTON_SHIFT;
     }
 
     pub fn set_middle_button(&mut self, value: bool) {
         let value = value as u64;
-        self.0 &= !(value << MIDDLE_BUTTON_SHIFT);
-        self.0 |= value << MIDDLE_BUTTON_SHIFT;
+        self.state &= !(value << MIDDLE_BUTTON_SHIFT);
+        self.state |= value << MIDDLE_BUTTON_SHIFT;
     }
 
     pub fn set_right_button(&mut self, value: bool) {
         let value = value as u64;
-        self.0 &= !(value << RIGHT_BUTTON_SHIFT);
-        self.0 |= value << RIGHT_BUTTON_SHIFT;
+        self.state &= !(value << RIGHT_BUTTON_SHIFT);
+        self.state |= value << RIGHT_BUTTON_SHIFT;
     }
 
     pub fn set_wheel_up(&mut self, value: bool) {
         let value = value as u64;
-        self.0 &= !(value << WHEEL_LEFT);
-        self.0 |= value << WHEEL_LEFT;
+        self.state &= !(value << WHEEL_LEFT);
+        self.state |= value << WHEEL_LEFT;
     }
 
     pub fn set_wheel_down(&mut self, value: bool) {
         let value = value as u64;
-        self.0 &= !(value << WHEEL_DOWN);
-        self.0 |= value << WHEEL_DOWN;
+        self.state &= !(value << WHEEL_DOWN);
+        self.state |= value << WHEEL_DOWN;
     }
 
     pub fn set_wheel_left(&mut self, value: bool) {
         let value = value as u64;
-        self.0 &= !(value << WHEEL_LEFT);
-        self.0 |= value << WHEEL_LEFT;
+        self.state &= !(value << WHEEL_LEFT);
+        self.state |= value << WHEEL_LEFT;
     }
 
     pub fn set_wheel_right(&mut self, value: bool) {
         let value = value as u64;
-        self.0 &= !(value << WHEEL_RIGHT);
-        self.0 |= value << WHEEL_RIGHT;
+        self.state &= !(value << WHEEL_RIGHT);
+        self.state |= value << WHEEL_RIGHT;
     }
 
     pub fn set_x_delta(&mut self, value: i32) {
-        self.0 &= !(DELTA_MASK << X_DELTA_SHIFT);
-        self.0 |= (value as u32 as u64) << X_DELTA_SHIFT;
+        self.state &= !(DELTA_MASK << X_DELTA_SHIFT);
+        self.state |= (value as u32 as u64) << X_DELTA_SHIFT;
     }
 
     pub fn set_y_delta(&mut self, value: i32) {
-        self.0 &= !(DELTA_MASK << Y_DELTA_SHIFT);
-        self.0 |= (value as u32 as u64) << Y_DELTA_SHIFT;
+        self.state &= !(DELTA_MASK << Y_DELTA_SHIFT);
+        self.state |= (value as u32 as u64) << Y_DELTA_SHIFT;
     }
 }
 
@@ -152,12 +156,12 @@ mod tests {
         out.set_y_pos(0);
         assert_eq!(out.get_x_pos(), 0);
         assert_eq!(out.get_y_pos(), 0);
-        assert_eq!(out.0, 0);
+        assert_eq!(out.state, 0);
 
         out.set_left_button(false);
         out.set_middle_button(false);
         out.set_right_button(false);
-        assert_eq!(out.0, 0);
+        assert_eq!(out.state, 0);
 
         out.set_left_button(true);
         out.set_middle_button(true);
@@ -190,12 +194,12 @@ mod tests {
         out.set_y_delta(0);
         assert_eq!(out.get_x_pos(), 0);
         assert_eq!(out.get_y_pos(), 0);
-        assert_eq!(out.0, 0);
+        assert_eq!(out.state, 0);
 
         out.set_left_button(false);
         out.set_middle_button(false);
         out.set_right_button(false);
-        assert_eq!(out.0, 0);
+        assert_eq!(out.state, 0);
 
         out.set_left_button(true);
         out.set_middle_button(true);

@@ -1,6 +1,6 @@
 use num_traits::pow;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct DynamicSprite {
     pub data: Vec<u8>,
     pub width: u32,

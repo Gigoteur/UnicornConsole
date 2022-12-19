@@ -35,7 +35,7 @@ use cartridge::{Cartridge, CartridgeFormat};
 
 include!(concat!(env!("OUT_DIR"), "/parameters.rs"));
 
-#[derive(Debug,PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum UnicornState {
     STOP,
     RUN,
@@ -64,6 +64,7 @@ pub fn draw_logo(screen: &mut gfx::Screen) {
         7);
 }
 
+#[derive(Debug)]
 pub struct Record {
     pub recording: bool,
     pub images: Vec<u8>,
@@ -84,7 +85,7 @@ impl Record {
     }
 }
 
-
+#[derive(Debug)]
 pub struct UnicornConfig {
     pub show_info_overlay: bool,
     pub show_mouse: bool,
@@ -107,6 +108,8 @@ impl UnicornConfig {
     }
 }
 
+
+
 pub struct UnicornCartridge {
     pub filename: String,
     pub full_filename: String,
@@ -119,15 +122,6 @@ pub struct UnicornCartridge {
     pub lua_plugin: LuaPlugin,
     pub python_plugin: PythonPlugin,
     pub javascript_plugin: JavascriptPlugin,
-}
-
-
-impl fmt::Debug for UnicornCartridge {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f,
-               "Unicorn Cartridge {{ cart: {:?} }}",
-               self.cartridge)
-    }
 }
 
 
@@ -194,14 +188,21 @@ impl UnicornCartridge {
     }
 }
 
+impl fmt::Debug for UnicornCartridge {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f,
+               "Unicorn Cartridge {{ cart: {:?} }}",
+               self.cartridge)
+    }
+}
+
+
 pub struct Unicorn {
     pub screen: Arc<Mutex<gfx::Screen>>,
     pub info: Arc<Mutex<info::Info>>,
     pub players: Arc<Mutex<Players>>,
     pub configuration: Arc<Mutex<UnicornConfig>>,
     pub cartridge: UnicornCartridge,
-    pub editor: edit::edit::Editor,
-    pub editing: bool,
     pub state: UnicornState,
     pub fps: f64,
     pub record: Record,
@@ -209,6 +210,7 @@ pub struct Unicorn {
     pub version: u32,
     pub major_version: u32,
     pub minor_version: u32,
+    pub frame_rate: gfx::framerate::FrameRate,
 }
 
 impl Unicorn {
@@ -224,8 +226,6 @@ impl Unicorn {
             configuration: Arc::new(Mutex::new(UnicornConfig::new())),
             
             cartridge: UnicornCartridge::zero(),
-            editor: edit::edit::Editor::new(screen.clone()),
-            editing: false,
            
             state: UnicornState::STOP,
             
@@ -236,9 +236,19 @@ impl Unicorn {
             version: VERSION,
             major_version: MAJOR_VERSION,
             minor_version: MINOR_VERSION,
+
+            frame_rate: gfx::framerate::FrameRate::default(),
         }
     }
 
+    pub fn width(&mut self) -> u32 {
+        MAP_WIDTH as u32
+    }
+
+    pub fn height(&mut self) -> u32 {
+        MAP_HEIGHT as u32
+    }
+    
     pub fn is_none(&mut self) -> bool {
         self.state == UnicornState::STOP
     }
@@ -539,11 +549,7 @@ impl Unicorn {
 
             }
             UnicornState::PAUSE => {
-                if self.editing {
-                    self.state = UnicornState::EDITOR;
-                } else {
-                    self.state = UnicornState::RUN;
-                }
+                self.state = UnicornState::RUN;
                 /* Restore previous state */
                 screen.restore();
                 screen.font(&self.cartridge.font_name.clone());
@@ -591,8 +597,7 @@ impl Unicorn {
     }
 
     pub fn _load_cartridge(&mut self,
-                           cartridge: &mut UnicornCartridge,
-                           editor: bool)
+                           cartridge: &mut UnicornCartridge)
                            -> bool {
         info!("[Unicorn] Loading cartridge {:?}", cartridge);
 
@@ -642,7 +647,7 @@ impl Unicorn {
         ret
     }
 
-    pub fn load_cartridge(&mut self, filename: String, editor: bool) -> bool {
+    pub fn load_cartridge(&mut self, filename: String) -> bool {
         info!("[Unicorn] Load cartridge from {:?}", filename);
 
         let cartridge;
@@ -671,11 +676,9 @@ impl Unicorn {
         }
 
         let mut unicorn_cartridge = UnicornCartridge::new(cartridge, filename);
-        let ret = self._load_cartridge(&mut unicorn_cartridge, editor);
+        let ret = self._load_cartridge(&mut unicorn_cartridge);
         if ret {
-            if self.state != UnicornState::EDITOR {
-                self.state = UnicornState::RUN;
-            }
+            self.state = UnicornState::RUN;
             unicorn_cartridge.loaded = true;
 
             self.cartridge = unicorn_cartridge;

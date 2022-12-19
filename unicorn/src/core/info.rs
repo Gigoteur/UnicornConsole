@@ -1,5 +1,6 @@
 use std::time::Duration;
 
+#[derive(Debug)]
 pub struct Info {
     pub current: Duration,
     pub milliseconds: u64,

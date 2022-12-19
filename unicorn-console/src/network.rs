@@ -1,16 +1,17 @@
 use std::net::SocketAddr;
+use bytemuck::{Pod, Zeroable};
 
-use unicorn::input::{Buttons, InputState, MouseState};
 use ggrs::{Config, PlayerType};
 use wasmtime::Global;
 
-use unicorn::core::Unicorn;
+use unicorn::input::{Buttons, InputState, MouseState};
+use crate::UnicornConsole;
 
 #[derive(Clone)]
-pub struct WasmConsoleState {
-    pub(crate) previous_buttons: Box<[Buttons]>,
-    pub(crate) memories: Vec<Vec<u8>>,
-    pub(crate) mutable_globals: Vec<Global>,
+pub struct UnicornConsoleState {
+ //   pub(crate) previous_buttons: Box<[Buttons]>,
+ //   pub(crate) memories: Vec<Vec<u8>>,
+ //   pub(crate) mutable_globals: Vec<Global>,
 }
 
 pub struct SaveStateDefinition {
@@ -18,18 +19,18 @@ pub struct SaveStateDefinition {
     pub(crate) mutable_globals: Vec<String>,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Pod, Zeroable, Clone, Copy, PartialEq, Eq)]
 #[repr(C)]
 pub struct NetworkInputState {
     pub input_state: InputState,
     pub mouse_state: MouseState,
 }
 
-/*impl Config for Unicorn {
+impl Config for UnicornConsole {
     type Input = NetworkInputState;
-    type State = WasmConsoleState;
+    type State = UnicornConsoleState;
     type Address = SocketAddr;
-}*/
+}
 
 #[derive(Clone)]
 pub struct SessionDescriptor {

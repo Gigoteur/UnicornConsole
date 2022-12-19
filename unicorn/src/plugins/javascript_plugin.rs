@@ -82,6 +82,7 @@ pub mod plugin {
         show_mouse              #               #               #
     */
 
+    #[derive(Debug)]
     pub struct JavascriptPluginRust {
         info: Vec<Arc<Mutex<Info>>>,
         screen: Vec<Arc<Mutex<Screen>>>,
@@ -758,6 +759,7 @@ pub mod plugin {
     use gfx::Screen;
 
 
+    #[derive(Debug)]
     pub struct JavascriptPlugin {}
 
     impl JavascriptPlugin {

@@ -802,6 +802,7 @@ buttons.append(Button(110, 110, 16, 8, 9, "next"))
 buttons.append(Button(90, 110, 16, 8, 9, "prev"))
 
 def _init():
+    debug_print("PYTHON INIT")
     global demos, idx_demo
     cls()
     show_mouse(True)

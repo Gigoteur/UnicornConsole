@@ -4,8 +4,10 @@ use gilrs::Gilrs;
 use pixels::{wgpu, Pixels, PixelsContext};
 use winit::window::Window;
 use egui_winit::winit::event_loop::EventLoopWindowTarget;
+use ggrs::P2PSession;
 
 use crate::input::LocalInputManager;
+use crate::UnicornConsole;
 
 use super::Gui;
 
@@ -80,7 +82,7 @@ impl Framework {
         &mut self,
         pixels: &mut Pixels,
         window: &Window,
-        session: &mut unicorn::core::Unicorn,
+        session: &mut Option<P2PSession<UnicornConsole>>,
         input: &mut LocalInputManager,
         gilrs: &mut Gilrs,
     ) {

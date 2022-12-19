@@ -8,6 +8,7 @@ use self::scancode::{Scancode, Mod};
 
 use std::collections::HashMap;
 
+#[derive(Debug)]
 pub struct Mouse {
     pub x: i32,
     pub y: i32,
@@ -27,6 +28,7 @@ impl Mouse {
         }
     }
 }
+#[derive(Debug)]
 pub struct PlayerKeys {
     frames: HashMap<PX8Key, f64>,
     keys: HashMap<PX8Key, bool>,
@@ -64,6 +66,7 @@ impl PlayerKeys {
     }
 }
 
+#[derive(Debug)]
 pub struct Players {
     pub pkeys: HashMap<u8, PlayerKeys>,
     pub mouse: Mouse,

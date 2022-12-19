@@ -4,6 +4,7 @@ pub mod cbmii;
 pub mod appleii;
 pub mod trollmini;
 
+#[derive(Debug)]
 pub struct Font {
     // Width of glyph in pixels
     pub glyph_width: i32,

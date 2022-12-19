@@ -297,7 +297,7 @@ pub mod plugin {
         }
     }
 
-
+    #[derive(Debug)]
     pub struct LuaPlugin {
         lua: Lua,
         loaded_code: bool,
@@ -762,7 +762,7 @@ pub mod plugin {
 
     use gfx::Screen;
 
-
+    #[derive(Debug)]
     pub struct LuaPlugin {}
 
     impl LuaPlugin {

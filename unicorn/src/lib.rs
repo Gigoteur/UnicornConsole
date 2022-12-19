@@ -12,6 +12,7 @@ extern crate image;
 
 extern crate anyhow;
 
+extern crate bytemuck;
 extern crate strum;
 
 extern crate png;

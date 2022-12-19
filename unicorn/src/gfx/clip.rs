@@ -1,6 +1,7 @@
 use std::cmp;
 
 // ClipRect rectangle is exclusive of right and bottom edges
+#[derive(Debug)]
 pub struct ClipRect {
     pub left: i32,
     pub top: i32,

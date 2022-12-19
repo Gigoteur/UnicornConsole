@@ -2,6 +2,7 @@
 #[allow(unused_variables)]
 pub mod plugin {
     use log::{error, info, debug};
+    use std::fmt;
 
     use cpython::*;
 
@@ -590,6 +591,7 @@ pub mod plugin {
     use gfx::palette::Palettes;
     use core::UnicornConfig;
 
+    #[derive(Debug)]
     pub struct PythonPlugin {}
 
     impl PythonPlugin {
