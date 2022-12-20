@@ -46,3 +46,6 @@ gilrs = "0.9.0"
 
 # File Picker Dialog
 rfd = "0.10.0"
+
+# Macros & Helpers
+paste = "1.0.8"

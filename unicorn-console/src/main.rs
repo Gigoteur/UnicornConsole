@@ -3,6 +3,7 @@ mod input;
 mod fps;
 mod frametimes;
 mod network;
+mod contexts;
 
 use network::UnicornConsoleState;
 use unicorn;
