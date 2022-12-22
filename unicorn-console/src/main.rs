@@ -45,15 +45,18 @@ pub trait Console: Sized + Config {
 }
 
 pub struct UnicornConsole {
-    pub(crate) engine: Arc<Mutex<unicorn::core::Unicorn>>,
+    pub engine: Arc<Mutex<unicorn::core::Unicorn>>,
+    pub contexts: unicorn::contexts::Contexts,
 }
 
 impl UnicornConsole {
     pub fn new(engine: unicorn::core::Unicorn) -> (Self, UnicornConsoleState) {
         let engine = Arc::new(Mutex::new(engine));
+        let  contexts = unicorn::contexts::Contexts::new(2);
 
         let mut out = Self {
             engine,
+            contexts,
         };
 
         let initial_state = out.generate_save_state();
@@ -102,6 +105,7 @@ impl Console for UnicornConsole {
     }
 
     fn handle_requests(&mut self, requests: Vec<GGRSRequest<Self>>) {
+
         for request in requests {
             match request {
                 GGRSRequest::SaveGameState { cell, frame } => {
@@ -113,18 +117,18 @@ impl Console for UnicornConsole {
                    // self.load_save_state(state);
                 }
                 GGRSRequest::AdvanceFrame { inputs } => {
-                    /*self.store
-                        .data_mut()
-                        .input_context
+                        self.contexts.input_context
                         .input_entries
                         .iter_mut()
                         .zip(inputs.iter())
                         .for_each(|(current, new)| {
                             current.current = new.0.input_state;
                             current.current_mouse = new.0.mouse_state;
-                        });*/
+                        });
 
-                    self.update();
+                   println!("{:?}", self.contexts.input_context.input_entries[0].current.buttons.get_button_state(unicorn::input::ButtonCode::ButtonA));
+
+                   self.update();
 
                 }
             }

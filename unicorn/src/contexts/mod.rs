@@ -1,7 +1,7 @@
 mod input_context;
 
 pub struct Contexts {
-    pub(crate) input_context: input_context::InputContext,
+    pub input_context: input_context::InputContext,
 }
 
 impl Contexts {

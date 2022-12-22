@@ -176,8 +176,8 @@ derive_bind_input_api! {
 
 #[derive(Clone)]
 pub struct InputContext {
-    pub(crate) input_entries: Box<[PlayerInputEntry]>,
-    pub(crate) mouse_locked: bool,
+    pub input_entries: Box<[PlayerInputEntry]>,
+    pub mouse_locked: bool,
 }
 
 impl InputContext {
