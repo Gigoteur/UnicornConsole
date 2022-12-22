@@ -1,6 +1,6 @@
 use paste::paste;
 
-use unicorn::input::{ButtonCode, InputState};
+use crate::input::{ButtonCode, InputState};
 
 use crate::input::PlayerInputEntry;
 
@@ -328,7 +328,7 @@ macro_rules! derive_generate_input_api {
                     if let Some(player_input) = self.input_entries.get(player_id as usize) {
                         player_input.current_mouse.state as i64
                     } else {
-                        1 << unicorn::input::MOUSE_INVALID_BIT
+                        1 << crate::input::MOUSE_INVALID_BIT
                     }
                 }
 

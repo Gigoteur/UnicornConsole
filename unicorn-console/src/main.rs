@@ -3,16 +3,14 @@ mod input;
 mod fps;
 mod frametimes;
 mod network;
-mod contexts;
 
 use network::UnicornConsoleState;
 use unicorn;
 
+use crate::input::{LocalInputManager, MouseEventCollector, LocalPlayerId};
+
 use crate::{
     gui::{framework::Framework, Gui},
-    input::LocalInputManager,
-    input::MouseEventCollector,
-    input::LocalPlayerId,
 };
 
 use ggrs::{GGRSRequest, GGRSError, P2PSession, SessionState, Config};
@@ -115,6 +113,19 @@ impl Console for UnicornConsole {
                    // self.load_save_state(state);
                 }
                 GGRSRequest::AdvanceFrame { inputs } => {
+                    /*self.store
+                        .data_mut()
+                        .input_context
+                        .input_entries
+                        .iter_mut()
+                        .zip(inputs.iter())
+                        .for_each(|(current, new)| {
+                            current.current = new.0.input_state;
+                            current.current_mouse = new.0.mouse_state;
+                        });*/
+
+                    self.update();
+
                 }
             }
         }
@@ -306,9 +317,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         }
                     }
 
-                    console.update();
                     console.draw();
-
                     console.blit(pixels.get_frame_mut());
                }
             }

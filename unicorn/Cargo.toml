@@ -49,6 +49,7 @@ anyhow = "1.0"
 strum = { version = "0.24.1", features = ["derive"] }
 fastrand = "1.8.0"
 bytemuck = {version = "1.12.3", features = ["derive"]}
+paste = "1.0.8"
 
 [dependencies.cpython]
 version = "0.7"

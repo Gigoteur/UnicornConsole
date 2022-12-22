@@ -36,6 +36,9 @@ extern crate num_traits;
 
 extern crate serde;
 
+extern crate paste;
+
+
 #[macro_use]
 pub mod config;
 pub mod gfx;
@@ -43,5 +46,6 @@ pub mod core;
 pub mod input;
 pub mod cartridge;
 pub mod plugins;
+pub mod contexts;
 
 include!(concat!(env!("OUT_DIR"), "/parameters.rs"));
