@@ -128,6 +128,7 @@ impl Console for UnicornConsole {
 
                    println!("{:?}", self.contexts.input_context.input_entries[0].current.buttons.get_button_state(unicorn::input::ButtonCode::ButtonA));
 
+                   self.contexts.input_context.button_a_released(0);
                    self.update();
 
                 }

@@ -38,6 +38,14 @@ extern crate serde;
 
 extern crate paste;
 
+extern crate base64;
+
+extern crate arrayvec;
+
+extern crate tinystr;
+
+extern crate rtrb;
+
 
 #[macro_use]
 pub mod config;
@@ -47,5 +55,6 @@ pub mod input;
 pub mod cartridge;
 pub mod plugins;
 pub mod contexts;
+pub mod audio;
 
 include!(concat!(env!("OUT_DIR"), "/parameters.rs"));

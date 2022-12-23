@@ -4,6 +4,27 @@ use crate::input::{ButtonCode, InputState};
 
 use crate::input::PlayerInputEntry;
 
+#[derive(Clone, Copy)]
+/// A Raw Input State. Contains buttons and analog stick data.
+pub struct RawInputState(pub i64);
+
+impl RawInputState {
+    fn is_valid(self) -> bool {
+        self.0 & 1 << 63 == 0
+    }
+}
+
+#[derive(Clone, Copy)]
+/// A Raw Mouse state. Contains X/Y positions, deltas, and button states.
+pub struct RawMouseState(pub i64);
+
+impl RawMouseState {
+    fn is_valid(self) -> bool {
+        self.0 & 1 << 31 == 0
+    }
+}
+
+
 macro_rules! derive_bind_input_api {
     (
         Buttons { $($btn_name:ident,)* },
