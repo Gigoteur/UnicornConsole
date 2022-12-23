@@ -54,6 +54,7 @@ arrayvec = { version = "0.7.2", features = ["serde"] }
 tinystr = "0.6.2"
 rtrb = "0.2.2"
 base64 = "0.13.0"
+cpal = "0.13.5"
 
 [dependencies.cpython]
 version = "0.7"

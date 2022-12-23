@@ -46,6 +46,7 @@ extern crate tinystr;
 
 extern crate rtrb;
 
+extern crate cpal;
 
 #[macro_use]
 pub mod config;
@@ -56,5 +57,6 @@ pub mod cartridge;
 pub mod plugins;
 pub mod contexts;
 pub mod audio;
+pub mod sound;
 
 include!(concat!(env!("OUT_DIR"), "/parameters.rs"));
