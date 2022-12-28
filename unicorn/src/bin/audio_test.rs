@@ -1,12 +1,32 @@
 use std::{process, sync::Arc, time::Duration};
 
+extern crate unicorn;
+extern crate arrayvec;
+extern crate hound;
+
 use arrayvec::ArrayVec;
-use gamercade_audio::{
-    Chain, ChainId, EnvelopeDefinition, IndexInterpolator, InstrumentDataDefinition, InstrumentId,
-    LoopMode, PatchDefinition, Phrase, PhraseId, SampleBitDepth, SampleDefinition, Song, SongId,
-    SoundRom, WavetableDefinition, WavetableGenerator, WavetableWaveform,
-};
-use gamercade_sound_engine::{SoundEngine, SoundEngineData, SoundRomInstance};
+
+use unicorn::audio::tracker::chain::{Chain, ChainId};
+use unicorn::audio::envelope_definition::EnvelopeDefinition;
+use unicorn::audio::instruments::index_interpolator::IndexInterpolator;
+use unicorn::audio::instruments::instrument_data_definition::InstrumentDataDefinition;
+use unicorn::audio::instruments::instrument_data_definition::InstrumentId;
+use unicorn::audio::instruments::sampler::loop_mode::LoopMode;
+use unicorn::audio::instruments::fm::patch_definition::PatchDefinition;
+use unicorn::audio::tracker::phrase::Phrase;
+use unicorn::audio::tracker::phrase::PhraseId;
+use unicorn::audio::instruments::sampler::SampleBitDepth;
+use unicorn::audio::instruments::sampler::sample_definition::SampleDefinition;
+use unicorn::audio::tracker::song::Song;
+use unicorn::audio::tracker::song::SongId;
+use unicorn::audio::sound_rom::SoundRom;
+use unicorn::audio::instruments::wavetable::wavetable_definition::WavetableDefinition;
+use unicorn::audio::instruments::wavetable::wavetable_generator::WavetableGenerator;
+use unicorn::audio::instruments::wavetable::wavetable_waveform::WavetableWaveform;
+
+use unicorn::sound::sound_engine::{SoundEngine, SoundEngineData};
+use unicorn::sound::sound_rom_instance::SoundRomInstance;
+
 use hound::WavReader;
 
 const FPS: usize = 60;
@@ -43,7 +63,7 @@ fn test_rom() -> SoundRomInstance {
             }
             .generate(),
             envelope: EnvelopeDefinition::interesting(),
-            interpolator: gamercade_audio::IndexInterpolator::Linear,
+            interpolator: IndexInterpolator::Linear,
         })),
         Some(InstrumentDataDefinition::Sampler(sampler_no_pitch())),
         Some(InstrumentDataDefinition::Sampler(sampler_pitched())),
@@ -120,7 +140,7 @@ fn test_rom() -> SoundRomInstance {
 }
 
 fn sampler_no_pitch() -> SampleDefinition {
-    let reader = WavReader::open("./gamercade_sound_engine/CantinaBand3.wav").unwrap();
+    let reader = WavReader::open("./src/bin/testdata/CantinaBand3.wav").unwrap();
     let spec = reader.spec();
     let channels = spec.channels;
     let source_sample_rate = spec.sample_rate as usize;
@@ -147,7 +167,7 @@ fn sampler_no_pitch() -> SampleDefinition {
 }
 
 fn sampler_pitched() -> SampleDefinition {
-    let reader = WavReader::open("./gamercade_sound_engine/1_piano_mid.wav").unwrap();
+    let reader = WavReader::open("./src/bin/testdata/1_piano_mid.wav").unwrap();
     let spec = reader.spec();
     let channels = spec.channels;
     let source_sample_rate = spec.sample_rate as usize;

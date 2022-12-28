@@ -17,6 +17,10 @@ exclude = [ ".idea/*", ".travis.yml" ]
 name       = "unicorn"
 path       = "src/lib.rs"
 
+[[bin]]
+name = "audio_test"
+path = "src/bin/audio_test.rs"
+
 [profile.release]
 opt-level = 3
 debug = false
@@ -54,6 +58,10 @@ tinystr = "0.6.2"
 rtrb = "0.2.2"
 base64 = "0.13.0"
 cpal = "0.13.5"
+
+
+# for .wav of the bin directory
+hound = "3.4.0"
 
 [dependencies.cpython]
 version = "0.7"

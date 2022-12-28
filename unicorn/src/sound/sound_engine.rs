@@ -7,6 +7,14 @@ use cpal::{
 };
 use rtrb::{Consumer, Producer, RingBuffer};
 
+use crate::audio::sound_rom::Sfx;
+use crate::audio::tracker::song::SongId;
+use crate::audio::consts::{SFX_CHANNELS, SONG_TRACK_CHANNELS};
+
+use crate::audio::envelope_definition::EnvelopeDefinition;
+use crate::audio::instruments::wavetable::wavetable_definition::WavetableDefinition;
+
+
 use crate::audio::instruments::instrument_data_definition::InstrumentId;
 use crate::audio::tracker::phrase::PhraseId;
 
@@ -17,13 +25,8 @@ use crate::sound::instruments::instrument_instance::InstrumentInstance;
 use crate::sound::sound_output_channels::SoundOutputChannels;
 use crate::sound::sound_rom_instance::SoundRomInstance;
 
-use crate::audio::sound_rom::Sfx;
-use crate::audio::tracker::song::SongId;
-use crate::audio::consts::{SFX_CHANNELS, SONG_TRACK_CHANNELS};
-
-use crate::audio::envelope_definition::EnvelopeDefinition;
-use crate::audio::instruments::wavetable::wavetable_definition::WavetableDefinition;
 use crate::sound::instruments::wavetable::wavetable_instance::NO_SOUND_DEFINITION;
+
 
 fn initialize_globals() {
     crate::sound::instruments::fm::fm_waveform::init_fm_lut();
