@@ -1,4 +1,6 @@
-use gamercade_audio::{IndexInterpolator, IndexInterpolatorResult, LoopMode, SampleDefinition};
+use crate::audio::instruments::index_interpolator::{IndexInterpolator, IndexInterpolatorResult};
+use crate::audio::instruments::sampler::loop_mode::LoopMode;
+use crate::audio::instruments::sampler::sample_definition::SampleDefinition;
 
 #[derive(Debug, Clone)]
 pub struct SampleOscillator {

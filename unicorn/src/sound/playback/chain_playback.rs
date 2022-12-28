@@ -1,8 +1,11 @@
 use std::sync::Arc;
 
-use gamercade_audio::ChainId;
+use crate::audio::tracker::chain::ChainId;
 
-use crate::{InstrumentInstance, PhrasePlayback, SoundRomInstance, TrackerFlow};
+use crate::sound::instruments::instrument_instance::InstrumentInstance;
+use crate::sound::playback::phrase_playback::PhrasePlayback;
+use crate::sound::sound_rom_instance::SoundRomInstance;
+use crate::sound::playback::tracker_flow::TrackerFlow;
 
 #[derive(Debug, Clone)]
 pub struct ChainPlayback {

@@ -1,4 +1,4 @@
-use gamercade_audio::{SFX_CHANNELS, SONG_TRACK_CHANNELS};
+use crate::audio::consts::{SFX_CHANNELS, SONG_TRACK_CHANNELS};
 
 #[derive(Clone)]
 pub struct SoundOutputChannels {

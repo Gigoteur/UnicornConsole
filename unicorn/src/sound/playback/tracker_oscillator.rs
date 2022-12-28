@@ -1,4 +1,4 @@
-use gamercade_audio::PHRASE_STEPS_PER_BEAT;
+use crate::audio::consts::PHRASE_STEPS_PER_BEAT;
 
 pub(crate) enum TrackerOscillatorFlow {
     Continue,

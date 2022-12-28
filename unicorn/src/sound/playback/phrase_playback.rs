@@ -1,8 +1,12 @@
 use std::sync::Arc;
 
-use gamercade_audio::{PhraseId, PHRASE_MAX_ENTRIES};
+use crate::audio::tracker::phrase::PhraseId;
+use crate::audio::consts::PHRASE_MAX_ENTRIES;
 
-use crate::{new_instrument_channel_message, InstrumentInstance, SoundRomInstance, TrackerFlow};
+use crate::sound::instruments::instrument_instance::InstrumentInstance;
+use crate::sound::sound_rom_instance::SoundRomInstance;
+use crate::sound::playback::tracker_flow::TrackerFlow;
+use crate::sound::instruments::instrument_instance::new_instrument_channel_message;
 
 #[derive(Debug, Clone)]
 pub struct PhrasePlayback {

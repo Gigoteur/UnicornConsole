@@ -1,4 +1,5 @@
-use crate::sound::EnvelopeDefinition;
+use crate::audio::envelope_definition::EnvelopeDefinition;
+
 use crate::sound::envelope::envelope_phase::EnvelopePhase;
 use crate::sound::envelope::envelope_instance::ENVELOPE_TIME_SCALE;
 

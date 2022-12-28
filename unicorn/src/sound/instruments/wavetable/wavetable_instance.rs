@@ -1,8 +1,12 @@
 use std::{mem::MaybeUninit, sync::Arc};
 
-use gamercade_audio::{IndexInterpolatorResult, WavetableBitDepth, WavetableDefinition};
+use crate::audio::instruments::index_interpolator::IndexInterpolatorResult;
+use crate::audio::instruments::wavetable::wavetable_definition::WavetableDefinition;
+use crate::audio::instruments::wavetable::WavetableBitDepth;
 
-use crate::{ActiveState, EnvelopeInstance, WavetableOscillator};
+use crate::sound::instruments::ActiveState;
+use crate::sound::envelope::envelope_instance::EnvelopeInstance;
+use crate::sound::instruments::wavetable::wavetable_oscillator::WavetableOscillator;
 
 pub(crate) static mut NO_SOUND_DEFINITION: MaybeUninit<Arc<WavetableDefinition>> =
     MaybeUninit::uninit();

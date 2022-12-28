@@ -3,9 +3,9 @@ use std::sync::Arc;
 use crate::audio::instruments::fm::algorithm::ModulatedBy;
 use crate::audio::instruments::fm::patch_definition::PatchDefinition;
 use crate::audio::instruments::fm::OPERATOR_COUNT;
-use crate::sound::instruments::ActiveState;
 
-use sound::instruments::fm::operator_instance::OperatorInstanceBundle;
+use crate::sound::instruments::ActiveState;
+use crate::sound::instruments::fm::operator_instance::OperatorInstanceBundle;
 
 #[derive(Clone, Debug)]
 pub struct PatchInstance {
@@ -78,6 +78,8 @@ impl PatchInstance {
         }
         // End 1st Operator
 
+        let active = self.active.clone();
+
         // Handle the rest of the operators
         (1..OPERATOR_COUNT).for_each(|i| {
             let operator = &mut operators[i];
@@ -93,7 +95,7 @@ impl PatchInstance {
                 }
             };
 
-            let result = operator.tick(waveform, modulation, self.active);
+            let result = operator.tick(waveform, modulation, active);
 
             outputs[i] = result;
 

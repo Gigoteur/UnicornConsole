@@ -5,14 +5,38 @@ use cpal::{
     traits::{DeviceTrait, HostTrait, StreamTrait},
     Device, SampleFormat, Stream, StreamConfig, SupportedStreamConfig,
 };
-use gamercade_audio::{InstrumentId, PhraseId};
 use rtrb::{Consumer, Producer, RingBuffer};
 
-use crate::{
-    initialize_globals, ChainPlayback, InstrumentInstance, SfxPlayback, SongPlayback,
-    SoundOutputChannels, SoundRomInstance,
-};
-pub use gamercade_audio::{Sfx, SongId, SFX_CHANNELS, SONG_TRACK_CHANNELS};
+use crate::audio::instruments::instrument_data_definition::InstrumentId;
+use crate::audio::tracker::phrase::PhraseId;
+
+use crate::sound::playback::chain_playback::ChainPlayback;
+use crate::sound::playback::sfx_playback::SfxPlayback;
+use crate::sound::playback::song_playback::SongPlayback;
+use crate::sound::instruments::instrument_instance::InstrumentInstance;
+use crate::sound::sound_output_channels::SoundOutputChannels;
+use crate::sound::sound_rom_instance::SoundRomInstance;
+
+use crate::audio::sound_rom::Sfx;
+use crate::audio::tracker::song::SongId;
+use crate::audio::consts::{SFX_CHANNELS, SONG_TRACK_CHANNELS};
+
+use crate::audio::envelope_definition::EnvelopeDefinition;
+use crate::audio::instruments::wavetable::wavetable_definition::WavetableDefinition;
+use crate::sound::instruments::wavetable::wavetable_instance::NO_SOUND_DEFINITION;
+
+fn initialize_globals() {
+    crate::sound::instruments::fm::fm_waveform::init_fm_lut();
+    crate::audio::notes::note::initialize_notes();
+    unsafe {
+        NO_SOUND_DEFINITION.write(std::sync::Arc::new(WavetableDefinition {
+            data: Box::new([0, 0]),
+            envelope: EnvelopeDefinition::default(),
+            interpolator: crate::audio::instruments::index_interpolator::IndexInterpolator::Truncate,
+        }));
+    }
+}
+
 
 #[derive(Clone)]
 pub struct SoundEngineData {
@@ -279,7 +303,7 @@ impl SoundEngineRunner {
 
     fn sound_engine_callback<T: cpal::Sample>(&mut self, frames: &mut [T]) {
         let mut buffer_written = false;
-        let data = &mut self.data;
+     //   let data = &mut self.data;
 
         // Repeat indefinitely until we write a full buffer without
         // any new data inputs. If we receive a new data snapshot midway
@@ -287,6 +311,8 @@ impl SoundEngineRunner {
         // we need to just throw away whatever we have written and start again
         while !buffer_written {
             frames.chunks_exact_mut(self.channels).for_each(|frame| {
+                let data = &mut self.data;
+
                 while let Ok(next_data) = self.consumer.pop() {
                     match next_data {
                         SoundEngineChannelType::SoundEngineData(next_data) => {
@@ -323,7 +349,7 @@ impl SoundEngineRunner {
 
                             // Reset the instrument to force a refresh
                             phrase_playback.instrument =
-                                InstrumentInstance::no_sound(self.output_sample_rate);
+                                InstrumentInstance::no_sound(self.output_sample_rate.clone());
                             phrase_playback.set_phrase_id(phrase);
                         }
                         SoundEngineChannelType::PlaySfx(sfx) => {
@@ -331,10 +357,11 @@ impl SoundEngineRunner {
                         }
                         SoundEngineChannelType::StopSfx => data.play_sfx(None, 0),
                         SoundEngineChannelType::PlayBgm(bgm) => {
+                            let output_sample_rate = self.output_sample_rate.clone();
                             // Force a refresh of all instruments
                             data.bgm.tracks.iter_mut().for_each(|track| {
                                 track.phrase_playback.instrument =
-                                    InstrumentInstance::no_sound(self.output_sample_rate);
+                                    InstrumentInstance::no_sound(output_sample_rate);
                             });
 
                             data.play_bgm(Some(SongId(bgm)));

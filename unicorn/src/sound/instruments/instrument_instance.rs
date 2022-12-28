@@ -1,12 +1,18 @@
-use gamercade_audio::{
-    get_note, to_scaled_value, InstrumentId, NoteId, PhraseEntry, PhraseStorageType,
-    PhraseVolumeType,
-};
 
-use crate::{
-    InstrumentDefinition, InstrumentDefinitionKind, PatchInstance, SamplerInstance,
-    SoundRomInstance, WavetableInstance,
-};
+ use std::convert::TryFrom;
+
+use crate::audio::notes::note::get_note;
+use crate::audio::tracker::to_scaled_value;
+use crate::audio::instruments::instrument_data_definition::InstrumentId;
+use crate::audio::notes::note::NoteId;
+use crate::audio::tracker::phrase::{PhraseEntry, PhraseStorageType};
+use crate::audio::tracker::PhraseVolumeType;
+
+use crate::sound::sound_rom_instance::{InstrumentDefinition, InstrumentDefinitionKind};
+use crate::sound::instruments::fm::patch_instance::PatchInstance;
+use crate::sound::instruments::sampler::sampler_instance::SamplerInstance;
+use crate::sound::instruments::wavetable::wavetable_instance::WavetableInstance;
+use crate::sound::sound_rom_instance::SoundRomInstance;
 
 #[derive(Debug, Clone)]
 pub struct InstrumentInstance {
@@ -144,7 +150,7 @@ impl InstrumentInstance {
 
     pub(crate) fn set_note(&mut self, note_id: i32) {
         if let Ok(note) = NoteId::try_from(note_id) {
-            let frequency = gamercade_audio::get_note(note).frequency;
+            let frequency = get_note(note).frequency;
 
             match &mut self.kind {
                 InstrumentInstanceKind::Wavetable(wv) => wv.set_frequency(frequency),

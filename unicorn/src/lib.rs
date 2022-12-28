@@ -22,10 +22,7 @@ extern crate ordered_float;
 
 extern crate regex;
 extern crate byteorder;
-extern crate libc;
 extern crate glob;
-
-extern crate rusttype;
 
 extern crate gapbuffer;
 extern crate unicode_width;
@@ -48,7 +45,6 @@ extern crate rtrb;
 
 extern crate cpal;
 
-#[macro_use]
 pub mod config;
 pub mod gfx;
 pub mod core;

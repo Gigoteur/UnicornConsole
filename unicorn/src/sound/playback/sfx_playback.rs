@@ -1,11 +1,14 @@
 use std::sync::Arc;
 
-use gamercade_audio::ChainId;
+use crate::audio::tracker::chain::ChainId;
+use crate::audio::sound_rom::Sfx;
 
-use crate::{
-    ChainPlayback, InstrumentInstance, Sfx, SoundRomInstance, TrackerFlow, TrackerOscillator,
-    TrackerOscillatorFlow,
-};
+use crate::sound::playback::chain_playback::ChainPlayback;
+use crate::sound::instruments::instrument_instance::InstrumentInstance;
+use crate::sound::sound_rom_instance::SoundRomInstance;
+use crate::sound::playback::tracker_flow::TrackerFlow;
+use crate::sound::playback::tracker_oscillator::{TrackerOscillator, TrackerOscillatorFlow};
+
 
 #[derive(Debug, Clone)]
 pub struct SfxPlayback {

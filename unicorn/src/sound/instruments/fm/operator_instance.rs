@@ -7,6 +7,7 @@ use crate::sound::instruments::ActiveState;
 use crate::sound::envelope::envelope_instance::EnvelopeInstance;
 use crate::sound::instruments::wavetable::wavetable_oscillator::WavetableOscillator;
 use crate::sound::instruments::fm::LUT_FULL_LEN;
+use crate::sound::instruments::fm::fm_waveform::lookup;
 
 #[derive(Debug, Clone)]
 pub struct OperatorInstance {
@@ -36,7 +37,6 @@ impl OperatorInstance {
     /// interpolates between the next sample if necessary.
     /// Also ticks the operator.
     pub fn tick(&mut self, waveform: FMWaveform, modulation: f32, active: ActiveState) -> f32 {
-        use crate::lookup;
         let mut index = self.oscillator.tick() + self.oscillator.modulation(modulation);
 
         if index.is_sign_negative() {

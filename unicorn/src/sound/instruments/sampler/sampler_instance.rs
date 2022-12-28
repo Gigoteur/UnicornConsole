@@ -1,8 +1,12 @@
 use std::sync::Arc;
 
-use gamercade_audio::{IndexInterpolatorResult, SampleBitDepth, SampleDefinition};
+use crate::audio::instruments::index_interpolator::IndexInterpolatorResult;
+use crate::audio::instruments::sampler::sample_definition::SampleDefinition;
+use crate::audio::instruments::sampler::SampleBitDepth;
 
-use crate::{ActiveState, EnvelopeInstance, SampleOscillator};
+use crate::sound::instruments::ActiveState;
+use crate::sound::envelope::envelope_instance::EnvelopeInstance;
+use crate::sound::instruments::sampler::sample_oscillator::SampleOscillator;
 
 #[derive(Debug, Clone)]
 pub struct SamplerInstance {

@@ -1,11 +1,17 @@
 use std::{ops::Index, sync::Arc};
 
-use gamercade_audio::{
-    Chain, ChainId, InstrumentDataDefinition, InstrumentId, PatchDefinition, Phrase, PhraseId,
-    SampleDefinition, Song, SoundRom,
-};
+use crate::audio::tracker::chain::{Chain, ChainId};
+use crate::audio::instruments::instrument_data_definition::InstrumentDataDefinition;
+use crate::audio::instruments::instrument_data_definition::InstrumentId;
+use crate::audio::instruments::fm::patch_definition::PatchDefinition;
+use crate::audio::tracker::phrase::{Phrase, PhraseId};
+use crate::audio::instruments::sampler::sample_definition::SampleDefinition;
+use crate::audio::tracker::song::Song;
+use crate::audio::sound_rom::SoundRom;
 
-use crate::{Sfx, SongId, WavetableDefinition};
+use crate::audio::sound_rom::Sfx;
+use crate::audio::tracker::song::SongId;
+use crate::audio::instruments::wavetable::wavetable_definition::WavetableDefinition;
 
 /// An engine loaded in memory, ready to use.
 #[derive(Debug)]

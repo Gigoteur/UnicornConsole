@@ -1,8 +1,7 @@
 use std::f32::consts::TAU;
 
-use gamercade_audio::{IndexInterpolator, IndexInterpolatorResult};
-
-use crate::FM_MODULATION;
+use crate::audio::instruments::index_interpolator::{IndexInterpolator, IndexInterpolatorResult};
+use crate::sound::instruments::fm::FM_MODULATION;
 
 /// A wavetable oscillator. Returns table indices.
 #[derive(Debug, Clone)]
