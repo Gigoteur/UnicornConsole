@@ -8,6 +8,7 @@ use network::UnicornConsoleState;
 use unicorn;
 
 use crate::input::{LocalInputManager, MouseEventCollector, LocalPlayerId};
+use unicorn::contexts::input_context::InputApi;
 
 use crate::{
     gui::{framework::Framework, Gui},
@@ -46,22 +47,17 @@ pub trait Console: Sized + Config {
 
 pub struct UnicornConsole {
     pub engine: Arc<Mutex<unicorn::core::Unicorn>>,
-    pub contexts: unicorn::contexts::Contexts,
 }
 
 impl UnicornConsole {
     pub fn new(engine: unicorn::core::Unicorn) -> (Self, UnicornConsoleState) {
         let engine = Arc::new(Mutex::new(engine));
-        let  contexts = unicorn::contexts::Contexts::new(2);
 
         let mut out = Self {
             engine,
-            contexts,
         };
 
         let initial_state = out.generate_save_state();
-
-
         (out, initial_state)
     }
 
@@ -107,6 +103,7 @@ impl Console for UnicornConsole {
     fn handle_requests(&mut self, requests: Vec<GGRSRequest<Self>>) {
 
         for request in requests {
+
             match request {
                 GGRSRequest::SaveGameState { cell, frame } => {
                     let state = self.generate_save_state();
@@ -117,7 +114,10 @@ impl Console for UnicornConsole {
                    // self.load_save_state(state);
                 }
                 GGRSRequest::AdvanceFrame { inputs } => {
-                        self.contexts.input_context
+                    let engine = self.engine.lock().unwrap();
+                    let contexts = &mut engine.contexts.lock().unwrap();
+        
+                        contexts.input_context
                         .input_entries
                         .iter_mut()
                         .zip(inputs.iter())
@@ -126,14 +126,13 @@ impl Console for UnicornConsole {
                             current.current_mouse = new.0.mouse_state;
                         });
 
-                   println!("{:?}", self.contexts.input_context.input_entries[0].current.buttons.get_button_state(unicorn::input::ButtonCode::ButtonA));
+                 //  println!("{:?}", contexts.input_context.input_entries[0].current.buttons.get_button_state(unicorn::input::ButtonCode::ButtonA));
 
-                   self.contexts.input_context.button_a_released(0);
-                   self.update();
-
+                 //  println!("{:?}", contexts.input_context.button_a_pressed(0));
                 }
             }
         }
+        self.update();
     }
 
 }

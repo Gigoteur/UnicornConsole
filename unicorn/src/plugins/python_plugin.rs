@@ -10,6 +10,9 @@ pub mod plugin {
     use anyhow::{Result, anyhow};
 
     use config::Players;
+
+    use contexts::Contexts;
+
     use core::info::Info;
     use core::UnicornConfig;
     use gfx::Screen;
@@ -326,41 +329,32 @@ pub mod plugin {
 
     // Input
     py_class!(class UnicornInput |py| {
-    data players: Arc < Mutex < Players> >;
+    data contexts: Arc<Mutex<Contexts>>;
 
     def btn(&self, x: i32, p: i32) -> PyResult<bool> {
-        let value = self.players(py).lock().unwrap().btn(p as u8, x as u8);
-        Ok(value)
-    }
-
-    def btn2(&self, x: i32) -> PyResult<bool> {
-        let value = self.players(py).lock().unwrap().btn2(x);
+        let value = self.contexts(py).lock().unwrap().input_context.btn(p as u8, x as u8);
         Ok(value)
     }
 
     def btnp(&self, x: i32, p: i32) -> PyResult<bool> {
-        let value = self.players(py).lock().unwrap().btnp(p as u8, x as u8);
+        let value = self.contexts(py).lock().unwrap().input_context.btnp(p as u8, x as u8);
         Ok(value)
     }
 
-    def btnp2(&self, x: i32) -> PyResult<bool> {
-        let value = self.players(py).lock().unwrap().btnp2(x);
+    def btn_mouse(&self, x: i32, p: i32) -> PyResult<i32> {
+        let value = self.contexts(py).lock().unwrap().input_context.btn_mouse(p as u8, x as u8);
         Ok(value)
     }
 
-    def btn_mouse(&self, x: i32) -> PyResult<i32> {
-        let value = self.players(py).lock().unwrap().mouse_coordinate(x as u8);
-        Ok(value)
-    }
-
-    def btn_mouse_state(&self) -> PyResult<u32> {
-        let value = self.players(py).lock().unwrap().mouse_state();
+    def btn_mouse_state(&self, p: i32) -> PyResult<u32> {
+        let value = self.contexts(py).lock().unwrap().input_context.btn_mouse_state(p as u8);
         Ok(value)
     }
 
     def btn_mouse_statep(&self) -> PyResult<u32> {
-        let value = self.players(py).lock().unwrap().mouse_state_quick();
-        Ok(value)
+//        let value = self.players(py).lock().unwrap().mouse_state_quick();
+//        Ok(value)
+        Ok(1)
     }
 
     });
@@ -444,7 +438,7 @@ pub mod plugin {
 
 
         pub fn load(&mut self,
-                    players: Arc<Mutex<Players>>,
+                    contexts: Arc<Mutex<Contexts>>,
                     info: Arc<Mutex<Info>>,
                     screen: Arc<Mutex<Screen>>,
                     config: Arc<Mutex<UnicornConfig>>) {
@@ -458,7 +452,7 @@ pub mod plugin {
                 .set_item(py, "unicorn_graphic", unicorn_graphic_obj)
                 .unwrap();
 
-            let unicorn_input_obj = UnicornInput::create_instance(py, players.clone()).unwrap();
+            let unicorn_input_obj = UnicornInput::create_instance(py, contexts.clone()).unwrap();
             self.mydict
                 .set_item(py, "unicorn_input", unicorn_input_obj)
                 .unwrap();
@@ -583,12 +577,11 @@ pub mod plugin {
     use std::sync::{Arc, Mutex};
     use anyhow::{Result, anyhow};
 
-    use config::Players;
+    use contexts::Contexts;
 
     use core::info::Info;
 
     use gfx::Screen;
-    use gfx::palette::Palettes;
     use core::UnicornConfig;
 
     #[derive(Debug)]
@@ -601,7 +594,7 @@ pub mod plugin {
 
 
         pub fn load(&mut self,
-                    _players: Arc<Mutex<Players>>,
+                    _contexts: Arc<Mutex<Contexts>>,
                     _info: Arc<Mutex<Info>>,
                     _screen: Arc<Mutex<Screen>>,
                     _config: Arc<Mutex<UnicornConfig>>) {

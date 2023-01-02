@@ -200,6 +200,8 @@ impl fmt::Debug for UnicornCartridge {
 
 pub struct Unicorn {
     pub screen: Arc<Mutex<gfx::Screen>>,
+    pub contexts: Arc<Mutex<contexts::Contexts>>,
+
     pub info: Arc<Mutex<info::Info>>,
     pub players: Arc<Mutex<Players>>,
     pub configuration: Arc<Mutex<UnicornConfig>>,
@@ -222,6 +224,7 @@ impl Unicorn {
 
         Unicorn {
             screen: screen.clone(),
+            contexts: Arc::new(Mutex::new(contexts::Contexts::new(2))),
 
             info: Arc::new(Mutex::new(info::Info::new())),
             players: Arc::new(Mutex::new(Players::new())),
@@ -635,7 +638,7 @@ impl Unicorn {
 
                 cartridge
                     .python_plugin
-                    .load(self.players.clone(),
+                    .load(self.contexts.clone(),
                           self.info.clone(),
                           self.screen.clone(),
                           self.configuration.clone());

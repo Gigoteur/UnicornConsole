@@ -210,6 +210,46 @@ impl InputContext {
             mouse_locked: false,
         }
     }
+
+    pub fn btn(&mut self, player: u8, index: u8) -> bool {
+        match index {
+            0 if self.button_left_held(player as i32) == 1 => true,
+            1 if self.button_right_held(player as i32) == 1 => true,
+            2 if self.button_up_held(player as i32) == 1 => true,
+            3 if self.button_down_held(player as i32) == 1 => true,
+            4 if self.button_a_held(player as i32) == 1 => true,
+            5 if self.button_b_held(player as i32) == 1 => true,
+            6 if self.button_start_held(player as i32) == 1 => true,
+            7 if self.button_select_held(player as i32) == 1 => true,
+            8 if self.button_c_held(player as i32) == 1 => true,
+            9 if self.button_d_held(player as i32) == 1 => true,
+            _ => false,
+        }
+    }
+
+    pub fn btnp(&mut self, player: u8, index: u8) -> bool {
+        match index {
+            0 if self.button_left_pressed(player as i32) == 1 => true,
+            1 if self.button_right_pressed(player as i32) == 1 => true,
+            2 if self.button_up_pressed(player as i32) == 1 => true,
+            3 if self.button_down_pressed(player as i32) == 1 => true,
+            4 if self.button_a_pressed(player as i32) == 1 => true,
+            5 if self.button_b_pressed(player as i32) == 1 => true,
+            6 if self.button_start_pressed(player as i32) == 1 => true,
+            7 if self.button_select_pressed(player as i32) == 1 => true,
+            8 if self.button_c_pressed(player as i32) == 1 => true,
+            9 if self.button_d_pressed(player as i32) == 1 => true,
+            _ => false,
+        }
+    }
+
+    pub fn btn_mouse(&mut self, player: u8, index: u8) -> i32 {
+        match index {
+            0 => self.mouse_x_pos(player as i32),
+            1 => self.mouse_y_pos(player as i32),
+            _ => self.mouse_x_pos(player as i32),
+        }
+    }
 }
 
 /// This file automatically derives the various "get input" or "check input"

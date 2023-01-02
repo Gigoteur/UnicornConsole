@@ -1,4 +1,4 @@
-mod input_context;
+pub mod input_context;
 
 pub struct Contexts {
     pub input_context: input_context::InputContext,

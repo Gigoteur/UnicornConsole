@@ -11,7 +11,7 @@ fn main() {
     };
 
     eframe::run_native(
-        "Unicorn Editor",
+        "Unicorn Console Editor",
         options,
         Box::new(|_cc| Box::new(Editor::default())),
     )

@@ -135,7 +135,7 @@ impl MouseState {
 
 #[cfg(test)]
 mod tests {
-    use crate::MouseState;
+    use input::MouseState;
 
     #[test]
     fn test_mouse_state() {
