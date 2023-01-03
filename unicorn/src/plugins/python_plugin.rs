@@ -9,16 +9,15 @@ pub mod plugin {
     use std::sync::{Arc, Mutex};
     use anyhow::{Result, anyhow};
 
-    use config::Players;
-
     use contexts::Contexts;
 
     use core::info::Info;
-    use core::UnicornConfig;
     use gfx::Screen;
 
     /*
         # GFX                   #    Python     #    New name       #
+        mode_width              #       X       #                   #
+        mode_heigth             #       X       #                   #    
         camera                  #       X       #                   #
         circ                    #       X       #                   #
         circfill                #       X       #                   #
@@ -94,6 +93,14 @@ pub mod plugin {
 
 
     // Cart Data
+
+    def mode_width(&self) -> PyResult<u32> {
+        Ok(self.screen(py).lock().unwrap().mode_width() as u32)
+    }
+
+    def mode_height(&self) -> PyResult<u32> {
+        Ok(self.screen(py).lock().unwrap().mode_height() as u32)
+    }
 
     def set_color_palette(&self, color:u32, r: u8, g: u8, b: u8) -> PyResult<i32> {
         self.screen(py).lock().unwrap().palette.set_color(color, r, g, b);
@@ -398,26 +405,6 @@ pub mod plugin {
 
     });
 
-
-    // Others
-    py_class!(class UnicornSys |py| {
-    data info: Arc < Mutex <Info > >;
-    data config: Arc<Mutex<UnicornConfig>>;
-
-        def show_mouse(&self, value: bool) -> PyResult<u32> {
-            self.config(py).lock().unwrap().toggle_mouse(value);
-            Ok(0)
-        }
-
-        def time(&self) -> PyResult<i64> {
-            Ok(self.info(py).lock().unwrap().time())
-        }
-
-        def time_sec(&self) -> PyResult<f64> {
-            Ok(self.info(py).lock().unwrap().time_sec())
-        }
-    });
-
     pub struct PythonPlugin {
         pub mydict: PyDict,
         pub loaded_code: bool,
@@ -440,8 +427,7 @@ pub mod plugin {
         pub fn load(&mut self,
                     contexts: Arc<Mutex<Contexts>>,
                     info: Arc<Mutex<Info>>,
-                    screen: Arc<Mutex<Screen>>,
-                    config: Arc<Mutex<UnicornConfig>>) {
+                    screen: Arc<Mutex<Screen>>) {
             info!("[PLUGIN][PYTHON] Init plugin");
 
             let gil = Python::acquire_gil();
@@ -460,9 +446,6 @@ pub mod plugin {
             let unicorn_map_obj = UnicornMap::create_instance(py, screen.clone()).unwrap();
             self.mydict.set_item(py, "unicorn_map", unicorn_map_obj).unwrap();
 
-            let unicorn_sys_obj = UnicornSys::create_instance(py, info.clone(), config.clone()).unwrap();
-            self.mydict.set_item(py, "unicorn_sys", unicorn_sys_obj).unwrap();
-
             let unicorn_mem_obj = UnicornMemory::create_instance(py, screen.clone()).unwrap();
             self.mydict.set_item(py, "unicorn_mem", unicorn_mem_obj).unwrap();
 
@@ -475,10 +458,6 @@ pub mod plugin {
                      Some(&self.mydict))
                 .unwrap();
             py.run(r###"globals()["unicorn_map"] = unicorn_map;"###,
-                     None,
-                     Some(&self.mydict))
-                .unwrap();
-            py.run(r###"globals()["unicorn_sys"] = unicorn_sys;"###,
                      None,
                      Some(&self.mydict))
                 .unwrap();
@@ -582,7 +561,6 @@ pub mod plugin {
     use core::info::Info;
 
     use gfx::Screen;
-    use core::UnicornConfig;
 
     #[derive(Debug)]
     pub struct PythonPlugin {}
@@ -596,8 +574,7 @@ pub mod plugin {
         pub fn load(&mut self,
                     _contexts: Arc<Mutex<Contexts>>,
                     _info: Arc<Mutex<Info>>,
-                    _screen: Arc<Mutex<Screen>>,
-                    _config: Arc<Mutex<UnicornConfig>>) {
+                    _screen: Arc<Mutex<Screen>>) {
             error!("[PLUGIN][PYTHON] plugin disabled");
         }
         pub fn load_code(&mut self, _data: String) -> bool {

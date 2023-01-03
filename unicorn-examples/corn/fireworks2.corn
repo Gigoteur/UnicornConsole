@@ -6,6 +6,9 @@ __lua__
 -- how to make firework-style
 -- particles
 
+MAP_WIDTH = mode_width()
+MAP_HEIGHT = mode_height()
+
 function _init()
  -- crate a table for
  -- particles
@@ -13,10 +16,10 @@ function _init()
 end
 
 function _update()
- if btnp(4) then
+ if btnp(5) then
   --spawn fireworks at
   --a random position
-  boom(rnd(128),rnd(128))
+  boom(rnd(MAP_WIDTH),rnd(MAP_HEIGHT))
  end
  -- update particles
  updateparticles()
@@ -35,8 +38,6 @@ function _draw()
 end
 
 function boom(_x,_y)
- sfx(-1, "../unicorn/examples/assets/clap.ki")
-
  -- crate 100 particles at a location
  for i=0,100 do
   spawn_particle(_x,_y)
@@ -74,23 +75,23 @@ function updateparticles()
   --or if particle left 
   --the screen 
   if p.age > 80 
-   or p.y > 128
+   or p.y > MAP_HEIGHT
    or p.y < 0
-   or p.x > 128
+   or p.x > MAP_WIDTH
    or p.x < 0
    then
    del(particles,p)
   else
   
    --move particle
-   p.x+=p.dx
-   p.y+=p.dy
+   p.x = p.x + p.dx
+   p.y = p.y + p.dy
    
    --age particle
-   p.age+=1
+   p.age = p.age + 1
    
    --add gravity
-   p.dy+=0.15
+   p.dy = p.dy + 0.15
   end
  end
 end

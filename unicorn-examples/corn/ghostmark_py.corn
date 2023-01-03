@@ -6,17 +6,10 @@ import random
 
 # Original code is here: http://tic.computer/play?cart=122
 
-def _init():
-    pass
-
-def _update():
-    pass
-
-
 class Item(object):
     def __init__(self):
-        self.x = random.randrange(10,400)
-        self.y = random.randrange(10,240)
+        self.x = random.randrange(10, mode_width())
+        self.y = random.randrange(10, mode_height())
         self.vx = random.randrange(-10,10) / 10.0
         self.vy = random.randrange(-10,10) / 10.0
         self.color = rnd(15)
@@ -25,39 +18,42 @@ class Item(object):
         self.x = self.x + self.vx
         self.y = self.y + self.vy
 
-        if self.x<0 or self.x>400:
+        if self.x<0 or self.x > mode_width():
             self.vx = -self.vx
 
-        if self.y>240:
-            self.y = 240
+        if self.y > mode_height():
+            self.y = mode_height()
             self.vy = -(rnd(100)/25.0)
 
 
-        spr(self.color,self.x,self.y)
+        spr(self.color, self.x, self.y)
         self.vy = self.vy + 0.05
 
 Items = []
 for i in range(0, 500):
     Items.append(Item())
 
+def _init():
+    pass
+
+def _update():
+
+    #    add 500 more
+    unicorn_print("(X) add 500 more", 8, mode_width() - 20, 7)
+
+    if btnp(5):
+        for i in range(0, 500):
+            Items.append(Item())
+
 def _draw():
     cls()
-    stime = unicorn_time()
 
     for item in Items:
         item.update()
 
-    etime = unicorn_time()
 
-    unicorn_print("dots :" + str(len(Items)),8,0, 7)
-    unicorn_print("Time :" + str(etime - stime), 8, 8, 7)
-    unicorn_print("Time :" + str((etime - stime)/16.67), 8, 16, 7)
+    unicorn_print("dots :" + str(len(Items)), mode_width() - 60, 0, 7)
 
-    #    add 500 more
-    unicorn_print("(X) add 500 more", 8, 120, 7)
-    if btnp(5):
-        for i in range(0, 500):
-            Items.append(Item())
 
 __gfx__
 000000000111111002222220033333300444444005555550066666600777777008888880099999900aaaaaa00bbbbbb00cccccc00dddddd00eeeeee00ffffff0

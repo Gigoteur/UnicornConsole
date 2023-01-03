@@ -45,7 +45,10 @@ extern crate rtrb;
 
 extern crate cpal;
 
-pub mod config;
+extern crate fastrand;
+extern crate rand;
+extern crate rand_chacha;
+
 pub mod gfx;
 pub mod core;
 pub mod input;

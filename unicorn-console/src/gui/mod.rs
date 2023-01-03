@@ -5,7 +5,7 @@ use std::net::SocketAddr;
 use gilrs::Gilrs;
 use pixels::Pixels;
 use rfd::FileDialog;
-use winit::{dpi::PhysicalSize, window::Window};
+use winit::{window::Window};
 use ggrs::{P2PSession, PlayerType, SessionBuilder, SessionState, UdpNonBlockingSocket};
 
 use unicorn;

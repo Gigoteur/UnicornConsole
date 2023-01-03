@@ -250,6 +250,14 @@ impl InputContext {
             _ => self.mouse_x_pos(player as i32),
         }
     }
+
+    pub fn btn_mouse_state(&mut self, player: u8) -> u32 {
+        ((self.mouse_left_held(player as i32)) | (self.mouse_right_held(player as i32) << 8) | (self.mouse_middle_held(player as i32) << 8)) as u32
+    }
+
+    pub fn btn_mouse_statep(&mut self, player: u8) -> u32 {
+        ((self.mouse_left_pressed(player as i32)) | (self.mouse_right_pressed(player as i32) << 8) | (self.mouse_middle_pressed(player as i32) << 8)) as u32
+    }
 }
 
 /// This file automatically derives the various "get input" or "check input"

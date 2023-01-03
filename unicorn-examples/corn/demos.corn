@@ -832,7 +832,7 @@ def next_demo():
 def _update():
     global idx_demo, demos, buttons
 
-    _mouse_state = mouse_state()
+    _mouse_state = mouse_left_state()
     if _mouse_state == 1:
         _mouse_x = mouse_x()
         _mouse_y = mouse_y()

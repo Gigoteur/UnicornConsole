@@ -10,12 +10,12 @@ fn prebuild() -> io::Result<()> {
 
     let map_width = match env::var_os("UNICORN_MAP_WIDTH") {
         Some(v) => v.into_string().unwrap(),
-        None => "128".to_string(),
+        None => "480".to_string(),
     };
 
     let map_height = match env::var_os("UNICORN_MAP_HEIGHT") {
         Some(v) => v.into_string().unwrap(),
-        None => "128".to_string(),
+        None => "270".to_string(),
     };
 
     let mut f = File::create(&dest_path).unwrap();
@@ -30,9 +30,9 @@ fn prebuild() -> io::Result<()> {
         .unwrap();
     f.write_all(format!("pub const VERSION: u32 = 0;\n").as_bytes())
         .unwrap();
-    f.write_all(format!("pub const MAJOR_VERSION: u32 = 0;\n").as_bytes())
+    f.write_all(format!("pub const MAJOR_VERSION: u32 = 1;\n").as_bytes())
         .unwrap();
-    f.write_all(format!("pub const MINOR_VERSION: u32 = 2;\n").as_bytes())
+    f.write_all(format!("pub const MINOR_VERSION: u32 = 0;\n").as_bytes())
         .unwrap();
 
     Ok(())

@@ -2,7 +2,6 @@ pub mod edit;
 pub mod info;
 pub mod cartdata;
 pub mod math;
-pub mod utils;
 pub mod resolution;
 
 use std::collections::HashMap;
@@ -29,7 +28,6 @@ use plugins::lua_plugin::plugin::LuaPlugin;
 use plugins::python_plugin::plugin::PythonPlugin;
 use plugins::javascript_plugin::plugin::JavascriptPlugin;
 
-use config::Players;
 use gfx;
 use contexts;
 use cartridge::{Cartridge, CartridgeFormat};
@@ -85,30 +83,6 @@ impl Record {
         }
     }
 }
-
-#[derive(Debug)]
-pub struct UnicornConfig {
-    pub show_info_overlay: bool,
-    pub show_mouse: bool,
-}
-
-impl UnicornConfig {
-    pub fn new() -> UnicornConfig {
-        UnicornConfig {
-            show_info_overlay: false,
-            show_mouse: false,
-        }
-    }
-
-    pub fn toggle_info_overlay(&mut self) {
-        self.show_info_overlay = !self.show_info_overlay;
-    }
-
-    pub fn toggle_mouse(&mut self, value: bool) {
-        self.show_mouse = value;
-    }
-}
-
 
 
 pub struct UnicornCartridge {
@@ -203,8 +177,7 @@ pub struct Unicorn {
     pub contexts: Arc<Mutex<contexts::Contexts>>,
 
     pub info: Arc<Mutex<info::Info>>,
-    pub players: Arc<Mutex<Players>>,
-    pub configuration: Arc<Mutex<UnicornConfig>>,
+    pub debug: bool,
     pub cartridge: UnicornCartridge,
     pub state: UnicornState,
     pub fps: f64,
@@ -227,8 +200,7 @@ impl Unicorn {
             contexts: Arc::new(Mutex::new(contexts::Contexts::new(2))),
 
             info: Arc::new(Mutex::new(info::Info::new())),
-            players: Arc::new(Mutex::new(Players::new())),
-            configuration: Arc::new(Mutex::new(UnicornConfig::new())),
+            debug: false,
             
             cartridge: UnicornCartridge::zero(),
            
@@ -268,23 +240,21 @@ impl Unicorn {
     }
 
     pub fn toggle_debug(&mut self) {
-        self.configuration.lock().unwrap().toggle_info_overlay();
+        self.debug = !self.debug;
     }
 
     pub fn reset(&mut self) {
         info!("[Unicorn] Reset");
 
-        self.configuration.lock().unwrap().toggle_mouse(false);
         self.screen.lock().unwrap().reset();
         self.update_return = true;
     }
 
     pub fn debug_draw(&mut self) {
-      //  let show_info_overlay = self.configuration.lock().unwrap().show_info_overlay;
- //       if show_info_overlay {
+        if self.debug {
             let screen = &mut self.screen.lock().unwrap();
-            let mouse_x = self.players.lock().unwrap().mouse_coordinate(0);
-            let mouse_y = self.players.lock().unwrap().mouse_coordinate(1);
+            let mouse_x = 0; //self.players.lock().unwrap().mouse_coordinate(0);
+            let mouse_y = 0; //self.players.lock().unwrap().mouse_coordinate(1);
 
             let width = screen.width as i32;
             
@@ -300,16 +270,12 @@ impl Unicorn {
                                0,
                                0,
                                7);
-       // }
+                               
+        }
     }
 
     pub fn update_time(&mut self, dt: Duration) {
         self.info.lock().unwrap().update(dt);
-
-        self.players
-            .lock()
-            .unwrap()
-            .update(self.info.lock().unwrap().elapsed_time);
     }
 
     pub fn init(&mut self) {
@@ -323,12 +289,7 @@ impl Unicorn {
 
             }
             UnicornState::PAUSE => {
-            /*/    if self.pause_menu.stop() {
-                    self.state = UnicornState::RUN;
-                }
 
-                return self.pause_menu.update(self.players.clone());
-            */
             }
             UnicornState::RUN => {
                 if self.is_end() {
@@ -616,7 +577,7 @@ impl Unicorn {
 
                 cartridge
                     .lua_plugin
-                    .load(self.players.clone(),
+                    .load(self.contexts.clone(),
                           self.info.clone(),
                           self.screen.clone());
 
@@ -627,7 +588,7 @@ impl Unicorn {
 
                 cartridge
                     .javascript_plugin
-                    .load(self.players.clone(),
+                    .load(self.contexts.clone(),
                           self.info.clone(),
                           self.screen.clone());
 
@@ -640,8 +601,7 @@ impl Unicorn {
                     .python_plugin
                     .load(self.contexts.clone(),
                           self.info.clone(),
-                          self.screen.clone(),
-                          self.configuration.clone());
+                          self.screen.clone());
 
                 ret = cartridge.python_plugin.load_code(data.clone());
             }

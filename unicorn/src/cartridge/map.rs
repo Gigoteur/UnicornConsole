@@ -23,7 +23,7 @@ impl CartridgeMap {
 
             let mut i = 0;
 
-            while i < core::MAP_WIDTH*2 {
+            while i < 128*2 {
                 let idx_sprite = u32::from_str_radix(&line[i..i + 2], 16).unwrap();
 
                 map.push(idx_sprite);
@@ -48,7 +48,7 @@ impl CartridgeMap {
 
         for y in 0..32 {
             for x in 0..128 {
-                let idx_sprite = *self.map.get(x * core::MAP_WIDTH + y).unwrap_or(&0);
+                let idx_sprite = *self.map.get(x * 128 + y).unwrap_or(&0);
                 data.push_str(&format!("{:02x}", idx_sprite));
             }
             data.push('\n');

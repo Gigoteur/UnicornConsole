@@ -6,24 +6,25 @@ pub mod plugin {
 
     use std::sync::{Arc, Mutex};
 
-
     use rand;
     use rand::Rng;
+    use rand::prelude::*;
+    use rand_chacha::ChaCha8Rng;
 
     use rlua::{Lua, UserData, UserDataMethods};
     use rlua::prelude::LuaError;
 
-    use libc::c_int;
-
-    use config::Players;
+    use contexts::Contexts;
 
     use core::info::Info;
 
     use gfx::Screen;
+
+    use crate::contexts;
     
     pub struct ExtraData {
         /* External objects to get access to Unicorn data ! */
-        pub players: Arc<Mutex<Players>>,
+        pub contexts: Arc<Mutex<Contexts>>,
         pub info: Arc<Mutex<Info>>,
         pub screen: Arc<Mutex<Screen>>,
     }
@@ -33,7 +34,7 @@ pub mod plugin {
 /*
         # Input                 #               #               #
         btn                     #     X         #               #
-        btnp                    #               #               #
+        btnp                    #     X         #               #
         mouse_x                 #               #               #
         mouse_y                 #               #               #
         mouse_state             #               #               #
@@ -48,14 +49,14 @@ pub mod plugin {
         palette_reset           #               #               #
         palette_switch          #               #               #
         # Math                  #               #               #
-        atan2                   #               #               #
-        cos                     #               #               #
-        sin                     #               #               #
-        flr                     #               #               #
+        atan2                   #     X         #               #
+        cos                     #     X         #               #
+        sin                     #     X         #               #
+        flr                     #     X         #               #
         rnd                     #     X         #               #
-        srand                   #               #               #
-        mid                     #               #               #
-        bxor                    #               #               #
+        srand                   #     X         #               #
+        mid                     #     X         #               #
+        bxor                    #     X         #               #
         # Memory                #               #               #
         memcpy                  #               #               #
         # System                #               #               #
@@ -63,19 +64,37 @@ pub mod plugin {
         time_sec                #               #               #
         show_mouse              #               #               #
 */    
-            methods.add_method("btn", |_lua_ctx, game_state, (player, i):(u8, u8)| {
-               let value = game_state.players.lock().unwrap().get_value(player as u8, i as u8);
+            methods.add_method("rnd", |_lua_ctx, game_state, x:u32| {
+                let value: f64;
 
+                if x == 0 {
+                    value = rand::thread_rng().gen_range(0.0..1.0);
+                } else {
+                    value = rand::thread_rng().gen_range(0.0.. x as f64);
+                }
+
+                Ok(value)
+            });
+
+            methods.add_method("srand", |_lua_ctx, game_state, x:u8| {
+                ChaCha8Rng::seed_from_u64(x.into());
+                Ok(1)
+            });
+
+
+            methods.add_method("btn", |_lua_ctx, game_state, (i, player):(u8, u8)| {
+               let value = game_state.contexts.lock().unwrap().input_context.btn(player, i);
                Ok(value)
             });
 
-            methods.add_method("btnp", |_lua_ctx, game_state, (player, i):(u8, u8)| {
-                let value = game_state.players.lock().unwrap().get_value_quick(player as u8, i as u8);
- 
+            methods.add_method("btnp", |_lua_ctx, game_state, (i, player):(u8, u8)| {
+                let value = game_state.contexts.lock().unwrap().input_context.btnp(player, i);
                 Ok(value)
              });
 /*
         # GFX                   #    Lua        #    New name (if conflicted with keywords language)   #
+        mode_width              #     X         #               #
+        mode_height             #     X         #               #
         camera                  #     X         #               #
         circ                    #     X         #               #
         circfill                #     X         #               #
@@ -103,6 +122,21 @@ pub mod plugin {
         sspr_rotazoom           #               #               #
         trigon                  #     X         #               #
 */
+
+            methods.add_method("mode_width", |_lua_ctx, game_state, ()| {
+                Ok(game_state.screen
+                    .lock()
+                    .unwrap()
+                    .mode_width())
+            });
+
+            methods.add_method("mode_height", |_lua_ctx, game_state, ()| {
+                Ok(game_state.screen
+                    .lock()
+                    .unwrap()
+                    .mode_height())
+            });
+
             methods.add_method("camera", |_lua_ctx, game_state, (x, y):(i32, i32)| {
                 game_state.screen
                .lock()
@@ -297,13 +331,10 @@ pub mod plugin {
         }
     }
 
-    #[derive(Debug)]
     pub struct LuaPlugin {
         lua: Lua,
         loaded_code: bool,
-        players: Vec<Arc<Mutex<Players>>>,
         info: Vec<Arc<Mutex<Info>>>,
-        screen: Arc<Mutex<Screen>>,
     }
 
     impl LuaPlugin {
@@ -311,21 +342,15 @@ pub mod plugin {
             LuaPlugin {
                 lua: Lua::new(),
                 loaded_code: false,
-                players: Vec::new(),
                 info: Vec::new(),
-                screen: Arc::new(Mutex::new(Screen::new(0, 0)))
             }
         }
 
         pub fn load(&mut self,
-                    players: Arc<Mutex<Players>>,
+                    contexts: Arc<Mutex<Contexts>>,
                     info: Arc<Mutex<Info>>,
                     screen: Arc<Mutex<Screen>>) {
             info!("[PLUGIN][LUA] Init plugin");
-
-            self.players.push(players.clone());
-            self.screen = screen.clone();
-
             
             self._load_pico8_functions();
             self._load_utilities_functions();
@@ -333,7 +358,7 @@ pub mod plugin {
             self.lua.context(|lua| {
                 let globals = lua.globals();
                 let userdata = lua.create_userdata(ExtraData{
-                    players:players.clone(), 
+                    contexts:contexts.clone(), 
                     info:info.clone(),
                     screen:screen.clone()}).unwrap();
                 
@@ -341,18 +366,42 @@ pub mod plugin {
 
                 lua.load(
                     r#"
-                        function btn(p, i)
+                        function rnd(x)
+                          if x == nil then
+                            x = 1
+                          end
+                          x = math.floor(x)
+                          return userdata:rnd(x)
+                        end
+
+                        function srand(x)
+                            if x == nil then
+                                x = 1
+                            end
+                            x = math.floor(x)
+                            return userdata:srand(x)
+                        end
+
+                        function btn(i, p)
                             if p == nil then
                                 p = 0
                             end
-                            return userdata:btn(p, i) == 1
+                            return userdata:btn(i, p)
                         end
                         
-                        function btnp(p, i)
+                        function btnp(i, p)
                             if p == nil then
                                 p = 0
                             end
-                            return userdata:btnp(p, i) == 1
+                            return userdata:btnp(i, p)
+                        end
+
+                        function mode_width()
+                            return userdata:mode_width()
+                        end
+
+                        function mode_height()
+                            return userdata:mode_height()
                         end
 
                         function camera(x, y)
@@ -756,7 +805,7 @@ pub mod plugin {
     use std::sync::{Arc, Mutex};
     use anyhow::{Result, anyhow};
 
-    use config::Players;
+    use contexts::Contexts;
 
     use core::info::Info;
 
@@ -772,7 +821,7 @@ pub mod plugin {
 
         // Keep the compatibility
         pub fn load(&mut self,
-                    _players: Arc<Mutex<Players>>,
+                    _contexts: Arc<Mutex<Contexts>>,
                     _info: Arc<Mutex<Info>>,
                     _screen: Arc<Mutex<Screen>>) {
             error!("LUA plugin disabled");

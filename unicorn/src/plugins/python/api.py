@@ -371,6 +371,12 @@ globals()["world_draw_debug"] = world_draw_debug
 
 # Graphics
 
+def mode_width():
+    return unicorn_graphic.mode_width()
+
+def mode_height():
+    return unicorn_graphic.mode_height()
+
 
 def camera(x=-1, y=-1):
     unicorn_graphic.camera(flr(x), flr(y))
@@ -538,6 +544,8 @@ def palette_switch(name):
     #unicorn_graphic.switch(name)
 
 
+globals()["mode_width"] = mode_width
+globals()["mode_height"] = mode_height
 globals()["palette"] = palette
 globals()["palette_hexa"] = palette_hexa
 globals()["palette_reset"] = palette_reset
@@ -594,11 +602,14 @@ def mouse_y():
 
 
 def mouse_state():
-    return unicorn_input.btn_mouse_state()
+    return unicorn_input.btn_mouse_state(0)
 
 
 def mouse_statep():
-    return unicorn_input.btn_mouse_statep()
+    return unicorn_input.btn_mouse_statep(0)
+
+def mouse_left_state():
+    return unicorn_input.btn_mouse_state(0) & 0x000000FF
 
 
 globals()["btn"] = btn
@@ -685,22 +696,3 @@ def memcpy(dest_addr, source_addr, len_buff):
 
 
 globals()["memcpy"] = memcpy
-
-# System
-
-
-def unicorn_time():
-    return unicorn_sys.time()
-
-
-def unicorn_time_sec():
-    return unicorn_sys.time_sec()
-
-
-def show_mouse(value=True):
-    unicorn_sys.show_mouse(value)
-
-
-globals()["unicorn_time"] = unicorn_time
-globals()["unicorn_time_sec"] = unicorn_time_sec
-globals()["show_mouse"] = show_mouse

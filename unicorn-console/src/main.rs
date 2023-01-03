@@ -16,7 +16,6 @@ use crate::{
 
 use ggrs::{GGRSRequest, GGRSError, P2PSession, SessionState, Config};
 
-use log::{debug, error, log_enabled, info, Level};
 use env_logger;
 
 use std::{
@@ -43,18 +42,23 @@ pub trait Console: Sized + Config {
     fn blit(&self, buffer: &mut [u8]);
     fn frames_per_second(&mut self) -> usize;
     fn handle_requests(&mut self, requests: Vec<GGRSRequest<Self>>);
+    fn update_fps(&mut self, current_time: Instant);
+    fn toggle_debug(&mut self);
 }
 
 pub struct UnicornConsole {
     pub engine: Arc<Mutex<unicorn::core::Unicorn>>,
+    pub fps: fps::FpsCounter,
 }
 
 impl UnicornConsole {
     pub fn new(engine: unicorn::core::Unicorn) -> (Self, UnicornConsoleState) {
         let engine = Arc::new(Mutex::new(engine));
+        let fps = fps::FpsCounter::new();
 
         let mut out = Self {
             engine,
+            fps,
         };
 
         let initial_state = out.generate_save_state();
@@ -80,6 +84,15 @@ impl Console for UnicornConsole {
         let engine = self.engine.lock().unwrap();
         
         engine.frame_rate.frames_per_second()
+    }
+
+    fn toggle_debug(&mut self) {
+        self.engine.lock().unwrap().toggle_debug();
+    }
+ 
+    fn update_fps(&mut self, current_time: Instant) {
+        self.fps.update(current_time);
+        self.engine.lock().unwrap().fps = self.fps.get_fps();
     }
 
     fn setup(&mut self) {
@@ -144,8 +157,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut session: Option<P2PSession<UnicornConsole>> = None;
 
-   // let mut uc = unicorn::core::Unicorn::new();
-
     let mut gilrs = Gilrs::new().unwrap();
 
     let event_loop = EventLoop::new();
@@ -160,8 +171,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut last_update = Instant::now();
     
     let mut times = frametimes::FrameTimes::new(Duration::from_secs(1) / 60);
-    let mut fps_counter = fps::FpsCounter::new();
-    let mut previous_frame_time = Instant::now();
 
     times.reset();
 
@@ -178,11 +187,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut mouse_events = MouseEventCollector::default();
 
-    event_loop.run(move |event, _, control_flow| {
-        times.update();
-        fps_counter.update(times.get_last_time());
-      //  uc.fps = fps_counter.get_fps();
-
+    event_loop.run(move |event, _, control_flow| {       
         if session.is_some() {
             if let Event::DeviceEvent { event, .. } = &event {
                 if let DeviceEvent::MouseMotion { delta } = event {
@@ -246,6 +251,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 //uc.switch_pause();
             }
 
+
             // Update the scale factor
             if let Some(scale_factor) = input.scale_factor() {
                 framework.scale_factor(scale_factor);
@@ -256,24 +262,21 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 pixels.resize_surface(size.width, size.height);
                 framework.resize(size.width, size.height);
             }
-        
-            
-           /* if uc.state == unicorn::core::UnicornState::RUN {
-
-                uc.update();
-                uc.draw();
-            
-                let now = Instant::now();
-                let dt = now.duration_since(previous_frame_time);
-                previous_frame_time = now;
-                uc.update_time(dt);
-            }*/
 
             if let Some(console) = &mut framework.gui.unicorn_console {
                let session = session.as_mut().unwrap();
                session.poll_remote_clients();
 
                if session.current_state() == SessionState::Running {
+                    
+                    // Debug mode !
+                    if input.key_pressed(VirtualKeyCode::F2) {
+                        console.toggle_debug();
+                    }
+
+                    times.update();
+                    console.update_fps(times.get_last_time());
+
                     let mut fps_delta = 1. / console.frames_per_second() as f64;
                     if session.frames_ahead() > 0 {
                         fps_delta *= 1.1;
@@ -285,8 +288,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     last_update = Instant::now();
 
                     while accumulator.as_secs_f64() > fps_delta {
-                        accumulator =
-                        accumulator.saturating_sub(Duration::from_secs_f64(fps_delta));
+                        accumulator = accumulator.saturating_sub(Duration::from_secs_f64(fps_delta));
 
                         // Process all the gamepad events
                         while gilrs.next_event().is_some() {}
@@ -368,5 +370,5 @@ fn init_pixels(window: &Window) -> Pixels {
     let window_size = window.inner_size();
     let surface_texture = SurfaceTexture::new(window_size.width, window_size.height, &window);
 
-    Pixels::new(128, 128, surface_texture).unwrap()
+    Pixels::new(unicorn::core::MAP_WIDTH as u32, unicorn::core::MAP_HEIGHT as u32, surface_texture).unwrap()
 }

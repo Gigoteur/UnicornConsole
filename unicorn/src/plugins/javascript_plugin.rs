@@ -752,7 +752,7 @@ pub mod plugin {
     use std::sync::{Arc, Mutex};
     use anyhow::{Result, anyhow};
 
-    use config::Players;
+    use contexts::Contexts;
 
     use core::info::Info;
 
@@ -769,7 +769,7 @@ pub mod plugin {
 
         // Keep the compatibility
         pub fn load(&mut self,
-                    _players: Arc<Mutex<Players>>,
+                    _contexts: Arc<Mutex<Contexts>>,
                     _info: Arc<Mutex<Info>>,
                     _screen: Arc<Mutex<Screen>>) {
             error!("Javascript plugin disabled");
