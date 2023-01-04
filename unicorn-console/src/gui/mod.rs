@@ -162,6 +162,7 @@ impl Gui {
 
         let mut rom = unicorn::core::Unicorn::new();
         rom.load_cartridge(String::from(path.to_string_lossy()));
+        rom.setup();
         rom.init();
 
         Some(self.init_with_console(rom, pixels, window, session_descriptor))

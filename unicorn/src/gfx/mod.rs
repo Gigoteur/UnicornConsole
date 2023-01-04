@@ -19,6 +19,9 @@ pub struct Screen {
     pub width: usize,
     pub height: usize,
 
+    pub map_width: usize,
+    pub map_height: usize,
+
     pub pixel_buffer: Box<[u8]>,
 //    pub saved_frame_buffer: Vec<u8>,
 
@@ -42,8 +45,8 @@ pub struct Screen {
 }
 
 impl Screen {
-    pub fn new(width: usize, height: usize) -> Screen {
-        info!("[GFX] [Screen] Creating Screen [width:{:?} height:{:?}]", width, height);
+    pub fn new(width: usize, height: usize, map_width: usize, map_height: usize) -> Screen {
+        info!("[GFX] [Screen] Creating Screen [width:{:?} height:{:?}, map_width:{:?}, map_height:{:?}]", width, height, map_width, map_height);
         let pixel_buffer = (0..(width * height)*4)
             .map(|_| 0)
             .collect::<Vec<u8>>()
@@ -53,6 +56,10 @@ impl Screen {
         Screen {
             width: width,
             height: height,
+
+            map_width: map_width,
+            map_height: map_height,
+
             pixel_buffer: pixel_buffer,
             palettes: palette::Palettes::new(),
             palette: palette::Palette::new(),
@@ -274,8 +281,16 @@ impl Screen {
         self.putpixel_(x, y, color);
     }
 
-    pub fn sget(&mut self, x: u32, y: u32) -> u8 {
-        let idx_sprite = (x / 8) + 50 * (y / 8);
+    pub fn sget(&mut self, x: i32, y: i32) -> u8 {
+        if x < 0 || y < 0 {
+            return 0;
+        }
+
+        if x as usize >= self.mode_width() || y as usize >= self.mode_height() {
+            return 1;
+        }
+
+        let idx_sprite = (x / 8) + 16 * (y / 8);
         let sprite = &self.sprites[idx_sprite as usize];
         sprite.data[((x % 8) + (y % 8) * 8) as usize] as u8
     }
@@ -283,7 +298,7 @@ impl Screen {
     pub fn sset(&mut self, x: u32, y: u32, col: i32) {
         let col = self._find_color(col);
 
-        let idx_sprite = (x / 8) + 50 * (y / 8);
+        let idx_sprite = (x / 8) + 16 * (y / 8);
         let sprite = &mut self.sprites[idx_sprite as usize];
         sprite.set_data(((x % 8) + (y % 8) * 8) as usize, col as u8);
     }
@@ -949,13 +964,13 @@ impl Screen {
         let mut idx_y: i32 = 0;
 
         let mut cel_w = cel_w;
-        if cel_w > core::MAP_WIDTH as u32 {
-            cel_w = core::MAP_WIDTH as u32;
+        if cel_w > self.map_width as u32 {
+            cel_w = self.map_width as u32;
         }
 
         let mut cel_h = cel_h;
-        if cel_h > core::MAP_HEIGHT as u32 {
-            cel_h = core::MAP_HEIGHT as u32;
+        if cel_h > self.map_height as u32 {
+            cel_h = self.map_height as u32;
         }
 
         /*debug!("MAP cel_x {:?} cel_y {:?} sx {:?} sy {:?} cel_w {:?} cel_h {:?} layer {:?}",
@@ -980,8 +995,7 @@ impl Screen {
 
                 //debug!("MAP X {:?} MAP Y {:?}", map_x, map_y);
 
-                let idx_sprite: u32 = *self.map.get(((map_x as usize) % core::MAP_WIDTH) * core::MAP_WIDTH + (map_y as usize) % core::MAP_HEIGHT).unwrap_or(&0);
-                //self.map[(map_x as usize) % core::MAP_WIDTH][(map_y as usize) % core::MAP_HEIGHT];
+                let idx_sprite: u32 = *self.map.get(((map_x as usize) % self.map_width) * self.map_width + (map_y as usize) % self.map_height).unwrap_or(&0);
 
                 // Skip the sprite 0
                 if idx_sprite != 0 {
@@ -1023,26 +1037,25 @@ impl Screen {
             return 0;
         }
 
-        if x as usize > core::MAP_WIDTH || y as usize >= core::MAP_HEIGHT {
+        if x as usize > self.map_width || y as usize >= self.map_height {
             return 0;
         }
 
-        0
-        //self.map[x as usize][y as usize]
+        *self.map.get(((x as usize) % self.map_width) * self.map_width + (y as usize) % self.map_height).unwrap_or(&0)
     }
 
-    pub fn mset(&mut self, x: i32, y: i32, _v: u32) {
+    pub fn mset(&mut self, x: i32, y: i32, v: u32) {
         //info!("MSET x {:?} y {:?} v {:?}", x, y, v);
 
         if x < 0 || y < 0 {
             return;
         }
 
-        if x as usize > core::MAP_WIDTH || y as usize >= core::MAP_HEIGHT {
+        if x as usize > self.map_width || y as usize >= self.map_height {
             return;
         }
 
-   //     self.map[x as usize][y as usize] = v;
+        self.map[((x as usize) % self.map_width) * self.map_width + (y as usize) % self.map_height] = v;
     }
 
     pub fn sspr(&mut self,
@@ -1072,7 +1085,7 @@ impl Screen {
 
         for y in sy..sy + sh {
             for x in sx..sx + sw {
-                v.push(self.sget(x, y));
+                v.push(self.sget(x as i32, y as i32));
             }
         }
 
@@ -1276,7 +1289,7 @@ impl Screen {
 
         for y in sy..sy + sh {
             for x in sx..sx + sw {
-                v.push(self.sget(x, y));
+                v.push(self.sget(x as i32, y as i32));
             }
         }
 

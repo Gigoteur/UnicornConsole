@@ -22,12 +22,12 @@ va1=0
 t=0
 function _update()
  
- if btn(0) then va1-=0.01 end
- if btn(1) then va1+=0.01 end
+ if btn(0) then va1 = va1 - 0.01 end
+ if btn(1) then va1 = va1 + 0.01 end
 
- cama1+=va1
+ cama1 = cama1 + va1
  
- va1*=0.9
+ va1 = va1 * 0.9
 
 end
 
@@ -41,16 +41,16 @@ function _draw()
  local osy=-sin(cama1+0.25)
  
  if cama1%1>0.5 then
-  ssx=15
-  sox=-1
+  ssx = 15
+  sox = sox - 1
  else
-  ssx=0
-  sox=1
+  ssx = 0
+  sox = 1
  end
    
  if cama1%1>0.25 and cama1%1<0.75 then
-  ssy=15
-  soy=-1
+  ssy = 15
+  soy = soy - 1
  else
   ssy=0
   soy=1
@@ -76,16 +76,16 @@ function _draw()
     local xx=3.99*((sx-7.5)*ocx+(sy-7.5)*ocy)
     local yy=1.2*((sx-7.5)*osx+(sy-7.5)*osy)
    
-    xx+=x
-    yy+=y
+    xx = xx + x
+    yy = yy + y
    
     rectfill(xx-2,yy-2,xx+1,yy+1,c)
    
    end
   
-  sy+=soy
+  sy = sy + soy
   end
-  sx+=sox
+  sx = sx + sox
   end
   
  end

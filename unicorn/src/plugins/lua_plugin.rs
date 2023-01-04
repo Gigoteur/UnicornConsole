@@ -39,10 +39,6 @@ pub mod plugin {
         mouse_y                 #               #               #
         mouse_state             #               #               #
         mouse_statep            #               #               #
-        # Map                   #               #               #
-        mapdraw                 #     X         #               #
-        mget                    #     X         #               #
-        mset                    #     X         #               #
         # Palette               #               #               #
         palette                 #               #               #
         palette_hexa            #               #               #
@@ -64,7 +60,18 @@ pub mod plugin {
         time_sec                #               #               #
         show_mouse              #               #               #
 */    
-            methods.add_method("rnd", |_lua_ctx, game_state, x:u32| {
+
+            methods.add_method("btn", |_lua_ctx, game_state, (i, player):(u8, u8)| {
+               let value = game_state.contexts.lock().unwrap().input_context.btn(player, i);
+               Ok(value)
+            });
+
+            methods.add_method("btnp", |_lua_ctx, game_state, (i, player):(u8, u8)| {
+                let value = game_state.contexts.lock().unwrap().input_context.btnp(player, i);
+                Ok(value)
+             });
+
+             methods.add_method("rnd", |_lua_ctx, game_state, x:u32| {
                 let value: f64;
 
                 if x == 0 {
@@ -82,15 +89,27 @@ pub mod plugin {
             });
 
 
-            methods.add_method("btn", |_lua_ctx, game_state, (i, player):(u8, u8)| {
-               let value = game_state.contexts.lock().unwrap().input_context.btn(player, i);
-               Ok(value)
+/* 
+        # Map                   #               #               #
+        mapdraw                 #     X         #               #
+        mget                    #     X         #               #
+        mset                    #     X         #               #
+*/
+            methods.add_method("mapdraw", |_lua_ctx, game_state, (cel_x, cel_y, sx, sy, cel_w, cel_h, layer):(u32, u32, i32, i32, u32, u32, u8)| {
+                game_state.screen.lock().unwrap().mapdraw(cel_x, cel_y, sx, sy, cel_w, cel_h, layer);
+                Ok(0)
             });
 
-            methods.add_method("btnp", |_lua_ctx, game_state, (i, player):(u8, u8)| {
-                let value = game_state.contexts.lock().unwrap().input_context.btnp(player, i);
+            methods.add_method("mget", |_lua_ctx, game_state, (x, y):(i32, i32)| {
+                let value = game_state.screen.lock().unwrap().mget(x, y);
                 Ok(value)
-             });
+            });
+
+            methods.add_method("mset", |_lua_ctx, game_state, (x, y, v):(i32, i32, u32)| {
+                game_state.screen.lock().unwrap().mset(x, y, v);
+                Ok(0)
+            });
+
 /*
         # GFX                   #    Lua        #    New name (if conflicted with keywords language)   #
         mode_width              #     X         #               #
@@ -118,11 +137,10 @@ pub mod plugin {
         sget                    #     X         #               #
         spr                     #     X         #               #
         sset                    #     X         #               #
-        sspr                    #     X         #               #
+        sspr                    #               #               #
         sspr_rotazoom           #               #               #
         trigon                  #     X         #               #
 */
-
             methods.add_method("mode_width", |_lua_ctx, game_state, ()| {
                 Ok(game_state.screen
                     .lock()
@@ -328,6 +346,32 @@ pub mod plugin {
                Ok(())
             });
 
+            methods.add_method("sget", |_lua_ctx, game_state, (x, y):(i32, i32)| {
+                let value = game_state.screen
+               .lock()
+               .unwrap()
+               .sget(x, y);
+               
+               Ok(value)
+            });
+
+            methods.add_method("spr", |_lua_ctx, game_state, (n, x, y, w, h, flip_x, flip_y, angle, zoom, dynamic):(u32, i32, i32, i32, i32, bool, bool, f64, f64, bool)| {
+                game_state.screen
+               .lock()
+               .unwrap()
+               .spr(n, x, y, w, h, flip_x, flip_y, angle, zoom, dynamic);
+
+               Ok(())
+            });
+
+            methods.add_method("sset", |_lua_ctx, game_state, (x, y, col):(u32 , u32, i32)| {
+                game_state.screen
+               .lock()
+               .unwrap()
+               .sset(x, y, col);
+               
+               Ok(())
+            });
         }
     }
 
@@ -394,6 +438,36 @@ pub mod plugin {
                                 p = 0
                             end
                             return userdata:btnp(i, p)
+                        end
+
+                        function map(cel_x, cel_y, sx, sy, cel_w, cel_h, layer)
+                            cel_x = math.floor(cel_x)
+                            cel_y = math.floor(cel_y)
+                            sx = math.floor(sx)
+                            sy = math.floor(sy)
+                            cel_w = math.floor(cel_w)
+                            cel_h = math.floor(cel_h)
+                            if layer == nil then
+                                layer = 0
+                            end
+                            userdata:mapdraw(cel_x, cel_y, sx, sy, cel_w, cel_h, layer)
+                        end
+                        
+                        function mapdraw(cel_x, cel_y, sx, sy, cel_w, cel_h, layer)
+                            map(cel_x, cel_y, sx, sy, cel_w, cel_h, layer)
+                        end
+    
+                        function mget(x, y)
+                            x = math.floor(x)
+                            y = math.floor(y)
+                            return userdata:mget(x, y)
+                        end
+
+                        function mset(x, y, v)
+                            x = math.floor(x)
+                            y = math.floor(y)
+                            v = math.floor(v)
+                            userdata:mset(x, y, v)
                         end
 
                         function mode_width()
@@ -557,6 +631,52 @@ pub mod plugin {
                             userdata:rectfill(x0, y0, x1, y1, col)
                         end
 
+                        function sget(x, y)
+                            x = math.floor(x)
+                            y = math.floor(y)
+                            return userdata:sget(x, y)
+                        end
+
+                        function spr(n, x, y, w, h, flip_x, flip_y, angle, zoom, dynamic)
+                            n = math.floor(n)
+                            x = math.floor(x)
+                            y = math.floor(y)
+                            
+                            if w == nil then
+                                w = 1
+                            end
+                            if h == nil then
+                                h = 1
+                            end
+                            if flip_x == nil then
+                                flip_x = false
+                            end
+                            if flip_y == nil then
+                                flip_y = false
+                            end
+                            if angle == nil then
+                                angle = 0.0
+                            end
+                            if zoom == nil then
+                                zoom = 1.0
+                            end
+                            if dynamic == nil then
+                                dynamic = false
+                            end
+
+                            userdata:spr(n, x, y, w, h, flip_x, flip_y, angle, zoom, dynamic)
+                        end
+
+                        function sset(x, y, color)
+                            x = math.floor(x)
+                            y = math.floor(y)
+                            if color == nil then
+                                color = -1
+                            end
+                            color = math.floor(color)
+
+                             userdata:sset(x, y, color)
+                        end
 
                         function music(n, fadems, channelmask)
                         end

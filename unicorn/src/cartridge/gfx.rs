@@ -22,6 +22,8 @@ impl CartridgeGFX {
         if !lines.is_empty() {
             let mut v = Vec::new();
 
+            info!("[CARTRIDGE][CartridgeGFX] Lines {:?}", lines.len());
+
             for line in lines {
                 //debug!("[CARTRIDGE][CartridgeGFX] LEN LINE {:?}", line.len());
 
@@ -31,6 +33,13 @@ impl CartridgeGFX {
 
                 for c in line.as_bytes() {
                     v.push((*c as char).to_digit(16).unwrap());
+                }
+            }
+
+            // Fix gap if there is not enough lines ...
+            for _i in lines.len()..128 {
+                for _j in 0..128 {
+                    v.push(0);
                 }
             }
 
@@ -53,7 +62,7 @@ impl CartridgeGFX {
                         g_off += 8;
                     }
                 }
-
+               
                 for y in 0..8 {
                     for x in 0..8 {
                         let offset = g_off + y * 128 + x;
@@ -63,7 +72,7 @@ impl CartridgeGFX {
                     }
                 }
 
-                debug!("[CARTRIDGE][CartridgeGFX] Sprite number {:?} {:?}:{:?}", sprites.len(), data.len(), data);
+                info!("[CARTRIDGE][CartridgeGFX] Sprite number {:?} {:?}:{:?}", sprites.len(), data.len(), data);
 
                 sprites.push(Sprite::new(data));
             }

@@ -1,3 +1,7 @@
+px8 / python cartridge
+version 1
+__lua__
+
 cls() -- clear screen
 rect(0,0,127,127,1)
 

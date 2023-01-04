@@ -193,7 +193,7 @@ impl Unicorn {
     pub fn new() -> Unicorn {
         info!("[Unicorn] Creating new Unicorn");
 
-        let screen = Arc::new(Mutex::new(gfx::Screen::new(MAP_WIDTH, MAP_HEIGHT)));
+        let screen = Arc::new(Mutex::new(gfx::Screen::new(MAP_WIDTH, MAP_HEIGHT, 128, 128)));
 
         Unicorn {
             screen: screen.clone(),
@@ -232,7 +232,6 @@ impl Unicorn {
 
     pub fn setup(&mut self) {
         info!("[Unicorn] Setup");
-        
         self.reset();
     }
 
@@ -648,9 +647,6 @@ impl Unicorn {
 
             self.cartridge = unicorn_cartridge;
             self._setup_screen();
-
-
-            self.init();
         }
 
         ret
@@ -727,8 +723,6 @@ impl Unicorn {
 
     pub fn call_init(&mut self) {
         info!("[Unicorn] CALL INIT {:?}", self.cartridge.get_code_type());
-
-        self.reset();
 
         match self.cartridge.get_code_type() {
             Code::LUA => match self.cartridge.lua_plugin.init() {

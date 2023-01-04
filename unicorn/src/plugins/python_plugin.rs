@@ -233,7 +233,7 @@ pub mod plugin {
     }
 
     def sget(&self, x: i32, y: i32) -> PyResult<u8> {
-        Ok(self.screen(py).lock().unwrap().sget(x as u32, y as u32))
+        Ok(self.screen(py).lock().unwrap().sget(x, y))
     }
 
     def spr_reg(&self, n: i64, d: PyList, width: u32, height: u32) -> PyResult<i64> {

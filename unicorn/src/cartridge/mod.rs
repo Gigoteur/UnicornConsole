@@ -174,7 +174,7 @@ fn read_from_uniformat<R: io::BufRead>(filename: &str, buf: &mut R) -> Result<Ca
     }
 
     match sections.get_mut("__map__") {
-        Some(vec_section) => cartridge_map = CartridgeMap::new(vec_section),
+        Some(vec_section) => cartridge_map = CartridgeMap::new(vec_section, 128, 128),
         _ => cartridge_map = CartridgeMap::empty(),
     }
 
@@ -264,7 +264,7 @@ pub fn from_dunicorn_file_raw<R: io::BufRead>(buf_reader: &mut R) -> Result<Cart
     }
 
     match sections.get_mut("__map__") {
-        Some(vec_section) => cartridge_map = CartridgeMap::new(vec_section),
+        Some(vec_section) => cartridge_map = CartridgeMap::new(vec_section, 128, 128),
         _ => cartridge_map = CartridgeMap::empty(),
     }
 
@@ -444,7 +444,7 @@ fn read_from_p8format<R: io::BufRead>(filename: &str, buf: &mut R) -> Result<Car
     }
 
     match sections.get_mut("__map__") {
-        Some(vec_section) => cartridge_map = CartridgeMap::new(vec_section),
+        Some(vec_section) => cartridge_map = CartridgeMap::new(vec_section, 128, 128),
         _ => cartridge_map = CartridgeMap::empty(),
     }
 
