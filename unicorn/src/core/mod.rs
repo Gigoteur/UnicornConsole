@@ -193,7 +193,7 @@ impl Unicorn {
     pub fn new() -> Unicorn {
         info!("[Unicorn] Creating new Unicorn");
 
-        let screen = Arc::new(Mutex::new(gfx::Screen::new(MAP_WIDTH, MAP_HEIGHT, 128, 128)));
+        let screen = Arc::new(Mutex::new(gfx::Screen::new(MAP_WIDTH, MAP_HEIGHT, 128, 32)));
 
         Unicorn {
             screen: screen.clone(),
@@ -273,8 +273,8 @@ impl Unicorn {
         }
     }
 
-    pub fn update_time(&mut self, dt: Duration) {
-        self.info.lock().unwrap().update(dt);
+    pub fn update_time(&mut self) {
+        self.info.lock().unwrap().update();
     }
 
     pub fn init(&mut self) {
@@ -301,6 +301,8 @@ impl Unicorn {
 
             }
         }
+
+        self.update_time();
         true
     }
 

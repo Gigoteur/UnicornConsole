@@ -17,9 +17,9 @@ function _init()
 	_change_state(state)
 end
 
-function _change_state(state)
+function _change_state(new_state)
 	camera(0,0)
-	state = state
+	state = new_state
 	if state == 'main' then 
 		_init_main()
 	else 
@@ -45,6 +45,7 @@ function _draw()
 end
 
 function _init_splash()
+	debug_print("INIT SPLASH")
 	cls()
 	fade_in()
 	timer = 0
@@ -83,28 +84,29 @@ function _draw_splash()
 	rectfill(0, 0, 128, 8, 8)
 	rectfill(0, 10, 128, 11, 8)
 
-	map(16,0, 0,0, 128,128)
-	map(0,0, 0,0, 128,128)
+	--map(16, 0, 0, 0, 128, 128)
+	--map(0, 0, 0, 0, 128, 128)
+	map(0, 0, 0, 0, 16, 16)
+
 
 	foreach(snow, snow_draw)
 	
- logo_draw()
- print('hi:', 3, 2, 7)
+ 	logo_draw()
+ 	print('hi:', 3, 2, 7)
 	print(flr(hiscore), 16, 2, 7)
 
  
- if (timer % 20 == 0) then
- 	if (start_col == 12) then
- 	 start_col = 1
- 	else
- 		start_col = 12
- 	end
- end
- 
- if (start_col == 1) then
-  print('press up to start', 30, 110, start_col)
+	if (timer % 20 == 0) then
+		if (start_col == 12) then
+			start_col = 1
+		else
+			start_col = 12
+		end
 	end
-	
+ 
+ 	if (start_col == 1) then
+  		print('press up to start', 30, 110, start_col)
+	end
 end
 
 function _init_main()
@@ -137,18 +139,17 @@ function _init_main()
 	yeti_runs = 0
  
 	messages = {
-	'beware, yeti!',
-	--'respect skiers',
-	--'stay safe',
-	--'yellow snow alert',
-	--'wear a helmet!',
-	--'be nice!',
+		'beware, yeti!',
+		--'respect skiers',
+		--'stay safe',
+		--'yellow snow alert',
+		--'wear a helmet!',
+		--'be nice!',
 	}
 	
 	sign = {}
 	sign.x = 65
 	sign.y = 60
-	--sign.msg = 'beware yeti!'
 	sign.msg = 	messages[flr(rnd(#messages)) + 1]
 
 	p1 = {}
@@ -180,7 +181,7 @@ function _init_main()
 	people_add()
 
 	for i=1,num_trees do
-	tree_add()
+		tree_add()
 	end
 	
 	music(0, 14) 
@@ -191,16 +192,16 @@ end
 function _update_main()
 
 	foreach(particles, particle_move)
- foreach(people, people_update)
+ 	foreach(people, people_update)
 	yeti_update()
 
- if (btn(5)) then 
-  music(-1, -1)
- 	sfx(7,0)
-  fade_out()
-  _change_state('splash') 
- 	state = 'splash'
- end
+	if (btn(5)) then 
+	music(-1, -1)
+		sfx(7,0)
+	fade_out()
+	_change_state('splash') 
+		state = 'splash'
+	end
 
 	
 	p1_update()
@@ -226,21 +227,22 @@ function _update_main()
 	foreach(trees, yeti_hit_tree)
 	foreach(people, player_hit_people)
 	foreach(people, people_hit_tree)
- yeti_eats_p1()
+ 	yeti_eats_p1()
  
- if (timer % 100 == 0) then
- 	tree_add()
- end
- 
- timer = timer + 1
- 
+	if (timer % 100 == 0) then
+		tree_add()
+	end
+	
+	timer = timer + 1
 end
 
 function _draw_main()
 
 	if (shakescreen > 0) 
-	then do_shakescreen() 
-	else camera(0, 0)
+	then
+		do_shakescreen() 
+	else
+		camera(0, 0)
 	end
 
 	rectfill(0, 0, 127, 127, 7)
@@ -277,12 +279,12 @@ function _draw_main()
 	print(flr(dist), 110, 5, 12)
 
 	if (p1.dead) then
-			game_over.y_dist = game_over.y_dest - game_over.y
-			game_over.y = tween(game_over.y, game_over.y_dist, 900)
+		game_over.y_dist = game_over.y_dest - game_over.y
+		game_over.y = tween(game_over.y, game_over.y_dist, 900)
 
-	  print(game_over.text, 
-	  					game_over.x, game_over.y,
-	  					game_over.col)
+		print(game_over.text, 
+							game_over.x, game_over.y,
+							game_over.col)
 	end
 
 end
@@ -512,15 +514,14 @@ function yeti_update()
 end
 
 function yeti_draw()
+	local offset = 0
 
- local offset = 0
-
- if (p1.eaten) then
-  offset = 2
- end
- 
- spr(yeti.f + offset,yeti.x,yeti.y)
- spr(yeti.f + offset + 16,yeti.x,yeti.y+8)
+	if (p1.eaten) then
+		offset = 2
+	end
+	
+	spr(yeti.f + offset,yeti.x,yeti.y)
+	spr(yeti.f + offset + 16,yeti.x,yeti.y+8)
 
 end
 
@@ -667,14 +668,14 @@ function collides(a, b)
 end
 
 function snow_add()
- local s = {}
- s.r = flr(rnd(3)) + 1
- s.x = flr(rnd(18)) * 8
- s.x_const = s.x
- s.y = -flr(rnd(18)) * 8
- s.vy = s.r / 3
- s.wave = flr(rnd(9)) + s.r
- add(snow, s)
+	local s = {}
+	s.r = flr(rnd(3)) + 1
+	s.x = flr(rnd(18)) * 8
+	s.x_const = s.x
+	s.y = -flr(rnd(18)) * 8
+	s.vy = s.r / 3
+	s.wave = flr(rnd(9)) + s.r
+	add(snow, s)
 end
 
 
@@ -693,8 +694,8 @@ function snow_draw(s)
 end
 
 function logo_update()
-		logo.y_dist = logo.y_dest - logo.y
-		logo.y = tween(logo.y, logo.y_dist, 900)
+	logo.y_dist = logo.y_dest - logo.y
+	logo.y = tween(logo.y, logo.y_dist, 900)
 end
 
 function logo_draw()
@@ -705,11 +706,11 @@ function logo_draw()
 	local x
 	local y
 	
- for x=0,w-1 do
-  for y=0,h-1 do
-   spr(x+start + (y * 16), logo.x + (x * 8), logo.y + (y*8))
-  end
- end
+	for x=0,w-1 do
+		for y=0,h-1 do
+			spr(x+start + (y * 16), logo.x + (x * 8), logo.y + (y*8))
+		end
+	end
 	
 end
 
@@ -729,19 +730,16 @@ function fade_out()
      for k=1,((i+(j%5))/4) do
       col=dpal[col]
      end
-    pal(j,col,1)
+    pal(j, col, 1)
    end
-  flip()
  end
 end
 
 function fade_in()
-
  cls()
  pal()
- flip()
-
 end
+
 __gfx__
 0000000000055000000ee00000000000072772700006000000006000000360000000000044ee000000009000009900000000990000ddddd000d0000000000d00
 00000000007575000022220000500500722222770006300000063000003330000000000044888e0000099000000999000099900000ddddd00ddd00000000ddd0

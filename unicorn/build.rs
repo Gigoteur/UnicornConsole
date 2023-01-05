@@ -10,12 +10,12 @@ fn prebuild() -> io::Result<()> {
 
     let map_width = match env::var_os("UNICORN_MAP_WIDTH") {
         Some(v) => v.into_string().unwrap(),
-        None => "480".to_string(),
+        None => "128".to_string(),
     };
 
     let map_height = match env::var_os("UNICORN_MAP_HEIGHT") {
         Some(v) => v.into_string().unwrap(),
-        None => "270".to_string(),
+        None => "128".to_string(),
     };
 
     let mut f = File::create(&dest_path).unwrap();

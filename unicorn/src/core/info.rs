@@ -1,10 +1,12 @@
 use std::time::Duration;
+use std::time::Instant;
 
 #[derive(Debug)]
 pub struct Info {
     pub current: Duration,
     pub milliseconds: u64,
     pub elapsed_time: f64,
+    pub previous_frame_time: Instant,
 }
 
 
@@ -14,10 +16,15 @@ impl Info {
             current: Duration::from_millis(0),
             milliseconds: 0,
             elapsed_time: 0.0,
+            previous_frame_time: Instant::now(),
         }
     }
 
-    pub fn update(&mut self, dt: Duration) {
+    pub fn update(&mut self) {
+        let now = Instant::now();
+        let dt = now.duration_since(self.previous_frame_time);
+        self.previous_frame_time = now;
+
         if self.current > dt {
             let nanoseconds = dt.subsec_nanos();
             self.elapsed_time += dt.as_secs() as f64 + nanoseconds as f64 / 1000000000.0;

@@ -264,7 +264,7 @@ pub fn from_dunicorn_file_raw<R: io::BufRead>(buf_reader: &mut R) -> Result<Cart
     }
 
     match sections.get_mut("__map__") {
-        Some(vec_section) => cartridge_map = CartridgeMap::new(vec_section, 128, 128),
+        Some(vec_section) => cartridge_map = CartridgeMap::new(vec_section, 128, 32),
         _ => cartridge_map = CartridgeMap::empty(),
     }
 

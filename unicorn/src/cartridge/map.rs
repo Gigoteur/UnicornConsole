@@ -15,13 +15,12 @@ impl CartridgeMap {
     }
 
     pub fn new(lines: &[String], width: u32, height: u32) -> CartridgeMap {
-        info!("[CARTRIDGE] [CartridgeMap]");
+        info!("[CARTRIDGE] [CartridgeMap] {:?}", lines.len());
 
         let mut map = Vec::new();
-        let mut y = 0;
 
         for line in lines {
-            debug!("[CARTRIDGE] [CartridgeMap] Line {:?} {:?}", y, line);
+            info!("[CARTRIDGE] [CartridgeMap] Line {:?}", line);
 
             let mut i = 0;
 
@@ -33,14 +32,9 @@ impl CartridgeMap {
                 i += 2;
             }
 
-            y += 1;
-
-            if y == 32 {
-                break;
-            }
         }
 
-        debug!("[CARTRIDGE] [CartridgeMap] {:?}", map);
+        info!("[CARTRIDGE] [CartridgeMap] {:?}", map.len());
 
         CartridgeMap { map: map, width: width, height: height }
     }

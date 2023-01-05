@@ -88,6 +88,10 @@ pub mod plugin {
                 Ok(1)
             });
 
+            methods.add_method("time", |_lua_ctx, game_state, ()| {
+                let value = game_state.info.lock().unwrap().time();
+                Ok(value)
+            });
 
 /* 
         # Map                   #               #               #
@@ -378,7 +382,6 @@ pub mod plugin {
     pub struct LuaPlugin {
         lua: Lua,
         loaded_code: bool,
-        info: Vec<Arc<Mutex<Info>>>,
     }
 
     impl LuaPlugin {
@@ -386,7 +389,6 @@ pub mod plugin {
             LuaPlugin {
                 lua: Lua::new(),
                 loaded_code: false,
-                info: Vec::new(),
             }
         }
 
@@ -410,6 +412,14 @@ pub mod plugin {
 
                 lua.load(
                     r#"
+                        function dget(index)
+                            return 0
+                        end
+
+                        function dset(index, value)
+                            return 0
+                        end
+
                         function rnd(x)
                           if x == nil then
                             x = 1
@@ -425,6 +435,11 @@ pub mod plugin {
                             x = math.floor(x)
                             return userdata:srand(x)
                         end
+
+                        function time()
+                            return userdata:time()
+                        end
+
 
                         function btn(i, p)
                             if p == nil then
@@ -450,6 +465,7 @@ pub mod plugin {
                             if layer == nil then
                                 layer = 0
                             end
+                            
                             userdata:mapdraw(cel_x, cel_y, sx, sy, cel_w, cel_h, layer)
                         end
                         
@@ -479,6 +495,12 @@ pub mod plugin {
                         end
 
                         function camera(x, y)
+                            if x == nil then
+                                x = 0
+                            end
+                            if y == nil then
+                                y = 0
+                            end
                             userdata:camera(x, y)
                         end
                         
@@ -641,7 +663,7 @@ pub mod plugin {
                             n = math.floor(n)
                             x = math.floor(x)
                             y = math.floor(y)
-                            
+
                             if w == nil then
                                 w = 1
                             end
@@ -790,7 +812,9 @@ pub mod plugin {
                 ceil = math.ceil
                 cos = function(x) return math.cos((x or 0)*(math.pi*2)) end
                 sin = function(x) return math.sin(-(x or 0)*(math.pi*2)) end
-                atan2 = function(y,x) return __pico_angle(math.atan2(y,x)) end
+                function atan2(y, x)
+                    return __pico_angle(math.atan(y, x))
+                end
                 sqrt = math.sqrt
                 abs = math.abs
                 sgn = function(x)

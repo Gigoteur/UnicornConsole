@@ -973,14 +973,14 @@ impl Screen {
             cel_h = self.map_height as u32;
         }
 
-        /*debug!("MAP cel_x {:?} cel_y {:?} sx {:?} sy {:?} cel_w {:?} cel_h {:?} layer {:?}",
+        debug!("MAP cel_x {:?} cel_y {:?} sx {:?} sy {:?} cel_w {:?} cel_h {:?} layer {:?}",
                cel_x,
                cel_y,
                sx,
                sy,
                cel_w,
                cel_h,
-               layer);*/
+               layer);
 
         while idx_y < cel_h as i32 {
             idx_x = 0;
@@ -993,32 +993,27 @@ impl Screen {
                 let map_x = cel_x as i32 + idx_x;
                 let map_y = cel_y as i32 + idx_y;
 
-                //debug!("MAP X {:?} MAP Y {:?}", map_x, map_y);
+                let idx_sprite: u32 = *self.map.get(map_x as usize  + map_y as usize * self.map_width).unwrap_or(&0);
 
-                let idx_sprite: u32 = *self.map.get(((map_x as usize) % self.map_width) * self.map_width + (map_y as usize) % self.map_height).unwrap_or(&0);
+                let mut sprite = self.sprites[idx_sprite as usize].clone();
+                //info!("GET SPRITE {:?}, {:?} {:?} {:?} {:?}", idx_sprite, map_x, map_y, new_x, new_y);
 
-                // Skip the sprite 0
-                if idx_sprite != 0 {
-                    let mut sprite = self.sprites[idx_sprite as usize].clone();
-                    //debug!("GET SPRITE {:?}, {:?} {:?}", idx_sprite, map_x, map_y);
+                // not the correct layer
+                if layer == 0 || sprite.is_bit_flags_set(layer) {
+                    let mut index = 0;
 
-                    // not the correct layer
-                    if layer == 0 || sprite.is_bit_flags_set(layer) {
-                        let mut index = 0;
+                    for (_, c) in sprite.data.iter_mut().enumerate() {
+                        if !self.is_transparent(*c as u32) {
+                            self.putpixel_(new_x, new_y, *c as u32);
+                        }
 
-                        for (_, c) in sprite.data.iter_mut().enumerate() {
-                            if !self.is_transparent(*c as u32) {
-                                self.putpixel_(new_x, new_y, *c as u32);
-                            }
+                        index += 1;
 
-                            index += 1;
-
-                            if index > 0 && index % 8 == 0 {
-                                new_y += 1;
-                                new_x = orig_x;
-                            } else {
-                                new_x += 1;
-                            }
+                        if index > 0 && index % 8 == 0 {
+                            new_y += 1;
+                            new_x = orig_x;
+                        } else {
+                            new_x += 1;
                         }
                     }
                 }

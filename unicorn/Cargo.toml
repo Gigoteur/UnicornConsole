@@ -71,7 +71,7 @@ optional = true
 
 [dependencies.rlua]
 optional = true
-version="0.19.2"
+version="0.19.4"
 
 [dependencies.duktape]
 optional = true
