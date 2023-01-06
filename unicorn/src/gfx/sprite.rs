@@ -148,6 +148,7 @@ impl fmt::Debug for Sprite {
 #[cfg(test)]
 mod tests {
     use super::Sprite;
+    use std::iter::FromIterator;
 
     #[test]
     fn test_sprite_flags() {
@@ -166,6 +167,7 @@ mod tests {
     fn test_sprite_flags2() {
         let mut s = Sprite::new([0; 64]);
         s.set_flags(131);
+
         assert_eq!(s.is_flags_set(0), true);
         assert_eq!(s.is_flags_set(1), true);
         assert_eq!(s.is_flags_set(2), false);
@@ -174,5 +176,38 @@ mod tests {
         assert_eq!(s.is_flags_set(5), false);
         assert_eq!(s.is_flags_set(6), false);
         assert_eq!(s.is_flags_set(7), true);
+    }
+
+    #[test]
+    fn test_sprite_flip_x() {
+        let original_sprite =
+        [
+            0, 0, 0, 0, 8, 8, 8, 8,
+            0, 0, 0, 0, 8, 8, 8, 8,
+            0, 0, 0, 0, 8, 8, 8, 8,
+            0, 0, 0, 0, 8, 8, 8, 8,
+            0, 0, 0, 0, 8, 8, 8, 8,
+            0, 0, 0, 0, 8, 8, 8, 8,
+            0, 0, 0, 0, 8, 8, 8, 8,
+            0, 0, 0, 0, 8, 8, 8, 8
+        ];
+
+        let mut s = Sprite::new(original_sprite);
+        assert_eq!(s.to_u8_64_array(), original_sprite);
+
+        let flip_x_sprite =
+        [
+            8, 8, 8, 8, 0, 0, 0, 0,
+            8, 8, 8, 8, 0, 0, 0, 0,
+            8, 8, 8, 8, 0, 0, 0, 0,
+            8, 8, 8, 8, 0, 0, 0, 0,
+            8, 8, 8, 8, 0, 0, 0, 0,
+            8, 8, 8, 8, 0, 0, 0, 0,
+            8, 8, 8, 8, 0, 0, 0, 0,
+            8, 8, 8, 8, 0, 0, 0, 0,
+        ];
+
+        let s_flip_x = s.flip_x();
+        assert_eq!(s_flip_x.to_u8_64_array(), flip_x_sprite);
     }
 }

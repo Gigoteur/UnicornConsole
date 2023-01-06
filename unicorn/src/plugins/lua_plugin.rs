@@ -141,7 +141,7 @@ pub mod plugin {
         sget                    #     X         #               #
         spr                     #     X         #               #
         sset                    #     X         #               #
-        sspr                    #               #               #
+        sspr                    #     X         #               #
         sspr_rotazoom           #               #               #
         trigon                  #     X         #               #
 */
@@ -368,6 +368,15 @@ pub mod plugin {
                Ok(())
             });
 
+            methods.add_method("sspr", |_lua_ctx, game_state, (sx, sy, sw, sh, dx, dy, dw, dh, flip_x, flip_y):(u32, u32, u32, u32, i32, i32, u32, u32, bool, bool)| {
+                game_state.screen
+               .lock()
+               .unwrap()
+               .sspr(sx, sy, sw, sh, dx, dy, dw, dh, flip_x, flip_y);
+
+               Ok(())
+            });
+
             methods.add_method("sset", |_lua_ctx, game_state, (x, y, col):(u32 , u32, i32)| {
                 game_state.screen
                .lock()
@@ -465,7 +474,7 @@ pub mod plugin {
                             if layer == nil then
                                 layer = 0
                             end
-                            
+
                             userdata:mapdraw(cel_x, cel_y, sx, sy, cel_w, cel_h, layer)
                         end
                         
@@ -689,6 +698,32 @@ pub mod plugin {
                             userdata:spr(n, x, y, w, h, flip_x, flip_y, angle, zoom, dynamic)
                         end
 
+                        function sspr(sx, sy, sw, sh, dx, dy, dw, dh, flip_x, flip_y)
+                            sx = math.floor(sx)
+                            sy = math.floor(sy)
+                            sw = math.floow(sw)
+                            sh = math.floor(sh)
+                            dx = math.floor(dx)
+                            dy = math.floor(dy)
+
+                            if dw == nil then
+                                dw = sw
+                            end
+
+                            if dh == nil then
+                                dh = sh
+                            end
+
+                            if flip_x == nil then
+                                flip_x = false
+                            end
+                            if flip_y == nil then
+                                flip_y = false
+                            end         
+
+                            userdata:sspr(sx, sy, sw, sh, dx, dy, dw, dh, flip_x, flip_y)
+                        end
+                        
                         function sset(x, y, color)
                             x = math.floor(x)
                             y = math.floor(y)

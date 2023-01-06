@@ -540,8 +540,7 @@ def palette_reset():
 
 
 def palette_switch(name):
-    pass
-    #unicorn_graphic.switch(name)
+    unicorn_graphic.switch_palette(name)
 
 
 globals()["mode_width"] = mode_width

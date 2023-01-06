@@ -114,6 +114,8 @@ impl Screen {
         }
     }
 
+
+
     pub fn _reset_transparency(&mut self) {
         self.transparency_map = [false; 256];
         self.transparency_map[0] = true;
@@ -132,6 +134,17 @@ impl Screen {
             right: self.width as i32,
             bottom: self.height as i32,
         };
+    }
+
+    pub fn switch_palette(&mut self, name: String) {
+        info!("[GFX] [Screen] Switch palette to {:?}", name);
+
+        let values = &self.palettes.palettes[&name];
+        info!("VALUES {:?}", values);
+
+        for (idx, rgb_value) in values.iter().enumerate() {
+            self.palette._set_color(idx as u32, rgb_value.r, rgb_value.g, rgb_value.b);
+        }
     }
 
     pub fn save(&mut self) {
@@ -885,6 +898,55 @@ impl Screen {
             let mut orig_x = x;
             let mut orig_y = y;
 
+            if flip_x {
+                orig_x = (w * 8 - 8) + x;
+            }
+
+            if flip_y {
+                orig_y = (h * 8 - 8) + y;
+            }
+
+            let sprites_len = self.sprites.len();
+            for i in 0..h {
+                for j in 0..w {
+                    let sprite_offset = ((j + n as i32) + i * 16) as usize;
+                    if sprite_offset >= sprites_len {
+                        break;
+                    }
+
+                    let sprite = self.sprites[sprite_offset].clone();
+                    debug!("[SCREEN] [Screen] [SPR] Access to sprite {:?} {:?}", sprite_offset, sprite);
+
+                    self._sprite_rotazoom(
+                        sprite.data.clone().to_vec(),
+                        8, 8,
+                        orig_x, orig_y, angle, zoom,
+                        flip_x, flip_y);
+
+                    if flip_x {
+                        orig_x -= 8;
+                    } else {
+                        orig_x += 8;
+                    }
+                }
+
+                if flip_y {
+                    orig_y -= 8;
+                } else {
+                    orig_y += 8;
+                }
+
+                if flip_x {
+                    orig_x = (w * 8 - 8) + x;
+                } else {    
+                    orig_x = x;
+                }
+            }
+        }
+ /*else {
+            let mut orig_x = x;
+            let mut orig_y = y;
+
             let sprites_len = self.sprites.len();
             for i in 0..h {
                 for j in 0..w {
@@ -927,7 +989,7 @@ impl Screen {
                 orig_y += 8;
                 orig_x = x;
             }
-        }
+        }*/
     }
  
     /*
@@ -1036,7 +1098,7 @@ impl Screen {
             return 0;
         }
 
-        *self.map.get(((x as usize) % self.map_width) * self.map_width + (y as usize) % self.map_height).unwrap_or(&0)
+        *self.map.get(x as usize * self.map_width + y as usize).unwrap_or(&0)
     }
 
     pub fn mset(&mut self, x: i32, y: i32, v: u32) {
@@ -1050,7 +1112,7 @@ impl Screen {
             return;
         }
 
-        self.map[((x as usize) % self.map_width) * self.map_width + (y as usize) % self.map_height] = v;
+        self.map[x as usize * self.map_width + y as usize] = v;
     }
 
     pub fn sspr(&mut self,
@@ -1154,6 +1216,7 @@ impl Screen {
         }
     }
 
+    #[inline]
     pub fn _sprite_rotazoom(&mut self, v: Vec<u8>, 
                             sw: u32,
                             sh: u32,

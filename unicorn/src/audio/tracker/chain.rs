@@ -44,8 +44,11 @@ impl Default for Chain {
 
 #[cfg(test)]
 mod tests {
+    use std::iter::FromIterator;
+    
+    use audio::tracker::phrase::PhraseId;
+    use audio::consts::CHAIN_MAX_PHRASE_COUNT;
     use super::Chain;
-    use crate::{PhraseId, CHAIN_MAX_PHRASE_COUNT};
     use arrayvec::ArrayVec;
 
     #[test]

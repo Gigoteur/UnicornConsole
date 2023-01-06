@@ -144,9 +144,13 @@ pub fn from_name_octave(name: NoteName, octave: Octave) -> Option<&'static Note>
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        from_name_octave, get_note, initialize_notes, NoteId, NoteName, Octave, TOTAL_NOTES_COUNT,
-    };
+    use crate::audio::notes::note::NoteId;
+    use crate::audio::notes::note::from_name_octave;
+    use crate::audio::notes::note::get_note;
+    use crate::audio::notes::note::initialize_notes;
+    use crate::audio::notes::note_name::NoteName;
+    use crate::audio::notes::octave::Octave;
+    use crate::audio::consts::TOTAL_NOTES_COUNT;
 
     #[test]
     fn test_from_name_octave() {

@@ -162,10 +162,10 @@ function createanim(
  end
  if clock % t == 0 then
  	if(snd!=nil)sfx(snd)
-  frame += i
+  frame = frame + i
   if frame > max then
    frame = min
-   if(sndreset!=nil)sfx(sndreset)
+   if(sndreset!=nil) then sfx(sndreset) end
   end
  end
  return frame
@@ -191,7 +191,7 @@ end
   if highscore==0 then
    splash=true
   elseif highscore<0 then
-  	highscore*=-1
+  	highscore = highscore * -1
   	changepal()
   end
   
@@ -204,7 +204,7 @@ end
    add(dusts,{x=xdist,
    y=groundy,t=rand(39,43)})
     
-   xdist+=rand(12,19)
+   xdist = xdist + rand(12,19)
   end
  end
  
@@ -215,24 +215,24 @@ end
   clock += 1
 --splash
   if splash then 
-   if mid(1,btn(),63)==btn()then
+   if mid(1,btn(),63)==btn() then
    	splash=false
    	splashframe=0
   	end
   else
   	if splashframe<10 then
-   	splashframe+=1
+   	  splashframe = splashframe + 1
   	end
   end
   
   if not gameover and not splash then
    gclock+=1
    if(gclock% 2 == 0)score += 1
-   speed-=0.001
+   speed = speed - 0.001
    if speed<spdcap then
     speed=spdcap
    end
-   distance-=speed
+   distance = distance - speed
    
    dinocontrols()
    dino.yvel+=gravity
@@ -241,9 +241,10 @@ end
    dinoground()
    animatedino()
    
-			if mid(1,btnp(),63)==btnp()then
-			 canspawn=true
-			end
+    if mid(1,btnp(),63)==btnp() then
+      canspawn=true
+    end
+
    if distance>200 and canspawn then
 	   cactspawn()
 	   cactmove()
@@ -343,7 +344,8 @@ end
   bl=0b1111111111111111
   local colbk=7
   local colfrt=5
-  if(sunsetphase<4)colbk=6
+  if(sunsetphase<4) then colbk=6 end
+
   rectfill(0,0,127,127,colbk)
   local dofill=true
   if sunsetphase==5 then
@@ -359,7 +361,7 @@ end
   elseif sunsetphase==1 then
   	fillp(█)
   end
-  if(dofill)rectfill(0,0,127,127,colfrt)
+  if(dofill) then rectfill(0,0,127,127,colfrt) end
   fillp()
   
   --sun
@@ -614,7 +616,7 @@ ringy=0
  	up=btn(⬆️)or btn(🅾️)
  	down=btn(⬇️)or btn(❎)
  	
-  dustkicktime+=1
+  dustkicktime = dustkicktime + 1
   
   if dino.grnded then
    if dino.grndpounding then
@@ -629,9 +631,9 @@ ringy=0
    end
    gravity=0.5
    dino.timeoffground=0
-   dino.timeground+=1
+   dino.timeground = dino.timeground + 1
   else
-   dino.timeoffground+=1
+   dino.timeoffground = dino.timeoffground + 1
    dino.timeground=0
   end
   
@@ -646,7 +648,7 @@ ringy=0
    if (down) then
    --crouch jump
     dino.jumping=true
-    dino.yvel*=0.8
+    dino.yvel = dino.yvel * 0.8
    end
   end
   
@@ -655,7 +657,7 @@ ringy=0
   and dino.yvel < 0 and 
   dino.yvel >= dino.maxjump 
   then
-   dino.yvel *= 0.6
+   dino.yvel = dino.yvel * 0.6
   end
   
   --prevent ground pound if 
@@ -675,7 +677,7 @@ ringy=0
    if not dino.grnded and 
    not dino.jumping then
     dino.grndpounding=true
-    dino.strch+=2
+    dino.strch = dino.strch + 2
     gravity=2.5
    end
    if dino.frmcrouch==1 and 
@@ -750,12 +752,12 @@ ringy=0
   dino.frame=createanim(dino.frame,animspeed,2,128,131)
   if clock % animspeed == 0 then
    --dino.frame+=2
-   flipcount+=1
+   flipcount = flipcount + 1
   end
   if dino.frame>130 then
    --dino.frame=128
   end
-  if(flipcount>4)flipcount=1
+  if(flipcount>4) then flipcount=1 end
   
   if flipcount>2 then
    dino.flipx = true
