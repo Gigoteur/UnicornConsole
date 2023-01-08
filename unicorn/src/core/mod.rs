@@ -541,70 +541,70 @@ impl Unicorn {
     }
 
     pub fn _setup_screen(&mut self) {
-        let cartridge = &self.cartridge;
+        info!("[Unicorn] Setup screen {:?}", self.cartridge);
 
-        info!("[Unicorn] Setup screen {:?}", cartridge);
-
+        info!("[Unicorn] Copying sprites ...");
         self.screen
             .lock()
             .unwrap()
-            .set_sprites(cartridge.cartridge.gfx.sprites.clone());
+            .set_sprites(self.cartridge.cartridge.gfx.sprites.clone());
 
+        info!("[Unicorn] Copying gff flags ...");
         self.screen
             .lock()
             .unwrap()
-            .set_sprites_flags(cartridge.cartridge.gff.flags.clone());
+            .set_sprites_flags(self.cartridge.cartridge.gff.flags.clone());
 
+        info!("[Unicorn] Copying map ...");
         self.screen
             .lock()
             .unwrap()
-            .set_map(cartridge.cartridge.map.map.clone());
+            .set_map(self.cartridge.cartridge.map.map.clone());
 
         //self.palettes.lock().unwrap().set_colors(cartridge.cartridge.palette.colors.clone());
     }
 
-    pub fn _load_cartridge(&mut self,
-                           cartridge: &mut UnicornCartridge)
+    pub fn _load_cartridge(&mut self)
                            -> bool {
-        info!("[Unicorn] Loading cartridge {:?}", cartridge);
+        info!("[Unicorn] Loading cartridge {:?}", self.cartridge);
 
-        let data = cartridge.get_code();
+        let data = self.cartridge.get_code();
 
         let mut ret: bool = false;
 
-        match cartridge.get_code_type() {
+        match self.cartridge.get_code_type() {
             Code::LUA => {
                 info!("[Unicorn] Loading LUA Plugin");
 
-                cartridge
+                self.cartridge
                     .lua_plugin
                     .load(self.contexts.clone(),
                           self.info.clone(),
                           self.screen.clone());
 
-                ret = cartridge.lua_plugin.load_code(data.clone());
+                ret = self.cartridge.lua_plugin.load_code(data.clone());
             }
             Code::JAVASCRIPT => {
                 info!("[Unicorn] Loading JAVASCRIPT Plugin");
 
-                cartridge
+                self.cartridge
                     .javascript_plugin
                     .load(self.contexts.clone(),
                           self.info.clone(),
                           self.screen.clone());
 
-                ret = cartridge.javascript_plugin.load_code(data.clone());
+                ret = self.cartridge.javascript_plugin.load_code(data.clone());
             }
             Code::PYTHON => {
                 info!("[Unicorn] Loading PYTHON Plugin");
 
-                cartridge
+                self.cartridge
                     .python_plugin
                     .load(self.contexts.clone(),
                           self.info.clone(),
                           self.screen.clone());
 
-                ret = cartridge.python_plugin.load_code(data.clone());
+                ret = self.cartridge.python_plugin.load_code(data.clone());
             }
             _ => (),
         }
@@ -641,17 +641,15 @@ impl Unicorn {
             panic!("[Unicorn] Unknown file format !");
         }
 
-        let mut unicorn_cartridge = UnicornCartridge::new(cartridge, filename);
-        let ret = self._load_cartridge(&mut unicorn_cartridge);
-        if ret {
-            self.state = UnicornState::RUN;
-            unicorn_cartridge.loaded = true;
+        self.cartridge = UnicornCartridge::new(cartridge, filename);
+        self._setup_screen();
 
-            self.cartridge = unicorn_cartridge;
-            self._setup_screen();
+        self.cartridge.loaded = self._load_cartridge();
+        if self.cartridge.loaded {
+            self.state = UnicornState::RUN;
         }
 
-        ret
+        self.cartridge.loaded
     }
 
     pub fn switch_code(&mut self) {

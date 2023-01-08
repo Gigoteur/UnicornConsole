@@ -100,12 +100,13 @@ def _update():
 def _draw():
     cls()
     palt()
-    palt(0,False)
+    palt(0, False)
 
     r = flr(42*1)
     xl, yt, xr, yb = PLAYER.x - r, PLAYER.y - r, PLAYER.x + r, PLAYER.y + r
     clip(xl, yt, xr-xl, yb-yt)
-    spr_map(0,0,0,0,16,16)
+    mapdraw(0, 0, 0, 0, 16, 16)
+
 
     LIGHT.apply(PLAYER.x, PLAYER.y, xl, yt, xr, yb)
     PLAYER.draw()

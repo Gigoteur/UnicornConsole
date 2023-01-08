@@ -172,6 +172,7 @@ impl Screen {
     }
 
     pub fn set_sprites(&mut self, sprites: Vec<sprite::Sprite>) {
+        info!("Set Sprites {:?}", sprites.len());
         self.sprites = sprites;
     }
 
@@ -295,15 +296,19 @@ impl Screen {
     }
 
     pub fn sget(&mut self, x: i32, y: i32) -> u8 {
+        info!("SGET x:{:?} y:{:?}", x, y);
+
         if x < 0 || y < 0 {
             return 0;
         }
 
         if x as usize >= self.mode_width() || y as usize >= self.mode_height() {
-            return 1;
+            return 0;
         }
 
-        let idx_sprite = (x / 8) + 16 * (y / 8);
+        let idx_sprite = ((x / 8) + 16 * (y / 8)) as u32;
+        info!("SGET IDX {:?}/{:?}", idx_sprite, self.sprites.len());
+
         let sprite = &self.sprites[idx_sprite as usize];
         sprite.data[((x % 8) + (y % 8) * 8) as usize] as u8
     }

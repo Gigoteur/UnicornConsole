@@ -358,10 +358,9 @@ pub mod plugin {
         Ok(value)
     }
 
-    def btn_mouse_statep(&self) -> PyResult<u32> {
-//        let value = self.players(py).lock().unwrap().mouse_state_quick();
-//        Ok(value)
-        Ok(1)
+    def btn_mouse_statep(&self, p: i32) -> PyResult<u32> {
+        let value = self.contexts(py).lock().unwrap().input_context.btn_mouse_statep(p as u8);
+        Ok(value)
     }
 
     });

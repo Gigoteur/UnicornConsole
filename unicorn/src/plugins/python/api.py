@@ -600,15 +600,15 @@ def mouse_y():
     return unicorn_input.btn_mouse(1, 0)
 
 
-def mouse_state():
-    return unicorn_input.btn_mouse_state(0)
+def mouse_state(p=0):
+    return unicorn_input.btn_mouse_state(p)
 
 
-def mouse_statep():
-    return unicorn_input.btn_mouse_statep(0)
+def mouse_statep(p=0):
+    return unicorn_input.btn_mouse_statep(p)
 
-def mouse_left_state():
-    return unicorn_input.btn_mouse_state(0) & 0x000000FF
+def mouse_left_state(p=0):
+    return unicorn_input.btn_mouse_state(p) & 0x000000FF
 
 
 globals()["btn"] = btn
