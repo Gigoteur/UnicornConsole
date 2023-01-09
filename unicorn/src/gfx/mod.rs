@@ -7,12 +7,13 @@ pub mod framerate;
 
 use log::{debug, error, info};
 
-
-use crate::core;
+use std::collections::HashMap;
 use std::cmp;
-use std::ptr;
-use std::f64;
 use std::f64::consts::PI;
+
+use gfx::palette::RGB;
+use crate::core;
+
 
 #[derive(Debug)]
 pub struct Screen {
@@ -140,11 +141,18 @@ impl Screen {
         info!("[GFX] [Screen] Switch palette to {:?}", name);
 
         let values = &self.palettes.palettes[&name];
-        info!("VALUES {:?}", values);
 
         for (idx, rgb_value) in values.iter().enumerate() {
             self.palette._set_color(idx as u32, rgb_value.r, rgb_value.g, rgb_value.b);
         }
+    }
+
+    pub fn set_palette_colors(&mut self, colors: HashMap<u32, RGB>) {
+        self.palette.set_colors(colors);
+    }
+
+    pub fn set_palette_color(&mut self, color: u32, r: u8, g: u8, b: u8) {
+        self.palette.set_color(color, r, g, b);
     }
 
     pub fn save(&mut self) {
@@ -296,7 +304,7 @@ impl Screen {
     }
 
     pub fn sget(&mut self, x: i32, y: i32) -> u8 {
-        info!("SGET x:{:?} y:{:?}", x, y);
+        //info!("SGET x:{:?} y:{:?}", x, y);
 
         if x < 0 || y < 0 {
             return 0;
@@ -307,7 +315,7 @@ impl Screen {
         }
 
         let idx_sprite = ((x / 8) + 16 * (y / 8)) as u32;
-        info!("SGET IDX {:?}/{:?}", idx_sprite, self.sprites.len());
+        //info!("SGET IDX {:?}/{:?}", idx_sprite, self.sprites.len());
 
         let sprite = &self.sprites[idx_sprite as usize];
         sprite.data[((x % 8) + (y % 8) * 8) as usize] as u8
@@ -803,27 +811,32 @@ impl Screen {
     }
 
     pub fn spr_reg(&mut self, n: i64, data: Vec<u8>, width: u32, height: u32) -> i64 {
-        let mut dynamic_sprite = false;
 
-        if width != 8 || height != 8 {
-            dynamic_sprite = true;
+        let mut idx = 0;
+        let mut v: Vec<u8> = Vec::new();
+
+        while idx < data.len() {
+            let r = *data.get(idx).unwrap();
+            let g = *data.get(idx + 1).unwrap();
+            let b = *data.get(idx + 2).unwrap();
+
+            v.push(self.palette.add_color(r, g, b));
+
+            idx += 3;
         }
 
-        if dynamic_sprite {
-            let dyn_sprite = sprite::DynamicSprite::new(data, width, height);
-            if n == -1 {
-                self.dyn_sprites.push(dyn_sprite);
-                return (self.dyn_sprites.len() - 1) as i64;
-            } else {
-                if n >= self.dyn_sprites.len() as i64 {
-                    return -1;
-                }
-                self.dyn_sprites[n as usize] = dyn_sprite;
-                return n;
-            }
+        //info!("DYNAMIC SPRITE {:?} {:?} width:{:?} height:{:?}", v, v.len(), width, height);
+        
+        let dyn_sprite = sprite::DynamicSprite::new(v, width, height);
+        if n == -1 {
+            self.dyn_sprites.push(dyn_sprite);
+            return (self.dyn_sprites.len() - 1) as i64;
         }
-
-        -1
+        if n >= self.dyn_sprites.len() as i64 {
+            return -1;
+        }
+        self.dyn_sprites[n as usize] = dyn_sprite;
+        return n;
     }
 
     pub fn spr(&mut self, n: u32,
@@ -877,6 +890,7 @@ impl Screen {
                         ret.insert((i * w2 + j) as usize, sprite.data[idx]);
                     }
                 }
+
                 self._sprite_rotazoom(
                     ret.clone(),
                     w2,
@@ -888,6 +902,17 @@ impl Screen {
                     flip_x, flip_y);
 
             } else {
+                //info!("DYNAMIC SPR {:?} {:?} {:?}", sprite.data.clone(), sprite.width, sprite.height);
+/* 
+                self._sprite_quick(
+                    sprite.data.clone(),
+                    sprite.width,
+                    sprite.height,
+                    x,
+                    y,
+                    flip_x,
+                    flip_y);*/
+                    
                 self._sprite_rotazoom(
                     sprite.data.clone(),
                     sprite.width,
@@ -948,77 +973,8 @@ impl Screen {
                 }
             }
         }
- /*else {
-            let mut orig_x = x;
-            let mut orig_y = y;
-
-            let sprites_len = self.sprites.len();
-            for i in 0..h {
-                for j in 0..w {
-                    let sprite_offset = ((j + n as i32) + i * 16) as usize;
-                    if sprite_offset >= sprites_len {
-                        break;
-                    }
-
-                    let mut sprite = self.sprites[sprite_offset].clone();
-                    debug!("[SCREEN] [Screen] [SPR] Access to sprite {:?} {:?}", sprite_offset, sprite);
-
-                    if flip_x {
-                        sprite = sprite.flip_x();
-                    }
-                    if flip_y {
-                        sprite = sprite.flip_y();
-                    }
-
-                    let mut new_x = orig_x;
-                    let mut new_y = orig_y;
-
-                    let mut index = 0;
-                    for (_, c) in sprite.data.iter_mut().enumerate() {
-                        if !self.is_transparent(*c as u32) {
-                            self.putpixel_(new_x, new_y, *c as u32);
-                        }
-
-                        index += 1;
-
-                        if index != 0 && index % 8 == 0 {
-                            new_y += 1;
-                            new_x = orig_x;
-                        } else {
-                            new_x += 1;
-                        }
-                    }
-
-                    orig_x += 8;
-                }
-                orig_y += 8;
-                orig_x = x;
-            }
-        }*/
     }
  
-    /*
-             let orig_x = x;
-            let orig_y = y;
-
-            let mut idx = 0;
-
-            let sprite = self.dyn_sprites[n as usize].clone();
-            for idx_y in 0..sprite.height {
-                for idx_x in 0..sprite.width {
-                    let new_x = orig_x + idx_x as i32;
-                    let new_y = orig_y + idx_y as i32;
-
-                    let c = sprite.data[idx as usize];
-
-                    if !self.is_transparent(c) {
-                        self.putpixel(new_x, new_y, c);
-                    }
-
-                    idx += 1;
-                }
-            }*/
-
     pub fn mapdraw(&mut self,
                    cel_x: u32,
                    cel_y: u32,
@@ -1324,15 +1280,35 @@ impl Screen {
             }
         }
 
+        (dw, dh)     
+    }
+
+    #[inline]
+    pub fn _sprite_quick(&mut self, v: Vec<u8>, 
+                            sw: u32,
+                            sh: u32,
+                            destx: i32,
+                            desty: i32,
+                            flip_x: bool,
+                            flip_y: bool) -> (i32, i32) {
+        let dw = sw as i32;
+        let dh = sh as i32;
+
+        let mut idx = 0;
+        for y in 0..dh {
+            for x in 0..dw {
+                let idx = (y*dh+x) as usize;
+
+                let d = v[idx as usize];
+                if d != 0 {
+                    if !self.is_transparent(d as u32) {
+                        self.putpixel_(x as i32 + destx, y as i32 + desty, d as u32);
+                    }
+                }
+            }
+        }
+
         (dw, dh)
- /*   } else {
-        let mut dw = sw as i32 * zoom;
-        let mut dh = sh as i32 * zoom;
-
-
-        
-
-    }*/        
     }
 
     pub fn sspr_rotazoom(&mut self,

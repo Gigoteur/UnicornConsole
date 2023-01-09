@@ -81,11 +81,8 @@ pub mod plugin {
         memcpy                  #       X       #                   #
         # System                #               #                   #
         time                    #       X       # unicorn_time      #
-        time_sec                #       X       # unicorn_time_sec  #
         show_mouse              #       X       #                   #
     */
-
-
 
     // Graphics
     py_class!(class UnicornGraphic |py| {
@@ -93,7 +90,6 @@ pub mod plugin {
 
 
     // Cart Data
-
     def mode_width(&self) -> PyResult<u32> {
         Ok(self.screen(py).lock().unwrap().mode_width() as u32)
     }
@@ -103,7 +99,7 @@ pub mod plugin {
     }
 
     def set_color_palette(&self, color:u32, r: u8, g: u8, b: u8) -> PyResult<i32> {
-        self.screen(py).lock().unwrap().palette.set_color(color, r, g, b);
+        self.screen(py).lock().unwrap().set_palette_color(color, r, g, b);
         Ok(0)
     }
 
@@ -113,7 +109,7 @@ pub mod plugin {
     }
  
     def switch_palette(&self, name: String) -> PyResult<i32> {
-        //self.screen(py).lock().unwrap().switch_to_palette(&name);
+        self.screen(py).lock().unwrap().switch_palette(name);
         Ok(0)
     }
 
@@ -391,6 +387,27 @@ pub mod plugin {
 
     });
 
+    // Info
+    py_class!(class UnicornInfo |py| {
+        data info: Arc < Mutex < Info > >;
+
+        def time(&self) -> PyResult<u64> {
+            let value = self.info(py).lock().unwrap().time();
+            Ok(value)
+        }
+
+        def mtime(&self) -> PyResult<u64> {
+            let value = self.info(py).lock().unwrap().mtime() as u64;
+            Ok(value)
+        }  
+
+        def utime(&self) -> PyResult<u64> {
+            let value = self.info(py).lock().unwrap().utime() as u64;
+            Ok(value)
+        }  
+    });
+
+        
     // Math
 
     // Memory
@@ -433,20 +450,19 @@ pub mod plugin {
             let py = gil.python();
 
             let unicorn_graphic_obj = UnicornGraphic::create_instance(py, screen.clone()).unwrap();
-            self.mydict
-                .set_item(py, "unicorn_graphic", unicorn_graphic_obj)
-                .unwrap();
+            self.mydict.set_item(py, "unicorn_graphic", unicorn_graphic_obj).unwrap();
 
             let unicorn_input_obj = UnicornInput::create_instance(py, contexts.clone()).unwrap();
-            self.mydict
-                .set_item(py, "unicorn_input", unicorn_input_obj)
-                .unwrap();
+            self.mydict.set_item(py, "unicorn_input", unicorn_input_obj).unwrap();
 
             let unicorn_map_obj = UnicornMap::create_instance(py, screen.clone()).unwrap();
             self.mydict.set_item(py, "unicorn_map", unicorn_map_obj).unwrap();
 
             let unicorn_mem_obj = UnicornMemory::create_instance(py, screen.clone()).unwrap();
             self.mydict.set_item(py, "unicorn_mem", unicorn_mem_obj).unwrap();
+
+            let unicorn_info_obj = UnicornInfo::create_instance(py ,info.clone()).unwrap();
+            self.mydict.set_item(py, "unicorn_info", unicorn_info_obj).unwrap();  
 
             py.run(r###"globals()["unicorn_graphic"] = unicorn_graphic;"###,
                      None,
@@ -464,6 +480,10 @@ pub mod plugin {
                      None,
                      Some(&self.mydict))
                 .unwrap();
+            py.run(r###"globals()["unicorn_info"] = unicorn_info;"###,
+                None,
+                Some(&self.mydict))
+           .unwrap();
 
             let data = include_str!("python/api.py").to_string();
 

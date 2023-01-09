@@ -1,6 +1,6 @@
-#unicorn / python cartridge
-#version 1
-#__python__
+unicorn / python cartridge
+version 1
+__python__
 
 RED = 8
 BLUE = 12
@@ -63,3 +63,8 @@ def _draw():
     for msg,color in msgs:
         unicorn_print(msg, 0, y, color)
         y += LINE_HEIGHT
+__gfx__
+__gff__
+__map__
+__sfx__
+__music__

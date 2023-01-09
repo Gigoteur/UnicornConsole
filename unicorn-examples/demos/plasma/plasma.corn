@@ -15,8 +15,6 @@ cw = None
 def _init():
     global SIZE, A, cr, cg, cb, cw
 
-    mode(SIZE, SIZE, 1)
-
     cls()
 
     A = SIZE - 1

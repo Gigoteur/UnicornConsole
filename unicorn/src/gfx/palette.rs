@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::hash::Hash;
 use std::io::Cursor;
 use std::io::prelude::*;
+use log::{debug, error, info};
 
 #[derive(Debug)]
 pub struct Palettes {
@@ -137,50 +138,6 @@ impl Palettes {
         self.palettes_list.push(name.clone());
     }
 
-    /* 
-    pub fn switch_to_palette(&mut self, name: &str) {
-        let values = &self.palettes[name];
-
-        for (idx, rgb_value) in values.iter().enumerate() {
-            PALETTE
-                .lock()
-                .unwrap()
-                ._set_color(idx as u32, rgb_value.r, rgb_value.g, rgb_value.b);
-        }
-
-        self.name = name.to_string();
-    }
-
-    pub fn set_color(&mut self, color: u32, r: u8, g: u8, b: u8) {
-        PALETTE.lock().unwrap().set_color(color, r, g, b);
-    }
-
-    pub fn set_colors(&mut self, colors: HashMap<u32, RGB>) {
-        PALETTE.lock().unwrap().set_colors(colors);
-    }
-
-    pub fn get_color(&mut self, color: u32) -> u32 {
-        PALETTE.lock().unwrap().get_color(color)
-    }
-
-    pub fn get(&mut self, name: &str) -> HashMap<u32, RGB> {
-        let values = &self.palettes[name];
-
-        let mut colors = HashMap::new();
-
-        for (key, value) in PALETTE.lock().unwrap().colors.clone() {
-            if key >= 16 {
-                colors.insert(key, value);
-            }
-        }
-
-        colors
-    }
-
-    pub fn reset(&mut self) {
-        PALETTE.lock().unwrap().reset();
-    }*/
-
     pub fn get_name(&mut self) -> String {
         self.name.clone()
     }
@@ -247,6 +204,22 @@ impl Palette {
         }
     }
 
+    pub fn add_color(&mut self, r: u8, g: u8, b: u8) -> u8 {
+        let value = self.rcolors.len() as u8;
+
+        let v = (r as u32) << 16 | (g as u32) << 8 | (b as u32);
+        match self.rcolors.get(&v) {
+            Some(color) => return *color as u8,
+            _ => (),
+        }
+
+        info!("[GFX][Palette] add color {:?} r:{:?} g:{:?}: b:{:?}", value, r, g, b);
+
+        self.set_color(value as u32, r, g, b);
+
+        value
+    }
+
     pub fn get_color(&mut self, color: u32) -> u32 {
         match self.colors.get(&color) {
             Some(rgb_value) => {
@@ -292,7 +265,7 @@ impl RGB {
     }
 
     pub fn into_pixel_data(&self) -> [u8; 4] {
-        [self.r, self.g, self.b, 0xff]
+        [self.r, self.g, self.b, self.a]
     }
 }
 

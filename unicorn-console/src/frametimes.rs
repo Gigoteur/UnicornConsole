@@ -1,5 +1,4 @@
 use std::time::{Duration, Instant};
-use std::thread;
 
 pub struct FrameTimes {
     frame_duration: Duration,
@@ -29,13 +28,6 @@ impl FrameTimes {
         self.last_time = now;
         self.target_time += self.frame_duration;
         delta
-    }
-
-    pub fn limit(&self) {
-        let now = Instant::now();
-        if now < self.target_time {
-            thread::sleep(self.target_time - now);
-        }
     }
 
     pub fn get_last_time(&mut self) -> Instant {

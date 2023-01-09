@@ -581,16 +581,10 @@ globals()["polygon"] = polygon
 
 
 def btn(x, p=0):
-    if type(x) == int:
-        return unicorn_input.btn(x, p)
-    return unicorn_input.btn2(ord(x))
-
+    return unicorn_input.btn(x, p)
 
 def btnp(x, p=0):
-    if type(x) == int:
-        return unicorn_input.btnp(x, p)
-    return unicorn_input.btnp2(ord(x))
-
+    return unicorn_input.btnp(x, p)
 
 def mouse_x():
     return unicorn_input.btn_mouse(0, 0)
@@ -637,6 +631,22 @@ def mset(x, y, v):
 globals()["mapdraw"] = mapdraw
 globals()["mget"] = mget
 globals()["mset"] = mset
+
+
+#Info
+
+def unicorn_time():
+    return unicorn_info.time()
+
+def unicorn_mtime():
+    return unicorn_info.mtime()
+
+def unicorn_utime():
+    return unicorn_info.utime()
+
+globals()["unicorn_time"] = unicorn_time
+globals()["unicorn_utime"] = unicorn_utime
+
 
 # Math
 

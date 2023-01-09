@@ -9,7 +9,7 @@ use crate::UnicornConsole;
 
 #[derive(Clone)]
 pub struct UnicornConsoleState {
- //   pub(crate) previous_buttons: Box<[Buttons]>,
+    pub(crate) previous_buttons: Box<[Buttons]>,
  //   pub(crate) memories: Vec<Vec<u8>>,
  //   pub(crate) mutable_globals: Vec<Global>,
 }

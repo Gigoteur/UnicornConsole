@@ -1,7 +1,6 @@
 pub mod edit;
 pub mod info;
 pub mod cartdata;
-pub mod math;
 pub mod resolution;
 
 use std::collections::HashMap;
@@ -252,8 +251,8 @@ impl Unicorn {
     pub fn debug_draw(&mut self) {
         if self.debug {
             let screen = &mut self.screen.lock().unwrap();
-            let mouse_x = 0; //self.players.lock().unwrap().mouse_coordinate(0);
-            let mouse_y = 0; //self.players.lock().unwrap().mouse_coordinate(1);
+            let mouse_x = self.contexts.lock().unwrap().input_context.btn_mouse(0, 0);
+            let mouse_y = self.contexts.lock().unwrap().input_context.btn_mouse(0, 1);
 
             let width = screen.width as i32;
             
@@ -271,10 +270,6 @@ impl Unicorn {
                                7);
                                
         }
-    }
-
-    pub fn update_time(&mut self) {
-        self.info.lock().unwrap().update();
     }
 
     pub fn init(&mut self) {
@@ -301,8 +296,6 @@ impl Unicorn {
 
             }
         }
-
-        self.update_time();
         true
     }
 
@@ -346,7 +339,6 @@ impl Unicorn {
     }
 
     pub fn record(&mut self) {
-        /* 
         info!("[Unicorn] Recording the frame {:?}", self.record.images.len());
 
         if self.record.nb % 4 == 0 {
@@ -356,7 +348,7 @@ impl Unicorn {
             for x in 0..screen.width {
                 for y in 0..screen.height {
                     let value = screen.pget(x as u32, y as u32);
-                    let rgb_value = PALETTE.lock().unwrap().get_rgb(value);
+                    let rgb_value = screen.palette.get_rgb(value);
 
                     buffer.push(rgb_value.r);
                     buffer.push(rgb_value.g);
@@ -366,7 +358,7 @@ impl Unicorn {
             self.record.images.append(&mut buffer);
         }
 
-        self.record.nb += 1;*/
+        self.record.nb += 1;
     }
 
     pub fn stop_record(&mut self) {/* 
@@ -425,12 +417,10 @@ impl Unicorn {
             encoder.write_frame(&frame).unwrap();
         }
 
-        info!("[Unicorn] GIF created in {:?}", self.record.filename);
-        */
+        info!("[Unicorn] GIF created in {:?}", self.record.filename);*/
     }
 
-    pub fn screenshot(&mut self, filename: &str) {
-        /*
+    pub fn screenshot(&mut self, filename: &str) {/*
         let screen = &mut self.screen.lock().unwrap();
 
         info!("[Unicorn] Taking screenshot {:?}x{:?} in {:?}", screen.width, screen.height, filename);
@@ -441,7 +431,7 @@ impl Unicorn {
         for x in 0..screen.width {
             for y in 0..screen.height {
                 let value = screen.pget(x as u32, y as u32);
-                let rgb_value = PALETTE.lock().unwrap().get_rgb(value);
+                let rgb_value = screen.palette.get_rgb(value);
 
                 buffer[idx] = rgb_value.r;
                 buffer[idx + 1] = rgb_value.g;
@@ -458,8 +448,7 @@ impl Unicorn {
             .flipv();
 
         let mut output = File::create(&Path::new(filename)).unwrap();
-        image.save(&mut output, image::ImageFormat::PNG).unwrap();
-        */
+        image.save(&mut output, image::ImageFormat::PNG).unwrap();*/
     }
 
     pub fn save_current_cartridge(&mut self) {
@@ -561,7 +550,8 @@ impl Unicorn {
             .unwrap()
             .set_map(self.cartridge.cartridge.map.map.clone());
 
-        //self.palettes.lock().unwrap().set_colors(cartridge.cartridge.palette.colors.clone());
+        info!("[Unicorn] Copying palette ...");
+        self.screen.lock().unwrap().set_palette_colors(self.cartridge.cartridge.palette.colors.clone());
     }
 
     pub fn _load_cartridge(&mut self)

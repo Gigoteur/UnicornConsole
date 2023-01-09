@@ -8,7 +8,6 @@ use network::UnicornConsoleState;
 use unicorn;
 
 use crate::input::{LocalInputManager, MouseEventCollector, LocalPlayerId};
-use unicorn::contexts::input_context::InputApi;
 
 use crate::{
     gui::{framework::Framework, Gui},
@@ -74,7 +73,19 @@ impl UnicornConsole {
     }
     
     fn generate_save_state(&mut self) -> UnicornConsoleState {
+        let engine = self.engine.lock().unwrap();
+        let contexts = &mut engine.contexts.lock().unwrap();
+
+        let previous_buttons = contexts
+            .input_context
+            .input_entries
+            .iter()
+            .map(|input| input.previous)
+            .collect::<Vec<_>>()
+            .into_boxed_slice();
+
         UnicornConsoleState {
+            previous_buttons,
         }
     }
 }
@@ -129,8 +140,15 @@ impl Console for UnicornConsole {
                 GGRSRequest::AdvanceFrame { inputs } => {
                     let engine = self.engine.lock().unwrap();
                     let contexts = &mut engine.contexts.lock().unwrap();
-        
-                        contexts.input_context
+                    contexts.input_context
+                    .input_entries
+                    .iter_mut()
+                    .for_each(|inputs| {
+                        inputs.previous = inputs.current.buttons;
+                        inputs.previous_mouse = inputs.current_mouse;
+                    });
+
+                    contexts.input_context
                         .input_entries
                         .iter_mut()
                         .zip(inputs.iter())
@@ -138,14 +156,10 @@ impl Console for UnicornConsole {
                             current.current = new.0.input_state;
                             current.current_mouse = new.0.mouse_state;
                         });
-
-                 //  println!("{:?}", contexts.input_context.input_entries[0].current.buttons.get_button_state(unicorn::input::ButtonCode::ButtonA));
-
-                 //  println!("{:?}", contexts.input_context.button_a_pressed(0));
                 }
             }
         }
-        self.update();
+
     }
 
 }
@@ -323,6 +337,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         }
                     }
 
+                    console.update();
                     console.draw();
                     console.blit(pixels.get_frame_mut());
                }

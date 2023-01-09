@@ -226,7 +226,10 @@ class Palette(object):
     def __init__(self):
         self.T = 0
 
-        self.palettes = ["pico-8", "commodore64"]
+        self.palettes = ["pico-8", "commodore64", "a64", "apple-ii", "arne-paldac", "arne16", "arne32", "atari2600-ntsc", "atari2600-pal", "cg-arne",
+                         "cga", "commodore-plus4", "commodore-vic20", "copper-tech", "cpc-boy", "db16", "db32", "edg16", "edg32", "eroge-copper",
+                         "gameboy-color-type1", "gameboy", "google-ui", "jmp", "mail24", "master-system", "monokai", "nes-ntsc", "nes",
+                         "psygnork", "smile-basic", "solarized", "teletext", "vga-13h", "web-safe-colors", "win16", "x11", "zx-spectrum"]
 
     def init(self):
         self.idx = 0
@@ -236,9 +239,13 @@ class Palette(object):
 
     def draw(self):
         cls()
-        unicorn_print(self.palettes[self.idx], 10, 100, 7)
 
-        if self.T % 100 == 0:
+        for i in range(0, 15):
+            pset(18+i, 114, i)
+
+        unicorn_print(self.palettes[self.idx], 64, 120, 7)
+
+        if self.T % 50 == 0:
             self.idx = (self.idx + 1) % len(self.palettes)
             palette_switch(self.palettes[self.idx])
 
@@ -333,12 +340,6 @@ class Print(object):
 
 idx_demo = 0
 demos = [
-    ["spr", [Spr()]],
-    ["sspr", [SSpr()]],
-    ["palette", [Palette()]],
-]
-
-demos2 = [
     ["rect", [Rect()]],
     ["circ", [Circ()]],
     ["trigon", [Trigon()]],

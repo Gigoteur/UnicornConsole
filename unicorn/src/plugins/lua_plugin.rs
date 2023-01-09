@@ -57,7 +57,6 @@ pub mod plugin {
         memcpy                  #               #               #
         # System                #               #               #
         time                    #     X         #               #
-        time_sec                #               #               #
         show_mouse              #               #               #
 */    
 
@@ -90,6 +89,16 @@ pub mod plugin {
 
             methods.add_method("time", |_lua_ctx, game_state, ()| {
                 let value = game_state.info.lock().unwrap().time();
+                Ok(value)
+            });
+
+            methods.add_method("mtime", |_lua_ctx, game_state, ()| {
+                let value = game_state.info.lock().unwrap().mtime();
+                Ok(value)
+            });
+
+            methods.add_method("utime", |_lua_ctx, game_state, ()| {
+                let value = game_state.info.lock().unwrap().utime();
                 Ok(value)
             });
 
@@ -287,7 +296,7 @@ pub mod plugin {
                Ok(())
             });
 
-            methods.add_method("pal", |_lua_ctx, game_state, (c0, c1, pal_idx):(i32, i32, i32)| {
+            methods.add_method("pal", |_lua_ctx, game_state, (c0, c1, _pal_idx):(i32, i32, i32)| {
                 game_state.screen
                .lock()
                .unwrap()
@@ -449,6 +458,15 @@ pub mod plugin {
                             return userdata:time()
                         end
 
+                        
+                        function mtime()
+                            return userdata:mtime()
+                        end
+
+                        
+                        function utime()
+                            return userdata:utime()
+                        end
 
                         function btn(i, p)
                             if p == nil then

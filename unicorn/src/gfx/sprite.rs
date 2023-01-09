@@ -129,7 +129,16 @@ impl Sprite {
         arr
     }
 }
+/*
+                for i in 0..sprite.height {
+                    for j in 0..sprite.width {
+                        let idx = (i*sprite.height+j) as usize;
+                        print!("{:02?} ", sprite.data[idx]);
+                    }
+                    println!("");
+                }
 
+*/
 /* 
 impl fmt::Debug for Sprite {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

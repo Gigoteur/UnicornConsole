@@ -1,3 +1,7 @@
+Unicorn Console API Demos / python cartridge
+version 1
+__python__
+
 class Block(object):
     def __init__(self, name):
         self.name = name
@@ -15,3 +19,9 @@ def _update():
 
 def _draw():
     world_draw_debug()
+
+__gfx__
+__gff__
+__map__
+__sfx__
+__music__
