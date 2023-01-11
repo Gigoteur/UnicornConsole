@@ -1,6 +1,10 @@
 use eframe::egui::{Grid, InputState, Key, Slider, Ui};
-use gamercade_audio::{Chain, PhraseId, CHAIN_MAX_PHRASE_COUNT, DEFAULT_BPM};
-use gamercade_fs::EditorSoundData;
+
+use unicorn::audio::tracker::chain::Chain;
+use unicorn::audio::tracker::phrase::PhraseId;
+use unicorn::audio::consts::{CHAIN_MAX_PHRASE_COUNT, DEFAULT_BPM};
+
+use crate::editor::editor_sounds_data::EditorSoundData;
 
 use crate::ui::{AudioList, AudioSyncHelper};
 
@@ -10,10 +14,11 @@ mod chain_row;
 use chain_list::*;
 use chain_row::*;
 
-use super::{
-    HandleTrackerEditEntryCommand, TrackerEditCommand, TrackerEditEntryCommand,
-    TrackerEditRowCommand, TRACKER_TEXT_FONT_SIZE,
-};
+
+use crate::ui::audio::sequences::tracker_edit::{TrackerEditCommand, TrackerEditEntryCommand, TrackerEditRowCommand};
+use crate::ui::audio::sequences::tracker_text::TRACKER_TEXT_FONT_SIZE;
+
+use crate::ui::audio::sequences::tracker_edit::HandleTrackerEditEntryCommand;
 
 pub(crate) struct ChainEditor {
     chain_list: ChainList,

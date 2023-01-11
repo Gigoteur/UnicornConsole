@@ -1,5 +1,6 @@
 use eframe::egui::{Key, Slider, Ui};
-use gamercade_fs::EditorSoundData;
+
+use crate::editor::editor_sounds_data::EditorSoundData;
 
 use crate::ui::{AudioList, AudioSyncHelper};
 

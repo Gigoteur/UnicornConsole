@@ -5,10 +5,13 @@ use eframe::{
     },
     epaint::{Color32, Vec2},
 };
-use gamercade_audio::{
-    WavetableBitDepth, WavetableDefinition, WavetableGenerator, WavetableWaveform,
-    WAVETABLE_MAX_LENGTH,
-};
+
+
+use unicorn::audio::instruments::wavetable::WavetableBitDepth;
+use unicorn::audio::instruments::wavetable::wavetable_definition::WavetableDefinition;
+use unicorn::audio::instruments::wavetable::wavetable_generator::WavetableGenerator;
+use unicorn::audio::instruments::wavetable::wavetable_waveform::WavetableWaveform;
+use unicorn::audio::consts::WAVETABLE_MAX_LENGTH;
 
 use crate::ui::AudioSyncHelper;
 

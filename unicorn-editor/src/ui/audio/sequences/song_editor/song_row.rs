@@ -1,5 +1,7 @@
 use eframe::{egui::Ui, epaint::Color32};
-use gamercade_audio::{ChainId, SONG_TRACK_CHANNELS};
+
+use unicorn::audio::consts::SONG_TRACK_CHANNELS;
+use unicorn::audio::tracker::chain::ChainId;
 
 use crate::ui::audio::sequences::{
     TrackerText, DEFAULT_TEXT_COLOR, EDITING_BG_COLOR, SELECTED_BG_COLOR,

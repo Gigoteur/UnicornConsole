@@ -1,7 +1,8 @@
 use eframe::egui::Ui;
-use gamercade_audio::InstrumentDataDefinition;
 
-use gamercade_fs::EditorSoundData;
+use unicorn::audio::instruments::instrument_data_definition::InstrumentDataDefinition;
+
+use crate::editor::editor_sounds_data::EditorSoundData;
 
 use super::{AudioList, AudioSyncHelper};
 

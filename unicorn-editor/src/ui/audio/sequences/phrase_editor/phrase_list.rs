@@ -1,5 +1,7 @@
-use gamercade_audio::{Phrase, PHRASES_MAX_COUNT};
-use gamercade_fs::{EditorAudioDataEntry, EditorSoundData};
+use unicorn::audio::tracker::phrase::Phrase;
+use unicorn::audio::consts::PHRASES_MAX_COUNT;
+
+use crate::editor::editor_sounds_data::{EditorAudioDataEntry, EditorSoundData};
 
 use crate::ui::AudioList;
 

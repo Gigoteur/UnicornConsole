@@ -2,10 +2,15 @@ use eframe::{
     egui::{ComboBox, Image, Slider, TextureFilter, Ui, Window},
     epaint::{ColorImage, TextureHandle, Vec2},
 };
-use gamercade_audio::{
-    Algorithm, Detune, FMWaveform, FeedbackLevel, FrequencyMultiplier, OperatorDefinition,
-    PatchDefinition, OPERATOR_COUNT,
-};
+
+use unicorn::audio::instruments::fm::OPERATOR_COUNT;
+use unicorn::audio::instruments::fm::algorithm::Algorithm;
+use unicorn::audio::instruments::fm::detune::Detune;
+use unicorn::audio::instruments::fm::fm_waveform::FMWaveform;
+use unicorn::audio::instruments::fm::feedback::FeedbackLevel;
+use unicorn::audio::instruments::fm::frequency_multiplier::FrequencyMultiplier;
+use unicorn::audio::instruments::fm::operator_definition::OperatorDefinition;
+use unicorn::audio::instruments::fm::patch_definition::PatchDefinition;
 
 use crate::ui::AudioSyncHelper;
 

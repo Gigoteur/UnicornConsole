@@ -2,7 +2,10 @@ use eframe::{
     egui::{ImageButton, Key, TextureFilter, Ui},
     epaint::{Color32, ColorImage, TextureHandle, Vec2},
 };
-use gamercade_audio::{NoteColor, NoteName, NotesIter, TOTAL_NOTES_COUNT};
+
+use unicorn::audio::notes::note_name::{NoteColor, NoteName};
+use unicorn::audio::notes::note::NotesIter;
+use unicorn::audio::consts::TOTAL_NOTES_COUNT;
 
 use crate::ui::AudioSyncHelper;
 

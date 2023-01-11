@@ -1,7 +1,9 @@
-use gamercade_audio::{
-    ChainId, InstrumentId, NoteId, PhraseId, CHAINS_MAX_COUNT, INSTRUMENTS_MAX_COUNT,
-    PHRASES_MAX_COUNT, TOTAL_NOTES_COUNT,
-};
+use unicorn::audio::tracker::chain::ChainId;
+use unicorn::audio::instruments::instrument_data_definition::InstrumentId;
+use unicorn::audio::notes::note::NoteId;
+use unicorn::audio::tracker::phrase::PhraseId;
+use unicorn::audio::consts::{CHAINS_MAX_COUNT, INSTRUMENTS_MAX_COUNT, PHRASES_MAX_COUNT, TOTAL_NOTES_COUNT};
+
 
 pub(crate) enum TrackerEditCommand {
     EditRow(TrackerEditRowCommand),

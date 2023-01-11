@@ -1,5 +1,6 @@
 use eframe::egui::{ScrollArea, SidePanel, TopBottomPanel, Ui};
-use gamercade_fs::{EditorAudioDataEntry, EditorSoundData};
+
+use crate::editor::editor_sounds_data::{EditorSoundData, EditorAudioDataEntry};
 
 use crate::ui::AudioSyncHelper;
 

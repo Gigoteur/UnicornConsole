@@ -1,5 +1,8 @@
-use gamercade_audio::{Sfx, SFX_MAX_COUNT};
-use gamercade_fs::{EditorAudioDataEntry, EditorSoundData};
+use unicorn::audio::sound_rom::Sfx;
+use unicorn::audio::consts::SFX_MAX_COUNT;
+
+
+use crate::editor::editor_sounds_data::{EditorSoundData, EditorAudioDataEntry};
 
 use crate::ui::AudioList;
 

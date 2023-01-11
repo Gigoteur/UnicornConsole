@@ -33,7 +33,6 @@ class Camera(object):
         self.shake_force=0
 
     def update(self):
-        #print("CAMERA UPDATE")
         self.shake_remaining=max(0,self.shake_remaining-1)
 
 #        --follow target outside of
@@ -196,7 +195,7 @@ class Actor(object):
         self.col_roof = False
 
     def collide_floor(self):
-        if self.dy <= 0:
+        if self.dy < 0:
             return False
 
         for i in range(int(-self.w/3), int(self.w/3), 2):
@@ -207,7 +206,6 @@ class Actor(object):
             if fget(tile,0) or (fget(tile,1) and self.dy>=0):
                 self.dy=0
                 self.y=(flr((self.y+(self.h/2))/8)*8)-(self.h/2)
-
                 self.grounded=True
                 self.airtime=0
                 return True
@@ -289,7 +287,6 @@ class Actor(object):
     def draw(self):
         a=self.anims.get(self.curanim)
         frame=a.frames[self.curframe]
-        print(frame, self.x-(self.w/2), self.y-(self.h/2))
         spr(frame,
             self.x-(self.w/2),
             self.y-(self.h/2),

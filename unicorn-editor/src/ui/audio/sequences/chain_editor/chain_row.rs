@@ -1,5 +1,6 @@
 use eframe::{egui::Ui, epaint::Color32};
-use gamercade_audio::PhraseId;
+
+use unicorn::audio::tracker::phrase::PhraseId;
 
 use crate::ui::audio::sequences::{TrackerText, DEFAULT_TEXT_COLOR, SELECTED_BG_COLOR};
 pub(super) struct ChainRow {

@@ -1,12 +1,16 @@
 use std::{iter::Cycle, ops::Range, sync::Arc};
 
 use eframe::egui::Ui;
-use gamercade_audio::{ChainId, Sfx, SFX_CHANNELS};
-use gamercade_sound_engine::{
-    SoundEngine, SoundEngineChannelType, SoundEngineData, SoundRomInstance,
-};
 
-use gamercade_fs::EditorSoundData;
+
+use unicorn::audio::tracker::chain::ChainId;
+use unicorn::audio::sound_rom::Sfx;
+use unicorn::audio::consts::SFX_CHANNELS;
+
+use unicorn::sound::sound_engine::{SoundEngine, SoundEngineChannelType, SoundEngineData};
+use unicorn::sound::sound_rom_instance::SoundRomInstance;
+
+use crate::editor::editor_sounds_data::EditorSoundData;
 
 use super::{
     AudioEditorHelp, ChainEditor, InstrumentEditor, Oscilloscope, OscilloscopeMode, PhraseEditor,

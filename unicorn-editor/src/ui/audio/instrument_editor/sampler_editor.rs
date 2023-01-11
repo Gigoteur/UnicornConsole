@@ -8,7 +8,10 @@ use eframe::{
 use hound::WavReader;
 use rfd::FileDialog;
 
-use gamercade_audio::{LoopMode, SampleBitDepth, SampleDefinition};
+use unicorn::audio::instruments::sampler::loop_mode::LoopMode;
+use unicorn::audio::instruments::sampler::SampleBitDepth;
+use unicorn::audio::instruments::sampler::sample_definition::SampleDefinition;
+
 
 use crate::ui::AudioSyncHelper;
 

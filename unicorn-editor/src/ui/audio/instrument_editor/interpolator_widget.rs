@@ -2,7 +2,7 @@ use std::hash::Hash;
 
 use eframe::egui::{ComboBox, Ui};
 
-use gamercade_audio::IndexInterpolator;
+use unicorn::audio::instruments::index_interpolator::IndexInterpolator;
 
 use crate::ui::AudioSyncHelper;
 

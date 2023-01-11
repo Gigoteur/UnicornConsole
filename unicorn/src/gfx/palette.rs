@@ -25,81 +25,81 @@ impl Palettes {
     pub fn reset(&mut self) {
         // load palettes statically for wasm
         self.load("a64".to_string(),
-                  include_str!("../../sys/assets/palettes/a64.gpl").to_string());
+                  include_str!("./palettes/a64.gpl").to_string());
         self.load("apple-ii".to_string(),
-                  include_str!("../../sys/assets/palettes/apple-ii.gpl").to_string());
+                  include_str!("./palettes/apple-ii.gpl").to_string());
         self.load("arne-paldac".to_string(),
-                  include_str!("../../sys/assets/palettes/arne-paldac.gpl").to_string());
+                  include_str!("./palettes/arne-paldac.gpl").to_string());
         self.load("arne16".to_string(),
-                  include_str!("../../sys/assets/palettes/arne16.gpl").to_string());
+                  include_str!("./palettes/arne16.gpl").to_string());
         self.load("arne32".to_string(),
-                  include_str!("../../sys/assets/palettes/arne32.gpl").to_string());
+                  include_str!("./palettes/arne32.gpl").to_string());
         self.load("atari2600-ntsc".to_string(),
-                  include_str!("../../sys/assets/palettes/atari2600-ntsc.gpl").to_string());
+                  include_str!("./palettes/atari2600-ntsc.gpl").to_string());
         self.load("atari2600-pal".to_string(),
-                  include_str!("../../sys/assets/palettes/atari2600-pal.gpl").to_string());
+                  include_str!("./palettes/atari2600-pal.gpl").to_string());
         self.load("cg-arne".to_string(),
-                  include_str!("../../sys/assets/palettes/cg-arne.gpl").to_string());
+                  include_str!("./palettes/cg-arne.gpl").to_string());
         self.load("cga".to_string(),
-                  include_str!("../../sys/assets/palettes/cga.gpl").to_string());
+                  include_str!("./palettes/cga.gpl").to_string());
         self.load("commodore-plus4".to_string(),
-                  include_str!("../../sys/assets/palettes/commodore-plus4.gpl").to_string());
+                  include_str!("./palettes/commodore-plus4.gpl").to_string());
         self.load("commodore-vic20".to_string(),
-                  include_str!("../../sys/assets/palettes/commodore-vic20.gpl").to_string());
+                  include_str!("./palettes/commodore-vic20.gpl").to_string());
         self.load("commodore64".to_string(),
-                  include_str!("../../sys/assets/palettes/commodore64.gpl").to_string());
+                  include_str!("./palettes/commodore64.gpl").to_string());
         self.load("copper-tech".to_string(),
-                  include_str!("../../sys/assets/palettes/copper-tech.gpl").to_string());
+                  include_str!("./palettes/copper-tech.gpl").to_string());
         self.load("cpc-boy".to_string(),
-                  include_str!("../../sys/assets/palettes/cpc-boy.gpl").to_string());
+                  include_str!("./palettes/cpc-boy.gpl").to_string());
         self.load("db16".to_string(),
-                  include_str!("../../sys/assets/palettes/db16.gpl").to_string());
+                  include_str!("./palettes/db16.gpl").to_string());
         self.load("db32".to_string(),
-                  include_str!("../../sys/assets/palettes/db32.gpl").to_string());
+                  include_str!("./palettes/db32.gpl").to_string());
         self.load("edg16".to_string(),
-                  include_str!("../../sys/assets/palettes/edg16.gpl").to_string());
+                  include_str!("./palettes/edg16.gpl").to_string());
         self.load("edg32".to_string(),
-                  include_str!("../../sys/assets/palettes/edg32.gpl").to_string());
+                  include_str!("./palettes/edg32.gpl").to_string());
         self.load("eroge-copper".to_string(),
-                  include_str!("../../sys/assets/palettes/eroge-copper.gpl").to_string());
+                  include_str!("./palettes/eroge-copper.gpl").to_string());
         self.load("gameboy-color-type1".to_string(),
-                  include_str!("../../sys/assets/palettes/gameboy-color-type1.gpl").to_string());
+                  include_str!("./palettes/gameboy-color-type1.gpl").to_string());
         self.load("gameboy".to_string(),
-                  include_str!("../../sys/assets/palettes/gameboy.gpl").to_string());
+                  include_str!("./palettes/gameboy.gpl").to_string());
         self.load("google-ui".to_string(),
-                  include_str!("../../sys/assets/palettes/google-ui.gpl").to_string());
+                  include_str!("./palettes/google-ui.gpl").to_string());
         self.load("jmp".to_string(),
-                  include_str!("../../sys/assets/palettes/jmp.gpl").to_string());
+                  include_str!("./palettes/jmp.gpl").to_string());
         self.load("mail24".to_string(),
-                  include_str!("../../sys/assets/palettes/mail24.gpl").to_string());
+                  include_str!("./palettes/mail24.gpl").to_string());
         self.load("master-system".to_string(),
-                  include_str!("../../sys/assets/palettes/master-system.gpl").to_string());
+                  include_str!("./palettes/master-system.gpl").to_string());
         self.load("monokai".to_string(),
-                  include_str!("../../sys/assets/palettes/monokai.gpl").to_string());
+                  include_str!("./palettes/monokai.gpl").to_string());
         self.load("nes-ntsc".to_string(),
-                  include_str!("../../sys/assets/palettes/nes-ntsc.gpl").to_string());
+                  include_str!("./palettes/nes-ntsc.gpl").to_string());
         self.load("nes".to_string(),
-                  include_str!("../../sys/assets/palettes/nes.gpl").to_string());
+                  include_str!("./palettes/nes.gpl").to_string());
         self.load("pico-8".to_string(),
-                  include_str!("../../sys/assets/palettes/pico-8.gpl").to_string());
+                  include_str!("./palettes/pico-8.gpl").to_string());
         self.load("psygnork".to_string(),
-                  include_str!("../../sys/assets/palettes/psygnork.gpl").to_string());
+                  include_str!("./palettes/psygnork.gpl").to_string());
         self.load("smile-basic".to_string(),
-                  include_str!("../../sys/assets/palettes/smile-basic.gpl").to_string());
+                  include_str!("./palettes/smile-basic.gpl").to_string());
         self.load("solarized".to_string(),
-                  include_str!("../../sys/assets/palettes/solarized.gpl").to_string());
+                  include_str!("./palettes/solarized.gpl").to_string());
         self.load("teletext".to_string(),
-                  include_str!("../../sys/assets/palettes/teletext.gpl").to_string());
+                  include_str!("./palettes/teletext.gpl").to_string());
         self.load("vga-13h".to_string(),
-                  include_str!("../../sys/assets/palettes/vga-13h.gpl").to_string());
+                  include_str!("./palettes/vga-13h.gpl").to_string());
         self.load("web-safe-colors".to_string(),
-                  include_str!("../../sys/assets/palettes/web-safe-colors.gpl").to_string());
+                  include_str!("./palettes/web-safe-colors.gpl").to_string());
         self.load("win16".to_string(),
-                  include_str!("../../sys/assets/palettes/win16.gpl").to_string());
+                  include_str!("./palettes/win16.gpl").to_string());
         self.load("x11".to_string(),
-                  include_str!("../../sys/assets/palettes/x11.gpl").to_string());
+                  include_str!("./palettes/x11.gpl").to_string());
         self.load("zx-spectrum".to_string(),
-                  include_str!("../../sys/assets/palettes/zx-spectrum.gpl").to_string());
+                  include_str!("./palettes/zx-spectrum.gpl").to_string());
     }
 
     pub fn load(&mut self, name: String, data: String) {
@@ -146,7 +146,7 @@ impl Palettes {
 
 #[derive(Clone, Debug)]
 pub struct Palette {
-    colors: HashMap<u32, RGB>,
+    pub colors: HashMap<u32, RGB>,
     rcolors: HashMap<u32, u32>,
     cached_colors: [u32; 16],
 }
@@ -242,7 +242,7 @@ impl Palette {
 }
 
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord)]
 pub struct RGB {
     pub r: u8,
     pub g: u8,

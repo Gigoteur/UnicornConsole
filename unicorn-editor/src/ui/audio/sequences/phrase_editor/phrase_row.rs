@@ -1,5 +1,7 @@
 use eframe::{egui::Ui, epaint::Color32};
 
+use unicorn::audio::notes::note::get_note;
+
 use crate::ui::audio::sequences::{
     TrackerText, DEFAULT_TEXT_COLOR, EDITING_BG_COLOR, SELECTED_BG_COLOR,
 };
@@ -43,7 +45,7 @@ impl PhraseRow {
             Self {
                 row_index: row,
                 note: TrackerText::new(
-                    &gamercade_audio::get_note(entry.note).name,
+                    &get_note(entry.note).name,
                     DEFAULT_TEXT_COLOR,
                     if selected.mode == SelectedEntryMode::Note && bg_color.is_some() {
                         Some(EDITING_BG_COLOR)

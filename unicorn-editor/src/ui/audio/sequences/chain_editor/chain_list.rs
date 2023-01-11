@@ -1,5 +1,8 @@
-use gamercade_audio::{Chain, CHAINS_MAX_COUNT};
-use gamercade_fs::{EditorAudioDataEntry, EditorSoundData};
+
+use unicorn::audio::tracker::chain::Chain;
+use unicorn::audio::consts::CHAINS_MAX_COUNT;
+
+use crate::editor::editor_sounds_data::{EditorAudioDataEntry, EditorSoundData};
 
 use crate::ui::AudioList;
 

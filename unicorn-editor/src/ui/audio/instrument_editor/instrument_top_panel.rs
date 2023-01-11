@@ -2,10 +2,14 @@ use eframe::{
     egui::{Label, RichText, SelectableLabel, Ui},
     epaint::Color32,
 };
-use gamercade_audio::{
-    InstrumentDataDefinition, PatchDefinition, SampleDefinition, WavetableDefinition,
-};
-use gamercade_fs::EditorAudioDataEntry;
+
+use unicorn::audio::instruments::instrument_data_definition::InstrumentDataDefinition;
+use unicorn::audio::instruments::fm::patch_definition::PatchDefinition;
+use unicorn::audio::instruments::sampler::sample_definition::SampleDefinition;
+use unicorn::audio::instruments::wavetable::wavetable_definition::WavetableDefinition;
+
+
+use crate::editor::editor_sounds_data::EditorAudioDataEntry;
 
 use crate::ui::AudioSyncHelper;
 

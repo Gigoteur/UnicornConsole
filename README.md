@@ -32,7 +32,7 @@ TOC:
   * Font: predefined list of fonts (pico8, bbc, trollmini, etc)
   * Sprites: Single bank of 128 8x8 sprites
   * Dynamic sprites: create sprites dynamically with all size
-  * Code: No limit size (lua, python, rust, javascript)
+  * Code: No limit size (lua, python)
   * Map: 128x32 8-bit cells
   * Editor: GFX editor
   
@@ -42,7 +42,6 @@ TOC:
 Cargo feature:
   * cpython: enable python support
   * rlua: enable lua support
-  * wasm: enable wasm support
 
 You can choose to build the main UI to play games:
 ```
@@ -50,24 +49,12 @@ cd unicorn-console
 cargo build --release
 ```
 
-You can also choose to build the libretro version:
-```
-cd unicorn-libretro
-cargo build --release
-```
-
-And load the shared library with retroarch:
-```
-retroarch -L target/release/libunicorn_libretro.so ../unicorn-examples/api_demos.uni
-```
-
-
 ## File format
 
 | File format  | Read | Write |
 | ------------- | ------------- | ------------- |
 | Pico8 PNG  | X  | / |
-| Pico8 P8  | X  | / |
+| Pico8 P8  | X  | X |
 | Unicorn (CORN) | X  | X |
 
 ## Create

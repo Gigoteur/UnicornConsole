@@ -1,14 +1,19 @@
 use eframe::egui::{Grid, InputState, Key, Slider, Ui};
 
-use gamercade_audio::{InstrumentId, NoteId, Phrase, PhraseEntry, DEFAULT_BPM, PHRASE_MAX_ENTRIES};
+use unicorn::audio::instruments::instrument_data_definition::InstrumentId;
+use unicorn::audio::notes::note::NoteId;
+use unicorn::audio::tracker::phrase::Phrase;
+use unicorn::audio::tracker::phrase::PhraseEntry;
+use unicorn::audio::consts::{DEFAULT_BPM, PHRASE_MAX_ENTRIES};
 
-use super::{
-    HandleTrackerEditEntryCommand, TrackerEditCommand, TrackerEditEntryCommand,
-    TrackerEditRowCommand, TRACKER_TEXT_FONT_SIZE,
-};
+
+use crate::ui::audio::sequences::tracker_edit::{TrackerEditCommand, TrackerEditEntryCommand, TrackerEditRowCommand};
+use crate::ui::audio::sequences::tracker_text::TRACKER_TEXT_FONT_SIZE;
 
 use crate::ui::{AudioList, AudioSyncHelper};
-use gamercade_fs::EditorSoundData;
+use crate::editor::editor_sounds_data::EditorSoundData;
+
+use crate::ui::audio::sequences::tracker_edit::HandleTrackerEditEntryCommand;
 
 mod phrase_list;
 mod phrase_row;

@@ -1,5 +1,5 @@
 use eframe::egui::{Slider, Ui};
-use gamercade_audio::{EnvelopeDefinition, EnvelopeValueType};
+use unicorn::audio::envelope_definition::{EnvelopeDefinition, EnvelopeValueType};
 
 use crate::ui::AudioSyncHelper;
 

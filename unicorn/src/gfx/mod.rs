@@ -1018,25 +1018,28 @@ impl Screen {
 
                 let idx_sprite: u32 = *self.map.get(map_x as usize  + map_y as usize * self.map_width).unwrap_or(&0);
 
-                let mut sprite = self.sprites[idx_sprite as usize].clone();
                 //info!("GET SPRITE {:?}, {:?} {:?} {:?} {:?}", idx_sprite, map_x, map_y, new_x, new_y);
 
                 // not the correct layer
-                if layer == 0 || sprite.is_bit_flags_set(layer) {
-                    let mut index = 0;
+                if idx_sprite != 0 {
+                    let mut sprite = self.sprites[idx_sprite as usize].clone();
 
-                    for (_, c) in sprite.data.iter_mut().enumerate() {
-                        if !self.is_transparent(*c as u32) {
-                            self.putpixel_(new_x, new_y, *c as u32);
-                        }
+                    if layer == 0 || sprite.is_bit_flags_set(layer) {
+                        let mut index = 0;
 
-                        index += 1;
+                        for (_, c) in sprite.data.iter_mut().enumerate() {
+                            if !self.is_transparent(*c as u32) {
+                                self.putpixel_(new_x, new_y, *c as u32);
+                            }
 
-                        if index > 0 && index % 8 == 0 {
-                            new_y += 1;
-                            new_x = orig_x;
-                        } else {
-                            new_x += 1;
+                            index += 1;
+
+                            if index > 0 && index % 8 == 0 {
+                                new_y += 1;
+                                new_x = orig_x;
+                            } else {
+                                new_x += 1;
+                            }
                         }
                     }
                 }
@@ -1049,7 +1052,7 @@ impl Screen {
     }
 
     pub fn mget(&mut self, x: i32, y: i32) -> u32 {
-        //debug!("MGET x {:?} y {:?}", x, y);
+        //info!("MGET x {:?} y {:?}", x, y);
 
         if x < 0 || y < 0 {
             return 0;
@@ -1059,7 +1062,7 @@ impl Screen {
             return 0;
         }
 
-        *self.map.get(x as usize * self.map_width + y as usize).unwrap_or(&0)
+        *self.map.get(x as usize + self.map_width * y as usize).unwrap_or(&0)
     }
 
     pub fn mset(&mut self, x: i32, y: i32, v: u32) {
@@ -1073,7 +1076,7 @@ impl Screen {
             return;
         }
 
-        self.map[x as usize * self.map_width + y as usize] = v;
+        self.map[x as usize + self.map_width * y as usize] = v;
     }
 
     pub fn sspr(&mut self,

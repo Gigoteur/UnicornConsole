@@ -7,8 +7,9 @@ use eframe::{
     },
     epaint::{Color32, Vec2},
 };
-use gamercade_audio::SFX_CHANNELS;
-use gamercade_sound_engine::SoundOutputChannels;
+use unicorn::audio::consts::SFX_CHANNELS;
+use unicorn::sound::sound_output_channels::SoundOutputChannels;
+
 use rtrb::Consumer;
 
 // TODO: Make this configurable?

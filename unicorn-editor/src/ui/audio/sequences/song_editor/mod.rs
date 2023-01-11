@@ -2,11 +2,14 @@ use eframe::egui::{Grid, InputState, Key, Slider, Ui};
 
 mod song_list;
 mod song_row;
-use gamercade_audio::{Chain, ChainId, Song, PHRASE_STEPS_PER_BEAT, SONG_TRACK_CHANNELS};
 use song_list::*;
 use song_row::*;
 
-use gamercade_fs::{EditorAudioDataEntry, EditorSoundData};
+use unicorn::audio::tracker::chain::{Chain, ChainId};
+use unicorn::audio::tracker::song::Song;
+use unicorn::audio::consts::{PHRASE_STEPS_PER_BEAT, SONG_TRACK_CHANNELS};
+
+use crate::editor::editor_sounds_data::{EditorSoundData, EditorAudioDataEntry};
 
 use crate::ui::{AudioList, AudioSyncHelper};
 

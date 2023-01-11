@@ -1,6 +1,7 @@
-use gamercade_audio::{Song, SONGS_MAX_COUNT};
+use unicorn::audio::tracker::song::Song;
+use unicorn::audio::consts::SONGS_MAX_COUNT;
 
-use gamercade_fs::{EditorAudioDataEntry, EditorSoundData};
+use crate::editor::editor_sounds_data::{EditorSoundData, EditorAudioDataEntry};
 
 use crate::ui::AudioList;
 

@@ -8,7 +8,10 @@ name = "editor"
 path = "src/main.rs"
 
 [dependencies]
-# Gamercade Dependencies
+log = "0.4"
+env_logger= "0.10.0"
+
+# Unicorn Dependencies
 unicorn = { path = "../unicorn/", default-features = false }
 
 # Serialization

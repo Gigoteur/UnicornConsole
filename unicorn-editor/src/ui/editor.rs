@@ -2,18 +2,34 @@ use std::path::PathBuf;
 
 use eframe::egui::{self, menu, Context};
 use rfd::FileDialog;
+use serde::{Deserialize, Serialize};
 
+
+use crate::editor::editor_sounds_data::EditorSoundData;
 
 use super::{AudioEditor, GraphicsEditor};
 
+#[derive(Clone, Serialize, Deserialize, Debug)]
+pub struct EditorCartridge {
+    pub sounds: EditorSoundData,
+}
+
+impl Default for EditorCartridge {
+    fn default() -> Self {
+        Self {
+            sounds: EditorSoundData::default(),
+        }
+    }
+}
+
+
 pub struct Editor {
     pub rom: unicorn::core::Unicorn,
+    pub cartridge: EditorCartridge,
     pub mode: EditorMode,
 
     graphics_editor: GraphicsEditor,
     audio_editor: AudioEditor,
-
-    wasm_path: Option<PathBuf>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -22,15 +38,18 @@ pub enum EditorMode {
     Audio,
 }
 
+
+
 impl Default for Editor {
     fn default() -> Self {
-        let rom = unicorn::core::Unicorn::new();
+        let cartridge = EditorCartridge::default();
+
         Self {
+            rom: unicorn::core::Unicorn::new(),
             mode: EditorMode::Graphics,
             graphics_editor: GraphicsEditor::default(),
-            audio_editor: AudioEditor::new(&rom.sounds),
-            wasm_path: None,
-            rom,
+            audio_editor: AudioEditor::new(&cartridge.sounds),
+            cartridge: cartridge,
         }
     }
 }
@@ -59,6 +78,7 @@ impl Editor {
                         .pick_file()
                         {
                             self.rom.load_cartridge(String::from(path.to_string_lossy()));
+                            self.rom.setup();
                         }
 
                         ui.close_menu();
@@ -76,6 +96,7 @@ impl Editor {
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.horizontal(|ui| {
                 ui.selectable_value(&mut self.mode, EditorMode::Graphics, "Graphics Mode");
+                ui.selectable_value(&mut self.mode, EditorMode::Audio, "Audio Mode");
 
                 ui.separator();
 
@@ -86,10 +107,8 @@ impl Editor {
             });
 
             match self.mode {
-                EditorMode::Graphics => self
-                    .graphics_editor
-                    .draw_contents(ui, &mut self.rom.graphics),
-                EditorMode::Audio => self.audio_editor.draw_contents(ui, &mut self.rom.sounds),
+                EditorMode::Graphics => self.graphics_editor.draw_contents(ui, &mut self.rom),
+                EditorMode::Audio => self.audio_editor.draw_contents(ui, &mut self.cartridge.sounds),
             }
         });
     }
