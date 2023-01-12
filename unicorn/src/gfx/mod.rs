@@ -321,6 +321,13 @@ impl Screen {
         sprite.data[((x % 8) + (y % 8) * 8) as usize] as u8
     }
 
+    pub fn sprite_set(&mut self, idx_sprite: i32, x: u32, y: u32, col: i32) {
+        let col = self._find_color(col);
+
+        let sprite = &mut self.sprites[idx_sprite as usize];
+        sprite.set_data(((x % 8) + (y % 8) * 8) as usize, col as u8);
+    }
+
     pub fn sset(&mut self, x: u32, y: u32, col: i32) {
         let col = self._find_color(col);
 

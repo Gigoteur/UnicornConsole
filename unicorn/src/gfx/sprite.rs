@@ -83,7 +83,7 @@ impl Sprite {
             .collect();
 
         for c in data_line.clone() {
-            data.push_str(&format!("{:03x}", c));
+            data.push_str(&format!("{:x}", c));
         }
 
         data

@@ -85,6 +85,7 @@ impl Editor {
                     }
 
                     if ui.button("Save").clicked() {
+                        self.rom.save_current_cartridge();
                         ui.close_menu();
                     }
                 });

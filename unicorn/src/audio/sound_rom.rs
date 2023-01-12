@@ -27,8 +27,6 @@ pub struct SoundRom {
 pub struct Sfx {
     pub bpm: f32,
     pub chain: ChainId,
-    // TODO: Should we include other data here, like
-    // loop style? or should this be handled by game code?
 }
 
 impl Default for SoundRom {

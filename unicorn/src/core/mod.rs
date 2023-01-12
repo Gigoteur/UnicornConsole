@@ -38,7 +38,6 @@ pub enum UnicornState {
     STOP,
     RUN,
     PAUSE,
-    EDITOR,
 }
 
 #[derive(Debug)]
@@ -292,9 +291,6 @@ impl Unicorn {
 
                 self.call_update();
             }
-            UnicornState::EDITOR => {
-
-            }
         }
         true
     }
@@ -302,16 +298,12 @@ impl Unicorn {
     pub fn draw(&mut self) {
         match self.state {
             UnicornState::STOP => {
-
             }
             UnicornState::PAUSE => {
                 // self.pause_menu.draw(&mut self.screen.lock().unwrap());
             }
             UnicornState::RUN => {
                 self.call_draw();
-            }
-            UnicornState::EDITOR => {
-
             }
         }
 
@@ -452,11 +444,6 @@ impl Unicorn {
     }
 
     pub fn save_current_cartridge(&mut self) {
-        /*
-        if !self.editing {
-            return;
-        }
-
         let screen = &self.screen.lock().unwrap();
 
 
@@ -465,26 +452,25 @@ impl Unicorn {
               output_filename);
 
         info!("[Unicorn][SAVE] Set the new sprites");
-        self.cartridge.gfx.set_sprites(screen.sprites.clone());
+        self.cartridge.cartridge.gfx.set_sprites(screen.sprites.clone());
         info!("[Unicorn][SAVE] Set the new map");
-        self.cartridge.map.set_map(screen.map.clone());
+        self.cartridge.cartridge.map.set_map(screen.map.clone());
         info!("[Unicorn][SAVE] Set the new flags");
-        self.cartridge.gff.set_flags(screen.sprites.clone());
-        info!("[Unicorn][SAVE] Set the new palette");
-        screen.palette.set_colors(self.palettes.lock().unwrap().get_colors());
+        self.cartridge.cartridge.gff.set_flags(screen.sprites.clone());
+        //info!("[Unicorn][SAVE] Set the new palette");
+        //screen.palette.set_colors(screen.palettes.get_colors());
 
-        match self.cartridge.format {
+        match self.cartridge.cartridge.format {
             CartridgeFormat::UnicornFormat => {
-                cartridge.save_in_unicorn(output_filename,
-                                          format!("{:?}.{:?}.{:?}",
-                                                self.version,
-                                                self.major_version,
-                                                self.minor_version)
-                                                .as_str());
+                self.cartridge.cartridge.save_in_unicorn(&output_filename,
+                                                format!("{:?}.{:?}.{:?}",
+                                                        self.version,
+                                                        self.major_version,
+                                                        self.minor_version)
+                                                        .as_str());
             }
             _ => {}
         }
-        */
     }
 
     pub fn save_state() {
@@ -517,13 +503,6 @@ impl Unicorn {
 
                 screen.font("pico-8");
                 self.state = UnicornState::PAUSE;
-            }
-            UnicornState::EDITOR => {
-                /*
-                self.pause_menu.reset();
-                self.state = UnicornState::PAUSE;
-                screen.save();
-                */
             }
         }
         info!("[Unicorn] End Switch pause");
@@ -640,75 +619,6 @@ impl Unicorn {
         }
 
         self.cartridge.loaded
-    }
-
-    pub fn switch_code(&mut self) {
-        info!("[Unicorn] Switch code");
-
-        #[cfg(feature = "editor")]
-        {
-            let idx = self.current_cartridge;
-
-            if self.editing {
-                info!("[Unicorn] Switch editor to run");
-
-                self.cartridges[idx].set_code(self.editor.get_code());
-
-                // Reload the code for the Unicorn format
-               /* match self.cartridges[idx].cartridge.format {
-                    CartridgeFormat::UnicornSplittedFormat => {
-                        info!("[Unicorn] Reloading code section for the cartridge from the file");
-                        self.cartridges[idx].cartridge.code.reload();
-                    }
-                    CartridgeFormat::UnicornFormat => {
-                        info!("[Unicorn] Reloading code section for the cartridge from the buffer");
-                        self.cartridges[idx].set_code(self.editor.get_code());
-                    }
-                    _ => (),
-                }*/
-
-                let data = self.cartridges[idx].get_code();
-                let code_type = self.cartridges[idx].get_code_type();
-
-                match code_type {
-                    Code::LUA => {
-                        self.cartridges[idx].lua_plugin.load_code(data);
-                    }
-                    Code::JAVASCRIPT => {
-                        self.cartridges[idx].javascript_plugin.load_code(data);
-                    }
-                    Code::PYTHON => {
-                        self.cartridges[idx].python_plugin.load_code(data);
-                    }
-                    _ => (),
-                }
-
-                self.editing = false;
-                self.state = UnicornState::RUN;
-                self.reset();
-            } else {
-                info!("[Unicorn] Switch run to editor");
-                info!("[Unicorn] Back to {:?}/{:?}", self.current_cartridge, self.cartridges.len());
-                let filename = self.cartridges[self.current_cartridge].filename.clone();
-                let full_filename = self.cartridges[self.current_cartridge].full_filename.clone();
-
-                if self.cartridges[self.current_cartridge].loaded == false {
-                    self.load_cartridge(filename.as_str(), full_filename.as_str(), false);
-                }
-                let code = self.cartridges[self.current_cartridge].get_code();
-
-                self.editor
-                    .init(self.configuration.clone(),
-                          self.palettes.clone(),
-                          &mut self.screen.lock().unwrap(),
-                          filename,
-                          code);
-                self.editing = true;
-                self.state = UnicornState::EDITOR;
-            }
-
-            self.init();
-        }
     }
 
     pub fn call_init(&mut self) {

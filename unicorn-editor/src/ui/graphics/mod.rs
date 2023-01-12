@@ -1,10 +1,12 @@
 mod sprite_editor_tab;
+mod map_editor_tab;
 
 use eframe::egui::{
     Color32, ColorImage, Image, Slider, TextureFilter, TextureHandle, TextureId, Ui, Vec2,
 };
 
 use sprite_editor_tab::SpriteEditor;
+use map_editor_tab::MapEditor;
 
 use unicorn::gfx::palette::Palette;
 
@@ -14,7 +16,7 @@ const ROWS_PER_PALETTE_PREVIEW: usize = 4;
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum GraphicsEditorMode {
     Palette,
-    SpriteSheet,
+    Map,
     Sprite,
 }
 
@@ -23,6 +25,7 @@ impl Default for GraphicsEditor {
         Self {
             mode: GraphicsEditorMode::Sprite,
             sprite_editor: SpriteEditor::default(),
+            map_editor: MapEditor::default(),
 
             scale: 1.0,
             default_palette_texture: None,
@@ -34,6 +37,7 @@ impl Default for GraphicsEditor {
 pub struct GraphicsEditor {
     pub mode: GraphicsEditorMode,
     pub sprite_editor: SpriteEditor,
+    pub map_editor: MapEditor,
 
     pub scale: f32,
     default_palette_texture: Option<TextureHandle>,
@@ -42,8 +46,8 @@ pub struct GraphicsEditor {
 impl GraphicsEditor {
     pub fn draw_selector(&mut self, ui: &mut Ui) {
         ui.selectable_value(&mut self.mode, GraphicsEditorMode::Palette, "Palettes");
-        ui.selectable_value(&mut self.mode, GraphicsEditorMode::SpriteSheet, "Sprite Sheets");
-        ui.selectable_value(&mut self.mode, GraphicsEditorMode::Sprite, "Sprite Editor");
+        ui.selectable_value(&mut self.mode, GraphicsEditorMode::Map, "Map");
+        ui.selectable_value(&mut self.mode, GraphicsEditorMode::Sprite, "Sprite");
     }
 
     pub fn draw_contents(&mut self, ui: &mut Ui, rom: &mut unicorn::core::Unicorn) {
@@ -60,7 +64,7 @@ impl GraphicsEditor {
 
         match self.mode {
             GraphicsEditorMode::Palette => (),
-            GraphicsEditorMode::SpriteSheet => (),
+            GraphicsEditorMode::Map => self.map_editor.draw(ui, rom, self.scale, texture_id),
             GraphicsEditorMode::Sprite => self.sprite_editor.draw(ui, rom, self.scale, texture_id),
         };
     }
