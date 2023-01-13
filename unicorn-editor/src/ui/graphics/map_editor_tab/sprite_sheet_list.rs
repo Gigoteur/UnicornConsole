@@ -16,9 +16,9 @@ impl SpriteSheetList {
 
                 ScrollArea::horizontal().show(ui, |ui| {
                     ui.horizontal(|ui| {
-                        ui.spacing_mut().item_spacing = Vec2 { x: 1.5, y: 1.5 };
+                        ui.spacing_mut().item_spacing = Vec2 { x: 0.0, y: 0.0 };
 
-                        Grid::new("sprite_sheet_editor_grid").show(ui, |ui| {
+                        Grid::new("map_sprite_sheet_editor_grid").show(ui, |ui| {
 
                             (0..4).for_each(|y| {
                                 (0..16).for_each(|x| {
@@ -49,13 +49,14 @@ impl SpriteSheetList {
     pub fn draw_sprite_preview(&mut self, ui: &mut Ui, rom: &mut unicorn::core::Unicorn, idx: usize, scale: f32, texture_id: TextureId) {
         let mut screen = rom.screen.lock().unwrap();
         ui.spacing_mut().item_spacing = Vec2 { x: 0.0, y: 0.0 };
-        ui.spacing_mut().button_padding = Vec2::splat(1.0);
+    
 
         if screen.sprites.len() == 0 {
             return;
         }
     
-    
+        ui.spacing_mut().button_padding = Vec2::splat(0.0);
+
         ui.horizontal(|ui| {
     
             (0..8).for_each(|x| {
@@ -74,13 +75,12 @@ impl SpriteSheetList {
                                     color.r, color.g, color.b, color.a,
                                 ));
                         if ui.add(image_button).clicked() {
+                            println!("HERE !!");
                             self.selected_idx = idx;
                         }
                     });
                 });
             })
-    
-    
         });
     }
 }

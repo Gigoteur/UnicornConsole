@@ -11,6 +11,7 @@ impl SpriteViewer {
         ui.label("Sprite Viewer");
         ui.horizontal(|ui| {
             ui.spacing_mut().item_spacing = Vec2 { x: 0.0, y: 0.0 };
+            ui.spacing_mut().button_padding = Vec2::splat(1.0);
 
             ui.horizontal(|ui| {
                 (0..8).for_each(|x| {

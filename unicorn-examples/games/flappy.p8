@@ -33,15 +33,15 @@ function _update()
 	elseif(s==1)then
 		--flying
 		bkgx = bkgx + 1
-		pipex = piepx - 1
+		pipex = pipex - 1
 		if(pipex<=-24)then
 			pipey=flr(rnd(15-gap))
 			pipex=128
 		end
 
-		pa*=pr
-		pv+=g+pa
-		py+=pv
+		pa = pa * pr
+		pv = pv+g+pa
+		py = py + pv
 		if(
 			py>144 or
 			py<-16 or
@@ -59,7 +59,7 @@ function _update()
 			s=2 -- dying
 		end
 		if(pipex==24)then
-			score+=1
+			score = score + 1
 			sfx(1,1)
 		end
 		if(btnp(5))then
@@ -73,9 +73,9 @@ function _update()
 		if(f<10)then
 			camera(rnd(4)-2,rnd(4)-2)
 		else
-			pa*=pr
-			pv+=g+pa
-			py+=pv
+			pa = pa * pr
+			pv = pv + g+pa
+			py = py + pv
 		end
 		if(f>=10 and py>128)then
 			s=3
@@ -162,7 +162,7 @@ function _draw()
 			d=i%10
 			spr(d+1,sx,4,1,2)
 			i=flr(i/10)
-			sx-=8
+			sx = sx - 8
 		until i==0
 	end
 end

@@ -79,6 +79,8 @@ impl Editor {
                         {
                             self.rom.load_cartridge(String::from(path.to_string_lossy()));
                             self.rom.setup();
+
+                            self.graphics_editor.code_editor.set_code(self.rom.cartridge.get_code_string_type(), self.rom.cartridge.get_code());
                         }
 
                         ui.close_menu();

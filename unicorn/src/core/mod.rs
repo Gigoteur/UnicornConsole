@@ -148,6 +148,15 @@ impl UnicornCartridge {
         }
     }
 
+    pub fn get_code_string_type(&mut self) -> String {
+        match self.cartridge.code.get_name().as_ref() {
+            "lua" => "lua".into(),
+            "python" => "py".into(),
+            "javascript" => "js".into(),
+            _ => "".into()
+        }
+    }
+
     pub fn get_code(&mut self) -> String {
         self.cartridge.code.get_data().clone()
     }

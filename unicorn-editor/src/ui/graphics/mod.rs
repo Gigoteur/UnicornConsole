@@ -1,5 +1,6 @@
 mod sprite_editor_tab;
 mod map_editor_tab;
+mod code_editor_tab;
 
 use eframe::egui::{
     Color32, ColorImage, Image, Slider, TextureFilter, TextureHandle, TextureId, Ui, Vec2,
@@ -7,6 +8,7 @@ use eframe::egui::{
 
 use sprite_editor_tab::SpriteEditor;
 use map_editor_tab::MapEditor;
+use code_editor_tab::CodeEditor;
 
 use unicorn::gfx::palette::Palette;
 
@@ -18,6 +20,7 @@ pub enum GraphicsEditorMode {
     Palette,
     Map,
     Sprite,
+    Code,
 }
 
 impl Default for GraphicsEditor {
@@ -26,6 +29,7 @@ impl Default for GraphicsEditor {
             mode: GraphicsEditorMode::Sprite,
             sprite_editor: SpriteEditor::default(),
             map_editor: MapEditor::default(),
+            code_editor: CodeEditor::default(),
 
             scale: 1.0,
             default_palette_texture: None,
@@ -38,6 +42,7 @@ pub struct GraphicsEditor {
     pub mode: GraphicsEditorMode,
     pub sprite_editor: SpriteEditor,
     pub map_editor: MapEditor,
+    pub code_editor: CodeEditor,
 
     pub scale: f32,
     default_palette_texture: Option<TextureHandle>,
@@ -45,6 +50,7 @@ pub struct GraphicsEditor {
 
 impl GraphicsEditor {
     pub fn draw_selector(&mut self, ui: &mut Ui) {
+        ui.selectable_value(&mut self.mode, GraphicsEditorMode::Code, "Code");
         ui.selectable_value(&mut self.mode, GraphicsEditorMode::Palette, "Palettes");
         ui.selectable_value(&mut self.mode, GraphicsEditorMode::Map, "Map");
         ui.selectable_value(&mut self.mode, GraphicsEditorMode::Sprite, "Sprite");
@@ -63,6 +69,7 @@ impl GraphicsEditor {
             .id();
 
         match self.mode {
+            GraphicsEditorMode::Code => self.code_editor.draw(ui, rom, self.scale, texture_id),
             GraphicsEditorMode::Palette => (),
             GraphicsEditorMode::Map => self.map_editor.draw(ui, rom, self.scale, texture_id),
             GraphicsEditorMode::Sprite => self.sprite_editor.draw(ui, rom, self.scale, texture_id),
@@ -71,7 +78,7 @@ impl GraphicsEditor {
 
     pub fn draw_bottom_panel(&mut self, ui: &mut Ui) {
         ui.horizontal(|ui| {
-            ui.label("Sprite Scaling:");
+            ui.label("Scaling:");
             ui.add(Slider::new(&mut self.scale, 0.1..=3.0));
         });
     }
@@ -113,7 +120,7 @@ pub(crate) fn load_buffered_image<'a>(
         }
         None => {
             *handle = Some(ui.ctx().load_texture(label, rgb, TextureFilter::Nearest));
-            handle.as_ref().unwrap()
+            handle.as_ref().unwrap() 
         }
     }
 }

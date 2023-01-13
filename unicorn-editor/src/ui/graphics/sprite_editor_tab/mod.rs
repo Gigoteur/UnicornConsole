@@ -1,5 +1,5 @@
 mod sprite_view;
-mod sprite_sheet_list;
+pub mod sprite_sheet_list;
 mod palette_view;
 
 use eframe::egui::{TextEdit, TextureId, Ui, Vec2, Color32, ImageButton};
