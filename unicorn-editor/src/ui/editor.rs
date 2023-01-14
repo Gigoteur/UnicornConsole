@@ -87,6 +87,7 @@ impl Editor {
                     }
 
                     if ui.button("Save").clicked() {
+                        self.rom.set_code(self.graphics_editor.code_editor.code.clone());
                         self.rom.save_current_cartridge();
                         ui.close_menu();
                     }

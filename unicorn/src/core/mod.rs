@@ -161,10 +161,6 @@ impl UnicornCartridge {
         self.cartridge.code.get_data().clone()
     }
 
-    pub fn set_code(&mut self, data: Vec<String>) {
-        self.cartridge.code.set_data(data);
-    }
-
     pub fn get_palettes(&mut self) -> HashMap<u32, gfx::palette::RGB> {
         self.cartridge.palette.colors.clone()
     }
@@ -450,6 +446,10 @@ impl Unicorn {
 
         let mut output = File::create(&Path::new(filename)).unwrap();
         image.save(&mut output, image::ImageFormat::PNG).unwrap();*/
+    }
+
+    pub fn set_code(&mut self, code: String) {
+        self.cartridge.cartridge.code.set_data(code);
     }
 
     pub fn save_current_cartridge(&mut self) {

@@ -6,8 +6,8 @@ use unicorn::core::Code;
 
 #[derive(Clone, Debug)]
 pub struct CodeEditor {
-    language: String,
-    code: String,
+    pub language: String,
+    pub code: String,
 }
 
 impl Default for CodeEditor {
