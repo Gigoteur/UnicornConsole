@@ -1,5 +1,3 @@
-use std::path::PathBuf;
-
 use eframe::egui::{self, menu, Context};
 use rfd::FileDialog;
 use serde::{Deserialize, Serialize};
@@ -78,7 +76,6 @@ impl Editor {
                         .pick_file()
                         {
                             self.rom.load_cartridge(String::from(path.to_string_lossy()));
-                            self.rom.setup();
 
                             self.graphics_editor.code_editor.set_code(self.rom.cartridge.get_code_string_type(), self.rom.cartridge.get_code());
                         }

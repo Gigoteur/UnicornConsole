@@ -632,6 +632,16 @@ globals()["mapdraw"] = mapdraw
 globals()["mget"] = mget
 globals()["mset"] = mset
 
+#Audio
+
+def play_note(note, instrument=0, channel=0):
+    return unicorn_audio.play_note(note, instrument, channel)
+
+def trigger_note(note, instrument=0):
+    return unicorn_audio.trigger_note(note, instrument)
+
+globals()["play_note"] = play_note
+globals()["trigger_note"] = trigger_note
 
 #Info
 

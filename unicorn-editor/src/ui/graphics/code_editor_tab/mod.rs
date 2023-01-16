@@ -1,8 +1,7 @@
 
 mod syntax_highlighting;
 
-use eframe::egui::{TextEdit, TextureId, Ui, Vec2, Color32, ScrollArea};
-use unicorn::core::Code;
+use eframe::egui::{TextureId, Ui, ScrollArea};
 
 #[derive(Clone, Debug)]
 pub struct CodeEditor {
@@ -30,7 +29,7 @@ impl CodeEditor {
         self.code = code;
     }
 
-    pub(crate) fn draw(&mut self, ui: &mut Ui, rom: &mut unicorn::core::Unicorn, scale: f32, texture_id: TextureId) {
+    pub(crate) fn draw(&mut self, ui: &mut Ui, _rom: &mut unicorn::core::Unicorn, _scale: f32, _texture_id: TextureId) {
 
         let mut theme = syntax_highlighting::CodeTheme::from_memory(ui.ctx());
         ui.collapsing("Theme", |ui| {

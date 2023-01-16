@@ -1,8 +1,7 @@
 use std::collections::HashMap;
-use std::hash::Hash;
 use std::io::Cursor;
 use std::io::prelude::*;
-use log::{debug, error, info};
+use log::{info};
 
 #[derive(Debug)]
 pub struct Palettes {

@@ -1,4 +1,5 @@
 use std::sync::Arc;
+use log::{debug, error, log_enabled, info, Level};
 
 use cpal::{
     default_host,
@@ -77,6 +78,8 @@ pub enum SoundEngineChannelType {
 
 impl SoundEngineData {
     pub fn new(output_sample_rate: usize, rom: &Arc<SoundRomInstance>) -> Self {
+        info!("[SOUND] SoundEngineData {:?}", output_sample_rate);
+
         use std::array::from_fn;
 
         let bgm_tracks = from_fn(|_| {
@@ -115,6 +118,8 @@ impl SoundEngineData {
     }
 
     pub fn play_note(&mut self, note: i32, instrument_index: usize, channel: usize) {
+        info!("Play note:{:?} instrument:{:?} channel:{:?}", note, instrument_index, channel);
+
         let instrument = self.rom[InstrumentId(instrument_index)].as_ref();
         let channel = self.sfx.get_mut(channel);
 
@@ -192,6 +197,8 @@ impl SoundEngine {
     }
 
     pub fn new(fps: usize, rom: &Arc<SoundRomInstance>, message_buffer_size: usize) -> Self {
+        info!("[SOUND] SoundEngine fps:{:?} message_buffer_size:{:?}", fps, message_buffer_size);
+
         initialize_globals();
         let mut device = default_host().default_output_device().unwrap();
 
@@ -230,6 +237,8 @@ impl SoundEngine {
     }
 
     pub fn send(&mut self, message: SoundEngineChannelType) {
+        info!("[Sound] message");
+
         self.sound_thread_producer.push(message).unwrap();
     }
 }

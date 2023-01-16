@@ -5,7 +5,8 @@ use std::net::SocketAddr;
 use gilrs::Gilrs;
 use pixels::Pixels;
 use rfd::FileDialog;
-use winit::{window::Window};
+use winit::{window::Window, dpi::PhysicalSize};
+
 use ggrs::{P2PSession, PlayerType, SessionBuilder, SessionState, UdpNonBlockingSocket};
 
 use unicorn;
@@ -20,12 +21,14 @@ use crate::network::SessionDescriptor;
 use controller::ControllerGui;
 use play_mode_gui::PlayModeGui;
 use crate::UnicornConsole;
+use crate::network::UnicornConsoleState;
 
 pub struct Gui {
     pub window_open: bool,
     pub game_file: Option<PathBuf>,
 
     pub unicorn_console: Option<UnicornConsole>,
+    pub initial_state: Option<UnicornConsoleState>,
 
     pub controller_gui: ControllerGui,
     pub play_mode_gui : PlayModeGui,
@@ -37,7 +40,10 @@ impl Default for Gui {
         Self {
             window_open: true,
             game_file: None,
+            
             unicorn_console : None,
+            initial_state: None,
+
             controller_gui: ControllerGui::default(),
             play_mode_gui: PlayModeGui::default(),
         }
@@ -102,9 +108,15 @@ impl Gui {
 
                     // Reset the game
                     if ui
-                        .add_enabled(buttons_enabled, Button::new("Reset Game"))
+                        .add_enabled(buttons_enabled, Button::new("Reload Game"))
                         .clicked()
                     {
+                        let console = self.unicorn_console.as_mut().unwrap();
+
+                        let path = self.game_file.as_ref().unwrap();
+                        console.reload(String::from(path.to_string_lossy()));
+                        console.load_save_state(self.initial_state.as_ref().unwrap().clone());
+                        self.window_open = false;
                     }
 
                     // Quit the console
@@ -123,12 +135,14 @@ impl Gui {
         pixels: &mut Pixels,
         window: &Window,
         session_descriptor: SessionDescriptor,
+        width: u32,
+        height: u32
     ) -> P2PSession<UnicornConsole> {
-       /*  pixels.resize_buffer(rom.width(), rom.height());
+        pixels.resize_buffer(width, height);
         window.set_inner_size(PhysicalSize::new(
-            rom.width().max(DEFAULT_WINDOW_RESOLUTION.width() as u32),
-            rom.height().max(DEFAULT_WINDOW_RESOLUTION.height() as u32),
-        ));*/
+            width.max(DEFAULT_WINDOW_RESOLUTION.width() as u32),
+            height.max(DEFAULT_WINDOW_RESOLUTION.height() as u32),
+        ));
 
         let (max_prediction, new_session) = {
             let new_session = init_session(
@@ -142,10 +156,13 @@ impl Gui {
         self.window_open = false;
 
         let (mut console, reset) = UnicornConsole::new(rom);//, session_descriptor, max_prediction);
-        //console.sync_mouse(window);
+
+        console.sync_audio();
+        console.sync_mouse(window);
 
         self.unicorn_console = Some(console);
-        //self.initial_state = Some(reset);
+        self.initial_state = Some(reset);
+        
         new_session
     }
 
@@ -162,10 +179,12 @@ impl Gui {
 
         let mut rom = unicorn::core::Unicorn::new();
         rom.load_cartridge(String::from(path.to_string_lossy()));
-        rom.setup();
         rom.init();
 
-        Some(self.init_with_console(rom, pixels, window, session_descriptor))
+        let width = rom.width();
+        let height = rom.height();
+
+        Some(self.init_with_console(rom, pixels, window, session_descriptor, width, height))
     }
 
 }

@@ -2,7 +2,7 @@ mod sprite_view;
 pub mod sprite_sheet_list;
 mod palette_view;
 
-use eframe::egui::{TextEdit, TextureId, Ui, Vec2, Color32, ImageButton};
+use eframe::egui::{TextureId, Ui};
 
 use sprite_view::SpriteViewer;
 use palette_view::PaletteViewer;

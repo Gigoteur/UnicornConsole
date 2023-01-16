@@ -1,5 +1,5 @@
 
-use eframe::egui::{TextEdit, TextureId, Ui, Vec2, Color32, ImageButton};
+use eframe::egui::{TextureId, Ui, Vec2, Color32, ImageButton};
 
 #[derive(Clone, Default, Debug)]
 pub struct SpriteViewer {
@@ -28,7 +28,7 @@ impl SpriteViewer {
                                 let color = screen.palette.get_rgb(idx_color as u32);
 
                                 let image_button =
-                                    ImageButton::new(texture_id, Vec2 { x: 16.0 * scale, y: 16.0 * scale })
+                                    ImageButton::new(texture_id, Vec2 { x: 24.0 * scale, y: 24.0 * scale })
                                         .selected(selected)
                                         .tint(Color32::from_rgba_unmultiplied(
                                             color.r, color.g, color.b, color.a,

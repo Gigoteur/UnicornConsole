@@ -96,14 +96,6 @@ impl Default for CodeTheme {
 }
 
 impl CodeTheme {
-    pub fn from_style(style: &eframe::egui::Style) -> Self {
-        if style.visuals.dark_mode {
-            Self::dark()
-        } else {
-            Self::light()
-        }
-    }
-
     pub fn from_memory(ctx: &eframe::egui::Context) -> Self {
         if ctx.style().visuals.dark_mode {
             ctx.data()

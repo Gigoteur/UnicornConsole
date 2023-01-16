@@ -1,9 +1,8 @@
 mod map_view;
 mod sprite_sheet_list;
 
-use eframe::egui::{TextEdit, TextureId, Ui, Vec2, Color32, ImageButton};
+use eframe::egui::{TextureId, Ui};
 
-use crate::ui::graphics::sprite_editor_tab;
 
 #[derive(Debug, Clone, Default)]
 pub struct MapEditor {

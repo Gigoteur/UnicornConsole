@@ -13,6 +13,9 @@ pub mod plugin {
 
     use core::info::Info;
     use gfx::Screen;
+    use core::AudioSyncCommand;
+
+    use crate::core::AudioCommandBuffer;
 
     /*
         # GFX                   #    Python     #    New name       #
@@ -407,7 +410,23 @@ pub mod plugin {
         }  
     });
 
+    // Audio
+    py_class!(class UnicornAudio |py| {
+        data audio: Arc<Mutex<AudioCommandBuffer>>;
+
+        def play_note(&self, note_id: u32, instrument_id: u32, channel: u32) -> PyResult<u32> {
+            self.audio(py).lock().unwrap().push(AudioSyncCommand::PressedKey {note_index: note_id as usize, instrument_index: instrument_id as usize, channel: channel as usize});
+            Ok(0)
+        }
+
         
+        def trigger_note(&self, note_id: u32, instrument_id: u32) -> PyResult<u32> {
+            self.audio(py).lock().unwrap().push(AudioSyncCommand::TriggerNote {note_index: note_id as usize, instrument_index: instrument_id as usize});
+            Ok(0)
+        }
+
+    });
+
     // Math
 
     // Memory
@@ -443,7 +462,8 @@ pub mod plugin {
         pub fn load(&mut self,
                     contexts: Arc<Mutex<Contexts>>,
                     info: Arc<Mutex<Info>>,
-                    screen: Arc<Mutex<Screen>>) {
+                    screen: Arc<Mutex<Screen>>,
+                    audio: Arc<Mutex<AudioCommandBuffer>>) {
             info!("[PLUGIN][PYTHON] Init plugin");
 
             let gil = Python::acquire_gil();
@@ -461,8 +481,12 @@ pub mod plugin {
             let unicorn_mem_obj = UnicornMemory::create_instance(py, screen.clone()).unwrap();
             self.mydict.set_item(py, "unicorn_mem", unicorn_mem_obj).unwrap();
 
-            let unicorn_info_obj = UnicornInfo::create_instance(py ,info.clone()).unwrap();
+            let unicorn_info_obj = UnicornInfo::create_instance(py, info.clone()).unwrap();
             self.mydict.set_item(py, "unicorn_info", unicorn_info_obj).unwrap();  
+
+            let unicorn_audio_obj = UnicornAudio::create_instance(py, audio.clone()).unwrap();
+            self.mydict.set_item(py, "unicorn_audio", unicorn_audio_obj).unwrap();  
+
 
             py.run(r###"globals()["unicorn_graphic"] = unicorn_graphic;"###,
                      None,
@@ -483,7 +507,11 @@ pub mod plugin {
             py.run(r###"globals()["unicorn_info"] = unicorn_info;"###,
                 None,
                 Some(&self.mydict))
-           .unwrap();
+                .unwrap();
+            py.run(r###"globals()["unicorn_audio"] = unicorn_audio;"###,
+                None,
+                Some(&self.mydict))
+                .unwrap();
 
             let data = include_str!("python/api.py").to_string();
 
@@ -581,6 +609,8 @@ pub mod plugin {
 
     use gfx::Screen;
 
+    use crate::core::AudioCommandBuffer;
+
     #[derive(Debug)]
     pub struct PythonPlugin {}
 
@@ -593,7 +623,8 @@ pub mod plugin {
         pub fn load(&mut self,
                     _contexts: Arc<Mutex<Contexts>>,
                     _info: Arc<Mutex<Info>>,
-                    _screen: Arc<Mutex<Screen>>) {
+                    _screen: Arc<Mutex<Screen>>,
+                    _audio: Arc<Mutex<AudioCommandBuffer>>) {
             error!("[PLUGIN][PYTHON] plugin disabled");
         }
         pub fn load_code(&mut self, _data: String) -> bool {

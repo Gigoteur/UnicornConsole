@@ -18,7 +18,6 @@ use ggrs::{GGRSRequest, GGRSError, P2PSession, SessionState, Config};
 use env_logger;
 
 use std::{
-    path::PathBuf,
     time::{Duration, Instant},
     env,
     sync::{Arc, Mutex}
@@ -32,10 +31,11 @@ use winit::{
     window::{Window, WindowBuilder},
 };
 use winit_input_helper::WinitInputHelper;
+use winit::{dpi::PhysicalPosition, window::CursorGrabMode};
+
 use gilrs::Gilrs;
 
 pub trait Console: Sized + Config {
-    fn setup(&mut self);
     fn update(&mut self);
     fn draw(&mut self);
     fn blit(&self, buffer: &mut [u8]);
@@ -43,6 +43,7 @@ pub trait Console: Sized + Config {
     fn handle_requests(&mut self, requests: Vec<GGRSRequest<Self>>);
     fn update_fps(&mut self, current_time: Instant);
     fn toggle_debug(&mut self);
+    fn switch_pause(&mut self);
 }
 
 pub struct UnicornConsole {
@@ -62,6 +63,10 @@ impl UnicornConsole {
 
         let initial_state = out.generate_save_state();
         (out, initial_state)
+    }
+
+    fn reload(&mut self, filename: String) {
+        self.engine.lock().unwrap().reload(filename);
     }
 
     pub fn width(&mut self) -> u32 {
@@ -88,6 +93,51 @@ impl UnicornConsole {
             previous_buttons,
         }
     }
+
+    pub fn load_save_state(&mut self, state: UnicornConsoleState) {
+        let engine = self.engine.lock().unwrap();
+        let contexts = &mut engine.contexts.lock().unwrap();
+
+        let UnicornConsoleState {
+            previous_buttons,
+        } = state;
+
+        previous_buttons
+            .iter()
+            .enumerate()
+            .for_each(|(index, prev)| {
+                contexts.input_context.input_entries[index].previous = *prev;
+            });
+
+    }
+
+    pub fn sync_audio(&mut self) {
+        let mut engine = self.engine.lock().unwrap();
+        engine.sync_audio();
+    }
+
+    pub(crate) fn sync_mouse(&mut self, window: &Window) {
+        let engine = self.engine.lock().unwrap();
+        let contexts = &mut engine.contexts.lock().unwrap();
+
+        match contexts.input_context.mouse_locked {
+            true => {
+                let position = window.inner_size();
+                window
+                    .set_cursor_position(PhysicalPosition::new(
+                        position.width / 2,
+                        position.height / 2,
+                    ))
+                    .unwrap();
+                window.set_cursor_grab(CursorGrabMode::Locked).unwrap();
+                window.set_cursor_visible(false);
+            }
+            false => {
+                window.set_cursor_grab(CursorGrabMode::None).unwrap();
+                window.set_cursor_visible(true);
+            }
+        }
+    }
 }
 
 impl Console for UnicornConsole {
@@ -97,6 +147,10 @@ impl Console for UnicornConsole {
         engine.frame_rate.frames_per_second()
     }
 
+    fn switch_pause(&mut self) {
+        self.engine.lock().unwrap().switch_pause();
+    }
+
     fn toggle_debug(&mut self) {
         self.engine.lock().unwrap().toggle_debug();
     }
@@ -104,10 +158,6 @@ impl Console for UnicornConsole {
     fn update_fps(&mut self, current_time: Instant) {
         self.fps.update(current_time);
         self.engine.lock().unwrap().fps = self.fps.get_fps();
-    }
-
-    fn setup(&mut self) {
-        self.engine.lock().unwrap().setup();
     }
 
     fn update(&mut self) {
@@ -262,7 +312,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             // Put in pause
             if input.key_pressed(VirtualKeyCode::F1) {
                 framework.gui.window_open = !framework.gui.window_open;
-                //uc.switch_pause();
+                if let Some(console) = &mut framework.gui.unicorn_console {
+                    console.switch_pause();
+                }
             }
 
 
@@ -352,13 +404,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             });
 
             if render_result.is_err() {
-                println!("render_with failed");
                 *control_flow = ControlFlow::Exit;
                 return;
             }
 
             window.request_redraw();
-            //times.limit();
         }
 
     });

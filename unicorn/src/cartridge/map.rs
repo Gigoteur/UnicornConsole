@@ -20,7 +20,7 @@ impl CartridgeMap {
         let mut map = Vec::new();
 
         for line in lines {
-            info!("[CARTRIDGE] [CartridgeMap] Line {:?}", line);
+            debug!("[CARTRIDGE] [CartridgeMap] Line {:?}", line);
 
             let mut i = 0;
 
@@ -44,7 +44,7 @@ impl CartridgeMap {
 
         for y in 0..32 {
             for x in 0..self.width {
-                let idx_sprite = *self.map.get((x * self.width + y) as usize).unwrap_or(&0);
+                let idx_sprite = *self.map.get((x + self.width * y) as usize).unwrap_or(&0);
                 data.push_str(&format!("{:02x}", idx_sprite));
             }
             data.push('\n');

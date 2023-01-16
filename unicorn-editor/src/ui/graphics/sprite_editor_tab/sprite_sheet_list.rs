@@ -1,8 +1,6 @@
 
 use eframe::egui::{ComboBox, ImageButton, TextureId, Ui, Vec2, Color32, ScrollArea, Grid};
 
-use unicorn::gfx::sprite::Sprite;
-
 #[derive(Clone, Default, Debug)]
 pub struct SpriteSheetList {
     pub(crate) selected_idx: usize,

@@ -86,6 +86,8 @@ impl Screen {
         self._reset_cliprect();
         self._reset_palettes();
         self._reset_palette();
+        self._reset_sprites();
+        self._reset_map();
 
         self.color = 0;
     }
@@ -98,6 +100,18 @@ impl Screen {
     pub fn mode_height(&mut self) -> usize {
         self.height
     }
+    
+    pub fn _reset_sprites(&mut self) {
+        info!("[GFX] [Screen] Reset sprites");
+        self.sprites = Vec::new();
+        self.dyn_sprites = Vec::new();
+    }
+
+    pub fn _reset_map(&mut self) {
+        info!("[GFX] [Screen] Reset map");
+        self.map = Vec::new();
+    }
+
 
     pub fn _reset_palettes(&mut self) {
         info!("[GFX] [Screen] Reset palettes");
@@ -1304,7 +1318,6 @@ impl Screen {
         let dw = sw as i32;
         let dh = sh as i32;
 
-        let mut idx = 0;
         for y in 0..dh {
             for x in 0..dw {
                 let idx = (y*dh+x) as usize;

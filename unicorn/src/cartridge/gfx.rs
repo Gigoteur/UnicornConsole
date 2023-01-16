@@ -22,7 +22,7 @@ impl CartridgeGFX {
         if !lines.is_empty() {
             let mut v = Vec::new();
 
-            info!("[CARTRIDGE][CartridgeGFX] Lines {:?}", lines.len());
+            debug!("[CARTRIDGE][CartridgeGFX] Lines {:?}", lines.len());
 
             for line in lines {
                 //debug!("[CARTRIDGE][CartridgeGFX] LEN LINE {:?}", line.len());
@@ -43,11 +43,11 @@ impl CartridgeGFX {
                 }
             }
 
-            info!("[CARTRIDGE][CartridgeGFX] {:?}", v.len());
+            debug!("[CARTRIDGE][CartridgeGFX] {:?}", v.len());
 
             let mut g_off = 0;
 
-            info!("[CARTRIDGE][CartridgeGFX] Finding all sprites ...");
+            debug!("[CARTRIDGE][CartridgeGFX] Finding all sprites ...");
 
             // Fill all sprites
             for idx in 0..(v.len()/64) {
@@ -72,7 +72,7 @@ impl CartridgeGFX {
                     }
                 }
 
-                info!("[CARTRIDGE][CartridgeGFX] Sprite number {:?} {:?}:{:?}", sprites.len(), data.len(), data);
+                debug!("[CARTRIDGE][CartridgeGFX] Sprite number {:?} {:?}:{:?}", sprites.len(), data.len(), data);
 
                 sprites.push(Sprite::new(data));
             }

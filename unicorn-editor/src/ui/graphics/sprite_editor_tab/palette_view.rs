@@ -1,5 +1,5 @@
 
-use eframe::egui::{TextEdit, TextureId, Ui, Vec2, Color32, ImageButton};
+use eframe::egui::{TextureId, Ui, Vec2, Color32, ImageButton};
 
 #[derive(Clone, Default, Debug)]
 pub struct PaletteViewer {
