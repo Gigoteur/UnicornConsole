@@ -118,8 +118,6 @@ impl SoundEngineData {
     }
 
     pub fn play_note(&mut self, note: i32, instrument_index: usize, channel: usize) {
-        info!("Play note:{:?} instrument:{:?} channel:{:?}", note, instrument_index, channel);
-
         let instrument = self.rom[InstrumentId(instrument_index)].as_ref();
         let channel = self.sfx.get_mut(channel);
 
@@ -237,8 +235,6 @@ impl SoundEngine {
     }
 
     pub fn send(&mut self, message: SoundEngineChannelType) {
-        info!("[Sound] message");
-
         self.sound_thread_producer.push(message).unwrap();
     }
 }

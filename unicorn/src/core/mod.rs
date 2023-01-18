@@ -674,7 +674,8 @@ impl Unicorn {
                     .lua_plugin
                     .load(self.contexts.clone(),
                           self.info.clone(),
-                          self.screen.clone());
+                          self.screen.clone(),
+                          self.audio_sync_helper.as_mut().unwrap().command_queue.clone());
 
                 ret = self.cartridge.lua_plugin.load_code(data.clone());
             }

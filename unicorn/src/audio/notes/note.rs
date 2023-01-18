@@ -104,6 +104,7 @@ pub fn initialize_notes() {
             let name = TinyAsciiStr::from_str(&[name.as_str().as_str(), &octave.as_str()].concat())
                 .unwrap();
             let frequency = note_to_frequency(index as isize);
+            println!("{:?} : {:?},", name, index);
 
             Note { name, frequency }
         }));

@@ -506,6 +506,7 @@ function update_game()
  end
  
  if btn(5) then
+
   if bultimer<=0 then
 	  local newbul=makespr()
 	  newbul.x=ship.x+1
@@ -515,8 +516,6 @@ function update_game()
 	  newbul.sy=-4
 	  newbul.dmg=1
 	  add(buls,newbul)
-	  
-	  sfx(0)
 	  muzzle=5
 	  bultimer=4
   end

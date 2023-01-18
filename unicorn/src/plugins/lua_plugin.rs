@@ -21,12 +21,15 @@ pub mod plugin {
     use gfx::Screen;
 
     use crate::contexts;
-    
+    use crate::core::AudioCommandBuffer;
+    use crate::core::AudioSyncCommand;
+
     pub struct ExtraData {
         /* External objects to get access to Unicorn data ! */
         pub contexts: Arc<Mutex<Contexts>>,
         pub info: Arc<Mutex<Info>>,
         pub screen: Arc<Mutex<Screen>>,
+        pub audio: Arc<Mutex<AudioCommandBuffer>>,
     }
 
     impl UserData for ExtraData {
@@ -59,6 +62,16 @@ pub mod plugin {
         time                    #     X         #               #
         show_mouse              #               #               #
 */    
+
+            methods.add_method("play_note", |_lua_ctx, game_state, (note_idx, instrument_idx, channel):(u32, u32, u8)| {
+                game_state.audio.lock().unwrap().push(AudioSyncCommand::PressedKey {note_index: note_idx as usize, instrument_index: instrument_idx as usize, channel: channel as usize});
+                Ok(0)
+            });
+
+            methods.add_method("trigger_note", |_lua_ctx, game_state, (note_idx, instrument_idx):(u32, u32)| {
+                game_state.audio.lock().unwrap().push(AudioSyncCommand::TriggerNote {note_index: note_idx as usize, instrument_index: instrument_idx as usize});
+                Ok(0)
+            });
 
             methods.add_method("btn", |_lua_ctx, game_state, (i, player):(u8, u8)| {
                let value = game_state.contexts.lock().unwrap().input_context.btn(player, i);
@@ -413,7 +426,8 @@ pub mod plugin {
         pub fn load(&mut self,
                     contexts: Arc<Mutex<Contexts>>,
                     info: Arc<Mutex<Info>>,
-                    screen: Arc<Mutex<Screen>>) {
+                    screen: Arc<Mutex<Screen>>,
+                    audio: Arc<Mutex<AudioCommandBuffer>>) {
             info!("[PLUGIN][LUA] Init plugin");
             
             self._load_pico8_functions();
@@ -424,7 +438,8 @@ pub mod plugin {
                 let userdata = lua.create_userdata(ExtraData{
                     contexts:contexts.clone(), 
                     info:info.clone(),
-                    screen:screen.clone()}).unwrap();
+                    screen:screen.clone(),
+                    audio:audio.clone()}).unwrap();
                 
                 globals.set("userdata", userdata.clone()).unwrap();
 
@@ -758,6 +773,15 @@ pub mod plugin {
 
                         function sfx(n, channel, offset, length)
                         end
+
+                        
+                        function play_note(note_idx, instrument_idx, channel)
+                            userdata:play_note(note_idx, instrument_idx, channel)
+                        end
+
+                        function trigger_note(note_idx, instrument_idx)
+                            userdata:trigger_note(note_idx, instrument_idx)
+                        end
                     "#,
                 )
                 .exec()
@@ -1005,6 +1029,7 @@ pub mod plugin {
     use contexts::Contexts;
 
     use core::info::Info;
+    use crate::core::AudioCommandBuffer;
 
     use gfx::Screen;
 
@@ -1020,7 +1045,8 @@ pub mod plugin {
         pub fn load(&mut self,
                     _contexts: Arc<Mutex<Contexts>>,
                     _info: Arc<Mutex<Info>>,
-                    _screen: Arc<Mutex<Screen>>) {
+                    _screen: Arc<Mutex<Screen>>,
+                    _audio: Arc<Mutex<AudioCommandBuffer>>) {
             error!("LUA plugin disabled");
         }
         pub fn load_code(&mut self, _data: String) -> bool {

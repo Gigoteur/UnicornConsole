@@ -3,8 +3,13 @@ use eframe::{
     epaint::{Color32, ColorImage, TextureHandle, Vec2},
 };
 
+use log::{debug, error, log_enabled, info, Level};
+
 use unicorn::audio::notes::note_name::{NoteColor, NoteName};
 use unicorn::audio::notes::note::NotesIter;
+use unicorn::audio::notes::note::get_note;
+use unicorn::audio::notes::note::NoteId;
+
 use unicorn::audio::consts::TOTAL_NOTES_COUNT;
 
 use crate::ui::AudioSyncHelper;
@@ -20,6 +25,7 @@ pub struct PianoRoll {
     bottom_note_index: usize,
     key_states: [bool; KEYBOARD_KEY_COUNT],
     key_channels: [Option<usize>; KEYBOARD_KEY_COUNT],
+    current_note: String,
 }
 
 impl Default for PianoRoll {
@@ -29,6 +35,7 @@ impl Default for PianoRoll {
             bottom_note_index: BOTTOM_NOTE_INDEX_START,
             key_states: Default::default(),
             key_channels: Default::default(),
+            current_note: "".to_string(),
         }
     }
 }
@@ -90,6 +97,8 @@ impl PianoRoll {
             .for_each(|(index, (prev, next))| {
                 if prev != next {
                     if *next {
+                        self.current_note = get_note(NoteId(index + self.bottom_note_index)).name.to_string();
+
                         let assigned_channel =
                             sync.play_note(index + self.bottom_note_index, selected_instrument);
                         self.key_channels[index] = Some(assigned_channel);
@@ -130,6 +139,7 @@ impl PianoRoll {
                 let go_right = ui.button("-->").clicked()
                     || (piano_active && ui.input().key_pressed(Key::ArrowRight));
 
+                ui.label(self.current_note.clone());
                 if go_left && self.bottom_note_index > 0 {
                     self.bottom_note_index -= 12
                 } else if go_right
@@ -176,6 +186,7 @@ impl PianoRoll {
 
                     let button_top = ImageButton::new(texture_id, TOP_KEY_SIZE).tint(color);
                     if ui.add(button_top).clicked() {
+                        self.current_note = get_note(NoteId(index)).name.to_string();
                         sync.trigger_note(index, selected_instrument);
                     };
                 });
@@ -196,6 +207,7 @@ impl PianoRoll {
                             ImageButton::new(texture_id, BOTTOM_KEY_SIZE).tint(tint);
 
                         if ui.add(button_bottom).clicked() {
+                            self.current_note = get_note(NoteId(index)).name.to_string();
                             sync.trigger_note(index, selected_instrument);
                         };
                     }

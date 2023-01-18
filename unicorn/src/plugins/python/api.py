@@ -604,6 +604,8 @@ def mouse_statep(p=0):
 def mouse_left_state(p=0):
     return unicorn_input.btn_mouse_state(p) & 0x000000FF
 
+def mouse_left_statep(p=0):
+    return unicorn_input.btn_mouse_statep(p) & 0x000000FF
 
 globals()["btn"] = btn
 globals()["btnp"] = btnp
@@ -612,6 +614,8 @@ globals()["mouse_x"] = mouse_x
 globals()["mouse_y"] = mouse_y
 globals()["mouse_state"] = mouse_state
 globals()["mouse_statep"] = mouse_statep
+globals()["mouse_left_state"] = mouse_left_state
+globals()["mouse_left_statep"] = mouse_left_statep
 
 # Map
 
@@ -632,18 +636,21 @@ globals()["mapdraw"] = mapdraw
 globals()["mget"] = mget
 globals()["mset"] = mset
 
-#Audio
-
+# Audio
 def play_note(note, instrument=0, channel=0):
     return unicorn_audio.play_note(note, instrument, channel)
 
 def trigger_note(note, instrument=0):
     return unicorn_audio.trigger_note(note, instrument)
 
+def play_phrase(phrase_index, target_bpm=120.0):
+    return unicorn_audio.play_phrase(phrase_index, target_bpm)
+    
 globals()["play_note"] = play_note
 globals()["trigger_note"] = trigger_note
+globals()["play_phrase"] = play_phrase
 
-#Info
+# Info
 
 def unicorn_time():
     return unicorn_info.time()

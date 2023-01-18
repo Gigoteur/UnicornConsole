@@ -13,6 +13,8 @@ use audio::instruments::wavetable::wavetable_definition::WavetableDefinition;
 use audio::instruments::wavetable::wavetable_generator::WavetableGenerator;
 use audio::instruments::wavetable::wavetable_waveform::WavetableWaveform;
 
+use super::envelope_definition::EnvelopeValue;
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SoundRom {
     pub songs: Box<[Song]>,
@@ -38,7 +40,37 @@ impl Default for SoundRom {
             }
             .generate(),
             envelope: EnvelopeDefinition::interesting(),
-            interpolator: IndexInterpolator::default(),
+            interpolator: IndexInterpolator::Truncate,
+        });
+
+        let default_triangle_wave = InstrumentDataDefinition::Wavetable(WavetableDefinition {
+            data: WavetableGenerator {
+                waveform: WavetableWaveform::Triangle,
+                size: 64,
+            }
+            .generate(),
+            envelope: EnvelopeDefinition::interesting(),
+            interpolator: IndexInterpolator::Truncate,
+        });
+
+        let default_noise_wave = InstrumentDataDefinition::Wavetable(WavetableDefinition {
+            data: WavetableGenerator {
+                waveform: WavetableWaveform::Noise,
+                size: 64,
+            }
+            .generate(),
+            envelope: EnvelopeDefinition::interesting(),
+            interpolator: IndexInterpolator::Truncate,
+        });
+
+        let default_square_wave = InstrumentDataDefinition::Wavetable(WavetableDefinition {
+            data: WavetableGenerator {
+                waveform: WavetableWaveform::Square,
+                size: 8,
+            }
+            .generate(),
+            envelope: EnvelopeDefinition::new(EnvelopeValue(255), EnvelopeValue(255), EnvelopeValue(0), EnvelopeValue(0), EnvelopeValue(255), EnvelopeValue(32)),
+            interpolator: IndexInterpolator::Truncate,
         });
 
         let default_phrase = Phrase::c_scale(InstrumentId(0));
@@ -54,7 +86,7 @@ impl Default for SoundRom {
             songs: vec![].into_boxed_slice(),
             chains: vec![Some(default_chain)].into_boxed_slice(),
             phrases: vec![Some(default_phrase)].into_boxed_slice(),
-            instruments: vec![Some(default_sine_wave)].into_boxed_slice(),
+            instruments: vec![Some(default_sine_wave), Some(default_triangle_wave), Some(default_square_wave), Some(default_noise_wave)].into_boxed_slice(),
             sfx: vec![default_sfx].into_boxed_slice(),
         }
     }

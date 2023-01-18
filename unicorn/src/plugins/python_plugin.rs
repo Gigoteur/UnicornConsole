@@ -13,8 +13,7 @@ pub mod plugin {
 
     use core::info::Info;
     use gfx::Screen;
-    use core::AudioSyncCommand;
-
+    use crate::core::AudioSyncCommand;
     use crate::core::AudioCommandBuffer;
 
     /*
@@ -424,6 +423,20 @@ pub mod plugin {
             self.audio(py).lock().unwrap().push(AudioSyncCommand::TriggerNote {note_index: note_id as usize, instrument_index: instrument_id as usize});
             Ok(0)
         }
+
+        def play_phrase(&self, phrase_index: u32, target_bpm: f32) -> PyResult<u32> {
+            self.audio(py).lock().unwrap().push(AudioSyncCommand::PlayPhrase {phrase_index: phrase_index as usize, target_bpm: target_bpm});
+            Ok(0)
+        }
+
+        def new_phrase(&self) -> PyResult<u32> {
+            Ok(0)
+        }
+
+        def add_phrase(&self) -> PyResult<u32> {
+            Ok(0)
+        }
+
 
     });
 
