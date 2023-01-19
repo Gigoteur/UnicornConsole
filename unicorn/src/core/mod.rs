@@ -33,6 +33,9 @@ use cartridge::{Cartridge, CartridgeFormat};
 use sound;
 use audio;
 
+use audio::sound_rom::Sfx;
+use audio::tracker::phrase::Phrase;
+
 include!(concat!(env!("OUT_DIR"), "/parameters.rs"));
 
 #[derive(Clone, Debug, PartialEq)]
@@ -176,7 +179,6 @@ impl fmt::Debug for UnicornCartridge {
     }
 }
 
-#[derive(Copy, Clone)]
 pub enum AudioSyncCommand {
     PressedKey {
         note_index: usize,
@@ -196,6 +198,7 @@ pub enum AudioSyncCommand {
     },
     StopSfx,
     PlayBgm(usize),
+    PlaySfx(Sfx),
     StopBgm,
 }
 use std::{iter::Cycle, ops::Range};
@@ -256,7 +259,7 @@ impl AudioSyncHelper {
                 phrase_index,
                 target_bpm,
             }),
-          //  AudioSyncCommand::PlaySfx(sfx) => engine.send(SoundEngineChannelType::PlaySfx(sfx)),
+            AudioSyncCommand::PlaySfx(sfx) => engine.send(sound::sound_engine::SoundEngineChannelType::PlaySfx(sfx)),
             AudioSyncCommand::StopSfx => engine.send(sound::sound_engine::SoundEngineChannelType::StopSfx),
             AudioSyncCommand::PlayBgm(song) => {
                 engine.send(sound::sound_engine::SoundEngineChannelType::PlayBgm(song))
@@ -270,12 +273,14 @@ impl AudioSyncHelper {
 pub struct Unicorn {
     pub screen: Arc<Mutex<gfx::Screen>>,
     pub contexts: Arc<Mutex<contexts::Contexts>>,
+
     pub sound_engine: Option<sound::sound_engine::SoundEngine>,
-    //pub sound_engine_data: Option<sound::sound_engine::SoundEngineData>,
     pub audio_sync_helper: Option<AudioSyncHelper>,
     pub audio_command_buffer: Arc<Mutex<AudioCommandBuffer>>,
+    pub sound_rom: audio::sound_rom::SoundRom,
 
     pub info: Arc<Mutex<info::Info>>,
+
     pub debug: bool,
     pub cartridge: UnicornCartridge,
     pub state: UnicornState,
@@ -296,10 +301,11 @@ impl Unicorn {
         Unicorn {
             screen: screen.clone(),
             contexts: Arc::new(Mutex::new(contexts::Contexts::new(2))),
+
             sound_engine: None,
-            //sound_engine_data: None,
             audio_sync_helper: None,
             audio_command_buffer: Arc::new(Mutex::new(AudioCommandBuffer::default())),
+            sound_rom: audio::sound_rom::SoundRom::default(),
 
             info: Arc::new(Mutex::new(info::Info::new())),
             debug: false,
@@ -341,12 +347,11 @@ impl Unicorn {
     }
 
     pub fn init_sound(&mut self) {
-        let sound_rom = audio::sound_rom::SoundRom::default();
-        let sound_rom_instance = Arc::new(sound::sound_rom_instance::SoundRomInstance::new(&sound_rom));
+        let sound_rom_instance = Arc::new(sound::sound_rom_instance::SoundRomInstance::new(&self.sound_rom));
 
         let sound_engine = sound::sound_engine::SoundEngine::new(60, &sound_rom_instance, 64);
         let sound_engine_data = sound::sound_engine::SoundEngineData::new(sound_engine.output_sample_rate(), &sound_rom_instance);
-
+        
         self.sound_engine = Some(sound_engine);
       //  self.sound_engine_data = Some(sound_engine_data);
 

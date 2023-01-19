@@ -107,9 +107,11 @@ notes_r = {}
 for i in notes:
     notes_r[notes[i]] = i
 
+idx = 40
 BUTTON_TO_NOTES = {}
 for i in range(0, 10):
-    BUTTON_TO_NOTES[i] = random.randint(40, 60)
+    BUTTON_TO_NOTES[i] = idx
+    idx += 2
 
 BUTTONS = []
 ROW = 0
@@ -121,7 +123,7 @@ for i in range(0, 16):
     BUTTONS.append(l)
 
 def _init():
-    pass
+    play_phrase(1, 120)
 
 def _update():
     global ROW
@@ -140,7 +142,7 @@ def _update():
             else:
                 BUTTONS[button_x][button_y] = 0
 
-    if TIMING % 10 == 1:
+    if TIMING % 8 == 1:
         ROW = (ROW + 1) % 16
     TIMING += 1
 

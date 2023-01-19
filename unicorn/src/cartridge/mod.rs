@@ -1,6 +1,7 @@
 mod code;
 mod gff;
 mod gfx;
+mod sfx;
 mod map;
 mod music;
 mod palette;
@@ -29,6 +30,7 @@ use regex::Regex;
 pub use self::code::CartridgeCode;
 pub use self::gff::CartridgeGFF;
 pub use self::gfx::CartridgeGFX;
+pub use self::sfx::CartridgeSFX;
 pub use self::palette::CartridgePalette;
 pub use self::map::CartridgeMap;
 pub use self::music::CartridgeMusic;
@@ -82,6 +84,7 @@ pub struct Cartridge {
     pub code: CartridgeCode,
     pub palette: CartridgePalette,
     pub music: CartridgeMusic,
+    pub sfx: CartridgeSFX,
     pub format: CartridgeFormat,
 }
 
@@ -148,7 +151,7 @@ fn read_from_uniformat<R: io::BufRead>(filename: &str, buf: &mut R) -> Result<Ca
     let cartridge_map;
     let cartridge_gff;
     let cartridge_music;
-
+    let cartridge_sfx;
 
     if sections.contains_key("__lua__") {
         cartridge_code = CartridgeCode::new("lua".to_string(),
@@ -188,6 +191,10 @@ fn read_from_uniformat<R: io::BufRead>(filename: &str, buf: &mut R) -> Result<Ca
         _ => cartridge_music = CartridgeMusic::empty(),
     }
 
+    match sections.get_mut("__sfx__") {
+        Some(vec_section) => cartridge_sfx = CartridgeSFX::new(vec_section),
+        _ => cartridge_sfx = CartridgeSFX::empty(),
+    }
 
     cartridge_code.set_filename(filename);
 
@@ -202,6 +209,7 @@ fn read_from_uniformat<R: io::BufRead>(filename: &str, buf: &mut R) -> Result<Ca
            map: cartridge_map,
            gff: cartridge_gff,
            music: cartridge_music,
+           sfx: cartridge_sfx,
            format: CartridgeFormat::UnicornFormat,
        })
 }
@@ -248,6 +256,7 @@ pub fn from_dunicorn_file_raw<R: io::BufRead>(buf_reader: &mut R) -> Result<Cart
     let mut cartridge_code;
     let cartridge_map;
     let cartridge_music;
+    let cartridge_sfx;
 
     cartridge_code = CartridgeCode::new("javascript".to_string(), &code_section);
     cartridge_code.set_filename("empty.js");
@@ -278,6 +287,10 @@ pub fn from_dunicorn_file_raw<R: io::BufRead>(buf_reader: &mut R) -> Result<Cart
         _ => cartridge_music = CartridgeMusic::empty(),
     }
 
+    match sections.get_mut("__sfx__") {
+        Some(vec_section) => cartridge_sfx = CartridgeSFX::new(vec_section),
+        _ => cartridge_sfx = CartridgeSFX::empty(),
+    }
 
     Ok(Cartridge {
            filename: "empty".to_string(),
@@ -290,6 +303,7 @@ pub fn from_dunicorn_file_raw<R: io::BufRead>(buf_reader: &mut R) -> Result<Cart
            map: cartridge_map,
            gff: cartridge_gff,
            music: cartridge_music,
+           sfx: cartridge_sfx,
            format: CartridgeFormat::UnicornFormat,
        })
 }
@@ -377,6 +391,7 @@ fn read_from_pngformat<R: io::BufRead>(filename: &str, buf: &mut R) -> Result<Ca
            gff: CartridgeGFF::empty(),
            palette: CartridgePalette::empty(),
            music: CartridgeMusic::empty(),
+           sfx: CartridgeSFX::empty(),
            format: CartridgeFormat::Pico8PNGFormat,
        })
 }
@@ -429,6 +444,7 @@ fn read_from_p8format<R: io::BufRead>(filename: &str, buf: &mut R) -> Result<Car
     let cartridge_map;
     let cartridge_gff;
     let cartridge_music;
+    let cartridge_sfx;
 
 
     if sections.contains_key("__lua__") {
@@ -458,6 +474,11 @@ fn read_from_p8format<R: io::BufRead>(filename: &str, buf: &mut R) -> Result<Car
         _ => cartridge_music = CartridgeMusic::empty(),
     }
 
+    match sections.get_mut("__sfx__") {
+        Some(vec_section) => cartridge_sfx = CartridgeSFX::new(vec_section),
+        _ => cartridge_sfx = CartridgeSFX::empty(),
+    }
+
 
     Ok(Cartridge {
            filename: filename.to_string(),
@@ -470,6 +491,7 @@ fn read_from_p8format<R: io::BufRead>(filename: &str, buf: &mut R) -> Result<Car
            gff: cartridge_gff,
            palette: CartridgePalette::empty(),
            music: cartridge_music,
+           sfx: cartridge_sfx,
            format: CartridgeFormat::Pico8P8Format,
        })
 }
@@ -487,6 +509,7 @@ impl Cartridge {
             code: CartridgeCode::empty(),
             palette: CartridgePalette::empty(),
             music: CartridgeMusic::empty(),
+            sfx: CartridgeSFX::empty(),
             format: CartridgeFormat::UnicornFormat,
         }
     }

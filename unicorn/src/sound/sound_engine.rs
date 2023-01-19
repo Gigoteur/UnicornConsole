@@ -46,7 +46,7 @@ fn initialize_globals() {
 pub struct SoundEngineData {
     pub bgm: SongPlayback,
     pub sfx: [SfxPlayback; SFX_CHANNELS],
-    rom: Arc<SoundRomInstance>,
+    pub rom: Arc<SoundRomInstance>,
 }
 
 pub enum SoundEngineChannelType {
@@ -311,7 +311,6 @@ impl SoundEngineRunner {
 
     fn sound_engine_callback<T: cpal::Sample>(&mut self, frames: &mut [T]) {
         let mut buffer_written = false;
-     //   let data = &mut self.data;
 
         // Repeat indefinitely until we write a full buffer without
         // any new data inputs. If we receive a new data snapshot midway

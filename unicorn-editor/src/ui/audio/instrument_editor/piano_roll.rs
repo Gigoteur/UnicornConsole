@@ -3,8 +3,6 @@ use eframe::{
     epaint::{Color32, ColorImage, TextureHandle, Vec2},
 };
 
-use log::{debug, error, log_enabled, info, Level};
-
 use unicorn::audio::notes::note_name::{NoteColor, NoteName};
 use unicorn::audio::notes::note::NotesIter;
 use unicorn::audio::notes::note::get_note;
