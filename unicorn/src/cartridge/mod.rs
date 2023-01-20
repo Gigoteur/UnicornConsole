@@ -43,7 +43,7 @@ version XX
 
 __palette__
 
-__gfx__ 128x128 -> 1500
+__gfx__ 128x128 -> 16384
 
 XXXXXXXX
 XXXXXXXX

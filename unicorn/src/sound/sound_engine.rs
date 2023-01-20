@@ -1,5 +1,5 @@
 use std::sync::Arc;
-use log::{debug, error, log_enabled, info, Level};
+use log::info;
 
 use cpal::{
     default_host,

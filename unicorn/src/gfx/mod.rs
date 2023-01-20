@@ -12,7 +12,6 @@ use std::cmp;
 use std::f64::consts::PI;
 
 use gfx::palette::RGB;
-use crate::core;
 
 
 #[derive(Debug)]
@@ -28,6 +27,7 @@ pub struct Screen {
 
     pub palettes: palette::Palettes,
     pub palette: palette::Palette,
+    pub current_palette_name: String,
 
     pub sprites: Vec<sprite::Sprite>,
     pub dyn_sprites: Vec<sprite::DynamicSprite>,
@@ -64,6 +64,7 @@ impl Screen {
             pixel_buffer: pixel_buffer,
             palettes: palette::Palettes::new(),
             palette: palette::Palette::new(),
+            current_palette_name: "".to_string(),
 
             sprites: Vec::new(),
             dyn_sprites: Vec::new(),
@@ -121,12 +122,7 @@ impl Screen {
     pub fn _reset_palette(&mut self) {
         info!("[GFX] [Screen] Reset palette");
 
-        let values = &self.palettes.palettes[&"pico-8".to_string()];
-        info!("VALUES {:?}", values);
-
-        for (idx, rgb_value) in values.iter().enumerate() {
-            self.palette._set_color(idx as u32, rgb_value.r, rgb_value.g, rgb_value.b);
-        }
+        self.switch_palette("pico-8".to_string());
     }
 
 
@@ -153,6 +149,8 @@ impl Screen {
 
     pub fn switch_palette(&mut self, name: String) {
         info!("[GFX] [Screen] Switch palette to {:?}", name);
+
+        self.current_palette_name = name.clone();
 
         let values = &self.palettes.palettes[&name];
 
@@ -1383,13 +1381,40 @@ impl Screen {
         }
     }
 
-    pub fn peek(&mut self, addr: u32) -> u8 {
-       0
-        // self.frame_buffer[addr as usize] as u8
+    pub fn fillp(&mut self, pat: u32) {
+        info!("[Screen][GFX] Fillp {:x} {:?} {:#034b}", pat, pat, pat);
+
     }
 
-    pub fn poke(&mut self, _addr: u32, _val: u16) {}
+    /* Pico8 Memory Emulation */
+    pub fn peek(&mut self, addr: u32) -> u8 {
+        if addr <= 0x0fff { // 	Sprite sheet (0-127)*
+            let r = self.pixel_buffer[addr as usize];
+            let g = self.pixel_buffer[addr as usize + 1];
+            let b = self.pixel_buffer[addr as usize+ 2];
+            
+            return self.palette.get_color_rgb(r, g, b) as u8
+        } else if addr >= 0x1000 && addr <= 0x1fff { // Sprite sheet (128-255)* / Map (rows 32-63) (shared)
 
+        } else if addr >= 0x2000 && addr <= 0x2fff { // Map (rows 0-31)
+        } else if addr >= 0x3000 && addr <= 0x30ff { // Sprite flags
+        }
+
+        0
+    }
+
+    /* Pico8 Memory Emulation */
+    pub fn poke(&mut self, addr: u32, values: Vec<u8>) {
+        if addr <= 0x0fff { // 	Sprite sheet (0-127)*
+
+        } else if addr >= 0x1000 && addr <= 0x1fff { // Sprite sheet (128-255)* / Map (rows 32-63) (shared)
+
+        } else if addr >= 0x2000 && addr <= 0x2fff { // Map (rows 0-31)
+        } else if addr >= 0x3000 && addr <= 0x30ff { // Sprite flags
+        }
+    }
+
+    /* Pico8 Memory Emulation */
     pub fn memcpy(&mut self, dest_addr: u32, source_addr: u32, len: u32) {/*
         let mut idx = 0;
 
@@ -1412,6 +1437,7 @@ impl Screen {
         }*/
     }
 
+    /* Pico8 Memory Emulation */
     pub fn memset(&mut self, _dest_addr: u32, _val: u32, _len: u32) {
 
         

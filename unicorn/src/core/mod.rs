@@ -6,22 +6,19 @@ pub mod resolution;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use std::fmt;
-use std::cmp::{max, PartialOrd};
-use std::time::Duration;
-use log::{debug, error, log_enabled, info, Level};
+use log::{error, info};
 
 
 #[cfg(feature = "image")]
 use image;
-
 #[cfg(feature = "image")]
 use gif;
-
 #[cfg(feature = "image")]
 use std::path::Path;
 #[cfg(feature = "image")]
 use std::fs::File;
-
+#[cfg(feature = "image")]
+use image::GenericImageView;
 
 use plugins::lua_plugin::plugin::LuaPlugin;
 use plugins::python_plugin::plugin::PythonPlugin;
@@ -34,7 +31,6 @@ use sound;
 use audio;
 
 use audio::sound_rom::Sfx;
-use audio::tracker::phrase::Phrase;
 
 include!(concat!(env!("OUT_DIR"), "/parameters.rs"));
 
@@ -382,13 +378,14 @@ impl Unicorn {
 
             let width = screen.width as i32;
             
-            screen.rectfill(0, 0, width, 8, 0);
+            let palette_name = screen.current_palette_name.clone();
 
+            screen.rectfill(0, 0, width, 8, 0);
             screen.force_print(format!("{:.0}FPS {:.2?} {:.2?} {:?} {:?}",
                                        self.fps,
                                        mouse_x,
                                        mouse_y,
-                                       "xx",
+                                       palette_name,
                                        self.state)
                                        .to_string(),
                                0,
@@ -437,6 +434,7 @@ impl Unicorn {
             }
         }
 
+        #[cfg(feature = "image")]
         if self.is_recording() {
             self.record();
         }
@@ -456,6 +454,7 @@ impl Unicorn {
         self.record.filename = filename.to_string();
     }
 
+    #[cfg(feature = "image")]
     pub fn record(&mut self) {
         info!("[Unicorn] Recording the frame {:?}", self.record.images.len());
 
@@ -479,7 +478,8 @@ impl Unicorn {
         self.record.nb += 1;
     }
 
-    pub fn stop_record(&mut self) {/* 
+    #[cfg(feature = "image")]
+    pub fn stop_record(&mut self) {
         info!("[Unicorn] Stop to record the frame {:?}",
               self.record.images.len());
 
@@ -487,7 +487,8 @@ impl Unicorn {
 
         self.record.recording = false;
 
-        let mut filedata = File::create(self.record.filename.clone()).unwrap();
+        let img = ImageReader::open(self.record.filename.clone())?.decode()?;
+
 
         let mut encoder = gif::Encoder::new(&mut filedata,
                                             screen.width as u16,
@@ -535,10 +536,11 @@ impl Unicorn {
             encoder.write_frame(&frame).unwrap();
         }
 
-        info!("[Unicorn] GIF created in {:?}", self.record.filename);*/
+        info!("[Unicorn] GIF created in {:?}", self.record.filename);
     }
 
-    pub fn screenshot(&mut self, filename: &str) {/*
+    #[cfg(feature = "image")]
+    pub fn screenshot(&mut self, filename: &str) {
         let screen = &mut self.screen.lock().unwrap();
 
         info!("[Unicorn] Taking screenshot {:?}x{:?} in {:?}", screen.width, screen.height, filename);
@@ -566,7 +568,7 @@ impl Unicorn {
             .flipv();
 
         let mut output = File::create(&Path::new(filename)).unwrap();
-        image.save(&mut output, image::ImageFormat::PNG).unwrap();*/
+        image.save(&mut output, image::ImageFormat::PNG).unwrap();
     }
 
     pub fn set_code(&mut self, code: String) {

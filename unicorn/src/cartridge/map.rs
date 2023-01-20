@@ -1,6 +1,4 @@
-use core;
-
-use log::{debug, warn, info};
+use log::{debug, info};
 
 #[derive(Debug)]
 pub struct CartridgeMap {

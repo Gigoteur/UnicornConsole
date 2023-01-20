@@ -2,7 +2,6 @@
 #[allow(unused_variables)]
 pub mod plugin {
     use log::{error, info, debug};
-    use std::fmt;
 
     use cpython::*;
 

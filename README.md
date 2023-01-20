@@ -8,16 +8,11 @@
 [![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/Gigoteur/UnicornConsole/blob/master/LICENSE.md)
 
 
-Unicorn Console (previously known as PX8 in the past, but I think "Unicorn Console" is a better name) is a quick graphical engine that let you do what you want with a resolution of 128x128 pixels. After few iterations, I try to keep some compatibility with [pico-8](https://www.lexaloffle.com/pico-8.php) as it is the first and still the best fantasy console (unfortunately not opensource, but go grab a license it is really valuable).
+Unicorn Console (previously known as PX8 in the past, but I think "Unicorn Console" is a better name) is a fantasy engine that let you do quickly any sort of game, application with a default resolution of 128x128 pixels. The console allow you to load what is called a 'cartridge' like in many other fantasy console, that contains the code, the graphics and the sounds.
 
-The main engine is not dependant of a specific GFX library so you can use it where you want:
-  * [unicorn](https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn): Main core engine
-  * [unicorn-console](https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn-console): GUI (egui+pixels) implementation to play game !!
-  * [unicorn-editor](https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn-editor): Edit GFX, sound of your card
-  
-  
 TOC:
   * [Features](#features)
+  * [Pico8 Limitations](#limitations)
   * [Requirements](#requirements)
   * [Download](#download)
     + [Build](#build)
@@ -25,17 +20,29 @@ TOC:
   * [Create](#create)
   * [API](#api)
 
+The main engine is not dependant of a specific GFX library so you can use it where you want:
+  * [unicorn](https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn): Main core engine
+  * [unicorn-console](https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn-console): GUI (egui+pixels) implementation to play game !!
+  * [unicorn-editor](https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn-editor): Edit GFX, sound of your card
+
 ## Features
 
-  * Display: 128x128 pixels, 8 bits color
-  * Palette: predefined palettes/extend existing one
+  * Display: 128x128 pixels by default, 8 bits colors with available list of predefined palettes (16 colors) (pico-8, commodore, atari2600 etc)
+  * New 32 bits color could be added directly via the API
   * Font: predefined list of fonts (pico8, bbc, trollmini, etc)
-  * Sprites: Single bank of 128 8x8 sprites
-  * Dynamic sprites: create sprites dynamically with all size
-  * Code: No limit size (lua, python)
+  * Sprites: Single bank of 128 8x8 sprites that is directly from the cartridge
+  * Dynamic sprites: create sprites dynamically with the API
+  * Code: No limit size (lua, python, wasm (WIP))
   * Map: 128x32 8-bit cells
-  * Editor: GFX editor
+  * Sound: 8 channels, tracker, FM synthetizer, 16-bit Wavetables (from GamerCade console) 
+  * Editor: GFX and sound editor
+  * Network: WIP
   
+
+## Limitations
+
+The console is somewhat compatible with [pico-8](https://www.lexaloffle.com/pico-8.php), most of current functions from pico8 is implemented and the cartridge is the same format. However some lua language syntax is not supported (like operator overload (+=, -=, etc), or some symbol like "!=". But see the unicorn-examples, I did some modifications of good games to use it with Unicorn.
+
 
 ## Build
 
@@ -46,7 +53,7 @@ Cargo feature:
 You can choose to build the main UI to play games:
 ```
 cd unicorn-console
-cargo build --release
+cargo build --release --features=unicorn/cpython,unicorn/rlua
 ```
 
 ## File format
@@ -57,11 +64,13 @@ cargo build --release
 | Pico8 P8  | X  | X |
 | Unicorn (CORN) | X  | X |
 
+Unicorn file format is exactly the same as PICO8 P8 format, except that new sections are available, like __python__ etc.
+
 ## Create
 
 ## API
 
-The API is available for Rust/Javascript/Python/Lua.
+The API is available for Lua/Python.
   * [Graphics](#graphics)
     + [camera](#camera)
     + [circ](#circ)
@@ -91,9 +100,6 @@ The API is available for Rust/Javascript/Python/Lua.
     + [map](#map)
     + [mget](#mget)
     + [mset](#mset)
-  * [Noise](#noise)
-    + [noise](#noise)
-    + [noise_set_seed](#noise_set_seed)
   * [Math](#math)
   * [Memory](#memory)
   * [Mouse Input](#mouse_input)
@@ -300,19 +306,9 @@ Get a map value
 
 Set a map value
 
-### Noise
-
-#### noise
-
-`noise(x, y, z)`
-
-#### noise_set_seed
-
-`noise_set_seed(x)`
-
 ### Math
 ### Memory [**WIP**]
 ### Mouse input [**WIP**]
 ### Palettes [**WIP**]
-#### Cart Data [**WIP**]
+### Cart Data [**WIP**]
 

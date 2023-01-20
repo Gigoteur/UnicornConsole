@@ -1,4 +1,4 @@
-use bytemuck::{cast, Pod, Zeroable};
+use bytemuck::{Pod, Zeroable};
 
 use super::input_code::*;
 

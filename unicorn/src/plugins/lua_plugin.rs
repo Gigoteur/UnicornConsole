@@ -12,7 +12,6 @@ pub mod plugin {
     use rand_chacha::ChaCha8Rng;
 
     use rlua::{Lua, UserData, UserDataMethods};
-    use rlua::prelude::LuaError;
 
     use contexts::Contexts;
 
@@ -20,7 +19,6 @@ pub mod plugin {
 
     use gfx::Screen;
 
-    use crate::contexts;
     use crate::core::AudioCommandBuffer;
     use crate::core::AudioSyncCommand;
 
@@ -255,6 +253,16 @@ pub mod plugin {
                Ok(())
             });
     
+            methods.add_method("fillp", |_lua_ctx, game_state, pat:u32| {
+                game_state.screen
+               .lock()
+               .unwrap()
+               .fillp(pat);
+               
+               Ok(())
+            });
+
+
             methods.add_method("fget", |_lua_ctx, game_state, (idx, flag):(u32, u8)| {
                 let value = game_state.screen
                .lock()
@@ -600,6 +608,13 @@ pub mod plugin {
                                 col = -1
                             end
                             userdata:ellipsefill(x, y, rx, ry, col)
+                        end
+
+                        function fillp(pat)
+                            if pat == nil then
+                                pat = 0
+                            end
+                            userdata:fillp(pat)
                         end
 
                         function fget(idx, flag)                       
