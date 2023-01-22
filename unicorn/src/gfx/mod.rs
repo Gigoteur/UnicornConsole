@@ -385,6 +385,8 @@ impl Screen {
         self.pixel_buffer
         .chunks_exact_mut(4)
         .for_each(|pixel| pixel.copy_from_slice(&rgb.into_pixel_data()));
+
+        self._reset_cliprect();
     }
 
     pub fn force_print(&mut self, string: String, x: i32, y: i32, col: i32) {
