@@ -177,7 +177,8 @@ pub mod plugin {
         Ok(0)
     }
 
-    def flip(&self) -> PyResult<i32> {
+    def fillp(&self, pat: u32, transparent: bool) -> PyResult<i32> {
+        self.screen(py).lock().unwrap().fillp(pat, transparent);
         Ok(0)
     }
 

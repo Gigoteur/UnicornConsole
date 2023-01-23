@@ -35,6 +35,8 @@ pub struct Screen {
     pub map: Vec<u32>,
 
     pub transparency_map: [bool; 256],
+    pub fillp_pat: u32,
+    pub fillp_transparent: bool,
 
     pub color: u32,
     pub color_map: [u8; 0xFFF],
@@ -71,6 +73,8 @@ impl Screen {
             
             map: Vec::new(),
             transparency_map: [false; 256],
+            fillp_pat: 0,
+            fillp_transparent: false,
             color_map: [0; 0xFFF],
             
             color: 0,
@@ -84,6 +88,7 @@ impl Screen {
     pub fn reset(&mut self) {
         self._reset_colors();
         self._reset_transparency();
+        self._reset_fillp();
         self._reset_cliprect();
         self._reset_palettes();
         self._reset_palette();
@@ -126,19 +131,31 @@ impl Screen {
     }
 
 
+    pub fn _reset_fillp(&mut self) {
+        info!("[GFX] [Screen] Reset fillp");
+
+        self.fillp_pat = 0;
+        self.fillp_transparent = false;
+    }
 
     pub fn _reset_transparency(&mut self) {
+        info!("[GFX] [Screen] Reset transparency");
+
         self.transparency_map = [false; 256];
         self.transparency_map[0] = true;
     }
 
     pub fn _reset_colors(&mut self) {
+        info!("[GFX] [Screen] Reset colors");
+
         for i in 0..0xFFF {
             self.color_map[i] = i as u8;
         }
     }
 
     pub fn _reset_cliprect(&mut self) {
+        debug!("[GFX] [Screen] Reset cliprect");
+
         self.cliprect = clip::ClipRect {
             left: 0,
             top: 0,
@@ -236,9 +253,12 @@ impl Screen {
     }
 
     #[inline]
-    pub fn putpixel_(&mut self, x: i32, y: i32, col: u32) {
+    pub fn putpixel_(&mut self, x: i32, y: i32, col: u32, fillp_flag: bool) {
         //debug!("[SCREEN] [Screen] [Putpixel_] x:{:?} y:{:?} col:{:?}", x, y, col);
-
+        
+        if self.is_transparent(col as u32) {
+            return;
+        }
         // Make camera adjustment
         let x = x - self.camera.x;
         let y = y - self.camera.y;
@@ -248,16 +268,37 @@ impl Screen {
             return;
         }
 
-        if col < self.color_map.len() as u32 {
-            let draw_col = self.color_map[col as usize];
+        if fillp_flag == false || self.fillp_pat == 0 {
+            if col < self.color_map.len() as u32 {
+                let draw_col = self.color_map[col as usize];
+
+                let offset = self.pixel_offset(x, y);
+
+                let rgb = self.palette.get_rgb(draw_col as u32);
+                self.pixel_buffer[offset] = rgb.r;
+                self.pixel_buffer[offset + 1] = rgb.g;
+                self.pixel_buffer[offset + 2] = rgb.b;
+                self.pixel_buffer[offset + 3] = 0xff;     
+            }
+        } else {
+            let value = (self.fillp_pat >> (15 - (x & 3) - 4 * (y & 3))) & 0x1;
+            let draw_col;
+
+            if value == 0 {
+                draw_col = self.color_map[(col & 0xF) as usize];
+            } else {
+                draw_col = self.color_map[((col & 0xF0) >> 4 )as usize];
+            }
 
             let offset = self.pixel_offset(x, y);
 
-            let rgb = self.palette.get_rgb(draw_col as u32);
-            self.pixel_buffer[offset] = rgb.r;
-            self.pixel_buffer[offset + 1] = rgb.g;
-            self.pixel_buffer[offset + 2] = rgb.b;
-            self.pixel_buffer[offset + 3] = 0xff;     
+            if value == 0 || (value == 1 && !self.fillp_transparent) {
+                let rgb = self.palette.get_rgb(draw_col as u32);
+                self.pixel_buffer[offset] = rgb.r;
+                self.pixel_buffer[offset + 1] = rgb.g;
+                self.pixel_buffer[offset + 2] = rgb.b;
+                self.pixel_buffer[offset + 3] = 0xff;     
+            }
         }
     }
 
@@ -284,8 +325,8 @@ impl Screen {
     }
 
     #[inline]
-    pub fn putpixel(&mut self, x: i32, y: i32, col: u32) {
-        self.putpixel_(x, y, col);
+    pub fn putpixel(&mut self, x: i32, y: i32, col: u32, fillp_flag: bool) {
+        self.putpixel_(x, y, col, fillp_flag);
     }
 
     #[inline]
@@ -312,7 +353,7 @@ impl Screen {
 
     pub fn pset(&mut self, x: i32, y: i32, col: i32) {
         let color = self._find_color(col);
-        self.putpixel_(x, y, color);
+        self.putpixel_(x, y, color, true);
     }
 
     pub fn sget(&mut self, x: i32, y: i32) -> u8 {
@@ -404,34 +445,41 @@ impl Screen {
 
     #[inline]
     pub fn _print(&mut self, string: String, x: i32, y: i32, col: i32, force: bool) {
+        let initial_x = x;
         let mut x = x;
-        let y = y + self.font.top_bearing;
+        let mut y = y + self.font.top_bearing;
 
         for c in string.as_bytes() {
-            let glyph_index = if (*c < 32) || (*c > 126) { 0 } else { *c - 32 } as u32;
+            if *c == 0x0A { // \n
+                x = initial_x;
+                y = y + self.font.advance_width;
+            } else if *c == 0x0D { // \r
+                x = initial_x;
+            } else {
+                let glyph_index = if (*c < 32) || (*c > 126) { 0 } else { *c - 32 } as u32;
 
-            let glyph_start = (glyph_index * (self.font.glyph_height as u32)) as usize;
-            let glyph_end = glyph_start + (self.font.glyph_height as usize);
+                let glyph_start = (glyph_index * (self.font.glyph_height as u32)) as usize;
+                let glyph_end = glyph_start + (self.font.glyph_height as usize);
 
-            let glyph_data = &self.font.glyph_data[glyph_start..glyph_end];
+                let glyph_data = &self.font.glyph_data[glyph_start..glyph_end];
 
-            for (i, glyph_row) in glyph_data.iter().enumerate() {
-                let mut dx = self.font.left_bearing;
-                let mut row = *glyph_row;
-                while row != 0 {
-                    if row & 0x80 != 0 {
-                        if force {
-                            self.putpixel_direct(x + dx, y + (i as i32), col as u32);
-                        } else {
-                            self.pset(x + dx, y + (i as i32), col);
+                for (i, glyph_row) in glyph_data.iter().enumerate() {
+                    let mut dx = self.font.left_bearing;
+                    let mut row = *glyph_row;
+                    while row != 0 {
+                        if row & 0x80 != 0 {
+                            if force {
+                                self.putpixel_direct(x + dx, y + (i as i32), col as u32);
+                            } else {
+                                self.putpixel(x + dx, y + (i as i32), col as u32, false);
+                            }
                         }
+                        row <<= 1;
+                        dx += 1;
                     }
-                    row <<= 1;
-                    dx += 1;
                 }
+                x += self.font.advance_width;
             }
-
-            x += self.font.advance_width;
         }
     }
 
@@ -451,7 +499,7 @@ impl Screen {
         let mut err: i32 = dx + dy; /* error value e_xy */
 
         loop {
-            self.putpixel(x0, y0, color);
+            self.putpixel(x0, y0, color, true);
             if x0 == x1 && y0 == y1 {
                 break;
             }
@@ -473,7 +521,7 @@ impl Screen {
         let x_max = cmp::max(x1, x2);
 
         for x in x_min..(x_max + 1) {
-            self.putpixel(x, y, col as u32);
+            self.putpixel(x, y, col as u32, true);
         }
     }
 
@@ -484,12 +532,12 @@ impl Screen {
         let y_max = cmp::max(y0, y1);
 
         for x in x_min..(x_max + 1) {
-            self.putpixel(x, y_min, col as u32);
-            self.putpixel(x, y_max, col as u32);
+            self.putpixel(x, y_min, col as u32, true);
+            self.putpixel(x, y_max, col as u32, true);
         }
         for y in (y_min + 1)..y_max {
-            self.putpixel(x0, y, col as u32);
-            self.putpixel(x1, y, col as u32);
+            self.putpixel(x0, y, col as u32, true);
+            self.putpixel(x1, y, col as u32, true);
         }
     }
 
@@ -503,7 +551,7 @@ impl Screen {
 
         for y in y_min..(y_max + 1) {
             for x in x_min..(x_max + 1) {
-                self.putpixel(x, y, col as u32);
+                self.putpixel(x, y, col as u32, true);
             }
         }
     }
@@ -604,13 +652,13 @@ impl Screen {
                         ypk = y + k;
                         ymk = y - k;
 
-                        self.putpixel(xmh, ypk, col);
-                        self.putpixel(xph, ypk, col);
-                        self.putpixel(xmh, ymk, col);
-                        self.putpixel(xph, ymk, col);
+                        self.putpixel(xmh, ypk, col, true);
+                        self.putpixel(xph, ypk, col, true);
+                        self.putpixel(xmh, ymk, col, true);
+                        self.putpixel(xph, ymk, col, true);
                     } else {
-                        self.putpixel(xmh, y, col);
-                        self.putpixel(xph, y, col);
+                        self.putpixel(xmh, y, col, true);
+                        self.putpixel(xph, y, col, true);
                     }
 
                     ok = k;
@@ -619,13 +667,13 @@ impl Screen {
                     if j > 0 {
                         ypj = y + j;
                         ymj = y - j;
-                        self.putpixel(xmi, ypj, col);
-                        self.putpixel(xpi, ypj, col);
-                        self.putpixel(xmi, ymj, col);
-                        self.putpixel(xpi, ymj, col);
+                        self.putpixel(xmi, ypj, col, true);
+                        self.putpixel(xpi, ypj, col, true);
+                        self.putpixel(xmi, ymj, col, true);
+                        self.putpixel(xpi, ymj, col, true);
                     } else {
-                        self.putpixel(xmi, y, col);
-                        self.putpixel(xpi, y, col);
+                        self.putpixel(xmi, y, col, true);
+                        self.putpixel(xpi, y, col, true);
                     }
                     oj = j;
                 }
@@ -652,13 +700,13 @@ impl Screen {
                     if i > 0 {
                         ypi = y + i;
                         ymi = y - i;
-                        self.putpixel(xmj, ypi, col);
-                        self.putpixel(xpj, ypi, col);
-                        self.putpixel(xmj, ymi, col);
-                        self.putpixel(xpj, ymi, col);
+                        self.putpixel(xmj, ypi, col, true);
+                        self.putpixel(xpj, ypi, col, true);
+                        self.putpixel(xmj, ymi, col, true);
+                        self.putpixel(xpj, ymi, col, true);
                     } else {
-                        self.putpixel(xmj, y, col);
-                        self.putpixel(xpj, y, col);
+                        self.putpixel(xmj, y, col, true);
+                        self.putpixel(xpj, y, col, true);
                     }
 
 
@@ -668,13 +716,13 @@ impl Screen {
                     if h > 0 {
                         yph = y + h;
                         ymh = y - h;
-                        self.putpixel(xmk, yph, col);
-                        self.putpixel(xpk, yph, col);
-                        self.putpixel(xmk, ymh, col);
-                        self.putpixel(xpk, ymh, col);
+                        self.putpixel(xmk, yph, col, true);
+                        self.putpixel(xpk, yph, col, true);
+                        self.putpixel(xmk, ymh, col, true);
+                        self.putpixel(xpk, ymh, col, true);
                     } else {
-                        self.putpixel(xmk, y, col);
-                        self.putpixel(xpk, y, col);
+                        self.putpixel(xmk, y, col, true);
+                        self.putpixel(xpk, y, col, true);
                     }
                     oh = h;
                 }
@@ -1049,9 +1097,7 @@ impl Screen {
                         let mut index = 0;
 
                         for (_, c) in sprite.data.iter_mut().enumerate() {
-                            if !self.is_transparent(*c as u32) {
-                                self.putpixel_(new_x, new_y, *c as u32);
-                            }
+                            self.putpixel_(new_x, new_y, *c as u32, false);
 
                             index += 1;
 
@@ -1192,9 +1238,7 @@ impl Screen {
             for i in 0..w2 {
                 let d = ret[idx];
                 if d != 0 {
-                    if !self.is_transparent(d as u32) {
-                        self.putpixel_(i as i32 + dx, j as i32 + dy, d as u32);
-                    }
+                    self.putpixel_(i as i32 + dx, j as i32 + dy, d as u32, false);
                 }
                 idx += 1;
             }
@@ -1293,9 +1337,7 @@ impl Screen {
                 if (dx >= 0) && (dy >= 0) && (dx < sw as i32) && (dy < sh as i32) {
                     let d = v[(dy * sw as i32 + dx) as usize];
                     if d != 0 {
-                        if !self.is_transparent(d as u32) {
-                            self.putpixel_(x as i32 + destx, y as i32 + desty, d as u32);
-                        }
+                        self.putpixel_(x as i32 + destx, y as i32 + desty, d as u32, false);
                     }
                 }
 
@@ -1324,9 +1366,7 @@ impl Screen {
 
                 let d = v[idx as usize];
                 if d != 0 {
-                    if !self.is_transparent(d as u32) {
-                        self.putpixel_(x as i32 + destx, y as i32 + desty, d as u32);
-                    }
+                    self.putpixel_(x as i32 + destx, y as i32 + desty, d as u32, false);
                 }
             }
         }
@@ -1383,9 +1423,10 @@ impl Screen {
         }
     }
 
-    pub fn fillp(&mut self, pat: u32) {
-        info!("[Screen][GFX] Fillp {:x} {:?} {:#034b}", pat, pat, pat);
-
+    pub fn fillp(&mut self, pat: u32, transparent: bool) {
+        //info!("[Screen][GFX] Fillp {:x} {:?} {:#034b}", pat, pat, pat);
+        self.fillp_pat = pat;
+        self.fillp_transparent = transparent;
     }
 
     /* Pico8 Memory Emulation */

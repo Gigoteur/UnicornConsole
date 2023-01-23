@@ -20,7 +20,7 @@ function max(a,b)
     end
     return b
 end
-function mid(x,y,z)
+function mid(x, y, z)
     x = x or 0
     y = y or 0
     z = z or 0
@@ -94,7 +94,7 @@ function del(a,dv)
     end
     for i,v in ipairs(a) do
         if v==dv  then
-        table.remove(a,i)
+            return table.remove(a,i)
         end
     end
 end
@@ -123,13 +123,30 @@ end
 sub = string.sub
 
 function tonum(data)
+    if type(data) == "number" then
+        return data
+    end
+
     if string.sub(data, 0, 2) == "0b" then
-    local a,b=string.match(data,"(.*)%.(.*)$")
-    if a == nil and b == nil then
-       a=tonumber(string.sub(data, 3, #data), 2)
-       return a
+        local a, b=string.match(data,"(.*)%.(.*)$")
+        if a == nil and b == nil then
+            a = tonumber(string.sub(data, 3, #data), 2)
+        return a
+        end
+        if a ~= nil and b ~= nil then
+            a = tonumber(string.sub(a, 3, #a), 2)
+            a = a + 0.5
+            return a
+        end
     end
-    end
-    
-    return tonumber(data,10)
+
+    return tonumber(data, 10)
+end
+
+tostr = tostring
+
+function menuitem(index, label, callback)
+end
+
+function run(breadcrumb)
 end

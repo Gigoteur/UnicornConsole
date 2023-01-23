@@ -253,11 +253,11 @@ pub mod plugin {
                Ok(())
             });
     
-            methods.add_method("fillp", |_lua_ctx, game_state, pat:u32| {
+            methods.add_method("fillp", |_lua_ctx, game_state, (pat, transparent):(u32, bool)| {
                 game_state.screen
                .lock()
                .unwrap()
-               .fillp(pat);
+               .fillp(pat, transparent);
                
                Ok(())
             });

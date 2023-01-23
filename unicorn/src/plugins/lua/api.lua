@@ -10,8 +10,15 @@ function rnd(x)
   if x == nil then
     x = 1
   end
-  x = math.floor(x)
-  return userdata:rnd(x)
+
+  if type(x) == "number" then
+    x = math.floor(x)
+    return userdata:rnd(x)
+  end
+
+  if type(x) == "table" then
+    return x[math.random(#x)]
+  end
 end
 
 function srand(x)
@@ -37,6 +44,9 @@ function utime()
 end
 
 function btn(i, p)
+    if i == nil then
+        i = 0
+    end
     if p == nil then
         p = 0
     end
@@ -44,6 +54,9 @@ function btn(i, p)
 end
 
 function btnp(i, p)
+    if i == nil then
+        i = 0
+    end
     if p == nil then
         p = 0
     end
@@ -156,10 +169,19 @@ function ellipsefill(x, y, rx, ry, col)
 end
 
 function fillp(pat)
+    transparent = false
+
     if pat == nil then
         pat = 0
     end
-    userdata:fillp(pat)
+
+    if (pat % 1) ~= 0  then
+        transparent = true
+    end
+
+    pat = math.floor(pat)
+
+    userdata:fillp(pat, transparent)
 end
 
 function fget(idx, flag)                       
@@ -263,6 +285,14 @@ end
 
 function spr(n, x, y, w, h, flip_x, flip_y, angle, zoom, dynamic)
     n = math.floor(n)
+
+    if x == nil then
+        x = 0
+    end
+    if y == nil then 
+        y = 0
+    end
+
     x = math.floor(x)
     y = math.floor(y)
 
@@ -294,7 +324,7 @@ end
 function sspr(sx, sy, sw, sh, dx, dy, dw, dh, flip_x, flip_y)
     sx = math.floor(sx)
     sy = math.floor(sy)
-    sw = math.floow(sw)
+    sw = math.floor(sw)
     sh = math.floor(sh)
     dx = math.floor(dx)
     dy = math.floor(dy)
@@ -341,4 +371,12 @@ end
 
 function trigger_note(note_idx, instrument_idx)
     userdata:trigger_note(note_idx, instrument_idx)
+end
+
+function stat(val)
+    return ""
+end
+
+function poke(addr, value)
+    debug_print("POKE NOT IMPLEMENTED", addr, value)
 end

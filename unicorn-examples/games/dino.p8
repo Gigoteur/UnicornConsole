@@ -16,10 +16,10 @@ gravity=0.5
 groundy=110
 jumpforce=-5
 spdcap=-5
-speed=-2.7
+speed=-1.8
 distance=0
-bgcolor=7 --5;6;7 -> █▒░
-palette={5,6,7}
+bgcolor=7
+palette={5, 6, 7}
 gbpal=false
 palettes={{5,6,7},{1,3,10+128},
 --[[night pals]]
@@ -64,8 +64,7 @@ end
 
 function gameov()
  if gameover then
- 	menuitem(1,"skip cutscene", 
-	 function() deathframe=111 end) 
+ 	menuitem(1,"skip cutscene",  function() deathframe=111 end) 
  
   d=deathframe
   d=abs(d+1)
@@ -90,18 +89,18 @@ function gameov()
    dino.sizex=3
    if gmov_y<127 then
     gameovertext=true
-    gmov_y+=1
+    gmov_y = gmov_y + 1
    end
    if isbtw(d,fdead+1,fdead+2)then
-    dino.y+=1
+    dino.y = dino.y + 1
    elseif d==fdead+4 or d==fdead+8 or d==fdead+12 then
-    dino.y+=1
+    dino.y = dino.y + 1
    elseif d==fdead+6 or d==fdead+10 then
-    dino.y-=1
+    dino.y = dino.y - 1
    elseif d==fdead+18 then
     ringy=dino.y-5
    elseif isbtw(d,fdead+19,fdead+20) then
-    ringy+=1
+    ringy = ringy + 1
    end
   end
   
@@ -118,7 +117,7 @@ end
 function sprcoor(index)
 --converts sprite index to  
 --spritesheet coordinates
- return {x=index%16*8,y=index\16*8}
+ return {x=index%16*8, y=flr(index/16*8)}
 end
 
 function sprs(n,x,y,w,h,dw,dh)
@@ -129,10 +128,10 @@ function sprs(n,x,y,w,h,dw,dh)
  h=(h or 1)*8
  dw=dw or w
  dh=dh or h
- dw*=8*(w/8)
- dh*=8*(h/8)
- x-=(dw-w)/2
- y-=(dh-h)/2
+ dw = dw * (8*(w/8))
+ dh = dh * (8*(h/8))
+ x = x - (dw-w)/2
+ y = y - (dh-h)/2
  
  sspr(s.x,s.y,w,h,x,y,dw,dh)
 end
@@ -143,7 +142,7 @@ end
 
 function updscore()
  if clock % 2 == 0 then
-  score += 1
+  score = score + 1
  end
 end
 
@@ -161,11 +160,11 @@ function createanim(
   frame=min
  end
  if clock % t == 0 then
- 	if(snd!=nil)sfx(snd)
-  frame += i
+ 	if(snd ~= nil) then sfx(snd) end
+  frame = frame + i
   if frame > max then
    frame = min
-   if(sndreset!=nil)sfx(sndreset)
+  if(sndreset ~= nil) then sfx(sndreset) end
   end
  end
  return frame
@@ -176,8 +175,8 @@ end
 --init,update,draw
 
  function _init()
-  menuitem(2,"change palette",
-  changepal)
+  menuitem(2, "change palette", changepal)
+
   score=0
   cls()
   sfx(5)
@@ -191,7 +190,7 @@ end
   if highscore==0 then
    splash=true
   elseif highscore<0 then
-  	highscore*=-1
+  	highscore = highscore * -1
   	changepal()
   end
   
@@ -204,7 +203,7 @@ end
    add(dusts,{x=xdist,
    y=groundy,t=rand(39,43)})
     
-   xdist+=rand(12,19)
+   xdist = xdist + rand(12,19)
   end
  end
  
@@ -212,38 +211,38 @@ end
  ---update---
  ------------
  function _update()
-  clock += 1
+  clock = clock +  1
 --splash
   if splash then 
-   if mid(1,btn(),63)==btn()then
+   if btn(4) then
    	splash=false
    	splashframe=0
   	end
   else
   	if splashframe<10 then
-   	splashframe+=1
+   	splashframe = splashframe + 1
   	end
   end
   
   if not gameover and not splash then
-   gclock+=1
-   if(gclock% 2 == 0)score += 1
-   speed-=0.001
+   gclock = gclock + 1
+   if(gclock% 2 == 0) then score = score + 1 end
+   speed = speed - 0.001
    if speed<spdcap then
     speed=spdcap
    end
-   distance-=speed
+   distance = distance - speed
    
    dinocontrols()
-   dino.yvel+=gravity
-   dino.y+=dino.yvel
+   dino.yvel = dino.yvel + gravity
+   dino.y = dino.y + dino.yvel
    dinostretch()
    dinoground()
    animatedino()
-   
-			if mid(1,btnp(),63)==btnp()then
-			 canspawn=true
-			end
+  
+    if mid(1,btnp(),63)==btnp()then
+      canspawn=true
+    end
    if distance>200 and canspawn then
 	   cactspawn()
 	   cactmove()
@@ -263,8 +262,7 @@ end
    
    --score blinking if it
    --passes 500
-   if score%blink == 0 and 
-   gclock>10 then
+   if score%blink == 0 and  gclock>10 then
    	sfx(5)
    	scoreblink = true
    end
@@ -272,7 +270,7 @@ end
    score%blink>50 then
    	scoreblink = false
    end
-   
+
    --sun & moon
    local clk=gclock*sunspd
    sunx=cos((clk+920)/360)*50+64
@@ -299,7 +297,7 @@ end
   
   
   gameov()
-  if gameover and btn(❎) and deathframe>100 then
+  if gameover and btn(5) and deathframe>100 then
    newhighscore=true
    run(-b2d(gbpal)*highscore)
   end
@@ -311,9 +309,9 @@ end
   end
   
   if debug then
-   --while not btn(🅾️) do 
+   --while not btn(4) do 
    --end
-   while btn(🅾️) do 
+   while btn(4) do 
    end
   end
  end
@@ -340,26 +338,25 @@ end
   
   --sky
   --5 highest 1 lowest
-  bl=0b1111111111111111
   local colbk=7
   local colfrt=5
-  if(sunsetphase<4)colbk=6
+  if(sunsetphase<4) then colbk=6 end
   rectfill(0,0,127,127,colbk)
   local dofill=true
   if sunsetphase==5 then
   	dofill=false
   elseif sunsetphase==4 then
-  	fillp(░)
+  	fillp(0x5A5A)
   	colfrt=6
   elseif sunsetphase==3 then
-  	fillp(█)
+  	fillp(0xFFFF)
   	colfrt=6
   elseif sunsetphase==2 then
-  	fillp(░)
+  	fillp(0x5A5A)
   elseif sunsetphase==1 then
-  	fillp(█)
+  	fillp(0xFFFF)
   end
-  if(dofill)rectfill(0,0,127,127,colfrt)
+  if(dofill) then rectfill(0,0,127,127,colfrt) end
   fillp()
   
   --sun
@@ -379,29 +376,29 @@ end
   
   --score
 		local sprt=166
-		if(sunsetphase<3)sprt=192
+		if(sunsetphase<3) then sprt=192 end
   local prnt=tostr(score)
   if scoreblink then
   	if score%10>5 then 
-	  	prnt = tostr(score\blink*blink)
+	  	prnt = tostr(flr(score/blink*blink))
   	else 
   		prnt = "nothing"
   	end
   end
   
-  if prnt != "nothing" then
+  if prnt ~= "nothing" then
 	  for i=1,6 do
 	  	local char=tonum(sub(prnt,i-7,i-7))
-	  	if(char==nil)char=0
+	  	if(char==nil) then char=0 end
 	  	spr(sprt+char,i*6+80,20)
 	  end
 	  
 	 end
 	 for i=1,6 do
-		 spr(156,70,27,3,1) //"high"
+		 spr(156,70,27,3,1)
   	local prnt=tostr(highscore)
   	local char=tonum(sub(prnt,i-7,i-7))
-  	if(char==nil)char=0
+  	if(char==nil) then char=0 end
   	spr(182+char,i*5+86,27)
   end
 	 
@@ -442,10 +439,10 @@ end
     
     spr(i+7,26+o+i*9,
     min(gmov_y-i,30)+wave)
-    if(i==3)o=4
+    if(i==3) then o=4 end
     pal()
    end 
-   s="❎ - replay "
+   s="x - replay "
    s2="score: "..score
    s3="highscore: "..highscore
    s4="new highscore !"
@@ -485,11 +482,10 @@ end
 	   sx=ltr[i].x
 	   sy=ltr[i].y
 	   sw=4
-	   if(i==4)sw=6
-	   sspr(sx,sy,sw,4,px,
-	   py+cos((clock*2+px*7)/45)*0.5*0.95)
-	   px+=5
-	   if(i==4)px+=2
+	   if(i==4) then sw=6 end
+	   sspr(sx,sy,sw,4,px, py+cos((clock*2+px*7)/45)*0.5*0.95)
+	   px = px + 5
+	   if(i==4) then px = px + 2 end
   	end
   end
   
@@ -603,18 +599,18 @@ ringy=0
 
  function dinostretch()
   if dino.strch<10 then
-    dino.strch-=flr(dino.strch/-7)
+    dino.strch = dino.strch - flr(dino.strch/-7)
    elseif dino.strch>10 then
-    dino.strch-=flr(dino.strch/7)
+    dino.strch = dino.strch - flr(dino.strch/7)
    end
  end
  
  --controls
  function dinocontrols()
- 	up=btn(⬆️)or btn(🅾️)
- 	down=btn(⬇️)or btn(❎)
+ 	up=btn(2)or btn(4)
+ 	down=btn(3)or btn(5)
  	
-  dustkicktime+=1
+  dustkicktime = dustkicktime + 1
   
   if dino.grnded then
    if dino.grndpounding then
@@ -629,9 +625,9 @@ ringy=0
    end
    gravity=0.5
    dino.timeoffground=0
-   dino.timeground+=1
+   dino.timeground = dino.timeground + 1
   else
-   dino.timeoffground+=1
+   dino.timeoffground = dino.timeoffground + 1
    dino.timeground=0
   end
   
@@ -646,7 +642,7 @@ ringy=0
    if (down) then
    --crouch jump
     dino.jumping=true
-    dino.yvel*=0.8
+    dino.yvel = dino.yvel * 0.8
    end
   end
   
@@ -655,7 +651,7 @@ ringy=0
   and dino.yvel < 0 and 
   dino.yvel >= dino.maxjump 
   then
-   dino.yvel *= 0.6
+   dino.yvel = dino.yvel * 0.6
   end
   
   --prevent ground pound if 
@@ -671,11 +667,11 @@ ringy=0
   		sfx(3)
   	end
    dino.crouching=true
-   dino.frmcrouch+=1
+   dino.frmcrouch = dino.frmcrouch + 1
    if not dino.grnded and 
    not dino.jumping then
     dino.grndpounding=true
-    dino.strch+=2
+    dino.strch = dino.strch + 2
     gravity=2.5
    end
    if dino.frmcrouch==1 and 
@@ -749,13 +745,13 @@ ringy=0
  
   dino.frame=createanim(dino.frame,animspeed,2,128,131)
   if clock % animspeed == 0 then
-   --dino.frame+=2
-   flipcount+=1
+   --dino.frame = dino.frame + 2
+   flipcount = flipcount + 1
   end
   if dino.frame>130 then
    --dino.frame=128
   end
-  if(flipcount>4)flipcount=1
+  if(flipcount>4) then flipcount=1 end
   
   if flipcount>2 then
    dino.flipx = true
@@ -769,14 +765,12 @@ ringy=0
  
  function dinodraw()
   --dino outline
-   pal()
-   pal(5,7)
+  pal()
+  pal(5,7)
+  
   for y=-1,1 do
    for x=-1,1 do
-    sprs(dino.frame,dino.x+x,dino.y+y,
-    dino.sizex,2,
-    b2d(not dino.flipx)*(1/(dino.strch/10)),
-    b2d(not dino.flipy)*(dino.strch/10))
+    sprs(dino.frame,dino.x+x,dino.y+y, dino.sizex,2, b2d(not dino.flipx)*(1/(dino.strch/10)), b2d(not dino.flipy)*(dino.strch/10))
   
    end
   end
@@ -795,10 +789,10 @@ ringy=0
      dino.hitbw
   y2=dino.y+dino.hitby+
      dino.hitbh
-  if(debug)rect(x1,y1,x2,y2,8)
+  if(debug) then rect(x1,y1,x2,y2,8) end
 
   --dino death ring
-  if ringy!=0 then
+  if ringy~=0 then
    spr(5,dino.x-2,ringy)
   end
  end
@@ -856,7 +850,7 @@ obstacles={
 
  function cactspawn()
   if cactdist < distance then
-   add(cact,rnd(obstacles)())
+   add(cact, rnd(obstacles)())
    cactdist = 
    distance+rand(70,150)
   end
@@ -864,9 +858,9 @@ obstacles={
  
  function cactmove()
   for i=1, #cact do
-   cact[i].x += speed
+   cact[i].x = cact[i].x + speed
    if cact[i].t=="ptero" then
-    cact[i].x += speed*0.3
+    cact[i].x = cact[i].x + speed*0.3
    end
   end
  end
@@ -909,15 +903,13 @@ obstacles={
    cy1 = cact[i].y+cact[i].hy
    cx2 = cx1+cact[i].hw
    cy2 = cy1+cact[i].hh
-   if(debug)rect(cx1,cy1,cx2,cy2,11)
+   if(debug) then rect(cx1,cy1,cx2,cy2,11) end
   end
  end
 -->8
 --hills
 hills={1}
-hillsincr=
---0/ 1\ 2n 3u 4/ 5/ 6n 7\ 8\ 9u 
- {1,-1,-1, 1, 0, 1, -1,0 ,-1,1}
+hillsincr={1,-1,-1, 1, 0, 1, -1,0 ,-1,1}
 hillsy=80+(5*8)
 hillsx=0
 hillsgeny=6
@@ -963,17 +955,17 @@ bgcact={29,60,61}
    add(hills,rnd({29,60,61}))
   end
   
-  hillsgeny+=hillsincr[r+1]
+  hillsgeny = hillsgeny + hillsincr[r+1]
  end
  
  function hillsmove()
-  hillsx += flr(speed*hillsspeed)
+  hillsx = hillsx + flr(speed*hillsspeed)
   if hillsx < -8 then
    hillsx = 0
-   hillsgx -= 1
+   hillsgx = hillsgx - 1
    --scrolling
-   if hills[1]<10 then
-    hillsy-=hillsincr[del(hills,hills[1])+1] * 8     
+   if hills[1] < 10 then
+     hillsy = hillsy - hillsincr[del(hills, hills[1]) + 1] * 8     
    end
    if hills[1]>10 then
     del(hills,hills[1])
@@ -993,45 +985,45 @@ bgcact={29,60,61}
    --ground
    ly=y
    for i=1,ceil((127-y)/8)-3 do
-    ly+=8
+    ly = ly + 8
     spr(62,x,ly)
    end
    
    --hill top
    if hills[i]==0 then
     spr(28,x,y)
-    y-=8
+    y = y - 8
    elseif hills[i]==1 then
     spr(28,x,y,1,1,1)
-    y+=8
+    y = y + 8
    elseif hills[i]==2 then
     spr(31,x,y)
-    y+=8
+    y = y + 8
    elseif hills[i]==3 then
     spr(30,x,y)
-    y-=8
+    y = y - 8
    elseif hills[i]==4 then
     spr(44,x,y)
    elseif hills[i]==5 then
     spr(45,x,y)
-    y-=8
+    y = y - 8
    elseif hills[i]==6 then
     spr(47,x,y)
-    y+=8
+    y = y + 8
    elseif hills[i]==7 then
     spr(45,x,y,1,1,1)
-    y+=0
+    y = y + 0
    elseif hills[i]==8 then
     spr(44,x,y,1,1,1)
-    y+=8
+    y = y + 8
    elseif hills[i]==9 then
     spr(46,x,y)
-    y-=8
+    y = y - 8
    else
     spr(hills[i],x,y-1)
-    x-=8
+    x = x - 8
    end
-   x+=8
+   x = x + 8
   end
  end
  
@@ -1074,7 +1066,7 @@ dusts={}
  
  function dustmove()
   for i=1, #dusts do
-   dusts[i].x += speed
+   dusts[i].x = dusts[i].x + speed
   end
  end
  
@@ -1104,7 +1096,7 @@ dusts={}
      {x=127,
       y=rand(25,75),
       spd=sp,
-      t=rnd({25}),
+      t=25,
       lyr=l}) 
    clouddist = 
    distance+rand(30,100)
@@ -1113,8 +1105,7 @@ dusts={}
  
  function cloudmove()
   for i=1, #clouds do
-   clouds[i].x += clouds[i].spd
-                  * speed
+   clouds[i].x = clouds[i].x + clouds[i].spd * speed
   end
  end
  
@@ -1129,8 +1120,7 @@ dusts={}
  function cloudsdraw(layer)
   for i=1, #clouds do
    if clouds[i].lyr==layer then 
-    spr(clouds[i].t,
-    clouds[i].x,clouds[i].y,2,1)
+    spr(clouds[i].t, clouds[i].x, clouds[i].y, 2, 1)
    end
   end
  end

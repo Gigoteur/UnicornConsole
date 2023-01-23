@@ -433,6 +433,8 @@ def fset(idx_sprite, flag, value=-1):
     else:
         unicorn_graphic.fset(idx_sprite, flag, value)
 
+def fillp(pat=0, transparent=False):
+    unicorn_graphic.fillp(pat, transparent)
 
 def line(x1, y1, x2, y2, color=-1):
     unicorn_graphic.line(math.floor(x1), math.floor(y1),
@@ -560,6 +562,7 @@ globals()["ellipse"] = ellipse
 globals()["ellipsefill"] = ellipsefill
 globals()["fget"] = fget
 globals()["fset"] = fset
+globals()["fillp"] = fillp
 globals()["line"] = line
 globals()["pal"] = pal
 globals()["palt"] = palt
