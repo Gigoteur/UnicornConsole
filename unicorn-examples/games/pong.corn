@@ -207,6 +207,8 @@ def draw_tilt():
         camera(0,0)
 
 def _draw():
+    cls()
+
     global top, bottom, hit0, hit1, over
 
     rectfill(0,0,127,127,0)

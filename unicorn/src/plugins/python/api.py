@@ -446,7 +446,13 @@ def pal(c0=-1, c1=-1, p=0):
     unicorn_graphic.pal(math.floor(c0), math.floor(c1))
 
 
-def palt(c=-1, t=False):
+def palt(c=-1, t=0xFF):
+    if type(t) is bool:
+        if t:
+            t = 0x0
+        else:
+            t= 0xFF
+            
     unicorn_graphic.palt(math.floor(c), t)
 
 

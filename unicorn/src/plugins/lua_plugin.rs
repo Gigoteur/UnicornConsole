@@ -326,7 +326,7 @@ pub mod plugin {
                Ok(())
             });
 
-            methods.add_method("palt", |_lua_ctx, game_state, (c, t):(i32, bool)| {
+            methods.add_method("palt", |_lua_ctx, game_state, (c, t):(i32, u8)| {
                 game_state.screen
                .lock()
                .unwrap()

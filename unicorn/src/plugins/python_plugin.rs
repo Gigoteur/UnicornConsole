@@ -195,7 +195,7 @@ pub mod plugin {
         Ok(self.screen(py).lock().unwrap().mode_height())
     }
 
-    def palt(&self, c: i32, t: bool) -> PyResult<i32> {
+    def palt(&self, c: i32, t: u8) -> PyResult<i32> {
         self.screen(py).lock().unwrap().palt(c, t);
         Ok(0)
     }

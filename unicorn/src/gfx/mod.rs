@@ -23,7 +23,6 @@ pub struct Screen {
     pub map_height: usize,
 
     pub pixel_buffer: Box<[u8]>,
-//    pub saved_frame_buffer: Vec<u8>,
 
     pub palettes: palette::Palettes,
     pub palette: palette::Palette,
@@ -34,7 +33,7 @@ pub struct Screen {
 
     pub map: Vec<u32>,
 
-    pub transparency_map: [bool; 256],
+    pub transparency_map: [u8; 256],
     pub fillp_pat: u32,
     pub fillp_transparent: bool,
 
@@ -72,7 +71,7 @@ impl Screen {
             dyn_sprites: Vec::new(),
             
             map: Vec::new(),
-            transparency_map: [false; 256],
+            transparency_map: [0xFF; 256],
             fillp_pat: 0,
             fillp_transparent: false,
             color_map: [0; 0xFFF],
@@ -108,45 +107,45 @@ impl Screen {
     }
     
     pub fn _reset_sprites(&mut self) {
-        info!("[GFX] [Screen] Reset sprites");
+        debug!("[GFX] [Screen] Reset sprites");
         self.sprites = Vec::new();
         self.dyn_sprites = Vec::new();
     }
 
     pub fn _reset_map(&mut self) {
-        info!("[GFX] [Screen] Reset map");
+        debug!("[GFX] [Screen] Reset map");
         self.map = Vec::new();
     }
 
 
     pub fn _reset_palettes(&mut self) {
-        info!("[GFX] [Screen] Reset palettes");
+        debug!("[GFX] [Screen] Reset palettes");
         self.palettes.reset();
     }
 
     pub fn _reset_palette(&mut self) {
-        info!("[GFX] [Screen] Reset palette");
+        debug!("[GFX] [Screen] Reset palette");
 
         self.switch_palette("pico-8".to_string());
     }
 
 
     pub fn _reset_fillp(&mut self) {
-        info!("[GFX] [Screen] Reset fillp");
+        debug!("[GFX] [Screen] Reset fillp");
 
         self.fillp_pat = 0;
         self.fillp_transparent = false;
     }
 
     pub fn _reset_transparency(&mut self) {
-        info!("[GFX] [Screen] Reset transparency");
+        debug!("[GFX] [Screen] Reset transparency");
 
-        self.transparency_map = [false; 256];
-        self.transparency_map[0] = true;
+        self.transparency_map = [0xFF; 256];
+        self.transparency_map[0] = 0;
     }
 
     pub fn _reset_colors(&mut self) {
-        info!("[GFX] [Screen] Reset colors");
+        debug!("[GFX] [Screen] Reset colors");
 
         for i in 0..0xFFF {
             self.color_map[i] = i as u8;
@@ -249,7 +248,7 @@ impl Screen {
         self.pixel_buffer[offset] = rgb.r;
         self.pixel_buffer[offset + 1] = rgb.g;
         self.pixel_buffer[offset + 2] = rgb.b;
-        self.pixel_buffer[offset + 3] = 0xff;     
+        self.pixel_buffer[offset + 3] = self.transparency_map[col as usize];     
     }
 
     #[inline]
@@ -259,6 +258,7 @@ impl Screen {
         if self.is_transparent(col as u32) {
             return;
         }
+
         // Make camera adjustment
         let x = x - self.camera.x;
         let y = y - self.camera.y;
@@ -278,7 +278,7 @@ impl Screen {
                 self.pixel_buffer[offset] = rgb.r;
                 self.pixel_buffer[offset + 1] = rgb.g;
                 self.pixel_buffer[offset + 2] = rgb.b;
-                self.pixel_buffer[offset + 3] = 0xff;     
+                self.pixel_buffer[offset + 3] = self.transparency_map[draw_col as usize];   
             }
         } else {
             let value = (self.fillp_pat >> (15 - (x & 3) - 4 * (y & 3))) & 0x1;
@@ -297,7 +297,7 @@ impl Screen {
                 self.pixel_buffer[offset] = rgb.r;
                 self.pixel_buffer[offset + 1] = rgb.g;
                 self.pixel_buffer[offset + 2] = rgb.b;
-                self.pixel_buffer[offset + 3] = 0xff;     
+                self.pixel_buffer[offset + 3] = self.transparency_map[draw_col as usize];     
             }
         }
     }
@@ -1401,7 +1401,7 @@ impl Screen {
     #[inline]
     pub fn is_transparent(&self, value: u32) -> bool {
         if value <= 255 {
-            self.transparency_map[value as usize]
+            self.transparency_map[value as usize] == 0
         } else {
             false
         }
@@ -1415,7 +1415,7 @@ impl Screen {
         }
     }
 
-    pub fn palt(&mut self, c: i32, t: bool) {
+    pub fn palt(&mut self, c: i32, t: u8) {
         if c == -1 {
             self._reset_transparency();
         } else if (c >= 0) && (c <= 255) {

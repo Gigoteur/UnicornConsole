@@ -338,6 +338,28 @@ class Print(object):
                 y += 8
 
 
+class Pal(object):
+    def __init__(self):
+        self.T = 0
+        self.COUNT = 0
+
+    def init(self):
+        palt()
+
+    def update(self):
+        if self.COUNT % 10 == 0:
+            print(self.T)
+
+            palt()
+            palt(self.T, True)
+            self.T = (self.T + 1) % 16
+        self.COUNT += 1
+
+    def draw(self):
+        cls()
+        for i in range(0, 16):
+            rectfill(0, i*8, 128, i*8 + 8, i)
+
 idx_demo = 0
 demos = [
     ["rect", [Rect()]],
@@ -355,6 +377,7 @@ demos = [
     ["map", [Map()]],
     ["memcpy", [Memcpy()]],
     ["print", [Print()]],
+    ["pal", [Pal()]],
 ]
 
 
@@ -367,12 +390,16 @@ def _update():
     global idx_demo, demos
 
     if btnp(0):
+        palette_switch("pico-8")
+
         idx_demo = (idx_demo - 1) % len(demos)
         pal()
         for demo in demos[idx_demo][1]:
             demo.init()
 
     if btnp(1):
+        palette_switch("pico-8")
+
         idx_demo = (idx_demo + 1) % len(demos)
         pal()
         for demo in demos[idx_demo][1]:

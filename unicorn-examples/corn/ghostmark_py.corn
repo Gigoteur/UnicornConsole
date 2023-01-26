@@ -47,12 +47,12 @@ def _update():
 
 def _draw():
     cls()
+    unicorn_print("dots :" + str(len(Items)), mode_width() - 60, 0, 7)
 
     for item in Items:
         item.update()
 
 
-    unicorn_print("dots :" + str(len(Items)), mode_width() - 60, 0, 7)
 
 
 __gfx__

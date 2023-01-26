@@ -233,8 +233,17 @@ function palt(c, t)
         c = -1
     end
     if t == nil then
-        t = -1
+        t = 0xFF
     end
+
+    if t == true then
+        t = 0x0
+    end
+
+    if t == false then
+        t = 0xFF
+    end
+    
     userdata:palt(c, t)
 end
 
