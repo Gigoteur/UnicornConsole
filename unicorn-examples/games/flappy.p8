@@ -124,7 +124,7 @@ end
 
 function _draw()
 	rectfill(0, 0, 128, 128, 12)
-	--cls(12) -- blue sky
+	cls(12) -- blue sky
 
 	if(s==0)then
 		drawcity()

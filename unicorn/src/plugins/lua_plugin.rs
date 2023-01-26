@@ -93,7 +93,7 @@ pub mod plugin {
                 Ok(value)
             });
 
-            methods.add_method("srand", |_lua_ctx, game_state, x:u8| {
+            methods.add_method("srand", |_lua_ctx, game_state, x:u64| {
                 ChaCha8Rng::seed_from_u64(x.into());
                 Ok(1)
             });

@@ -150,3 +150,15 @@ end
 
 function run(breadcrumb)
 end
+
+
+function split(inputstr, sep, convert_numbers)
+    if sep == nil then
+        sep = ","
+    end
+    local t={}
+    for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
+            table.insert(t, str)
+    end
+    return t
+end

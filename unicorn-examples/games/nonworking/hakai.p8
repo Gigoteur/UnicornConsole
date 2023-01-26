@@ -13,10 +13,10 @@ poke(0x5f5c,-1)
 poke(0x5f2e,1)
 poke(0x5f38,1)
 poke(0x5f39,1)
-charcolor=split "7,8,12,11,5,9,12,11,13,8,1,3,10,9,1,3,10,14,1,3,4,9,12,11"
-plyvals=split"x,y,dx,dy,ddx,ddy,h,stn,nrg,atk_hld,a_t,a_dpw,a_ft,a_blk,a_altatk,win,kicharge,km_c,km_aim,a_st,bt,bn,d_c,5000,9980,0,0,0,0.08,100,0,50,0,0,0,0,0,0,0,0,0,0,0,0,240,0"
-skills=split"bullet,heavy,sniper,track,barrage,strike,beam,bomb,cOFFA,zOSSIMOV,aLISINA,rACHEL"
-depth_mode7=split "6000,200,150,125,100,80,56,46,34,26,18,10,3,1"
+charcolor=split("7,8,12,11,5,9,12,11,13,8,1,3,10,9,1,3,10,14,1,3,4,9,12,11")
+plyvals=split("x,y,dx,dy,ddx,ddy,h,stn,nrg,atk_hld,a_t,a_dpw,a_ft,a_blk,a_altatk,win,kicharge,km_c,km_aim,a_st,bt,bn,d_c,5000,9980,0,0,0,0.08,100,0,50,0,0,0,0,0,0,0,0,0,0,0,0,240,0")
+skills=split("bullet,heavy,sniper,track,barrage,strike,beam,bomb,cOFFA,zOSSIMOV,aLISINA,rACHEL")
+depth_mode7=split("6000,200,150,125,100,80,56,46,34,26,18,10,3,1")
 function _init()
 	pal()
 	cursor,clerp,clds,coros,d_coros,l_coros,aitog,manaual,t,timer,shake,g_state,zoom,cam_x,cam_y,versus=split "0,0",split"0,0",{},{},{},{},unsplit"1,1,0,0,0,1,1,0,0"

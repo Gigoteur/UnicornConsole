@@ -33,7 +33,6 @@ function time()
     return userdata:time()
 end
 
-
 function mtime()
     return userdata:mtime()
 end
@@ -42,6 +41,8 @@ end
 function utime()
     return userdata:utime()
 end
+
+t = mtime
 
 function btn(i, p)
     if i == nil then

@@ -72,6 +72,8 @@ optional = true
 [dependencies.rlua]
 optional = true
 version="0.19.4"
+#path = "../../rlua-pico8/rlua-pico8"
+git = "https://github.com/Gigoteur/rlua-pico8"
 
 [dependencies.duktape]
 optional = true

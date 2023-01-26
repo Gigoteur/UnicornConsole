@@ -1424,7 +1424,8 @@ impl Screen {
     }
 
     pub fn fillp(&mut self, pat: u32, transparent: bool) {
-        //info!("[Screen][GFX] Fillp {:x} {:?} {:#034b}", pat, pat, pat);
+        // info!("[Screen][GFX] Fillp {:x} {:?} {:#034b}", pat, pat, pat);
+        
         self.fillp_pat = pat;
         self.fillp_transparent = transparent;
     }

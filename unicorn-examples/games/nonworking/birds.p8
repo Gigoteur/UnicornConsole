@@ -84,7 +84,7 @@ function _init()
 	
 end
 
-function _update60()
+function _update()
 	mouse_x_y()
 	for i=0x3100,0x3148 do
 		--on

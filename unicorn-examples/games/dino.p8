@@ -100,7 +100,7 @@ function gameov()
    elseif d==fdead+18 then
     ringy=dino.y-5
    elseif isbtw(d,fdead+19,fdead+20) then
-    ringy = ringy + 1
+    ringy += 1
    end
   end
   
@@ -160,7 +160,7 @@ function createanim(
   frame=min
  end
  if clock % t == 0 then
- 	if(snd ~= nil) then sfx(snd) end
+ 	if(snd != nil) then sfx(snd) end
   frame = frame + i
   if frame > max then
    frame = min
