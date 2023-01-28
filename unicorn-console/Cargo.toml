@@ -16,21 +16,19 @@ hashbrown = { version = "0.12.3", features = ["serde"] }
 
 # Windowing & Graphics
 winit = { version = "0.27.5", features = ["serde"] }
-pixels = "0.10.0"
+pixels = "0.11.0"
 winit_input_helper = "0.13.0"
 
 # GUI Stuff
-egui = "0.19"
-egui_wgpu_backend = "0.19"
-egui-winit = "0.19"
+egui = { version = "0.19.0" }
+egui_wgpu_backend = "0.20.0"
+egui-winit = {version = "0.19.0", default-features = false, features = ["links"]}
+
 
 # Serialization / File Loading etc
 serde = { version = "1.0.144", features = ["derive"] }
 serde_json = "1.0.85"
 bytemuck = {version = "1.12.3", features = ["derive"]}
-
-# Scripting
-wasmtime = { version = "0.40.1", features = ["cranelift"] }
 
 # Random
 fastrand = "1.8.0"

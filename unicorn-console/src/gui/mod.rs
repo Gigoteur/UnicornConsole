@@ -7,7 +7,7 @@ use pixels::Pixels;
 use rfd::FileDialog;
 use winit::{window::Window, dpi::PhysicalSize};
 
-use ggrs::{P2PSession, PlayerType, SessionBuilder, SessionState, UdpNonBlockingSocket};
+use ggrs::{P2PSession, PlayerType, SessionBuilder, UdpNonBlockingSocket};
 
 use unicorn;
 
