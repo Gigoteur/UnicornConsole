@@ -22,7 +22,8 @@ use image::GenericImageView;
 
 use plugins::lua_plugin::plugin::LuaPlugin;
 use plugins::python_plugin::plugin::PythonPlugin;
-use plugins::javascript_plugin::plugin::JavascriptPlugin;
+use plugins::rpython_plugin::plugin::RPythonPlugin;
+use plugins::rhai_plugin::plugin::RhaiPlugin;
 
 use gfx;
 use contexts;
@@ -31,6 +32,8 @@ use sound;
 use audio;
 
 use audio::sound_rom::Sfx;
+
+use anyhow::{Result};
 
 include!(concat!(env!("OUT_DIR"), "/parameters.rs"));
 
@@ -46,8 +49,36 @@ pub enum Code {
     UNKNOWN = 0,
     LUA = 1,
     PYTHON = 2,
-    JAVASCRIPT = 3,
-    WASM = 4,
+    RPYTHON  = 3,
+    RHAI = 4,
+    WASM = 5,
+}
+
+use std::error::Error;
+use std::fmt::{Display, Formatter, Result as FmtResult};
+
+#[derive(Debug)]
+pub enum UnicornError {
+    PluginError
+}
+
+impl Display for UnicornError {
+    fn fmt(&self, fmt: &mut Formatter) -> FmtResult {
+        match self {
+            UnicornError::PluginError => write!(
+                fmt,
+                "An image was passed to Surface with non-exclusive reference"
+            ),
+        }
+    }
+}
+
+impl Error for UnicornError {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
+        match self {
+            _ => None,
+        }
+    }
 }
 
 
@@ -95,7 +126,9 @@ pub struct UnicornCartridge {
     pub cartridge: Cartridge,
     pub lua_plugin: LuaPlugin,
     pub python_plugin: PythonPlugin,
-    pub javascript_plugin: JavascriptPlugin,
+    pub rpython_plugin: RPythonPlugin,
+    pub rhai_plugin: RhaiPlugin,
+    
 }
 
 
@@ -109,7 +142,8 @@ impl UnicornCartridge {
             cartridge: cartridge,
             lua_plugin: LuaPlugin::new(),
             python_plugin: PythonPlugin::new(),
-            javascript_plugin: JavascriptPlugin::new(),
+            rpython_plugin: RPythonPlugin::new(),
+            rhai_plugin: RhaiPlugin::new(),
         }
     }
 
@@ -122,7 +156,8 @@ impl UnicornCartridge {
             cartridge: Cartridge::empty(),
             lua_plugin: LuaPlugin::new(),
             python_plugin: PythonPlugin::new(),
-            javascript_plugin: JavascriptPlugin::new(),
+            rpython_plugin: RPythonPlugin::new(),
+            rhai_plugin: RhaiPlugin::new(),
         }
     }
 
@@ -135,7 +170,8 @@ impl UnicornCartridge {
             cartridge: Cartridge::empty(),
             lua_plugin: LuaPlugin::new(),
             python_plugin: PythonPlugin::new(),
-            javascript_plugin: JavascriptPlugin::new(),
+            rpython_plugin: RPythonPlugin::new(),
+            rhai_plugin: RhaiPlugin::new(),
         }
     }
 
@@ -143,8 +179,9 @@ impl UnicornCartridge {
         match self.cartridge.code.get_name().as_ref() {
             "lua" => Code::LUA,
             "python" => Code::PYTHON,
-            "javascript" => Code::JAVASCRIPT,
+            "rpython" => Code::RPYTHON,
             "wasm" => Code::WASM,
+            "rhai" => Code::RHAI,
             _ => Code::UNKNOWN,
         }
     }
@@ -153,7 +190,8 @@ impl UnicornCartridge {
         match self.cartridge.code.get_name().as_ref() {
             "lua" => "lua".into(),
             "python" => "py".into(),
-            "javascript" => "js".into(),
+            "rpython" => "py".into(),
+            "rhai" => "rhai".into(),
             _ => "".into()
         }
     }
@@ -402,7 +440,6 @@ impl Unicorn {
     }
 
     pub fn init(&mut self) {
-        self.state = UnicornState::RUN;
         self.call_init();
     }
 
@@ -666,7 +703,7 @@ impl Unicorn {
     }
 
     pub fn _load_cartridge(&mut self)
-                           -> bool {
+                           -> Result<()> {
         info!("[Unicorn] Loading cartridge {:?}", self.cartridge);
 
         let data = self.cartridge.get_code();
@@ -678,24 +715,25 @@ impl Unicorn {
                 info!("[Unicorn] Loading LUA Plugin");
 
                 self.cartridge
-                    .lua_plugin
+                        .lua_plugin
+                        .load(self.contexts.clone(),
+                            self.info.clone(),
+                            self.screen.clone(),
+                            self.audio_sync_helper.as_mut().unwrap().command_queue.clone())?;
+
+                self.cartridge.lua_plugin.load_code(data.clone())?;
+            }
+            Code::RPYTHON => {
+                info!("[Unicorn] Loading RPYTHON Plugin");
+
+                self.cartridge
+                    .rpython_plugin
                     .load(self.contexts.clone(),
                           self.info.clone(),
                           self.screen.clone(),
-                          self.audio_sync_helper.as_mut().unwrap().command_queue.clone());
+                          self.audio_sync_helper.as_mut().unwrap().command_queue.clone())?;
 
-                ret = self.cartridge.lua_plugin.load_code(data.clone());
-            }
-            Code::JAVASCRIPT => {
-                info!("[Unicorn] Loading JAVASCRIPT Plugin");
-
-                self.cartridge
-                    .javascript_plugin
-                    .load(self.contexts.clone(),
-                          self.info.clone(),
-                          self.screen.clone());
-
-                ret = self.cartridge.javascript_plugin.load_code(data.clone());
+                self.cartridge.rpython_plugin.load_code(data.clone())?;
             }
             Code::PYTHON => {
                 info!("[Unicorn] Loading PYTHON Plugin");
@@ -705,15 +743,28 @@ impl Unicorn {
                     .load(self.contexts.clone(),
                           self.info.clone(),
                           self.screen.clone(),
-                          self.audio_sync_helper.as_mut().unwrap().command_queue.clone());
+                          self.audio_sync_helper.as_mut().unwrap().command_queue.clone())?;
 
-                ret = self.cartridge.python_plugin.load_code(data.clone());
+                self.cartridge.python_plugin.load_code(data.clone())?;
+            }
+            Code::RHAI => {
+                info!("[Unicorn] Loading RHAI Plugin");
+
+                self.cartridge
+                    .rhai_plugin
+                    .load(self.contexts.clone(),
+                          self.info.clone(),
+                          self.screen.clone(),
+                          self.audio_sync_helper.as_mut().unwrap().command_queue.clone())?;
+
+                self.cartridge.rhai_plugin.load_code(data.clone())?;
             }
             _ => (),
         }
 
-        info!("[Unicorn] LOADED CARTRIDGE {:?}", ret);
-        ret
+        info!("[Unicorn] CARTRIDGE LOADED SUCCESSFULLY");
+
+        Ok(())
     }
 
     pub fn load_cartridge(&mut self, filename: String) -> bool {
@@ -751,86 +802,106 @@ impl Unicorn {
         self.cartridge = UnicornCartridge::new(cartridge, filename);
         self._setup_screen();
 
-        self.cartridge.loaded = self._load_cartridge();
-        if self.cartridge.loaded {
-            self.state = UnicornState::RUN;
+        match self._load_cartridge() {
+            Ok(()) => self.state = UnicornState::RUN,
+            Err(err) => error!("[Unicorn] [Impossible to load the cartridge]: {}", err),
         }
 
-        self.cartridge.loaded
+        true
     }
 
     pub fn call_init(&mut self) {
-        info!("[Unicorn] CALL INIT {:?}", self.cartridge.get_code_type());
+        info!("[Unicorn] CALL INIT {:?} {:?}", self.cartridge.get_code_type(), self.state);
 
-        match self.cartridge.get_code_type() {
-            Code::LUA => match self.cartridge.lua_plugin.init() {
-                _ => (),
-            }
-            Code::JAVASCRIPT => match self.cartridge.javascript_plugin.init() {
-                _ => (),
-            }
-            Code::PYTHON => match self.cartridge.python_plugin.init() {
-                _ => (),
-            }
-            Code::WASM => {}
+        if self.state == UnicornState::RUN {
+            match self.cartridge.get_code_type() {
+                Code::LUA => match self.cartridge.lua_plugin.init() {
+                    _ => (),
+                }
+                Code::RPYTHON => match self.cartridge.rpython_plugin.init() {
+                    _ => (),
+                }
+                Code::RHAI => match self.cartridge.rhai_plugin.init() {
+                    _ => (),
+                }
+                Code::PYTHON => match self.cartridge.python_plugin.init() {
+                    _ => (),
+                }
+                Code::WASM => {}
 
-            _ => error!("[Unicorn] Impossible to match a plugin"),
+                _ => error!("[Unicorn] Impossible to match a plugin"),
+            }
         }
     }
 
     pub fn call_draw(&mut self) {
-        match self.cartridge.get_code_type()  {
-            Code::LUA => {
-                match self.cartridge.lua_plugin.draw() {
-                    Ok(()) => (),
-                    Err(err) => error!("[Unicorn] [call_draw / lua]: {}", err),
+        if self.state == UnicornState::RUN {
+            match self.cartridge.get_code_type()  {
+                Code::LUA => {
+                    match self.cartridge.lua_plugin.draw() {
+                        Ok(()) => (),
+                        Err(err) => error!("[Unicorn] [call_draw / lua]: {}", err),
+                    }
                 }
-            }
-            Code::JAVASCRIPT => {
-                match self.cartridge.javascript_plugin.draw() {
-                    Ok(()) => (),
-                    Err(err) => error!("[Unicorn] [call_draw / javascript]: {}", err),
+                Code::RPYTHON => {
+                    match self.cartridge.rpython_plugin.draw() {
+                        Ok(()) => (),
+                        Err(err) => error!("[Unicorn] [call_draw / rpython]: {}", err),
+                    }
                 }
-            }
-            Code::PYTHON => {
-                match self.cartridge.python_plugin.draw() {
-                    Ok(()) => (),
-                    Err(err) => error!("[Unicorn] [call_draw / python]: {}", err),
+                Code::RHAI => {
+                    match self.cartridge.rhai_plugin.draw() {
+                        Ok(()) => (),
+                        Err(err) => error!("[Unicorn] [call_draw / rhai]: {}", err),
+                    }
                 }
-            }
-            Code::WASM => {
+                Code::PYTHON => {
+                    match self.cartridge.python_plugin.draw() {
+                        Ok(()) => (),
+                        Err(err) => error!("[Unicorn] [call_draw / python]: {}", err),
+                    }
+                }
+                Code::WASM => {
 
-            }
+                }
 
-            _ => (),
+                _ => (),
+            }
         }
     }
 
     pub fn call_update(&mut self) {
-        match self.cartridge.get_code_type() {
-            Code::LUA => {
-                match self.cartridge.lua_plugin.update() {
-                    Ok(()) => (),
-                    Err(err) => error!("[Unicorn] [call_update / lua]: {}", err),
-                }
-            }
-            
-            Code::JAVASCRIPT => {
-                match self.cartridge.javascript_plugin.update() {
-                    Ok(()) => (),
-                    Err(err) => error!("[Unicorn] [call_update / javascript]: {}", err),
-                }
-            }
-            Code::PYTHON => {
-                match self.cartridge.python_plugin.update() {
+        if self.state == UnicornState::RUN {
+            match self.cartridge.get_code_type() {
+                Code::LUA => {
+                    match self.cartridge.lua_plugin.update() {
                         Ok(()) => (),
-                        Err(err) => error!("[Unicorn] [call_update / python]: {}", err),
+                        Err(err) => error!("[Unicorn] [call_update / lua]: {}", err),
                     }
-            }
-            Code::WASM => {
+                }
+                Code::RPYTHON => {
+                    match self.cartridge.rpython_plugin.update() {
+                        Ok(()) => (),
+                        Err(err) => error!("[Unicorn] [call_update / rpython]: {}", err),
+                    }
+                }
+                Code::RHAI => {
+                    match self.cartridge.rhai_plugin.update() {
+                        Ok(()) => (),
+                        Err(err) => error!("[Unicorn] [call_update / rhai]: {}", err),
+                    }
+                }
+                Code::PYTHON => {
+                    match self.cartridge.python_plugin.update() {
+                            Ok(()) => (),
+                            Err(err) => error!("[Unicorn] [call_update / python]: {}", err),
+                        }
+                }
+                Code::WASM => {
 
+                }
+                _ => (),
             }
-            _ => (),
         }
     }
 }

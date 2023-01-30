@@ -39,7 +39,7 @@ pub use self::music::CartridgeMusic;
 
 RANDOM COMMENT
 version XX
-{__python__} | {__javascript__} | {__lua__}
+{__python__} | {__rpython__} | {__lua__} | {__rhai__}
 
 __palette__
 
@@ -89,6 +89,7 @@ pub struct Cartridge {
 }
 
 pub static SECTION_DELIM_RE: &'static str = r"^__(\w+)__$";
+pub static SUB_SECTION_DELIM_RE: &'static str = r"^___(\w+)___$";
 
 #[derive(Debug)]
 pub enum Error {
@@ -159,9 +160,13 @@ fn read_from_uniformat<R: io::BufRead>(filename: &str, buf: &mut R) -> Result<Ca
     } else if sections.contains_key("__python__") {
         cartridge_code = CartridgeCode::new("python".to_string(),
                                             sections.get_mut("__python__").unwrap());
-    } else if sections.contains_key("__javascript__") {
-        cartridge_code = CartridgeCode::new("javascript".to_string(),
-                                            sections.get_mut("__javascript__").unwrap());
+    } else if sections.contains_key("__rhai__") {
+        cartridge_code = CartridgeCode::new("rhai".to_string(),
+                                            sections.get_mut("__rhai__").unwrap());
+    } else if sections.contains_key("__code__") {
+        if sections.contains_key("___rhai___") {
+            
+        }
     } else {
         return Err(Error::Err("NO CODE DATA".to_string()));
     }
@@ -469,7 +474,7 @@ fn read_from_p8format<R: io::BufRead>(filename: &str, buf: &mut R) -> Result<Car
         _ => cartridge_gff = CartridgeGFF::empty(),
     }
 
-    match sections.get_mut("__music__") {
+    match sections.get_mut("__music__") { 
         Some(vec_section) => cartridge_music = CartridgeMusic::new(vec_section),
         _ => cartridge_music = CartridgeMusic::empty(),
     }

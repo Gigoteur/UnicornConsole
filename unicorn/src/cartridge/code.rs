@@ -4,6 +4,7 @@ use std::io::BufRead;
 
 use std::fs::File;
 use std::io::BufReader;
+use std::ops::Add;
 
 
 #[derive(Debug)]
@@ -34,7 +35,7 @@ impl CartridgeCode {
         let mut data = "".to_string();
 
         for line in lines {
-            data = data + line;
+            data.push_str(line);
             data.push('\n');
         }
 

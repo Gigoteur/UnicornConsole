@@ -5,6 +5,8 @@ mod frametimes;
 mod network;
 
 use network::UnicornConsoleState;
+use network::SessionDescriptor;
+
 use unicorn;
 
 use crate::input::{LocalInputManager, MouseEventCollector, LocalPlayerId};
@@ -52,7 +54,7 @@ pub struct UnicornConsole {
 }
 
 impl UnicornConsole {
-    pub fn new(engine: unicorn::core::Unicorn) -> (Self, UnicornConsoleState) {
+    pub fn new(engine: unicorn::core::Unicorn, session: SessionDescriptor, max_prediction: usize) -> (Self, UnicornConsoleState) {
         let engine = Arc::new(Mutex::new(engine));
         let fps = fps::FpsCounter::new();
 

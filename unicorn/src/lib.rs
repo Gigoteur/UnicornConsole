@@ -4,11 +4,13 @@ extern crate rlua;
 #[cfg(feature = "cpython")]
 extern crate cpython;
 
-#[cfg(feature = "duktape")]
-extern crate duktape;
-
 #[cfg(feature = "image")]
 extern crate image;
+
+extern crate rhai;
+
+extern crate rustpython;
+extern crate rustpython_vm;
 
 extern crate anyhow;
 
@@ -48,6 +50,7 @@ extern crate cpal;
 extern crate fastrand;
 extern crate rand;
 extern crate rand_chacha;
+
 
 pub mod gfx;
 pub mod core;

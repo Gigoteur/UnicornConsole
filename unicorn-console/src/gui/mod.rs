@@ -7,7 +7,7 @@ use pixels::Pixels;
 use rfd::FileDialog;
 use winit::{window::Window, dpi::PhysicalSize};
 
-use ggrs::{P2PSession, PlayerType, SessionBuilder, UdpNonBlockingSocket};
+use ggrs::{P2PSession, PlayerType, SessionBuilder, UdpNonBlockingSocket, SessionState};
 
 use unicorn;
 
@@ -89,9 +89,19 @@ impl Gui {
 
                 self.play_mode_gui.draw(ui);
 
-                // Draw internal content
-                let launch_game_text = "Launch Game";
                 
+                
+                let launch_game_text = if let Some(session) = session {
+                    if session.current_state() == SessionState::Synchronizing {
+                        "Waiting to establish connection..."
+                    } else {
+                        "Connected!"
+                    }
+                } else {
+                    "Launch Game"
+                };
+
+                // Draw internal content
                 ui.separator();
 
                 ui.horizontal(|ui| {
@@ -124,6 +134,8 @@ impl Gui {
                         .add_enabled(buttons_enabled, Button::new("Quit"))
                         .clicked()
                     {
+                        self.unicorn_console = None;
+                        *session = None;
                     }
                 });
             });
@@ -138,7 +150,9 @@ impl Gui {
         width: u32,
         height: u32
     ) -> P2PSession<UnicornConsole> {
+        
         pixels.resize_buffer(width, height);
+
         window.set_inner_size(PhysicalSize::new(
             width.max(DEFAULT_WINDOW_RESOLUTION.width() as u32),
             height.max(DEFAULT_WINDOW_RESOLUTION.height() as u32),
@@ -155,7 +169,7 @@ impl Gui {
 
         self.window_open = false;
 
-        let (mut console, reset) = UnicornConsole::new(rom);//, session_descriptor, max_prediction);
+        let (mut console, reset) = UnicornConsole::new(rom, session_descriptor, max_prediction);
 
         console.sync_audio();
         console.sync_mouse(window);

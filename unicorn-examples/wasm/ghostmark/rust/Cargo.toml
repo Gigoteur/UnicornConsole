@@ -1,0 +1,12 @@
+[package]
+name = "ghostmark"
+version = "0.1.0"
+edition = "2021"
+
+# For the output wasm to actually exist, we need to build as a cdylib
+[lib]
+crate-type = ["cdylib"]
+
+# Feel free to add as many dependencies as you like
+[dependencies]
+unicorn_rs = { path = "../../../../unicorn-rs" }

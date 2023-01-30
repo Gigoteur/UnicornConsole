@@ -1,0 +1,8 @@
+[package]
+name = "unicorn_rs"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "A safe wrapper around UnicornConsole's Raw Api"
+
+[dependencies]

@@ -62,9 +62,10 @@ rtrb = "0.2.2"
 base64 = "0.13.0"
 cpal = "0.13.5"
 
-
 # for .wav of the bin directory
 hound = "3.4.0"
+
+rhai = "1.12.0"
 
 [dependencies.cpython]
 version = "0.7"
@@ -73,13 +74,13 @@ optional = true
 [dependencies.rlua]
 optional = true
 version="0.19.4"
-#path = "../../rlua-pico8/rlua-pico8"
 git = "https://github.com/Gigoteur/rlua-pico8"
 
-[dependencies.duktape]
-optional = true
-version="0.0.1"
-path="src/plugins/duktape"
+[dependencies.rustpython]
+git = "https://github.com/RustPython/RustPython.git"
+
+[dependencies.rustpython-vm]
+git = "https://github.com/RustPython/RustPython.git"
 
 [dependencies.image]
 optional = true

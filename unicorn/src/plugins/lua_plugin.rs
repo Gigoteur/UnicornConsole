@@ -435,7 +435,7 @@ pub mod plugin {
                     contexts: Arc<Mutex<Contexts>>,
                     info: Arc<Mutex<Info>>,
                     screen: Arc<Mutex<Screen>>,
-                    audio: Arc<Mutex<AudioCommandBuffer>>) {
+                    audio: Arc<Mutex<AudioCommandBuffer>>) -> Result<()> {
             info!("[PLUGIN][LUA] Init plugin");
             
             self._load_pico8_functions();
@@ -453,6 +453,8 @@ pub mod plugin {
                 lua.load(&data).exec().unwrap();
 
             });
+
+            Ok(())
         }
 
         fn _load_pico8_functions(&mut self) {
@@ -462,6 +464,21 @@ pub mod plugin {
                 let data = include_str!("lua/pico8.lua").to_string();
                 lua.load(&data).exec().unwrap();
             });
+        }
+
+        pub fn load_code(&mut self, data: String) -> Result<()> {
+            info!("[PLUGIN][LUA] [load_code] {:?}", data.len());
+
+            let _res = match self.lua.context(|lua_ctx| {
+                        lua_ctx.load(&data).exec()}) {
+                            Ok(_) => self.loaded_code = true,
+                            Err(err) => {
+                                self.loaded_code = false;
+                                return Err(anyhow!("[PLUGIN][LUA] [update]: {}", err));
+                            }
+            };
+
+            Ok(())
         }
 
         pub fn init(&mut self) -> Result<()> {
@@ -517,25 +534,8 @@ pub mod plugin {
                             Err(err) => return Err(anyhow!("[PLUGIN][LUA] [update]: {}", err)),
                     };
             }
+
             Err(anyhow!("[PLUGIN][LUA] [draw]: code is not loaded !"))
-        }
-
-        pub fn load_code(&mut self, data: String) -> bool {
-            info!("[PLUGIN][LUA] [load_code] {:?}", data.len());
-
-            debug!("[PLUGIN][LUA] [load_code] {:?}", data);
-
-            let _res = match self.lua.context(|lua_ctx| {
-                        lua_ctx.load(&data).exec()}) {
-                            Ok(_) => self.loaded_code = true,
-                            Err(err) => {
-                                error!("{:?}", err);
-                                self.loaded_code = false;
-                            }
-
-            };
-
-            self.loaded_code
         }
     }
 
@@ -572,20 +572,20 @@ pub mod plugin {
                     _contexts: Arc<Mutex<Contexts>>,
                     _info: Arc<Mutex<Info>>,
                     _screen: Arc<Mutex<Screen>>,
-                    _audio: Arc<Mutex<AudioCommandBuffer>>) {
-            error!("LUA plugin disabled");
+                    _audio: Arc<Mutex<AudioCommandBuffer>>) -> Result<()> {
+            Err(anyhow!("[PLUGIN][LUA] plugin disabled"))
         }
-        pub fn load_code(&mut self, _data: String) -> bool {
-            false
+        pub fn load_code(&mut self, _data: String) -> Result<()> {
+            Err(anyhow!("[PLUGIN][LUA] plugin disabled"))
         }
         pub fn init(&mut self) -> Result<()> {
-            Err(anyhow!("[PLUGIN][LUA] [init] lua is not compiled"))
+            Err(anyhow!("[PLUGIN][LUA] plugin disabled"))
         }
         pub fn draw(&mut self) -> Result<()> {
-            Err(anyhow!("[PLUGIN][LUA] [draw] pytluahon is not compiled"))
+            Err(anyhow!("[PLUGIN][LUA] plugin disabled"))
         }
         pub fn update(&mut self) -> Result<()> {
-            Err(anyhow!("[PLUGIN][LUA] [update] lua is not compiled"))
+            Err(anyhow!("[PLUGIN][LUA] plugin disabled"))
         }
     }
 }

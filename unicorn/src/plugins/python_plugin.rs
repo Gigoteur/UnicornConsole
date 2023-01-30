@@ -476,7 +476,7 @@ pub mod plugin {
                     contexts: Arc<Mutex<Contexts>>,
                     info: Arc<Mutex<Info>>,
                     screen: Arc<Mutex<Screen>>,
-                    audio: Arc<Mutex<AudioCommandBuffer>>) {
+                    audio: Arc<Mutex<AudioCommandBuffer>>) -> Result<()> {
             info!("[PLUGIN][PYTHON] Init plugin");
 
             let gil = Python::acquire_gil();
@@ -531,21 +531,24 @@ pub mod plugin {
             let result = py.run(&data, None, None);
             match result {
                 Err(v) => {
-                    error!("[PLUGIN][PYTHON] Failed to load the plugin = {:?}", v);
+                    return Err(anyhow!("[PLUGIN][PYTHON] Failed to load the plugin = {:?}", v));
                 }
                 Ok(v) => {
                     info!("[PLUGIN][PYTHON] Successfully loaded = {:?}", v);
+                    self.loaded_code = true;
                 }
             }
+
+            Ok(())
         }
 
 
-        pub fn init(&mut self) -> PyResult<()> {
+        pub fn init(&mut self) -> Result<()> {
             info!("[PLUGIN][PYTHON] Call INIT");
 
-          //  if !self.loaded_code {
-          //      return;
-          //  }
+            if !self.loaded_code {
+                return Err(anyhow!("[PLUGIN][Python] [draw] code is not loaded"));
+            }
 
             let gil = Python::acquire_gil();
             let py = gil.python();
@@ -585,26 +588,22 @@ pub mod plugin {
         }
 
 
-        pub fn load_code(&mut self, data: String) -> bool {
+        pub fn load_code(&mut self, data: String)  -> Result<()> {
             info!("[PLUGIN][PYTHON] Load the code");
             let gil = Python::acquire_gil();
             let py = gil.python();
-
 
             let result = py.run(&data, None, None);
 
             match result {
                 Ok(_) => {
-                    debug!("[PLUGIN][PYTHON] Code loaded successfully");
-                    self.loaded_code = true
+                    info!("[PLUGIN][PYTHON] Code loaded successfully");
+                    Ok(())
                 }
                 Err(err) => {
-                    error!("[PLUGIN][PYTHON] Load code error => {:?}", err);
-                    self.loaded_code = false
+                    Err(anyhow!("[PLUGIN][Python] [update] impossible to load the code"))
                 }
             }
-
-            self.loaded_code
         }
     }
 }
@@ -637,20 +636,20 @@ pub mod plugin {
                     _contexts: Arc<Mutex<Contexts>>,
                     _info: Arc<Mutex<Info>>,
                     _screen: Arc<Mutex<Screen>>,
-                    _audio: Arc<Mutex<AudioCommandBuffer>>) {
-            error!("[PLUGIN][PYTHON] plugin disabled");
+                    _audio: Arc<Mutex<AudioCommandBuffer>>) -> Result<()> {
+                        Err(anyhow!("[PLUGIN][PYTHON] plugin disabled"))
         }
-        pub fn load_code(&mut self, _data: String) -> bool {
-            false
+        pub fn load_code(&mut self, _data: String) -> Result<()> {
+            Err(anyhow!("[PLUGIN][PYTHON] plugin disabled"))
         }
         pub fn init(&mut self) -> Result<()> {
-            Err(anyhow!("[PLUGIN][Python] [init] python is not compiled"))
+            Err(anyhow!("[PLUGIN][PYTHON] plugin disabled"))
         }
         pub fn draw(&mut self) -> Result<()> {
-            Err(anyhow!("[PLUGIN][Python] [draw] python is not compiled"))
+            Err(anyhow!("[PLUGIN][PYTHON] plugin disabled"))
         }
         pub fn update(&mut self) -> Result<()> {
-            Err(anyhow!("[PLUGIN][Python] [update] python is not compiled"))
+            Err(anyhow!("[PLUGIN][PYTHON] plugin disabled"))
         }
     }
 }
