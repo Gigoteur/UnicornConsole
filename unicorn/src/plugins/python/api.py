@@ -356,12 +356,3 @@ globals()["rnd"] = rnd
 globals()["sqrt"] = math.sqrt
 globals()["mid"] = mid
 globals()["bxor"] = bxor
-
-# Memory
-
-
-def memcpy(dest_addr, source_addr, len_buff):
-    unicorn_mem.memcpy(dest_addr, source_addr, math.floor(len_buff))
-
-
-globals()["memcpy"] = memcpy

@@ -24,6 +24,7 @@ use plugins::lua_plugin::plugin::LuaPlugin;
 use plugins::python_plugin::plugin::PythonPlugin;
 use plugins::rpython_plugin::plugin::RPythonPlugin;
 use plugins::rhai_plugin::plugin::RhaiPlugin;
+use plugins::wasm_plugin::plugin::WasmPlugin;
 
 use gfx;
 use contexts;
@@ -128,7 +129,7 @@ pub struct UnicornCartridge {
     pub python_plugin: PythonPlugin,
     pub rpython_plugin: RPythonPlugin,
     pub rhai_plugin: RhaiPlugin,
-    
+    pub wasm_plugin: WasmPlugin,
 }
 
 
@@ -144,6 +145,7 @@ impl UnicornCartridge {
             python_plugin: PythonPlugin::new(),
             rpython_plugin: RPythonPlugin::new(),
             rhai_plugin: RhaiPlugin::new(),
+            wasm_plugin: WasmPlugin::new(),
         }
     }
 
@@ -158,6 +160,7 @@ impl UnicornCartridge {
             python_plugin: PythonPlugin::new(),
             rpython_plugin: RPythonPlugin::new(),
             rhai_plugin: RhaiPlugin::new(),
+            wasm_plugin: WasmPlugin::new(),
         }
     }
 
@@ -172,6 +175,7 @@ impl UnicornCartridge {
             python_plugin: PythonPlugin::new(),
             rpython_plugin: RPythonPlugin::new(),
             rhai_plugin: RhaiPlugin::new(),
+            wasm_plugin: WasmPlugin::new(),
         }
     }
 
@@ -198,6 +202,10 @@ impl UnicornCartridge {
 
     pub fn get_code(&mut self) -> String {
         self.cartridge.code.get_data().clone()
+    }
+
+    pub fn get_bytes_code(&mut self) -> Vec<u8> {
+        self.cartridge.code.get_bytes_data().clone()
     }
 
     pub fn get_palettes(&mut self) -> HashMap<u32, gfx::palette::RGB> {
@@ -678,7 +686,7 @@ impl Unicorn {
     }
 
     pub fn _setup_screen(&mut self) {
-        info!("[Unicorn] Setup screen {:?}", self.cartridge);
+        info!("[Unicorn] Setup screen");
 
         info!("[Unicorn] Copying sprites ...");
         self.screen
@@ -704,11 +712,10 @@ impl Unicorn {
 
     pub fn _load_cartridge(&mut self)
                            -> Result<()> {
-        info!("[Unicorn] Loading cartridge {:?}", self.cartridge);
+        info!("[Unicorn] Loading cartridge");
 
         let data = self.cartridge.get_code();
-
-        let mut ret: bool = false;
+        let data_bytes = self.cartridge.get_bytes_code();
 
         match self.cartridge.get_code_type() {
             Code::LUA => {
@@ -758,6 +765,18 @@ impl Unicorn {
                           self.audio_sync_helper.as_mut().unwrap().command_queue.clone())?;
 
                 self.cartridge.rhai_plugin.load_code(data.clone())?;
+            }
+            Code::WASM => {
+                info!("[Unicorn] Loading WASM Plugin");
+
+                self.cartridge
+                    .wasm_plugin
+                    .load(self.contexts.clone(),
+                          self.info.clone(),
+                          self.screen.clone(),
+                          self.audio_sync_helper.as_mut().unwrap().command_queue.clone())?;
+
+                self.cartridge.wasm_plugin.load_code(&data_bytes)?;
             }
             _ => (),
         }
@@ -827,7 +846,9 @@ impl Unicorn {
                 Code::PYTHON => match self.cartridge.python_plugin.init() {
                     _ => (),
                 }
-                Code::WASM => {}
+                Code::WASM =>  match self.cartridge.wasm_plugin.init() {
+                    _ => (),
+                }
 
                 _ => error!("[Unicorn] Impossible to match a plugin"),
             }
@@ -862,7 +883,10 @@ impl Unicorn {
                     }
                 }
                 Code::WASM => {
-
+                    match self.cartridge.wasm_plugin.draw() {
+                        Ok(()) => (),
+                        Err(err) => error!("[Unicorn] [call_draw / wasm]: {}", err),
+                    }
                 }
 
                 _ => (),
@@ -898,7 +922,10 @@ impl Unicorn {
                         }
                 }
                 Code::WASM => {
-
+                    match self.cartridge.wasm_plugin.update() {
+                        Ok(()) => (),
+                        Err(err) => error!("[Unicorn] [call_update / wasm]: {}", err),
+                    }
                 }
                 _ => (),
             }

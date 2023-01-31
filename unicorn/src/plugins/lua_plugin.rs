@@ -1,3 +1,132 @@
+/* 
+# Pico8 command compatibility with Unicorn Console
+# Most major functions are present, and some are only implement without any code, just to avoid crash.
+# X -> implemented 
+# P -> implemented but partial
+# F -> implemented but no code
+_init()                                                         #   X  #
+_update()                                                       #   X  #
+_draw()                                                         #   X  #
+flip()                                                          #      #
+camera([x,] [y])                                                #      #
+circ(x, y, r, [col])                                            #      #
+circfill(x, y, r, [col])                                        #      #
+oval(x0, y0, x1, y1, [col])                                     #      #
+ovalfill(x0, y0, x1, y1, [col])                                 #      #
+clip([x,] [y,] [w,] [h])                                        #      #
+cls([col])                                                      #      #
+color(col)                                                      #      #
+cursor([x,] [y,] [col])                                         #      #
+fget(n, [f])                                                    #      #
+fillp([pat])                                                    #      #
+fset(n, [f,] [v])                                               #      #
+line(x0, y0, x1, y1, [col])                                     #      #
+pal([c0,] [c1,] [p])                                            #      #
+palt([c,] [t])                                                  #      #
+pget(x, y)                                                      #      #
+print(str, [x,] [y,] [col])                                     #      #
+pset(x, y, [c])                                                 #      #
+rect(x0, y0, x1, y1, [col])                                     #      #
+rectfill(x0, y0, x1, y1, [col])                                 #      #
+sget(x, y)                                                      #      #
+spr(n, x, y, [w,] [h,] [flip_x,] [flip_y])                      #      #
+sset(x, y, [c])                                                 #      #
+sspr(sx, sy, sw, sh, dx, dy, [dw,] [dh,] [flip_x,] [flip_y])    #      #
+tline(x0, y0, x1, y1, mx, my, [mdx,] [mdy])                     #      #
+
+add(t, v, [i])                                                  #      #
+all(t)                                                          #      #
+count(t, [v])                                                   #      #
+del(t, v)                                                       #      #
+deli(t, i)                                                      #      #
+foreach(t, f)                                                   #      #
+ipairs(t)                                                       #      #
+pack(...)                                                       #      #
+pairs(t)                                                        #      #
+unpack(t, [i], [j])                                             #      #
+next(t, [key])                                                  #      #
+
+btn([i,] [p])                                                   #      #
+btnp([i,] [p])                                                  #      #
+
+music([n,] [fade_len,] [channel_mask])                          #      #
+sfx(n, [channel,] [offset])                                     #      #
+
+map(cel_x, cel_y, sx, sy, cel_w, cel_h, [layer])                #      #
+mget(x, y)                                                      #      #
+mset(x, y, v)                                                   #      #
+
+memcpy(dest_addr, source_addr, len)                             #      #
+memset(dest_addr, val, len)                                     #      #
+peek(addr, [n])                                                 #      #
+peek2(addr, [n])                                                #      #
+peek4(addr, [n])                                                #      #
+poke(addr, [value,] [...])                                      #      #
+poke2(addr, [...])                                              #      #
+poke4(addr, [...])                                              #      #
+serial(channel, sourceaddr, size)                               #      #
+
+abs(x)                                                          #      #
+atan2(dx, dy)                                                   #      #
+band(x, y)                                                      #      #
+bnot(x)                                                         #      #
+bor(x, y)                                                       #      #
+bxor(x, y)                                                      #      #
+ceil(x)                                                         #      #
+cos(x)                                                          #      #
+flr(x)                                                          #      #
+lshr(num, bits)                                                 #      #
+max(x, y)                                                       #      #
+mid(x, y, z)                                                    #      #
+min(x, y)                                                       #      #
+rnd(x)                                                          #      #
+rotl(num, bits)                                                 #      #
+rotr(num, bits)                                                 #      #
+sgn(x)                                                          #      #
+shl(x, y)                                                       #      #
+shr(x, y)                                                       #      #
+sin(x)                                                          #      #
+sqrt(x)                                                         #      #
+srand(x)                                                        #      #
+
+cartdata(id)                                                    #      #
+dget(index)                                                     #      #
+dset(index, value)                                              #      #
+cstore(dest_addr, source_addr, len, [filename])                 #      #
+reload(dest_addr, source_addr, len, [filename])                 #      #
+
+cocreate(func)                                                  #      #
+coresume(cor, [...])                                            #      #
+costatus(cor)                                                   #      #
+yield([...])                                                    #      #
+
+split(str, [separator, ] [convert_numbers])                     #      #
+sub(str, from, [to])                                            #      #
+chr(num)                                                        #      #
+ord(str, [index])                                               #      #
+tonum(val, [format_flags])                                      #      #
+tostr(val, [usehex])                                            #      #
+
+setmetatable(tbl, metatbl)                                      #      #
+getmetatable(tbl)                                               #      #
+rawequal(t1, t2)                                                #      #
+rawget(t, n)                                                    #      #
+rawlen(t)                                                       #      #
+rawset(t, n, v)                                                 #      #
+select(i, ...)                                                  #      #
+type(v)                                                         #      #
+
+time()                                                          #      #
+
+menuitem(index, [label, callback])                              #      #
+extcmd(cmd)                                                     #      #
+run([breadcrumb])                                               #      #
+
+assert(cond, [message])                                         #      #
+printh(str, [filename], [overwrite])                            #      #
+stat(n)                                                         #      #
+*/
+
 #[cfg(feature = "rlua")]
 pub mod plugin {
     use log::{error, info, debug};
@@ -32,44 +161,6 @@ pub mod plugin {
 
     impl UserData for ExtraData {
         fn add_methods<'lua, T: UserDataMethods<'lua, Self>>(methods: &mut T) {
-/*
-        # Input                 #               #               #
-        btn                     #     X         #               #
-        btnp                    #     X         #               #
-        mouse_x                 #               #               #
-        mouse_y                 #               #               #
-        mouse_state             #               #               #
-        mouse_statep            #               #               #
-        # Palette               #               #               #
-        palette                 #               #               #
-        palette_hexa            #               #               #
-        palette_reset           #               #               #
-        palette_switch          #               #               #
-        # Math                  #               #               #
-        atan2                   #     X         #               #
-        cos                     #     X         #               #
-        sin                     #     X         #               #
-        flr                     #     X         #               #
-        rnd                     #     X         #               #
-        srand                   #     X         #               #
-        mid                     #     X         #               #
-        bxor                    #     X         #               #
-        # Memory                #               #               #
-        memcpy                  #               #               #
-        # System                #               #               #
-        time                    #     X         #               #
-        show_mouse              #               #               #
-*/    
-
-            methods.add_method("play_note", |_lua_ctx, game_state, (note_idx, instrument_idx, channel):(u32, u32, u8)| {
-                game_state.audio.lock().unwrap().push(AudioSyncCommand::PressedKey {note_index: note_idx as usize, instrument_index: instrument_idx as usize, channel: channel as usize});
-                Ok(0)
-            });
-
-            methods.add_method("trigger_note", |_lua_ctx, game_state, (note_idx, instrument_idx):(u32, u32)| {
-                game_state.audio.lock().unwrap().push(AudioSyncCommand::TriggerNote {note_index: note_idx as usize, instrument_index: instrument_idx as usize});
-                Ok(0)
-            });
 
             methods.add_method("btn", |_lua_ctx, game_state, (i, player):(u8, u8)| {
                let value = game_state.contexts.lock().unwrap().input_context.btn(player, i);
@@ -113,12 +204,6 @@ pub mod plugin {
                 Ok(value)
             });
 
-/* 
-        # Map                   #               #               #
-        mapdraw                 #     X         #               #
-        mget                    #     X         #               #
-        mset                    #     X         #               #
-*/
             methods.add_method("mapdraw", |_lua_ctx, game_state, (cel_x, cel_y, sx, sy, cel_w, cel_h, layer):(u32, u32, i32, i32, u32, u32, u8)| {
                 game_state.screen.lock().unwrap().mapdraw(cel_x, cel_y, sx, sy, cel_w, cel_h, layer);
                 Ok(0)
@@ -134,37 +219,6 @@ pub mod plugin {
                 Ok(0)
             });
 
-/*
-        # GFX                   #    Lua        #    New name (if conflicted with keywords language)   #
-        mode_width              #     X         #               #
-        mode_height             #     X         #               #
-        camera                  #     X         #               #
-        circ                    #     X         #               #
-        circfill                #     X         #               #
-        clip                    #     X         #               #
-        cls                     #     X         #               #
-        color                   #     X         #               #
-        ellipse                 #     X         #               #
-        ellipsefill             #     X         #               #
-        fget                    #     X         #               #
-        fset                    #     X         #               #
-        font                    #     X         #               #
-        line                    #     X         #               #
-        pal                     #     X         #               #
-        palt                    #     X         #               #
-        pget                    #     X         #               #
-        polygon                 #               #               #
-        print                   #     X         #               #
-        pset                    #     X         #               #
-        rect                    #     X         #               #
-        rectfill                #     X         #               #
-        sget                    #     X         #               #
-        spr                     #     X         #               #
-        sset                    #     X         #               #
-        sspr                    #     X         #               #
-        sspr_rotazoom           #               #               #
-        trigon                  #     X         #               #
-*/
             methods.add_method("mode_width", |_lua_ctx, game_state, ()| {
                 Ok(game_state.screen
                     .lock()
@@ -414,6 +468,17 @@ pub mod plugin {
                .sset(x, y, col);
                
                Ok(())
+            });
+
+
+            methods.add_method("play_note", |_lua_ctx, game_state, (note_idx, instrument_idx, channel):(u32, u32, u8)| {
+                game_state.audio.lock().unwrap().push(AudioSyncCommand::PressedKey {note_index: note_idx as usize, instrument_index: instrument_idx as usize, channel: channel as usize});
+                Ok(0)
+            });
+
+            methods.add_method("trigger_note", |_lua_ctx, game_state, (note_idx, instrument_idx):(u32, u32)| {
+                game_state.audio.lock().unwrap().push(AudioSyncCommand::TriggerNote {note_index: note_idx as usize, instrument_index: instrument_idx as usize});
+                Ok(0)
             });
         }
     }

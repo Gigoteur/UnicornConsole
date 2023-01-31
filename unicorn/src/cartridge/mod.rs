@@ -164,9 +164,7 @@ fn read_from_uniformat<R: io::BufRead>(filename: &str, buf: &mut R) -> Result<Ca
         cartridge_code = CartridgeCode::new("rhai".to_string(),
                                             sections.get_mut("__rhai__").unwrap());
     } else if sections.contains_key("__code__") {
-        if sections.contains_key("___rhai___") {
-            
-        }
+        cartridge_code = CartridgeCode::remote(sections.get_mut("__code__").unwrap());
     } else {
         return Err(Error::Err("NO CODE DATA".to_string()));
     }

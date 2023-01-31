@@ -368,25 +368,10 @@ function sset(x, y, color)
      userdata:sset(x, y, color)
 end
 
-function music(n, fadems, channelmask)
-end
-
-function sfx(n, channel, offset, length)
-end
-
-
 function play_note(note_idx, instrument_idx, channel)
     userdata:play_note(note_idx, instrument_idx, channel)
 end
 
 function trigger_note(note_idx, instrument_idx)
     userdata:trigger_note(note_idx, instrument_idx)
-end
-
-function stat(val)
-    return ""
-end
-
-function poke(addr, value)
-    debug_print("POKE NOT IMPLEMENTED", addr, value)
 end

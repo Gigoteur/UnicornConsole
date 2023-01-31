@@ -8,6 +8,7 @@ extern crate cpython;
 extern crate image;
 
 extern crate rhai;
+extern crate wasmtime;
 
 extern crate rustpython;
 extern crate rustpython_vm;

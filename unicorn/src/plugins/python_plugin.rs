@@ -15,90 +15,11 @@ pub mod plugin {
     use crate::core::AudioSyncCommand;
     use crate::core::AudioCommandBuffer;
 
-    /*
-        # GFX                   #    Python     #    New name       #
-        mode_width              #       X       #                   #
-        mode_heigth             #       X       #                   #    
-        camera                  #       X       #                   #
-        circ                    #       X       #                   #
-        circfill                #       X       #                   #
-        clip                    #       X       #                   #
-        cls                     #       X       #                   #
-        color                   #       X       #                   #
-        ellipse                 #       X       #                   #
-        ellipsefill             #       X       #                   #
-        fget                    #       X       #                   #
-        font                    #       X       #                   #
-        line                    #       X       #                   #
-        pal                     #       X       #                   #
-        palt                    #       X       #                   #
-        pget                    #       X       #                   #
-        polygon                 #       X       #                   #
-        print                   #       X       # unicorn_print     #
-        pset                    #       X       #                   #
-        rect                    #       X       #                   #
-        rectfill                #       X       #                   #
-        sget                    #       X       #                   #
-        spr                     #       X       #                   #
-        sset                    #       X       #                   #
-        sspr                    #       X       #                   #
-        sspr_rotazoom           #       X       #                   #
-        trigon                  #       X       #                   #
-        # Audio                 #               #                   #
-        music                   #               #                   #
-        sfx                     #               #                   #
-        music_stop              #               #                   #
-        music_volume            #               #                   #
-        music_pause             #               #                   #
-        music_resume            #               #                   #
-        music_stop              #               #                   #
-        music_position          #               #                   #
-        # Input                 #               #                   #
-        btn                     #       X       #                   #
-        btnp                    #       X       #                   #
-        mouse_x                 #       X       #                   #
-        mouse_y                 #       X       #                   #
-        mouse_state             #       X       #                   #
-        mouse_statep            #       X       #                   #
-        # Map                   #               #                   #
-        mapdraw                 #       X       #                   #
-        mget                    #       X       #                   #
-        mset                    #       X       #                   #
-        # Palette               #               #                   #
-        palette                 #       X       #                   #
-        palette_hexa            #       X       #                   #
-        palette_reset           #       X       #                   #
-        palette_switch          #       X       #                   #
-        # Math                  #               #                   #
-        atan2                   #       X       #                   #
-        cos                     #       X       #                   #
-        sin                     #       X       #                   #
-        flr                     #       X       #                   #
-        rnd                     #       X       #                   #
-        srand                   #       X       #                   #
-        mid                     #       X       #                   #
-        bxor                    #       X       #                   #
-        # Memory                #               #                   #
-        memcpy                  #       X       #                   #
-        # System                #               #                   #
-        time                    #       X       # unicorn_time      #
-        show_mouse              #       X       #                   #
-    */
-
     // Graphics
     py_class!(class UnicornGraphic |py| {
     data screen: Arc<Mutex<Screen>>;
 
-
     // Cart Data
-    def mode_width(&self) -> PyResult<u32> {
-        Ok(self.screen(py).lock().unwrap().mode_width() as u32)
-    }
-
-    def mode_height(&self) -> PyResult<u32> {
-        Ok(self.screen(py).lock().unwrap().mode_height() as u32)
-    }
-
     def set_color_palette(&self, color:u32, r: u8, g: u8, b: u8) -> PyResult<i32> {
         self.screen(py).lock().unwrap().set_palette_color(color, r, g, b);
         Ok(0)
@@ -187,11 +108,11 @@ pub mod plugin {
         Ok(0)
     }
 
-    def mode_get_width(&self) -> PyResult<usize> {
+    def mode_width(&self) -> PyResult<usize> {
         Ok(self.screen(py).lock().unwrap().mode_width())
     }
 
-    def mode_get_height(&self) -> PyResult<usize> {
+    def mode_height(&self) -> PyResult<usize> {
         Ok(self.screen(py).lock().unwrap().mode_height())
     }
 
@@ -437,19 +358,6 @@ pub mod plugin {
             Ok(0)
         }
 
-
-    });
-
-    // Math
-
-    // Memory
-    py_class!(class UnicornMemory |py| {
-    data screen: Arc < Mutex < Screen > >;
-
-    def memcpy(&self, dest_addr: u32, source_addr: u32, len: u32) -> PyResult<u32> {
-        self.screen(py).lock().unwrap().memcpy(dest_addr, source_addr, len);
-        Ok(0)
-    }
 
     });
 

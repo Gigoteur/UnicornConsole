@@ -21,10 +21,13 @@ impl crate::Game for MyGame {
 
     /// Handle all of your game state logic here
     fn update(&mut self) {
+        self.x_pos += 1;
+        self.y_pos += 1;
     }
 
     /// Handle all of your rendering code here
     fn draw(&self) {
         api::cls(0);
+        api::circ(10+self.x_pos, 10+self.y_pos, 10+self.x_pos, 8);
     }
 }

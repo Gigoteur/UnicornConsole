@@ -66,6 +66,7 @@ cpal = "0.13.5"
 hound = "3.4.0"
 
 rhai = "1.12.0"
+wasmtime = "5.0.0"
 
 [dependencies.cpython]
 version = "0.7"
@@ -81,6 +82,7 @@ git = "https://github.com/RustPython/RustPython.git"
 
 [dependencies.rustpython-vm]
 git = "https://github.com/RustPython/RustPython.git"
+
 
 [dependencies.image]
 optional = true

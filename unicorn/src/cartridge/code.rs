@@ -4,8 +4,9 @@ use std::io::BufRead;
 
 use std::fs::File;
 use std::io::BufReader;
-use std::ops::Add;
-
+use std::path::PathBuf;
+use std::str::FromStr;
+use std::fs::read;
 
 #[derive(Debug)]
 pub struct CartridgeCode {
@@ -14,6 +15,7 @@ pub struct CartridgeCode {
     pub version: u8,
     pub code_type: String,
     pub filename: String,
+    pub bytes: Vec<u8>,
 }
 
 impl CartridgeCode {
@@ -26,6 +28,7 @@ impl CartridgeCode {
             version: 0,
             code_type: "".to_string(),
             filename: "".to_string(),
+            bytes: Vec::new(),
         }
     }
 
@@ -45,6 +48,51 @@ impl CartridgeCode {
             version: 0,
             code_type: code_type,
             filename: "".to_string(),
+            bytes: Vec::new(),
+        }
+    }
+
+    pub fn remote(lines: &[String]) -> CartridgeCode {
+        let mut code_type = "";
+        let mut filename = "";
+        let mut code = "".to_string();
+        let mut bytes = Vec::new();
+
+        if lines.len() > 0 {
+            filename = lines.get(0).unwrap();
+            if filename.contains(".rhai") {
+                code_type = "rhai";
+
+                let f1 = File::open(filename).unwrap();
+                let buf_reader = BufReader::new(f1);
+
+                for line in buf_reader.lines() {
+                    let l = line.unwrap();
+                    code.push_str(&l);
+                    code.push('\n');
+                }
+            }
+            if filename.contains(".wasm") {
+                code_type = "wasm";               
+                let path = PathBuf::from_str(filename).unwrap();
+                let result = std::fs::read(path).map_err(|e| e.to_string());
+                match result {
+                    Ok(value) => {
+                        bytes.append(&mut value.clone());
+                    },
+                    Err(_) => {}
+                }
+            }
+            println!("CODE {:?} {:?}", code.len(), bytes.len());
+        }
+
+        CartridgeCode {
+            lines: lines.to_vec(),
+            code: code,
+            version: 0,
+            code_type: code_type.to_string(),
+            filename: filename.to_string(),
+            bytes: bytes,
         }
     }
 
@@ -76,6 +124,10 @@ impl CartridgeCode {
             }
         }
 
+    }
+
+    pub fn get_bytes_data(&mut self) -> Vec<u8> {
+        self.bytes.clone()
     }
 
     pub fn get_data(&mut self) -> String {

@@ -145,13 +145,6 @@ end
 
 tostr = tostring
 
-function menuitem(index, label, callback)
-end
-
-function run(breadcrumb)
-end
-
-
 function split(inputstr, sep, convert_numbers)
     if sep == nil then
         sep = ","
@@ -161,4 +154,25 @@ function split(inputstr, sep, convert_numbers)
             table.insert(t, str)
     end
     return t
+end
+
+function stat(val)
+    return ""
+end
+
+function poke(addr, value)
+    debug_print("POKE NOT IMPLEMENTED", addr, value)
+end
+
+-- empty commands
+function music(n, fadems, channelmask)
+end
+
+function sfx(n, channel, offset, length)
+end
+
+function menuitem(index, label, callback)
+end
+
+function run(breadcrumb)
 end

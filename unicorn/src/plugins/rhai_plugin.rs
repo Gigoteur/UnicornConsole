@@ -51,30 +51,29 @@ pub mod plugin {
         }
 
         pub fn load_code(&mut self, data: String) -> Result<()> {
-            info!("[PLUGIN][RHAI] Load the code");
+            info!("[PLUGIN][RHAI] Load the code {:?}", data);
+            self.ast = Some(self.engine.compile_with_scope(&mut self.scope, &data).unwrap());
 
-            self.ast = Some(self.engine.compile(&data).unwrap());
-
-            match self.engine.eval_ast_with_scope::<i64>(&mut self.scope, &self.ast.as_mut().unwrap()) {
+            match self.engine.run_ast_with_scope(&mut self.scope, &self.ast.as_mut().unwrap()) {
                 Ok(_) => return Ok(()),
                 Err(v) => return Err(anyhow!("[PLUGIN][RHAI] Failed to load the code = {:?}", v)),
             }
         }
 
         pub fn init(&mut self) -> Result<()> {
-            let result = self.engine.call_fn::<i64>(&mut self.scope, &self.ast.as_mut().unwrap(), "_init", ());
+            let result = self.engine.call_fn::<bool>(&mut self.scope, &self.ast.as_mut().unwrap(), "_init", ());
 
             Ok(())
         }
 
         pub fn draw(&mut self) -> Result<()> {
-            let result = self.engine.call_fn::<i64>(&mut self.scope, &self.ast.as_mut().unwrap(), "_draw", ());
+            let result = self.engine.call_fn::<bool>(&mut self.scope, &self.ast.as_mut().unwrap(), "_draw", ());
 
             Ok(())
         }
 
         pub fn update(&mut self) -> Result<()> {
-            let result = self.engine.call_fn::<i64>(&mut self.scope, &self.ast.as_mut().unwrap(), "_update", ());
+            let result = self.engine.call_fn::<bool>(&mut self.scope, &self.ast.as_mut().unwrap(), "_update", ());
 
             Ok(())
         }
