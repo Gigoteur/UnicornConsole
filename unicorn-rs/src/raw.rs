@@ -2,6 +2,7 @@
 extern "C" {
     pub fn mode_width() -> u32;
     pub fn mode_height() -> u32;
+    pub fn btnp(x: i32, p: i32) -> u32;
     pub fn cls(col: i8);
     pub fn circ(x: i32, y:i32, r: i32, col: i8);
     pub fn rnd_range(x: i32, y: i32) -> i32;

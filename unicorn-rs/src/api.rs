@@ -15,6 +15,9 @@ pub fn mode_width() -> u32 {
     unsafe { raw::mode_width() }
 }
 
+pub fn btnp(x: i32, p: i32) -> bool {
+    unsafe { raw::btnp(x, p) == 1 }
+}
 
 pub fn cls(col: i8) {
     unsafe { raw::cls(col) }

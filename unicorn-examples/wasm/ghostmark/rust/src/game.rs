@@ -63,6 +63,12 @@ impl crate::Game for MyGame {
 
     /// Handle all of your game state logic here
     fn update(&mut self) {
+        if api::btnp(5, 0) {
+            for _ in 0..500 {
+                self.sprites.push(Ghost::new());
+            }
+        }
+        
         for ghost in &mut self.sprites {
             ghost.update();
         }
