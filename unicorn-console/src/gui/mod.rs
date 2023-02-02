@@ -149,10 +149,7 @@ impl Gui {
         session_descriptor: SessionDescriptor,
         width: u32,
         height: u32
-    ) -> P2PSession<UnicornConsole> {
-        
-        pixels.resize_buffer(width, height);
-
+    ) -> P2PSession<UnicornConsole> {       
         window.set_inner_size(PhysicalSize::new(
             width.max(DEFAULT_WINDOW_RESOLUTION.width() as u32),
             height.max(DEFAULT_WINDOW_RESOLUTION.height() as u32),
@@ -197,6 +194,10 @@ impl Gui {
 
         let width = rom.width();
         let height = rom.height();
+
+        // Change the size of the console
+        pixels.resize_buffer(width, height);
+        rom.resize_buffer(width as usize, height as usize);
 
         Some(self.init_with_console(rom, pixels, window, session_descriptor, width, height))
     }

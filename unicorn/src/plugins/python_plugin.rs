@@ -399,9 +399,6 @@ pub mod plugin {
             let unicorn_map_obj = UnicornMap::create_instance(py, screen.clone()).unwrap();
             self.mydict.set_item(py, "unicorn_map", unicorn_map_obj).unwrap();
 
-            let unicorn_mem_obj = UnicornMemory::create_instance(py, screen.clone()).unwrap();
-            self.mydict.set_item(py, "unicorn_mem", unicorn_mem_obj).unwrap();
-
             let unicorn_info_obj = UnicornInfo::create_instance(py, info.clone()).unwrap();
             self.mydict.set_item(py, "unicorn_info", unicorn_info_obj).unwrap();  
 
@@ -418,10 +415,6 @@ pub mod plugin {
                      Some(&self.mydict))
                 .unwrap();
             py.run(r###"globals()["unicorn_map"] = unicorn_map;"###,
-                     None,
-                     Some(&self.mydict))
-                .unwrap();
-            py.run(r###"globals()["unicorn_mem"] = unicorn_mem;"###,
                      None,
                      Some(&self.mydict))
                 .unwrap();

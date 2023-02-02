@@ -9,6 +9,12 @@ use std::fmt;
 use log::{error, info};
 
 
+pub const DEFAULT_MODE_WIDTH: usize = 128;
+pub const DEFAULT_MODE_HEIGHT: usize = 128;
+
+pub const DEFAULT_MAP_WIDTH: usize = 128;
+pub const DEFAULT_MAP_HEIGHT: usize = 32;
+
 #[cfg(feature = "image")]
 use image;
 #[cfg(feature = "image")]
@@ -338,7 +344,7 @@ impl Unicorn {
     pub fn new() -> Unicorn {
         info!("[Unicorn] Creating new Unicorn");
 
-        let screen = Arc::new(Mutex::new(gfx::Screen::new(MAP_WIDTH, MAP_HEIGHT, 128, 32)));
+        let screen = Arc::new(Mutex::new(gfx::Screen::new(DEFAULT_MODE_WIDTH, DEFAULT_MODE_HEIGHT, DEFAULT_MAP_WIDTH, DEFAULT_MAP_HEIGHT)));
         
         Unicorn {
             screen: screen.clone(),
@@ -367,12 +373,16 @@ impl Unicorn {
         }
     }
 
+    pub fn resize_buffer(&mut self, width: usize, height: usize) {
+        self.screen.lock().unwrap().resize_buffer(width, height);
+    }
+
     pub fn width(&mut self) -> u32 {
-        MAP_WIDTH as u32
+        self.screen.lock().unwrap().mode_width() as u32
     }
 
     pub fn height(&mut self) -> u32 {
-        MAP_HEIGHT as u32
+        self.screen.lock().unwrap().mode_height() as u32
     }
     
     pub fn is_none(&mut self) -> bool {
@@ -385,6 +395,7 @@ impl Unicorn {
     }
 
     pub fn toggle_debug(&mut self) {
+        info!("[Unicorn] Toggle Debug {:?}", self.debug);
         self.debug = !self.debug;
     }
 
@@ -819,6 +830,7 @@ impl Unicorn {
         }
 
         self.cartridge = UnicornCartridge::new(cartridge, filename);
+        self.resize_buffer(self.cartridge.cartridge.mode_width, self.cartridge.cartridge.mode_height);
         self._setup_screen();
 
         match self._load_cartridge() {

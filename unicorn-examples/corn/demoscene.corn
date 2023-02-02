@@ -400,7 +400,7 @@ class Tweetjam_6(object):
             memset(self.a+rnd(self.b-l),rnd(256),l)
         else:
             l=rnd(0x100)
-            memcpy(self.a+rnd(self.b-l),self.a+rnd(self.b-l),l)
+            memcpy(self.a+rnd(self.b-l), self.a+rnd(self.b-l), l)
 
 # https://twitter.com/lexaloffle/status/849083097371070464
 class Tweetjam_7(object):
@@ -832,7 +832,7 @@ def next_demo():
 def _update():
     global idx_demo, demos, buttons
 
-    _mouse_state = mouse_left_state()
+    _mouse_state = mouse_left_statep()
     if _mouse_state == 1:
         _mouse_x = mouse_x()
         _mouse_y = mouse_y()

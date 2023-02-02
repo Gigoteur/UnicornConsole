@@ -34,6 +34,7 @@ pub use self::sfx::CartridgeSFX;
 pub use self::palette::CartridgePalette;
 pub use self::map::CartridgeMap;
 pub use self::music::CartridgeMusic;
+pub use crate::core::{DEFAULT_MODE_HEIGHT, DEFAULT_MODE_WIDTH, DEFAULT_MAP_HEIGHT, DEFAULT_MAP_WIDTH};
 
 /* [CART FORMAT]
 
@@ -86,10 +87,13 @@ pub struct Cartridge {
     pub music: CartridgeMusic,
     pub sfx: CartridgeSFX,
     pub format: CartridgeFormat,
+    pub mode_height: usize,
+    pub mode_width: usize,
 }
 
 pub static SECTION_DELIM_RE: &'static str = r"^__(\w+)__$";
-pub static SUB_SECTION_DELIM_RE: &'static str = r"^___(\w+)___$";
+pub static SECTION_WIDTH_RE: &'static str = r"^__width_(?P<size>\d+)__$";
+pub static SECTION_HEIGHT_RE: &'static str = r"^__height_(?P<size>\d+)__$";
 
 #[derive(Debug)]
 pub enum Error {
@@ -103,9 +107,9 @@ impl convert::From<io::Error> for Error {
     }
 }
 
-/* Unicorn format cardrgide */
+/* Unicorn format cartridge */
 fn read_from_uniformat<R: io::BufRead>(filename: &str, buf: &mut R) -> Result<Cartridge, Error> {
-    debug!("[CARTRIDGE] read_from_uniformat");
+    info!("[CARTRIDGE] read_from_uniformat");
 
     let mut header = String::new();
     buf.read_line(&mut header)?;
@@ -114,6 +118,8 @@ fn read_from_uniformat<R: io::BufRead>(filename: &str, buf: &mut R) -> Result<Ca
     buf.read_line(&mut version)?;
 
     let re_delim_section = Regex::new(SECTION_DELIM_RE).unwrap();
+    let re_width_section = Regex::new(SECTION_WIDTH_RE).unwrap();
+    let re_height_section = Regex::new(SECTION_HEIGHT_RE).unwrap();
 
     let mut sections: HashMap<String, Vec<String>> = HashMap::new();
 
@@ -121,9 +127,26 @@ fn read_from_uniformat<R: io::BufRead>(filename: &str, buf: &mut R) -> Result<Ca
 
     let mut new_section;
 
+    let mut mode_height = DEFAULT_MODE_HEIGHT;
+    let mut mode_width = DEFAULT_MODE_WIDTH;
+    
+
     for line in buf.lines() {
         let l = line.unwrap();
-        if re_delim_section.is_match(l.as_str()) {
+        if re_width_section.is_match(l.as_str()) {
+            let size = re_width_section.captures(l.as_str()).and_then(|cap| {
+                cap.name("size")
+            });
+            mode_width = size.unwrap().as_str().parse::<usize>().unwrap();
+            new_section = false;
+        } else if re_height_section.is_match(l.as_str()) {
+            let size = re_height_section.captures(l.as_str()).and_then(|cap| {
+                cap.name("size")
+            });
+            mode_height = size.unwrap().as_str().parse::<usize>().unwrap();
+            new_section = false;
+        }
+        else if re_delim_section.is_match(l.as_str()) {
             debug!("[CARTRIDGE] [Cartridge] NEW SECTION {:?}", l);
             section_name = l.clone();
 
@@ -180,7 +203,7 @@ fn read_from_uniformat<R: io::BufRead>(filename: &str, buf: &mut R) -> Result<Ca
     }
 
     match sections.get_mut("__map__") {
-        Some(vec_section) => cartridge_map = CartridgeMap::new(vec_section, 128, 128),
+        Some(vec_section) => cartridge_map = CartridgeMap::new(vec_section, DEFAULT_MAP_WIDTH as u32, DEFAULT_MAP_HEIGHT as u32),
         _ => cartridge_map = CartridgeMap::empty(),
     }
 
@@ -214,100 +237,8 @@ fn read_from_uniformat<R: io::BufRead>(filename: &str, buf: &mut R) -> Result<Ca
            music: cartridge_music,
            sfx: cartridge_sfx,
            format: CartridgeFormat::UnicornFormat,
-       })
-}
-
-pub fn from_dunicorn_file_raw<R: io::BufRead>(buf_reader: &mut R) -> Result<Cartridge, Error> {
-    let code_section = Vec::new();
-
-    let re_delim_section = Regex::new(SECTION_DELIM_RE).unwrap();
-
-    let mut sections: HashMap<String, Vec<String>> = HashMap::new();
-
-    let mut section_name = "".to_string();
-
-    let mut new_section;
-
-    for line in buf_reader.lines() {
-        let l = line.unwrap();
-        if re_delim_section.is_match(l.as_str()) {
-            debug!("NEW SECTION {:?}", l);
-            section_name = l.clone();
-
-            let vec_section = Vec::new();
-            sections.insert(section_name.clone(), vec_section);
-            new_section = false;
-        } else {
-            new_section = true;
-        }
-
-        if new_section {
-            match sections.get_mut(&section_name) {
-                Some(vec_section2) => vec_section2.push(l),
-                _ => debug!("Impossible to find section {:?}", section_name),
-            }
-        }
-    }
-
-    for (section_name, section) in &sections {
-        debug!("{}: \"{}\"", section_name, section.len());
-    }
-
-    let cartridge_gfx;
-    let cartridge_gff;
-    let cartridge_palette;
-    let mut cartridge_code;
-    let cartridge_map;
-    let cartridge_music;
-    let cartridge_sfx;
-
-    cartridge_code = CartridgeCode::new("javascript".to_string(), &code_section);
-    cartridge_code.set_filename("empty.js");
-
-    match sections.get_mut("__palette__") {
-        Some(vec_section) => cartridge_palette = CartridgePalette::new(vec_section),
-        _ => cartridge_palette = CartridgePalette::empty(),
-    }
-
-
-    match sections.get_mut("__gfx__") {
-        Some(vec_section) => cartridge_gfx = CartridgeGFX::new(vec_section),
-        _ => cartridge_gfx = CartridgeGFX::empty(),
-    }
-
-    match sections.get_mut("__map__") {
-        Some(vec_section) => cartridge_map = CartridgeMap::new(vec_section, 128, 32),
-        _ => cartridge_map = CartridgeMap::empty(),
-    }
-
-    match sections.get_mut("__gff__") {
-        Some(vec_section) => cartridge_gff = CartridgeGFF::new(vec_section),
-        _ => cartridge_gff = CartridgeGFF::empty(),
-    }
-
-    match sections.get_mut("__music__") {
-        Some(vec_section) => cartridge_music = CartridgeMusic::new(vec_section),
-        _ => cartridge_music = CartridgeMusic::empty(),
-    }
-
-    match sections.get_mut("__sfx__") {
-        Some(vec_section) => cartridge_sfx = CartridgeSFX::new(vec_section),
-        _ => cartridge_sfx = CartridgeSFX::empty(),
-    }
-
-    Ok(Cartridge {
-           filename: "empty".to_string(),
-           data_filename: "empty.duc".to_string(),
-           header: "".to_string(),
-           version: "".to_string(),
-           gfx: cartridge_gfx,
-           code: cartridge_code,
-           palette: cartridge_palette,
-           map: cartridge_map,
-           gff: cartridge_gff,
-           music: cartridge_music,
-           sfx: cartridge_sfx,
-           format: CartridgeFormat::UnicornFormat,
+           mode_height: mode_height,
+           mode_width: mode_width,
        })
 }
 
@@ -396,6 +327,8 @@ fn read_from_pngformat<R: io::BufRead>(filename: &str, buf: &mut R) -> Result<Ca
            music: CartridgeMusic::empty(),
            sfx: CartridgeSFX::empty(),
            format: CartridgeFormat::Pico8PNGFormat,
+           mode_height: DEFAULT_MODE_HEIGHT,
+           mode_width: DEFAULT_MODE_WIDTH,
        })
 }
 
@@ -463,7 +396,7 @@ fn read_from_p8format<R: io::BufRead>(filename: &str, buf: &mut R) -> Result<Car
     }
 
     match sections.get_mut("__map__") {
-        Some(vec_section) => cartridge_map = CartridgeMap::new(vec_section, 128, 128),
+        Some(vec_section) => cartridge_map = CartridgeMap::new(vec_section, DEFAULT_MAP_WIDTH as u32, DEFAULT_MAP_HEIGHT as u32),
         _ => cartridge_map = CartridgeMap::empty(),
     }
 
@@ -496,6 +429,8 @@ fn read_from_p8format<R: io::BufRead>(filename: &str, buf: &mut R) -> Result<Car
            music: cartridge_music,
            sfx: cartridge_sfx,
            format: CartridgeFormat::Pico8P8Format,
+           mode_height: DEFAULT_MODE_HEIGHT,
+           mode_width: DEFAULT_MODE_WIDTH,
        })
 }
 
@@ -514,6 +449,8 @@ impl Cartridge {
             music: CartridgeMusic::empty(),
             sfx: CartridgeSFX::empty(),
             format: CartridgeFormat::UnicornFormat,
+            mode_height: DEFAULT_MODE_HEIGHT,
+            mode_width: DEFAULT_MODE_WIDTH,
         }
     }
 
@@ -538,13 +475,13 @@ impl Cartridge {
 
         let mut buf_reader = Cursor::new(data);
 
-        from_dunicorn_file_raw(&mut buf_reader)
+        read_from_uniformat("raw", &mut buf_reader)
     }
 
     pub fn from_dunicorn_string(data: Vec<u8>) -> Result<Cartridge, Error> {
         let mut buf_reader = Cursor::new(data);
 
-        from_dunicorn_file_raw(&mut buf_reader)
+        read_from_uniformat("raw", &mut buf_reader)
     }
 
     pub fn from_png_file(filename: &str) -> Result<Cartridge, Error> {

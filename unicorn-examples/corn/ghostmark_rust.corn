@@ -1,71 +1,7 @@
-px8 / javascript cartridge
+unicorn / python cartridge
 version 1
-__javascript__
-function Ghost() {
-    this.x = Math.floor(Math.random() * 400) + 10;
-    this.y = Math.floor(Math.random() * 240) + 10;
-    this.color = Math.floor(Math.random() * 15);
-    this.vx = Math.random();
-    this.vy = Math.random();
-
-    this.draw = function() {
-        this.x = this.x + this.vx;
-        this.y = this.y + this.vy;
-
-        if (this.x < 0 || this.x>400) {
-            this.vx = -this.vx;
-        }
-
-        if (this.y > 240) {
-            this.y = 240;
-            this.vy = -(Math.floor(Math.random() * 100)/25.0);
-        }
-
-        spr(this.color, this.x, this.y);
-        this.vy = this.vy + 0.05;
-
-    };
-};
-
-var ghosts = [];
-
-function _init() {
-    cls();
-    for (i = 0; i < 500; i++) {
-        ghosts.push(new Ghost());
-    }
-}
-
-function _update() {
-}
-
-function _draw() {
-    cls();
-    
-    var stime = unicorn_time();
-
-    //var x = Math.floor(Math.random() * 400);
-    //var y = Math.floor(Math.random() * 240);
-    //var color = Math.floor(Math.random() * 15);
-
-    //pset(x, y, color);
-
-    ghosts.forEach(function(ghost) {
-        ghost.draw();
-    });
-
-    var etime = unicorn_time();
-
-    print("dots :" + ghosts.length.toString(), 8, 0, 7)
-    print("Time :" + ((etime - stime)/16.67).toString(), 8, 16, 7)
-
-    if (btnp(5)) {
-        for (i = 0; i < 500; i++) {
-            ghosts.push(new Ghost());
-        }
-    }
-}
-
+__code__
+..\unicorn-examples\corn\ghostmark.wasm
 __gfx__
 000000000111111002222220033333300444444005555550066666600777777008888880099999900aaaaaa00bbbbbb00cccccc00dddddd00eeeeee00ffffff0
 05700570157115712572257235733573457445745575557565766576757775778578857895799579a57aa57ab57bb57bc57cc57cd57dd57de57ee57ef57ff57f

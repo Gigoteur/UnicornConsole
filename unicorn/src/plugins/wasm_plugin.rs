@@ -5,6 +5,11 @@ pub mod plugin {
     use anyhow::{Result, anyhow};
     use log::{error, info, debug};
 
+    use rand;
+    use rand::Rng;
+    use rand::prelude::*;
+    use rand_chacha::ChaCha8Rng;
+
     use contexts::Contexts;
     use core::info::Info;
     use gfx::Screen;
@@ -47,14 +52,29 @@ pub mod plugin {
 
             let mut linker = Linker::new(&self.engine);
 
+            linker.func_wrap("env", "mode_height", |caller: Caller<'_, Arc<Mutex<Screen>>>, x: i32, y:i32, r: i32, col: i32| {
+                caller.data().lock().unwrap().mode_height();
+            })?;
+
+
             linker.func_wrap("env", "cls", |caller: Caller<'_, Arc<Mutex<Screen>>>, col: i32| {
-                println!("Got {} from WebAssembly", col);
                 caller.data().lock().unwrap().cls(col as i8);
             })?;
 
             linker.func_wrap("env", "circ", |caller: Caller<'_, Arc<Mutex<Screen>>>, x: i32, y:i32, r: i32, col: i32| {
-                println!("Got {} {} {} {} from WebAssembly", x, y, r, col);
                 caller.data().lock().unwrap().circ(x, y, r, col);
+            })?;
+
+            linker.func_wrap("env", "circfill", |caller: Caller<'_, Arc<Mutex<Screen>>>, x: i32, y:i32, r: i32, col: i32| {
+                caller.data().lock().unwrap().circfill(x, y, r, col);
+            })?;
+
+            linker.func_wrap("env", "rnd_range", |caller: Caller<'_, Arc<Mutex<Screen>>>, x: i32, y:i32| {
+                return rand::thread_rng().gen_range(x as f64..y as f64) as i32;
+            })?;
+
+            linker.func_wrap("env", "spr", |caller: Caller<'_, Arc<Mutex<Screen>>>, n: u32, x: i32, y: i32, w: i32, h: i32, flip_x: i32, flip_y: i32, angle: f32, zoom: f32, dynamic: i32| {
+                caller.data().lock().unwrap().spr(n, x, y, w, h, flip_x == 1, flip_y == 1, angle.into(), zoom.into(), dynamic == 1);
             })?;
 
             let mut store = self.store.as_mut().unwrap();
@@ -65,21 +85,21 @@ pub mod plugin {
             self.init_fn = match instance.get_typed_func(&mut store, "init") {
                 Ok(init_fn) => Some(init_fn),
                 Err(e) => {
-                    return Err(anyhow!("[PLUGIN][RHAI] Failed to find the init function = {:?}", e));
+                    return Err(anyhow!("[PLUGIN][WASM] Failed to find the init function = {:?}", e));
                 }
             };
 
             self.draw_fn = match instance.get_typed_func(&mut store, "draw") {
                 Ok(draw_fn) => Some(draw_fn),
                 Err(e) => {
-                    return Err(anyhow!("[PLUGIN][RHAI] Failed to find the draw function = {:?}", e));
+                    return Err(anyhow!("[PLUGIN][WASM] Failed to find the draw function = {:?}", e));
                 }
             };
 
             self.update_fn = match instance.get_typed_func(&mut store, "update") {
                 Ok(update_fn) => Some(update_fn),
                 Err(e) => {
-                    return Err(anyhow!("[PLUGIN][RHAI] Failed to find the update function = {:?}", e));
+                    return Err(anyhow!("[PLUGIN][WASM] Failed to find the update function = {:?}", e));
                 }
             };
 

@@ -6,7 +6,7 @@ use game::MyGame;
 pub trait Game {
     fn init() -> Self;
     fn update(&mut self);
-    fn draw(&self);
+    fn draw(&mut self);
 }
 
 static mut GAME: MaybeUninit<MyGame> = MaybeUninit::uninit();
@@ -28,6 +28,6 @@ pub extern "C" fn update() {
 #[no_mangle]
 pub extern "C" fn draw() {
     unsafe {
-        GAME.assume_init_ref().draw();
+        GAME.assume_init_mut().draw();
     }
 }

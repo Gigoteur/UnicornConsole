@@ -49,6 +49,7 @@ pub struct Screen {
 impl Screen {
     pub fn new(width: usize, height: usize, map_width: usize, map_height: usize) -> Screen {
         info!("[GFX] [Screen] Creating Screen [width:{:?} height:{:?}, map_width:{:?}, map_height:{:?}]", width, height, map_width, map_height);
+        
         let pixel_buffer = (0..(width * height)*4)
             .map(|_| 0)
             .collect::<Vec<u8>>()
@@ -81,6 +82,19 @@ impl Screen {
             
             cliprect: clip::ClipRect::new(),
             font: &fonts::pico8::FONT,
+        }
+    }
+
+    pub fn resize_buffer(&mut self, width: usize, height: usize) {
+        info!("[GFX] [Screen] Resizing buffer {:?}x{:?}", width, height);
+
+        if width != self.map_width && height != self.map_height {
+            self.pixel_buffer = (0..(width * height)*4)
+                .map(|_| 0)
+                .collect::<Vec<u8>>()
+                .into_boxed_slice();
+            self.width = width;
+            self.height = height;
         }
     }
 

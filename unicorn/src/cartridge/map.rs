@@ -40,7 +40,7 @@ impl CartridgeMap {
     pub fn get_data(&mut self) -> String {
         let mut data = String::new();
 
-        for y in 0..32 {
+        for y in 0..self.height {
             for x in 0..self.width {
                 let idx_sprite = *self.map.get((x + self.width * y) as usize).unwrap_or(&0);
                 data.push_str(&format!("{:02x}", idx_sprite));

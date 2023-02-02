@@ -437,5 +437,5 @@ fn init_pixels(window: &Window) -> Pixels {
     let window_size = window.inner_size();
     let surface_texture = SurfaceTexture::new(window_size.width, window_size.height, &window);
 
-    Pixels::new(unicorn::core::MAP_WIDTH as u32, unicorn::core::MAP_HEIGHT as u32, surface_texture).unwrap()
+    Pixels::new(unicorn::core::DEFAULT_MODE_WIDTH as u32, unicorn::core::DEFAULT_MODE_HEIGHT as u32, surface_texture).unwrap()
 }
