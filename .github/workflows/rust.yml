@@ -17,6 +17,8 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build
+      working-directory : ./unicorn
       run: cargo build --verbose
     - name: Run tests
+      working-directory : ./unicorn
       run: cargo test --verbose
