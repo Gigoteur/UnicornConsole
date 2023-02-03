@@ -88,7 +88,7 @@ impl Screen {
     pub fn resize_buffer(&mut self, width: usize, height: usize) {
         info!("[GFX] [Screen] Resizing buffer {:?}x{:?}", width, height);
 
-        if width != self.map_width && height != self.map_height {
+        if width != self.map_width || height != self.map_height {
             self.pixel_buffer = (0..(width * height)*4)
                 .map(|_| 0)
                 .collect::<Vec<u8>>()

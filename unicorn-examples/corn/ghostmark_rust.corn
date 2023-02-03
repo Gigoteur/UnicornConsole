@@ -1,7 +1,7 @@
 unicorn / python cartridge
 version 1
-__width_256__
-__height_256__
+__width_512__
+__height_512__
 __code__
 ..\unicorn-examples\corn\ghostmark.wasm
 __gfx__

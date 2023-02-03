@@ -9,7 +9,7 @@ pub mod wasm_plugin;
 #                       #    LUA    #     CPython   #    RPython    #   RHAI    #    WASM    #
 # Input 
 btn                     #     X     #       X       #               #           #            #
-btnp                    #     X     #       X       #               #           #            #
+btnp                    #     X     #       X       #               #           #     X      #
 mouse_x                 #           #       X       #               #           #            #
 mouse_y                 #           #       X       #               #           #            #
 mouse_state             #           #       X       #               #           #            #
@@ -44,13 +44,13 @@ mget                    #     X     #       X       #               #           
 mset                    #     X     #       X       #               #           #            #
 
 # GFX
-mode_width              #     X     #       X       #               #           #            #
-mode_height             #     X     #       X       #               #           #            #
+mode_width              #     X     #       X       #               #           #     X      #
+mode_height             #     X     #       X       #               #           #     X      #
 camera                  #     X     #       X       #               #           #            #
-circ                    #     X     #       X       #               #           #            #
+circ                    #     X     #       X       #               #           #     X      #
 circfill                #     X     #       X       #               #           #            #
 clip                    #     X     #       X       #               #           #            #
-cls                     #     X     #       X       #               #           #            #
+cls                     #     X     #       X       #               #           #     X      #
 color                   #     X     #       X       #               #           #            #
 ellipse                 #     X     #       X       #               #           #            #
 ellipsefill             #     X     #       X       #               #           #            #
@@ -64,7 +64,7 @@ pal                     #     X     #       X       #               #           
 palt                    #     X     #       X       #               #           #            #
 pget                    #     X     #       X       #               #           #            #
 polygon                 #           #       X       #               #           #            #
-print                   #     X     # unicorn_print #               #           #            #
+print                   #     X     # unicorn_print #               #           #     X      #
 pset                    #     X     #       X       #               #           #            #
 rect                    #     X     #       X       #               #           #            #
 rectfill                #     X     #       X       #               #           #            #

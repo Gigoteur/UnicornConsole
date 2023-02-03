@@ -7,8 +7,10 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use std::fmt;
 use log::{error, info};
+use std::fs::File;
+use std::path::Path;
 
-
+/* Default value */
 pub const DEFAULT_MODE_WIDTH: usize = 128;
 pub const DEFAULT_MODE_HEIGHT: usize = 128;
 
@@ -19,19 +21,15 @@ pub const DEFAULT_MAP_HEIGHT: usize = 32;
 use image;
 #[cfg(feature = "image")]
 use gif;
-#[cfg(feature = "image")]
-use std::path::Path;
-#[cfg(feature = "image")]
-use std::fs::File;
-#[cfg(feature = "image")]
-use image::GenericImageView;
 
+// Plugins !
 use plugins::lua_plugin::plugin::LuaPlugin;
 use plugins::python_plugin::plugin::PythonPlugin;
 use plugins::rpython_plugin::plugin::RPythonPlugin;
 use plugins::rhai_plugin::plugin::RhaiPlugin;
 use plugins::wasm_plugin::plugin::WasmPlugin;
 
+// Internal deps
 use gfx;
 use contexts;
 use cartridge::{Cartridge, CartridgeFormat};
@@ -526,6 +524,7 @@ impl Unicorn {
                     buffer.push(rgb_value.r);
                     buffer.push(rgb_value.g);
                     buffer.push(rgb_value.b);
+                    buffer.push(rgb_value.a);
                 }
             }
             self.record.images.append(&mut buffer);
@@ -536,6 +535,7 @@ impl Unicorn {
 
     #[cfg(feature = "image")]
     pub fn stop_record(&mut self) {
+        /*
         info!("[Unicorn] Stop to record the frame {:?}",
               self.record.images.len());
 
@@ -592,7 +592,7 @@ impl Unicorn {
             encoder.write_frame(&frame).unwrap();
         }
 
-        info!("[Unicorn] GIF created in {:?}", self.record.filename);
+        info!("[Unicorn] GIF created in {:?}", self.record.filename);*/
     }
 
     #[cfg(feature = "image")]
@@ -601,7 +601,7 @@ impl Unicorn {
 
         info!("[Unicorn] Taking screenshot {:?}x{:?} in {:?}", screen.width, screen.height, filename);
 
-        let mut buffer: Vec<u8> = vec![0; (screen.width*screen.height) * 3];
+        let mut buffer: Vec<u8> = vec![0; (screen.width*screen.height) * 4];
 
         let mut idx = 0;
         for x in 0..screen.width {
@@ -659,14 +659,6 @@ impl Unicorn {
             }
             _ => {}
         }
-    }
-
-    pub fn save_state() {
-
-    }
-
-    pub fn restore_state() {
-
     }
 
     pub fn switch_pause(&mut self) {

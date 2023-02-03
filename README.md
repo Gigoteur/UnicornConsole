@@ -8,7 +8,7 @@
 [![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/Gigoteur/UnicornConsole/blob/master/LICENSE.md)
 
 
-Unicorn Console (previously known as PX8 in the past, but I think "Unicorn Console" is a better name) is a fantasy engine that let you do quickly any sort of game, application with a default resolution of 128x128 pixels. The console allow you to load what is called a 'cartridge' like in many other fantasy console, that contains the code, the graphics and the sounds.
+Unicorn Console (previously known as PX8 in the past, but I think "Unicorn Console" is a better name) is a fantasy engine that let you do quickly any sort of game, application with a default resolution of 128x128 pixels, 8bits color. The console allow you to load what is called a 'cartridge' like in many other fantasy console, that contains the code, the graphics and the sounds.
 
 TOC:
   * [Features](#features)
@@ -32,7 +32,7 @@ The main engine is not dependant of a specific GFX library so you can use it whe
   * Font: predefined list of fonts (pico8, bbc, trollmini, etc)
   * Sprites: Single bank of 128 8x8 sprites that is directly from the cartridge
   * Dynamic sprites: create sprites dynamically with the API
-  * Code: No limit size (lua, python, wasm (WIP))
+  * Code: No limit size (lua, python, rhai, and wasm)
   * Map: 128x32 8-bit cells
   * Sound: 8 channels, tracker, FM synthetizer, 16-bit Wavetables (from GamerCade console) 
   * Editor: GFX and sound editor
@@ -41,7 +41,7 @@ The main engine is not dependant of a specific GFX library so you can use it whe
 
 ## Limitations
 
-The console is somewhat compatible with [pico-8](https://www.lexaloffle.com/pico-8.php), most of current functions from pico8 is implemented and the cartridge is the same format. However some lua language syntax is not supported (like operator overload (+=, -=, etc), or some symbol like "!=". But see the unicorn-examples, I did some modifications of good games to use it with Unicorn.
+The console is somewhat compatible with [pico-8](https://www.lexaloffle.com/pico-8.php) (buy it !), most of current functions from pico8 is implemented and the cartridge is the same format. However some lua language syntax is not supported (like operator overload (+=, -=, etc), or some symbol like "!=". But see the unicorn-examples, I did some modifications of good games to use it with Unicorn.
 
 
 ## Build
@@ -64,7 +64,7 @@ cargo build --release --features=unicorn/cpython,unicorn/rlua
 | Pico8 P8  | X  | X |
 | Unicorn (CORN) | X  | X |
 
-Unicorn file format is exactly the same as PICO8 P8 format, except that new sections are available, like __python__ etc.
+Unicorn file format is exactly the same as PICO8 P8 format, except that new sections are available, like __python__, __rhai__, __wasm__, __code__ etc.
 
 ## Create
 

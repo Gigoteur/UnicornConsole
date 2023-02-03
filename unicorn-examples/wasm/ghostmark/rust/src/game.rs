@@ -68,7 +68,7 @@ impl crate::Game for MyGame {
                 self.sprites.push(Ghost::new());
             }
         }
-        
+
         for ghost in &mut self.sprites {
             ghost.update();
         }
@@ -80,5 +80,7 @@ impl crate::Game for MyGame {
         for ghost in &mut self.sprites {
             ghost.draw();
         }
+
+        api::print(format!("dots {:?}", self.sprites.len()).as_str(), 128, 0, 7);
     }
 }

@@ -219,6 +219,8 @@ impl Console for UnicornConsole {
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     env::set_var("RUST_LOG", "info");
+  //  env::set_var("RUST_BACKTRACE", "1");
+
     env_logger::init();
 
     let mut session: Option<P2PSession<UnicornConsole>> = None;
@@ -417,7 +419,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 }
 
-const DEFAULT_WINDOW_RESOLUTION: unicorn::core::resolution::Resolution = unicorn::core::resolution::Resolution::High;
+const DEFAULT_WINDOW_RESOLUTION: unicorn::core::resolution::Resolution = unicorn::core::resolution::Resolution::VeryHigh;
 
 fn init_window(event_loop: &EventLoop<()>) -> Window {
     let size = LogicalSize::new(

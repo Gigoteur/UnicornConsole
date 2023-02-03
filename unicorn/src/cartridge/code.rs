@@ -83,7 +83,6 @@ impl CartridgeCode {
                     Err(_) => {}
                 }
             }
-            println!("CODE {:?} {:?}", code.len(), bytes.len());
         }
 
         CartridgeCode {
