@@ -1,36 +1,17 @@
 language: rust
-services: docker
-sudo: required
 
-rust: nightly
+rust:
+  - stable
+  - beta
+  - nightly
 
-env:
-  global:
-    - TARGET=x86_64-unknown-linux-gnu
+jobs:
+  allow_failures:
+    - rust: nightly
+  fast_finish: true
 
-# matrix:
-#  include:
-#   - env: TARGET=armv7-unknown-linux-gnueabihf DEPLOY=1
-#    - env: TARGET=x86_64-unknown-linux-gnu DEPLOY=1
-
-before_install:
-- set -e
-- export PATH="$(echo $PATH | tr ':' "\n" | sed '/\/opt\/python/d' | tr "\n" ":" |
-  sed "s|::|:|g")"
-
-install:
-- sudo apt-get update -q
+cache: cargo
 
 script:
   - cd unicorn
   - cargo build --verbose --release
-
-addons:
-  apt:
-    packages:
-      - python3
-
-cache: cargo
-before_cache:
-  # Travis can't cache files that are not readable by "others"
-  - chmod -R a+r $HOME/.cargo
