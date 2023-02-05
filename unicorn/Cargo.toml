@@ -86,5 +86,4 @@ git = "https://github.com/RustPython/RustPython.git"
 
 [dependencies.image]
 optional = true
-version="0.18.0"
-features=["png_codec"]
+version="0.24.5"

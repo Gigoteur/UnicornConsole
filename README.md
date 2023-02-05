@@ -4,7 +4,7 @@
 
 # Unicorn Console 
 
-[![Build Status](https://travis-ci.org/sunjay/UnicornConsole.svg?branch=master)](https://travis-ci.org/Gigoteur/UnicornConsole)
+[![Build Status](https://app.travis-ci.com/Gigoteur/UnicornConsole.svg?branch=master)](https://travis-ci.com/Gigoteur/UnicornConsole)
 [![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/Gigoteur/UnicornConsole/blob/master/LICENSE.md)
 
 
@@ -17,6 +17,7 @@ TOC:
   * [Download](#download)
     + [Build](#build)
   * [File format](#format)
+  * [Examples](#examples)
   * [Create](#create)
   * [API](#api)
 
@@ -32,7 +33,7 @@ The main engine is not dependant of a specific GFX library so you can use it whe
   * Font: predefined list of fonts (pico8, bbc, trollmini, etc)
   * Sprites: Single bank of 128 8x8 sprites that is directly from the cartridge
   * Dynamic sprites: create sprites dynamically with the API
-  * Code: No limit size (lua, python, rhai, and wasm)
+  * Code: No limit size in the cartridge, and support of the following languages: lua, python, rhai, wasm
   * Map: 128x32 8-bit cells
   * Sound: 8 channels, tracker, FM synthetizer, 16-bit Wavetables (from GamerCade console) 
   * Editor: GFX and sound editor
@@ -41,7 +42,12 @@ The main engine is not dependant of a specific GFX library so you can use it whe
 
 ## Limitations
 
-The console is somewhat compatible with [pico-8](https://www.lexaloffle.com/pico-8.php) (buy it !), most of current functions from pico8 is implemented and the cartridge is the same format. However some lua language syntax is not supported (like operator overload (+=, -=, etc), or some symbol like "!=". But see the unicorn-examples, I did some modifications of good games to use it with Unicorn.
+The console is somewhat compatible with [pico-8](https://www.lexaloffle.com/pico-8.php) (buy it !), most of current functions from pico8 is implemented and the cartridge is the same format. However some pico8/lua language syntax is supported like:
+  * compound assignment operators (+=, -=, etc)
+  * "!=" like "~="
+  * binary literals
+
+But see the unicorn-examples, I did some modifications of good games to use it with Unicorn too.
 
 
 ## Build
