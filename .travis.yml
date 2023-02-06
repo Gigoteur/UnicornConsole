@@ -2,10 +2,15 @@ language: rust
 
 rust:
   - stable
-  - beta
   - nightly
 
 jobs:
+ include:
+    - stage: "Unicorn Core"
+      name: "Unicorn Core"
+      script:
+        - cd unicorn
+        - cargo build --verbose --release
   allow_failures:
     - rust: nightly
   fast_finish: true
@@ -14,7 +19,3 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install -y alsa-lib ; fi
 
 cache: cargo
-
-script:
-  - cd unicorn
-  - cargo build --verbose --release
