@@ -10,13 +10,11 @@ jobs:
   allow_failures:
     - rust: nightly
   fast_finish: true
-  include:
-    - name: "Unicorn Core"
-      script: cd unicorn && cargo build --release
-
 
 addons:
   apt:
     update: true
 
 cache: cargo
+
+script: cd unicorn && cargo build --release

@@ -125,6 +125,11 @@ pub mod plugin {
                 return rand::thread_rng().gen_range(x as f64..y as f64) as i32;
             }).unwrap();
 
+            linker.func_wrap("env", "frnd", |_caller: Caller<'_, WasmContext>| {
+                return rand::thread_rng().gen::<f32>();
+            }).unwrap();
+
+
             linker.func_wrap("env", "spr", |caller: Caller<'_, WasmContext>, n: u32, x: i32, y: i32, w: i32, h: i32, flip_x: i32, flip_y: i32, angle: f32, zoom: f32, dynamic: i32| {
                 caller.data().screen_context.lock().unwrap().spr(n, x, y, w, h, flip_x == 1, flip_y == 1, angle.into(), zoom.into(), dynamic == 1);
             }).unwrap();

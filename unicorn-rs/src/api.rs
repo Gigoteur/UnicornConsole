@@ -31,6 +31,10 @@ pub fn circ(x: i32, y:i32, r: i32, col: i8) {
     unsafe { raw::circ(x, y, r, col) }
 }
 
+pub fn frnd() -> f32 {
+    unsafe { raw::frnd() }
+}
+
 pub fn rnd_range(x: i32, y: i32) -> i32 {
     unsafe { raw::rnd_range(x, y) }
 }
