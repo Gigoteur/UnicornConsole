@@ -8,9 +8,7 @@ jobs:
  include:
     - stage: "Unicorn Core"
       name: "Unicorn Core"
-      script:
-        - cd unicorn
-        - cargo build --verbose --release
+      script: cd unicorn && cargo build --verbose --release
   allow_failures:
     - rust: nightly
   fast_finish: true
