@@ -17,8 +17,5 @@ jobs:
 addons:
   apt:
     update: true
-    packages:
-    - alsa-lib
-    - libsound2-dev
 
 cache: cargo
