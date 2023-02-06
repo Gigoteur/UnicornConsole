@@ -77,8 +77,6 @@ pub mod plugin {
                 return caller.data().screen_context.lock().unwrap().mode_height() as u32;
             }).unwrap();
 
-            
-
             linker.func_wrap("env", "mode_width", |caller: Caller<'_, WasmContext>| {
                 return caller.data().screen_context.lock().unwrap().mode_width() as u32;
             }).unwrap();
@@ -87,8 +85,28 @@ pub mod plugin {
                 return bool_to_u32(caller.data().input_context.lock().unwrap().input_context.btnp(p as u8, x as u8));
             }).unwrap();
 
+            linker.func_wrap("env", "mouse_x", |caller: Caller<'_, WasmContext>| {
+                return caller.data().input_context.lock().unwrap().input_context.btn_mouse(0, 0);
+            }).unwrap();
+
+            linker.func_wrap("env", "mouse_y", |caller: Caller<'_, WasmContext>| {
+                return caller.data().input_context.lock().unwrap().input_context.btn_mouse(0, 1);
+            }).unwrap();
+
+            linker.func_wrap("env", "mouse_left_statep", |caller: Caller<'_, WasmContext>, p:i32| {
+                return caller.data().input_context.lock().unwrap().input_context.btn_mouse_statep(p as u8) & 0x000000FF;
+            }).unwrap();
+            
             linker.func_wrap("env", "cls", |caller: Caller<'_, WasmContext>, col: i32| {
                 caller.data().screen_context.lock().unwrap().cls(col as i8);
+            }).unwrap();
+
+            linker.func_wrap("env", "pset", |caller: Caller<'_, WasmContext>, x: i32, y:i32, col: i32| {
+                caller.data().screen_context.lock().unwrap().pset(x, y, col);
+            }).unwrap();
+
+            linker.func_wrap("env", "pset_rgba", |caller: Caller<'_, WasmContext>, x: i32, y:i32, r: i32, g: i32, b: i32, a: i32| {
+                caller.data().screen_context.lock().unwrap().pset_rgba(x, y, r as u8, g as u8, b as u8, a as u8);
             }).unwrap();
 
             linker.func_wrap("env", "circ", |caller: Caller<'_, WasmContext>, x: i32, y:i32, r: i32, col: i32| {
@@ -97,6 +115,28 @@ pub mod plugin {
 
             linker.func_wrap("env", "circfill", |caller: Caller<'_, WasmContext>, x: i32, y:i32, r: i32, col: i32| {
                 caller.data().screen_context.lock().unwrap().circfill(x, y, r, col);
+            }).unwrap();
+
+            linker.func_wrap("env", "debug_print", |mut caller: Caller<'_, WasmContext>, text_ptr: i32, len: i32| {
+                let mem = match caller.get_export("memory") {
+                    Some(Extern::Memory(mem)) => mem,
+                    _ => anyhow::bail!("failed to find host memory"),
+                };
+                let data = mem.data(&caller)
+                .get(text_ptr as u32 as usize..)
+                .and_then(|arr| arr.get(..len as u32 as usize));
+
+                let string = match data {
+                    Some(data) => match str::from_utf8(data) {
+                        Ok(s) => s,
+                        Err(_) => anyhow::bail!("invalid utf-8"),
+                    },
+                    None => anyhow::bail!("pointer/length out of bounds"),
+                };
+
+                info!("[CART] {}", string.to_string());
+                Ok(())
+
             }).unwrap();
 
             linker.func_wrap("env", "print", |mut caller: Caller<'_, WasmContext>, text_ptr: i32, len: i32, x: i32, y:i32, col: i32| {

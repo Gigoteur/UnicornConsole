@@ -232,14 +232,11 @@ def btnp(x, p=0):
 def mouse_x():
     return unicorn_input.btn_mouse(0, 0)
 
-
 def mouse_y():
     return unicorn_input.btn_mouse(1, 0)
 
-
 def mouse_state(p=0):
     return unicorn_input.btn_mouse_state(p)
-
 
 def mouse_statep(p=0):
     return unicorn_input.btn_mouse_statep(p)

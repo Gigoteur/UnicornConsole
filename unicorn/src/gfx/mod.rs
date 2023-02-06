@@ -266,6 +266,25 @@ impl Screen {
     }
 
     #[inline]
+    pub fn putpixel_rgba(&mut self, x: i32, y: i32, r: u8, g: u8, b: u8, a: u8) {
+        // Make camera adjustment
+        let x = x - self.camera.x;
+        let y = y - self.camera.y;
+
+        // Clip
+        if !self.cliprect.contains(x, y) {
+            return;
+        }
+
+        let offset = self.pixel_offset(x, y);
+
+        self.pixel_buffer[offset] = r;
+        self.pixel_buffer[offset + 1] = g;
+        self.pixel_buffer[offset + 2] = b;
+        self.pixel_buffer[offset + 3] = a;
+    }
+
+    #[inline]
     pub fn putpixel_(&mut self, x: i32, y: i32, col: u32, fillp_flag: bool) {
         //debug!("[SCREEN] [Screen] [Putpixel_] x:{:?} y:{:?} col:{:?}", x, y, col);
         
@@ -364,6 +383,11 @@ impl Screen {
     pub fn pget(&mut self, x: u32, y: u32) -> u32 {
         self.getpixel(x as usize, y as usize) as u32
     }
+
+    pub fn pset_rgba(&mut self, x: i32, y: i32, r: u8, g: u8, b: u8, a:u8) {
+        self.putpixel_rgba(x, y, r, g, b, a);
+    }
+
 
     pub fn pset(&mut self, x: i32, y: i32, col: i32) {
         let color = self._find_color(col);
