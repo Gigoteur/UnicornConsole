@@ -488,12 +488,12 @@ impl Unicorn {
             }
         }
 
+        self.debug_draw();
+
         #[cfg(feature = "image")]
         if self.is_recording() {
             self.record();
         }
-
-        self.debug_draw();
     }
 
     pub fn is_recording(&self) -> bool {
@@ -523,7 +523,7 @@ impl Unicorn {
     pub fn record(&mut self) {
         info!("[Unicorn][Record] Recording the frame {:?}", self.record.images.len());
 
-        if self.record.nb % 4 == 0 {
+        if self.record.nb % 6 == 0 {
             let mut buffer: Vec<u8> = Vec::new();
             let screen = &mut self.screen.lock().unwrap();
 
@@ -539,10 +539,11 @@ impl Unicorn {
                 }
             }
             self.record.images.append(&mut buffer);
-        }
+       }
 
-        self.record.nb += 1;
+       self.record.nb += 1;
     }
+
     #[cfg(not(feature = "image"))]
     pub fn stop_record(&mut self) -> Result<()> {
         warn!("[Unicorn][Record] Record feature not enable (image feature)");
@@ -560,7 +561,7 @@ impl Unicorn {
         self.record.recording = false;
 
         let mut file_out = File::create(&self.record.filename).unwrap();
-        let mut encoder = image::codecs::gif::GifEncoder::new(file_out);
+        let mut encoder = image::codecs::gif::GifEncoder::new_with_speed(file_out, 30);
     
         encoder.set_repeat(image::codecs::gif::Repeat::Infinite).unwrap();
 
@@ -568,8 +569,8 @@ impl Unicorn {
         for i in 0..self.record.images.len() / (screen.width * screen.height * 4) {
             info!("[Unicorn][Record] Generate frame {:?} {:?}/{:?}",
                   i,
-                  self.record.images.len(),
-                  idx);
+                  idx,
+                  self.record.images.len());
 
             let mut buffer: Vec<u8> = Vec::new();
 
@@ -625,8 +626,9 @@ impl Unicorn {
                 buffer[idx] = rgb_value.r;
                 buffer[idx + 1] = rgb_value.g;
                 buffer[idx + 2] = rgb_value.b;
+                buffer[idx + 3] = rgb_value.a;
                 
-                idx += 3;
+                idx += 4;
             }
         }
 
