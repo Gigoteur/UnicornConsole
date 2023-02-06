@@ -38,6 +38,7 @@ The main engine is not dependant of a specific GFX library so you can use it whe
   * Sound: 8 channels, tracker, FM synthetizer, 16-bit Wavetables (from GamerCade console) 
   * Editor: GFX and sound editor
   * Network: WIP
+  * Screenshot / Gif Recording
   
 
 ## Limitations
@@ -56,10 +57,16 @@ Cargo feature:
   * cpython: enable python support
   * rlua: enable lua support
 
-You can choose to build the main UI to play games:
+You can build the console directly the main UI to play games:
 ```
 cd unicorn-console
 cargo build --release --features=unicorn/cpython,unicorn/rlua
+```
+
+You can build the editor the main UI to play games:
+```
+cd unicorn-editor
+cargo build --release
 ```
 
 ## File format

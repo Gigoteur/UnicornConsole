@@ -6,7 +6,7 @@ pub mod resolution;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use std::fmt;
-use log::{error, info};
+use log::{error, info, warn};
 use std::fs::File;
 use std::path::Path;
 
@@ -500,17 +500,28 @@ impl Unicorn {
         self.record.recording
     }
 
+    #[cfg(not(feature = "image"))]
     pub fn start_record(&mut self, filename: &str) {
-        info!("[Unicorn] Start to record the frame");
+        warn!("[Unicorn][Record] Record feature not enable (image feature)");
+        self.record.recording = false;
+    }
 
-        self.record.recording = true;
-        self.record.images.clear();
-        self.record.filename = filename.to_string();
+    #[cfg(feature = "image")]
+    pub fn start_record(&mut self, filename: &str) {
+        info!("[Unicorn][Record] Start to record the frame");
+
+        if self.is_recording() {
+            self.stop_record();
+        } else {
+            self.record.recording = true;
+            self.record.images.clear();
+            self.record.filename = filename.to_string();
+        }
     }
 
     #[cfg(feature = "image")]
     pub fn record(&mut self) {
-        info!("[Unicorn] Recording the frame {:?}", self.record.images.len());
+        info!("[Unicorn][Record] Recording the frame {:?}", self.record.images.len());
 
         if self.record.nb % 4 == 0 {
             let mut buffer: Vec<u8> = Vec::new();
@@ -532,31 +543,30 @@ impl Unicorn {
 
         self.record.nb += 1;
     }
+    #[cfg(not(feature = "image"))]
+    pub fn stop_record(&mut self) -> Result<()> {
+        warn!("[Unicorn][Record] Record feature not enable (image feature)");
+        Ok(())
+    }
 
     #[cfg(feature = "image")]
-    pub fn stop_record(&mut self) {
-        /*
-        info!("[Unicorn] Stop to record the frame {:?}",
+    pub fn stop_record(&mut self) -> Result<()> {
+        
+        info!("[Unicorn][Record] Stop to record the frame {:?}",
               self.record.images.len());
 
         let screen = &self.screen.lock().unwrap();
 
         self.record.recording = false;
 
-        let img = ImageReader::open(self.record.filename.clone())?.decode()?;
-
-
-        let mut encoder = gif::Encoder::new(&mut filedata,
-                                            screen.width as u16,
-                                            screen.height as u16,
-                                            &[])
-                .unwrap();
-
-        encoder.set(gif::Repeat::Infinite).unwrap();
+        let mut file_out = File::create(&self.record.filename).unwrap();
+        let mut encoder = image::codecs::gif::GifEncoder::new(file_out);
+    
+        encoder.set_repeat(image::codecs::gif::Repeat::Infinite).unwrap();
 
         let mut idx = 0;
-        for i in 0..self.record.images.len() / (screen.width * screen.height * 3) {
-            info!("[Unicorn] Generate frame {:?} {:?}/{:?}",
+        for i in 0..self.record.images.len() / (screen.width * screen.height * 4) {
+            info!("[Unicorn][Record] Generate frame {:?} {:?}/{:?}",
                   i,
                   self.record.images.len(),
                   idx);
@@ -568,31 +578,34 @@ impl Unicorn {
                     buffer.push(self.record.images[idx]);
                     buffer.push(self.record.images[idx + 1]);
                     buffer.push(self.record.images[idx + 2]);
-                    idx += 3;
+                    buffer.push(self.record.images[idx + 3]);
+                    idx += 4;
                 }
             }
 
-            info!("[Unicorn] Creating ImageBuffer {:?}", buffer.len());
+            info!("[Unicorn][Record] Creating ImageBuffer {:?}", buffer.len());
 
             let image =
                 image::ImageBuffer::from_raw(screen.height as u32, screen.width as u32, buffer)
                     .unwrap();
 
-            info!("[Unicorn] Rotating image");
-            let image = image::DynamicImage::ImageRgb8(image)
-                .rotate270()
-                .flipv();
+            info!("[Unicorn][Record] Rotating image");
+            let image = image::imageops::rotate270(&image);
+            let image = image::imageops::flip_vertical(&image);
+            
 
-            info!("[Unicorn] Creating gif Frame");
-            let mut frame = gif::Frame::from_rgb(screen.width as u16,
-                                                 screen.height as u16,
-                                                 &image.raw_pixels());
-
-            frame.delay = 1;
-            encoder.write_frame(&frame).unwrap();
+            info!("[Unicorn][Record] Creating gif Frame");
+            let mut frame = image::Frame::new(image);
+            encoder.encode_frame(frame).unwrap();
         }
 
-        info!("[Unicorn] GIF created in {:?}", self.record.filename);*/
+        info!("[Unicorn][Record] GIF created in {:?}", self.record.filename);
+        Ok(())
+    }
+
+    #[cfg(not(feature = "image"))]
+    pub fn screenshot(&mut self, filename: &str) {
+        warn!("[Unicorn] Screenshot feature not enable (image feature)")
     }
 
     #[cfg(feature = "image")]
@@ -623,8 +636,7 @@ impl Unicorn {
             .rotate270()
             .flipv();
 
-        let mut output = File::create(&Path::new(filename)).unwrap();
-        image.save(&mut output, image::ImageFormat::PNG).unwrap();
+        image.save_with_format(Path::new(filename), image::ImageFormat::Png).unwrap();
     }
 
     pub fn set_code(&mut self, code: String) {

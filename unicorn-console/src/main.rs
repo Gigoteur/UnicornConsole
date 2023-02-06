@@ -46,6 +46,8 @@ pub trait Console: Sized + Config {
     fn update_fps(&mut self, current_time: Instant);
     fn toggle_debug(&mut self);
     fn switch_pause(&mut self);
+    fn take_screenshot(&mut self, filename: &str);
+    fn start_record(&mut self, filename: &str);
 }
 
 pub struct UnicornConsole {
@@ -151,6 +153,14 @@ impl Console for UnicornConsole {
 
     fn switch_pause(&mut self) {
         self.engine.lock().unwrap().switch_pause();
+    }
+
+    fn start_record(&mut self, filename: &str) {
+        self.engine.lock().unwrap().start_record(filename);
+    }
+
+    fn take_screenshot(&mut self, filename: &str) {
+        self.engine.lock().unwrap().screenshot(filename);
     }
 
     fn toggle_debug(&mut self) {
@@ -321,7 +331,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 }
             }
 
-
             // Update the scale factor
             if let Some(scale_factor) = input.scale_factor() {
                 framework.scale_factor(scale_factor);
@@ -342,6 +351,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     // Debug mode !
                     if input.key_pressed(VirtualKeyCode::F2) {
                         console.toggle_debug();
+                    }
+
+                    // Screenshot mode !
+                    if input.key_pressed(VirtualKeyCode::F3) {
+                        console.take_screenshot("screenshot.png");
+                    }
+
+                    // Record mode !
+                    if input.key_pressed(VirtualKeyCode::F4) {
+                        console.start_record("output.gif");
                     }
 
                     times.update();
