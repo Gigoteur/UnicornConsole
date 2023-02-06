@@ -7,12 +7,13 @@ rust:
   - nightly
 
 jobs:
-  include:
-    - stage: Unicorn Core
-    - script: cd unicorn && cargo build --release
   allow_failures:
     - rust: nightly
   fast_finish: true
+  include:
+    - name: "Unicorn Core"
+      script: cd unicorn && cargo build --release
+
 
 addons:
   apt:
