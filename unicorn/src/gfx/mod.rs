@@ -363,6 +363,25 @@ impl Screen {
     }
 
     #[inline]
+    pub fn getpixel_rgba(&mut self, x: usize, y: usize) -> RGB {
+        let x = (x as i32 - self.camera.x) as usize;
+        let y = (y as i32 - self.camera.y) as usize;
+
+        if x >= self.width || y >= self.height {
+            return RGB {r:0, g:0, b:0, a: 0xFF};
+        }
+
+        let offset = self.pixel_offset(x as i32, y as i32);
+        
+        let r = self.pixel_buffer[offset];
+        let g = self.pixel_buffer[offset + 1];
+        let b = self.pixel_buffer[offset + 2];
+        let a = self.pixel_buffer[offset + 3];
+
+        return RGB { r: r, g: g, b: b, a: a };
+    }
+
+    #[inline]
     pub fn getpixel(&mut self, x: usize, y: usize) -> u32 {
         let x = (x as i32 - self.camera.x) as usize;
         let y = (y as i32 - self.camera.y) as usize;
@@ -379,6 +398,11 @@ impl Screen {
         
         return self.palette.get_color_rgb(r, g, b)
     }
+
+    pub fn pget_rgba(&mut self, x: u32, y: u32) -> RGB {
+        self.getpixel_rgba(x as usize, y as usize)
+    }
+
 
     pub fn pget(&mut self, x: u32, y: u32) -> u32 {
         self.getpixel(x as usize, y as usize) as u32

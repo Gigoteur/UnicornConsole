@@ -93,6 +93,11 @@ pub mod plugin {
                 return caller.data().input_context.lock().unwrap().input_context.btn_mouse(0, 1);
             }).unwrap();
 
+            linker.func_wrap("env", "mouse_left_state", |caller: Caller<'_, WasmContext>, p:i32| {
+                return caller.data().input_context.lock().unwrap().input_context.btn_mouse_state(p as u8) & 0x000000FF;
+            }).unwrap();
+            
+
             linker.func_wrap("env", "mouse_left_statep", |caller: Caller<'_, WasmContext>, p:i32| {
                 return caller.data().input_context.lock().unwrap().input_context.btn_mouse_statep(p as u8) & 0x000000FF;
             }).unwrap();

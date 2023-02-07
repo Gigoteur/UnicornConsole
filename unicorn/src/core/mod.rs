@@ -523,14 +523,13 @@ impl Unicorn {
     pub fn record(&mut self) {
         info!("[Unicorn][Record] Recording the frame {:?}", self.record.images.len());
 
-        if self.record.nb % 6 == 0 {
+        if self.record.nb % 2 == 0 {
             let mut buffer: Vec<u8> = Vec::new();
             let screen = &mut self.screen.lock().unwrap();
 
             for x in 0..screen.width {
                 for y in 0..screen.height {
-                    let value = screen.pget(x as u32, y as u32);
-                    let rgb_value = screen.palette.get_rgb(value);
+                    let rgb_value = screen.pget_rgba(x as u32, y as u32);
 
                     buffer.push(rgb_value.r);
                     buffer.push(rgb_value.g);
@@ -620,8 +619,7 @@ impl Unicorn {
         let mut idx = 0;
         for x in 0..screen.width {
             for y in 0..screen.height {
-                let value = screen.pget(x as u32, y as u32);
-                let rgb_value = screen.palette.get_rgb(value);
+                let rgb_value = screen.pget_rgba(x as u32, y as u32);
 
                 buffer[idx] = rgb_value.r;
                 buffer[idx + 1] = rgb_value.g;
@@ -634,7 +632,7 @@ impl Unicorn {
 
         let image = image::ImageBuffer::from_raw(screen.height as u32, screen.width as u32, buffer)
             .unwrap();
-        let image = image::DynamicImage::ImageRgb8(image)
+        let image = image::DynamicImage::ImageRgba8(image)
             .rotate270()
             .flipv();
 

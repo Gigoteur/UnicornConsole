@@ -438,7 +438,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 }
 
-const DEFAULT_WINDOW_RESOLUTION: unicorn::core::resolution::Resolution = unicorn::core::resolution::Resolution::VeryHigh;
+const DEFAULT_WINDOW_RESOLUTION: unicorn::core::resolution::Resolution = unicorn::core::resolution::Resolution::High;
 
 fn init_window(event_loop: &EventLoop<()>) -> Window {
     let size = LogicalSize::new(

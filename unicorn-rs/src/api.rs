@@ -23,6 +23,10 @@ pub fn btnp(x: i32, p: i32) -> bool {
     unsafe { raw::btnp(x, p) == 1 }
 }
 
+pub fn mouse_left_state(p: i32) -> bool {
+    unsafe { raw::mouse_left_state(p) == 1 }
+}
+
 pub fn mouse_left_statep(p: i32) -> bool {
     unsafe { raw::mouse_left_statep(p) == 1 }
 }
