@@ -16,6 +16,8 @@ pub struct CartridgeCode {
     pub code_type: String,
     pub filename: String,
     pub bytes: Vec<u8>,
+    pub remote_filename: String,
+    pub remote: bool,
 }
 
 impl CartridgeCode {
@@ -29,6 +31,8 @@ impl CartridgeCode {
             code_type: "".to_string(),
             filename: "".to_string(),
             bytes: Vec::new(),
+            remote_filename: "".to_string(),
+            remote: false,
         }
     }
 
@@ -49,6 +53,8 @@ impl CartridgeCode {
             code_type: code_type,
             filename: "".to_string(),
             bytes: Vec::new(),
+            remote_filename: "".to_string(),
+            remote: false,
         }
     }
 
@@ -58,7 +64,7 @@ impl CartridgeCode {
         let mut code = "".to_string();
         let mut bytes = Vec::new();
 
-        if lines.len() > 0 {
+        if lines.len() > 0 {           
             filename = lines.get(0).unwrap();
             if filename.contains(".rhai") {
                 code_type = "rhai";
@@ -92,7 +98,16 @@ impl CartridgeCode {
             code_type: code_type.to_string(),
             filename: filename.to_string(),
             bytes: bytes,
+            remote_filename: filename.to_string(),
+            remote: true,
         }
+    }
+
+    pub fn get_code_section(&mut self) -> String {
+        if self.remote {
+            return "code".to_string();
+        }
+        return self.code_type.clone();
     }
 
     pub fn set_filename(&mut self, filename: &str) {
@@ -122,7 +137,6 @@ impl CartridgeCode {
                 warn!("[CARTRIDGE] Error to reload the file {:?} -> {:?}", self.filename, e);
             }
         }
-
     }
 
     pub fn get_bytes_data(&mut self) -> Vec<u8> {
@@ -130,6 +144,11 @@ impl CartridgeCode {
     }
 
     pub fn get_data(&mut self) -> String {
+        if self.remote {
+            let mut s = self.remote_filename.clone();
+            s.push('\n');
+            return s.clone();
+        }
         self.code.clone()
     }
 

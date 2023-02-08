@@ -15,6 +15,9 @@ extern "C" {
     pub fn pset_rgba(x: i32, y:i32, r:i32, g:i32, b:i32, a:i32);
     
     pub fn circ(x: i32, y:i32, r: i32, col: i8);
+    pub fn circfill(x: i32, y:i32, r: i32, col: i8);
+    pub fn rectfill(x0: i32, y0:i32, x1: i32, y1:i32, col: i8);
+
     pub fn rnd_range(x: i32, y: i32) -> i32;
     pub fn frnd() -> f32;
 

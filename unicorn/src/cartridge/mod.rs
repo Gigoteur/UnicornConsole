@@ -40,7 +40,9 @@ pub use crate::core::{DEFAULT_MODE_HEIGHT, DEFAULT_MODE_WIDTH, DEFAULT_MAP_HEIGH
 
 RANDOM COMMENT
 version XX
-{__python__} | {__rpython__} | {__lua__} | {__rhai__}
+__width_X__
+__height_X__
+{__python__} | {__rpython__} | {__lua__} | {__rhai__} | {__code__}
 
 __palette__
 
@@ -54,7 +56,6 @@ XXXXXXXX
 XXXXXXXX
 XXXXXXXX
 XXXXXXXX
-
 
 __gff__
 
@@ -515,7 +516,11 @@ impl Cartridge {
         f.write_all(format!("Version {:?}\n", version).as_bytes())
             .unwrap();
 
-        f.write_all(format!("__{:}__\n", self.code.code_type).as_bytes())
+        f.write_all(format!("__width_{:}__\n", self.mode_width).as_bytes())
+            .unwrap();
+        f.write_all(format!("__height_{:}__\n", self.mode_height).as_bytes())
+            .unwrap();
+        f.write_all(format!("__{:}__\n", self.code.get_code_section()).as_bytes())
             .unwrap();
         f.write_all(self.code.get_data().clone().as_bytes())
             .unwrap();

@@ -122,6 +122,10 @@ pub mod plugin {
                 caller.data().screen_context.lock().unwrap().circfill(x, y, r, col);
             }).unwrap();
 
+            linker.func_wrap("env", "rectfill", |caller: Caller<'_, WasmContext>, x0: i32, y0:i32, x1: i32, y1: i32, col: i32| {
+                caller.data().screen_context.lock().unwrap().rectfill(x0, y0, x1, y1, col);
+            }).unwrap();
+
             linker.func_wrap("env", "debug_print", |mut caller: Caller<'_, WasmContext>, text_ptr: i32, len: i32| {
                 let mem = match caller.get_export("memory") {
                     Some(Extern::Memory(mem)) => mem,

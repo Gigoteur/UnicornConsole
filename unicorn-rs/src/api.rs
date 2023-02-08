@@ -55,6 +55,15 @@ pub fn circ(x: i32, y:i32, r: i32, col: i8) {
     unsafe { raw::circ(x, y, r, col) }
 }
 
+pub fn circfill(x: i32, y:i32, r: i32, col: i8) {
+    unsafe { raw::circfill(x, y, r, col) }
+}
+
+pub fn rectfill(x0: i32, y0:i32, x1: i32, y1:i32, col: i8) {
+    unsafe { raw::rectfill(x0, y0, x1, y1, col) }
+}
+
+
 pub fn frnd() -> f32 {
     unsafe { raw::frnd() }
 }
