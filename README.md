@@ -42,7 +42,7 @@ A 128x128 [demoscene](https://github.com/Gigoteur/UnicornConsole/tree/master/uni
 <img src="docs/demoscene.gif" width="320">
 
 
-A 256x256 [ghostmark python](https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn-examples/corn/ghostmark_py.corn) or a [ghostmark wasm/rust](https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn-examples/wasm/ghostmark/rust)cartridge to do some benchmark:
+A 256x256 [ghostmark python](https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn-examples/corn/ghostmark_py.corn) or a [ghostmark wasm/rust](https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn-examples/wasm/ghostmark/rust) cartridge to do some benchmark:
 
 <img src="docs/ghostmark.gif" width="320">
 
