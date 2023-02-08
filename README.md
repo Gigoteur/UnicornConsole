@@ -8,7 +8,7 @@
 [![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/Gigoteur/UnicornConsole/blob/master/LICENSE.md)
 
 
-Unicorn Console (previously known as PX8 in the past, but I think "Unicorn Console" is a better name) is a fantasy engine that let you do quickly any sort of game, application with a default resolution of 128x128 pixels, 8bits color. The console allow you to load what is called a 'cartridge' like in many other fantasy console, that contains the code, the graphics and the sounds.
+Unicorn Console (previously known as PX8 in the past, but I think "Unicorn Console" is a better name) is a fantasy engine that let you do quickly any sort of game, application with a default resolution of 128x128 pixels, 32bits color. The console allow you to load what is called a 'cartridge' that looks like a text file, that contains the code, the graphics and the sounds.
 
 The main engine is not dependant of a specific graphic library so you can use it where you want:
   * [unicorn](https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn): Main core engine
@@ -20,9 +20,9 @@ The main engine is not dependant of a specific graphic library so you can use it
 ## Features
 
   * Display: 128x128 pixels by default, 8 bits colors with available list of predefined palettes (16 colors) (pico-8, commodore, atari2600 etc)
-  * New 32 bits color could be added directly via the API
+  * 32 bits color could be added directly via the API, with alpha channel (for transparency)
   * Font: predefined list of fonts (pico8, bbc, trollmini, etc)
-  * Sprites: Single bank of 128 8x8 sprites that is directly from the cartridge
+  * Sprites: Single bank of 128 8x8 sprites that is directly in the cartridge
   * Dynamic sprites: create sprites dynamically with the API
   * Map: 128x32 8-bit cells
   * Code: No limit size in the cartridge, and support of the following languages: Lua (optional), Python (optional), Rhai (default), WASM (default)
@@ -31,11 +31,16 @@ The main engine is not dependant of a specific graphic library so you can use it
   
 ## Examples
 
-A 256x256 ghostmark cartridge to do some benchmark:
+A 128x128 [demoscene]((https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn-examples/corn/demoscebe.corn) cartridge:
+
+<img src="docs/demoscene.gif" width="320">
+
+
+A 256x256 [ghostmark](https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn-examples/corn/ghostmark_py.corn) cartridge to do some benchmark:
 
 <img src="docs/ghostmark.gif" width="320">
 
-A sand game with a custom window  (286x286) in WASM (RUST) (60FPS, gif is pretty slow :))
+A sand game with a custom window (286x286) in WASM (RUST) (60FPS, gif is pretty slow :))
 
 <img src="docs/sable.gif" width="320">
 
