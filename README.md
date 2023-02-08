@@ -10,23 +10,13 @@
 
 Unicorn Console (previously known as PX8 in the past, but I think "Unicorn Console" is a better name) is a fantasy engine that let you do quickly any sort of game, application with a default resolution of 128x128 pixels, 8bits color. The console allow you to load what is called a 'cartridge' like in many other fantasy console, that contains the code, the graphics and the sounds.
 
-TOC:
-  * [Features](#features)
-  * [Examples](#examples)
-  * [Pico8 Limitations](#limitations)
-  * [Requirements](#requirements)
-  * [Download](#download)
-    + [Build](#build)
-  * [File format](#format)
-  * [Create](#create)
-  * [API](#api)
-
-The main engine is not dependant of a specific GFX library so you can use it where you want:
+The main engine is not dependant of a specific graphic library so you can use it where you want:
   * [unicorn](https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn): Main core engine
-  * [unicorn-console](https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn-console): Launcher for all cartridge
-  * [unicorn-editor](https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn-editor): Editor of the cartridge (graphics, sound, code)
-  * [unicorn-re](https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn-re): Wasm binding crate
-
+  * [unicorn-console](https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn-console): Launcher for all cartridge, based on EGUI + Pixels
+  * [unicorn-editor](https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn-editor): Editor of the cartridge (graphics, sound, code), based on EGUI
+  * [unicorn-rs](https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn-rs): Wasm binding crate
+  * [unicorn-examples](https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn-examples): a non exhausitve list of Unicorn cartrdige for testing
+  
 ## Features
 
   * Display: 128x128 pixels by default, 8 bits colors with available list of predefined palettes (16 colors) (pico-8, commodore, atari2600 etc)
@@ -35,7 +25,7 @@ The main engine is not dependant of a specific GFX library so you can use it whe
   * Sprites: Single bank of 128 8x8 sprites that is directly from the cartridge
   * Dynamic sprites: create sprites dynamically with the API
   * Map: 128x32 8-bit cells
-  * Code: No limit size in the cartridge, and support of the following languages: lua (optional), python (optional), rhai (default), wasm (default)
+  * Code: No limit size in the cartridge, and support of the following languages: Lua (optional), Python (optional), Rhai (default), WASM (default)
   * Sound: 8 channels, tracker, FM synthetizer, 16-bit Wavetables (from GamerCade console) 
   * Screenshot / Gif Recording (unicorn/image feature)
   
@@ -45,7 +35,7 @@ A 256x256 ghostmark cartridge to do some benchmark:
 
 <img src="docs/ghostmark.gif" width="320">
 
-A sand game with a custom window  (286x286) in Wasm (RUST) (60FPS, gif is pretty slow :))
+A sand game with a custom window  (286x286) in WASM (RUST) (60FPS, gif is pretty slow :))
 
 <img src="docs/sable.gif" width="320">
 
