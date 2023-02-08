@@ -18,14 +18,14 @@ TOC:
   * [Download](#download)
     + [Build](#build)
   * [File format](#format)
-  * [Examples](#examples)
   * [Create](#create)
   * [API](#api)
 
 The main engine is not dependant of a specific GFX library so you can use it where you want:
   * [unicorn](https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn): Main core engine
-  * [unicorn-console](https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn-console): GUI (egui+pixels) implementation to play game !!
-  * [unicorn-editor](https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn-editor): Edit GFX, sound of your card
+  * [unicorn-console](https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn-console): Launcher for all cartridge
+  * [unicorn-editor](https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn-editor): Editor of the cartridge (graphics, sound, code)
+  * [unicorn-re](https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn-re): Wasm binding crate
 
 ## Features
 
@@ -34,15 +34,18 @@ The main engine is not dependant of a specific GFX library so you can use it whe
   * Font: predefined list of fonts (pico8, bbc, trollmini, etc)
   * Sprites: Single bank of 128 8x8 sprites that is directly from the cartridge
   * Dynamic sprites: create sprites dynamically with the API
-  * Code: No limit size in the cartridge, and support of the following languages: lua, python, rhai, wasm
   * Map: 128x32 8-bit cells
+  * Code: No limit size in the cartridge, and support of the following languages: lua (optional), python (optional), rhai (default), wasm (default)
   * Sound: 8 channels, tracker, FM synthetizer, 16-bit Wavetables (from GamerCade console) 
-  * Editor: GFX and sound editor
-  * Network: WIP
-  * Screenshot / Gif Recording
+  * Screenshot / Gif Recording (unicorn/image feature)
   
 ## Examples
-A custom windows in wasm (60FPS, gif is pretty slow :))
+
+A 256x256 ghostmark cartridge to do some benchmark:
+
+<img src="docs/ghostmark.gif" width="320">
+
+A sand game with a custom window  (286x286) in Wasm (RUST) (60FPS, gif is pretty slow :))
 
 <img src="docs/sable.gif" width="320">
 
@@ -66,7 +69,7 @@ Cargo feature:
 You can build the console directly the main UI to play games:
 ```
 cd unicorn-console
-cargo build --release --features=unicorn/cpython,unicorn/rlua
+cargo build --release --features=unicorn/cpython,unicorn/rlua,unicorn/image
 ```
 
 You can build the editor the main UI to play games:
