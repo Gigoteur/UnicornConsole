@@ -523,7 +523,7 @@ impl Unicorn {
     pub fn record(&mut self) {
         info!("[Unicorn][Record] Recording the frame {:?}", self.record.images.len());
 
-        if self.record.nb % 2 == 0 {
+        if self.record.nb % 4 == 0 {
             let mut buffer: Vec<u8> = Vec::new();
             let screen = &mut self.screen.lock().unwrap();
 

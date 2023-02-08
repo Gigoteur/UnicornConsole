@@ -40,6 +40,9 @@ The main engine is not dependant of a specific GFX library so you can use it whe
   * Network: WIP
   * Screenshot / Gif Recording
   
+A custom windows in wasm (60FPS, gif is pretty slow :)):
+<img src="docs/sable.gif" width="320">
+
 
 ## Limitations
 
