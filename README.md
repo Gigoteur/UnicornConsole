@@ -12,6 +12,7 @@ Unicorn Console (previously known as PX8 in the past, but I think "Unicorn Conso
 
 TOC:
   * [Features](#features)
+  * [Examples](#examples)
   * [Pico8 Limitations](#limitations)
   * [Requirements](#requirements)
   * [Download](#download)
@@ -40,7 +41,9 @@ The main engine is not dependant of a specific GFX library so you can use it whe
   * Network: WIP
   * Screenshot / Gif Recording
   
-A custom windows in wasm (60FPS, gif is pretty slow :)):
+## Examples
+A custom windows in wasm (60FPS, gif is pretty slow :))
+
 <img src="docs/sable.gif" width="320">
 
 
