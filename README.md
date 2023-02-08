@@ -31,6 +31,12 @@ The main engine is not dependant of a specific graphic library so you can use it
   
 ## Examples
 
+Some classic 128x128 game:
+
+<img src="docs/dino.gif" width="320">
+<img src="docs/ski.gif" width="320">
+
+
 A 128x128 [demoscene]((https://github.com/Gigoteur/UnicornConsole/tree/master/unicorn-examples/corn/demoscebe.corn) cartridge:
 
 <img src="docs/demoscene.gif" width="320">
