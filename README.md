@@ -1,9 +1,19 @@
+<!-- PROJECT BADGES -->
+<!--
+*** I'm using markdown "reference style" links for readability.
+*** Reference links are enclosed in brackets [ ] instead of parentheses ( ).
+*** See the bottom of this document for the declaration of the reference variables
+*** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
+*** https://www.markdownguide.org/basic-syntax/#reference-style-links
+-->
 [![Github Link][github badge]][github link]
 
+<!-- PROJECT LOGO -->
 <p align="center">
   <img src="unicorn-docs/unicorn.png">
 </p>
 
+<!-- ABOUT THE PROJECT -->
 # Unicorn Console 
 
 [![Build Status](https://app.travis-ci.com/Gigoteur/UnicornConsole.svg?branch=master)](https://travis-ci.com/Gigoteur/UnicornConsole)
