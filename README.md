@@ -347,4 +347,6 @@ Set a map value
 ### Palettes [**WIP**]
 ### Cart Data [**WIP**]
 
+
+[github badge]: https://img.shields.io/badge/github-gigoteur/unicornconsole-8da0cb?style=for-the-badge&logo=github
 [github link]: https://github.com/Gigoteur/UnicornConsole
