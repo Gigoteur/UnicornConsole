@@ -1,3 +1,5 @@
+[![Github Link][github badge]][github link]
+
 <p align="center">
   <img src="unicorn-docs/unicorn.png">
 </p>
