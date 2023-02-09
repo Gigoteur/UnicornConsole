@@ -48,7 +48,7 @@ A 256x256 [ghostmark python](https://github.com/Gigoteur/UnicornConsole/tree/mas
 
 A sand game with a custom window (286x286) in WASM (RUST):
 
-<img src="docs/sable2.gif" width="320">
+<img src="docs/sable.gif" width="320">
 
 
 ## Limitations
