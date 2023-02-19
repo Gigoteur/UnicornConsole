@@ -7,6 +7,7 @@
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
 -->
 [![Github Link][github badge]][github link]
+[![Travis Link][travis badge]][travis link]
 
 <!-- PROJECT LOGO -->
 <p align="center">
@@ -16,7 +17,6 @@
 <!-- ABOUT THE PROJECT -->
 # Unicorn Console 
 
-[![Build Status](https://app.travis-ci.com/Gigoteur/UnicornConsole.svg?branch=master)](https://travis-ci.com/Gigoteur/UnicornConsole)
 [![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/Gigoteur/UnicornConsole/blob/master/LICENSE.md)
 
 
@@ -350,3 +350,6 @@ Set a map value
 
 [github badge]: https://img.shields.io/badge/github-gigoteur/unicornconsole-8da0cb?style=for-the-badge&logo=github
 [github link]: https://github.com/Gigoteur/UnicornConsole
+[travis badge]: https://app.travis-ci.com/Gigoteur/UnicornConsole.svg?branch=master
+[travis link]: https://travis-ci.com/Gigoteur/UnicornConsole
+
